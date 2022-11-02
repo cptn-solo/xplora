@@ -3,7 +3,6 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-
 public class UIMenuButton : MonoBehaviour
 {
     [SerializeField] private Screens screen;
