@@ -1458,6 +1458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62225355dd073684b8da475b70a51d55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  screen: 300
 --- !u!1 &2239810144089351501
 GameObject:
   m_ObjectHideFlags: 0
@@ -5773,6 +5774,7 @@ GameObject:
   - component: {fileID: 3048512172335171839}
   - component: {fileID: 3048512172335171838}
   - component: {fileID: 3048512172335171837}
+  - component: {fileID: 5200918573115994922}
   m_Layer: 5
   m_Name: ButtonSave
   m_TagString: Untagged
@@ -5883,6 +5885,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5200918573115994922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3048512172335171827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48a8bfe06486e584bbc559865074ecea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  screen: 1
 --- !u!1 &3048512173022912461
 GameObject:
   m_ObjectHideFlags: 0
@@ -12374,8 +12389,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1912103889358688265}
   m_HandleRect: {fileID: 7434677299623182906}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.15618518
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
