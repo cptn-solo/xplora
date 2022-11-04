@@ -8,6 +8,7 @@
         Resources = 300,
         Heroes = 400,
         Buildings = 500,
+        Battle = 600,
     }
 
 }
