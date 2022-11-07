@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 using Zenject;
 
 namespace Assets.Scripts.UI
@@ -11,7 +12,7 @@ namespace Assets.Scripts.UI
         private MenuNavigationService nav;
         
         private UIMenuButton[] menuButtons;
-
+        
         [Inject]
         public void Construct(MenuNavigationService nav) =>
             this.nav = nav;
