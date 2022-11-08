@@ -1,13 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
+using Assets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class UIItemDraggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
     private RectTransform rectTransform;
     private Canvas canvas;
     private CanvasGroup canvasGroup;
+
     void Start()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -17,8 +18,9 @@ public class UIItemDraggable : MonoBehaviour, IDragHandler, IBeginDragHandler, I
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        var slot = rectTransform.parent;
-        slot.SetAsLastSibling();
+        var slot = rectTransform.parent.GetComponent<UIItemSlot>();
+        slot.HandleDragStart();
+
         canvasGroup.blocksRaycasts = false;
     }
 

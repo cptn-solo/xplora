@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 using Zenject;
 
 namespace Assets.Scripts.UI
@@ -17,19 +16,43 @@ namespace Assets.Scripts.UI
         public void Construct(MenuNavigationService nav) =>
             this.nav = nav;
 
+        protected virtual void OnBeforeAwake() { }
+        protected virtual void OnBeforeStart() { }
+        protected virtual void OnBeforeUpdate() { }
+        protected virtual void OnBeforeDestroy() { }
+        protected virtual void OnBeforeEnable() { }
+        protected virtual void OnBeforeDisable() { }
+
+        private void Awake() =>
+            OnBeforeAwake();
 
         private void Start()
         {
+            OnBeforeStart();
+            
             menuButtons = GetComponentsInChildren<UIMenuButton>();
             foreach (var button in menuButtons)
                 button.OnMenuButtonClick += Button_OnMenuButtonClick;
+            
         }
+
+        private void Update() =>
+            OnBeforeUpdate();
 
         private void OnDestroy()
         {
-            foreach (var button in menuButtons)
-                button.OnMenuButtonClick -= Button_OnMenuButtonClick;
+            OnBeforeDestroy();
+            
+            if (menuButtons != null)
+                foreach (var button in menuButtons)
+                    button.OnMenuButtonClick -= Button_OnMenuButtonClick;
         }
+
+        private void OnEnable() =>
+            OnBeforeEnable();
+
+        private void OnDisable() =>
+            OnBeforeDisable();
 
         private void Button_OnMenuButtonClick(Screens screen) =>
             nav.NavigateToScreen(screen);
