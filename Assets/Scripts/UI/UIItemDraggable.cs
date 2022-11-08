@@ -14,6 +14,8 @@ public class UIItemDraggable : MonoBehaviour, IDragHandler, IBeginDragHandler, I
         rectTransform = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
+        
+        transform.localScale *= canvas.transform.localScale.x;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
