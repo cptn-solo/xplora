@@ -33,22 +33,30 @@ namespace Assets.Scripts.UI.Battle
 
             InitPlayerHeroSlots();
 
+            AddBattleUnit("shuriken", "shield", BattleLine.Front);
+            AddBattleUnit("power", "shield",BattleLine.Back);
+            AddBattleUnit("bomb", "hp", BattleLine.Front);
 
-            var bu = new BattleUnit();
-            bu.Line = BattleLine.Front;
+        }
 
-            bu.PriAttack = new Attack
+        private void AddBattleUnit(string priAttIcon, string priDefIcon, BattleLine line)
+        {
+            var bu1 = new BattleUnit
             {
-                IconName = "shuriken"
+                Line = line,
+
+                PriAttack = new Attack
+                {
+                    IconName = priAttIcon
+                },
+
+                PriDefence = new Defence
+                {
+                    IconName = priDefIcon
+                }
             };
 
-            bu.PriDefence = new Defence
-            {
-                IconName = "shield"
-            };
-
-            AddPlayerUnit(bu);
-
+            AddPlayerUnit(bu1);
         }
 
         private void InitPlayerHeroSlots()

@@ -16,11 +16,18 @@ namespace Assets.Scripts.UI.Battle
             var raidMember = card.GetComponent<RaidMember>();
             raidMember.Unit = unit;
 
+            var actionButton = card.GetComponent<UIActionButton>();
+            actionButton.OnActionButtonClick += HeroSelected;
+
             if (FirstAvailableSlot(unit.Line) is UIItemSlot slot)
                 slot.Put(card.GetComponent<RectTransform>());
 
         }
 
-
+        private void HeroSelected(Actions action, Transform actionTransform)
+        {
+            var raidMemeber = actionTransform.GetComponent<RaidMember>();
+            Debug.Log($"Hero from line #{raidMemeber.Unit} selected");
+        }
     }
 }

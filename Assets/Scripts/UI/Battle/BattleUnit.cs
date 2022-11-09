@@ -14,7 +14,8 @@
         public Defence SecDefence;
 
         public BattleLine Line = BattleLine.Front;
-
+        public override string ToString() =>
+            $"Attack: {PriAttack?.IconName}, {SecAttack?.IconName}, Defence: {PriDefence?.IconName}, {SecDefence?.IconName}, Line: {Line}";
     }
 
 
