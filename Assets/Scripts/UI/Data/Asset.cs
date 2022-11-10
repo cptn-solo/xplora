@@ -1,6 +1,4 @@
-﻿using UnityEditor.VersionControl;
-
-namespace Assets.Scripts.UI.Data
+﻿namespace Assets.Scripts.UI.Data
 {
     public struct Asset
     {

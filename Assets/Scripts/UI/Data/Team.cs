@@ -1,8 +1,4 @@
-﻿using Assets.Scripts.UI.Inventory;
-using System;
-using System.Collections.Generic;
-using UnityEditor.VersionControl;
-using UnityEngine.UIElements;
+﻿using System.Collections.Generic;
 
 namespace Assets.Scripts.UI.Data
 {
