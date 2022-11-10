@@ -26,8 +26,8 @@ namespace Assets.Scripts.UI
         {
             screens = GetComponentsInChildren<MenuScreen>(true);
             
-            ToggleScreen(Screens.Hub);
-            //ToggleScreen(Screens.Battle);
+            //ToggleScreen(Screens.Hub);
+            ToggleScreen(Screens.Battle);
         }
 
         public void ToggleScreen(Screens screen)

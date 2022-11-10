@@ -1,3 +1,5 @@
+using Assets.Scripts.UI.Data;
+using Assets.Scripts.UI.Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -24,19 +26,19 @@ namespace Assets.Scripts.UI.Battle
 
         private void ResolveIcons()
         {
-            ResolveIcon(priAttackImage, unit.PriAttack);
-            ResolveIcon(secAttackImage, unit.SecAttack);
-            ResolveIcon(priDefenceImage, unit.PriDefence);
-            ResolveIcon(secDefenceImage, unit.SecDefence);
+            ResolveIcon(priAttackImage, unit.Hero.Attack[0]);
+            ResolveIcon(secAttackImage, unit.Hero.Attack[1]);
+            ResolveIcon(priDefenceImage, unit.Hero.Defence[0]);
+            ResolveIcon(secDefenceImage, unit.Hero.Defence[1]);
         }
 
-        private void ResolveIcon(Image image, UnitItem item)
+        private void ResolveIcon(Image image, Asset asset)
         {
             image.sprite = null;
             image.enabled = false;
-            if (item != null && item.IconName != null)
+            if (!asset.Equals(default) && asset.IconName != null)
             {
-                image.sprite = SpriteForResourceName(item.IconName);
+                image.sprite = SpriteForResourceName(asset.IconName);
                 image.enabled = true;
             }
         }

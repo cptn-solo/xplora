@@ -1,21 +1,13 @@
-﻿namespace Assets.Scripts.UI.Battle
+﻿using Assets.Scripts.UI.Data;
+
+namespace Assets.Scripts.UI.Battle
 {
-    public enum BattleLine
-    {
-        NA,
-        Front,  // avantgard
-        Back,   // ariergard
-    }
     public class BattleUnit
     {
-        public Attack PriAttack;
-        public Attack SecAttack;
-        public Defence PriDefence;
-        public Defence SecDefence;
-
         public BattleLine Line = BattleLine.Front;
+        public Hero Hero;
         public override string ToString() =>
-            $"Attack: {PriAttack?.IconName}, {SecAttack?.IconName}, Defence: {PriDefence?.IconName}, {SecDefence?.IconName}, Line: {Line}";
+            $"Attack: {Hero.Attack[0].IconName}, {Hero.Attack[1].IconName}, Defence: {Hero.Defence[0].IconName}, {Hero.Defence[0].IconName}, Line: {Line}";
     }
 
 
