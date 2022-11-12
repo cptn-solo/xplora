@@ -8,22 +8,26 @@ namespace Assets.Scripts.UI.Inventory
     public class UIItemDraggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
         private RectTransform rectTransform;
-        private Canvas canvas;
         private CanvasGroup canvasGroup;
-        
-        void Start()
+        private Canvas canvas;
+
+        private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
-            canvas = GetComponentInParent<Canvas>();
             canvasGroup = GetComponent<CanvasGroup>();
+        }
+        void Start()
+        {
+            canvas = GetComponentInParent<Canvas>();
 
-            transform.localScale *= canvas.transform.localScale.x;
+            if (transform.parent != null && canvas != null)
+                transform.localScale *= canvas.transform.localScale.x;
         }
 
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            var slot = rectTransform.parent.GetComponent<UIItemSlot>();
+            var slot = GetComponentInParent<UIItemSlot>();
             slot.HandleDragStart();
 
             canvasGroup.blocksRaycasts = false;

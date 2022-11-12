@@ -13,6 +13,10 @@ namespace Assets.Scripts
     {
         public event UnityAction<AssetTransaction> OnAssetTransactionCompleted;
         public event UnityAction<AssetTransaction> OnAssetTransactionAborted;
+        
+        public event UnityAction<HeroTransaction> OnHeroTransactionCompleted;
+        public event UnityAction<HeroTransaction> OnHeroTransactionAborted;
+
         public struct AssetTransaction
         {
             public AssetDict FromInventory;
@@ -109,6 +113,22 @@ namespace Assets.Scripts
             var moved = team.MoveHero(hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
             Debug.Log($"{team.BackLine} {team.FrontLine} {moved}");
             
+            heroTransaction = default;
+            
+            return true;
+        }
+
+        public bool AbortAssetTransfer()
+        {
+            OnAssetTransactionAborted?.Invoke(assetTransaction);
+            assetTransaction = default;
+            
+            return true;
+        }
+
+        public bool AbortHeroTransfer()
+        {
+            OnHeroTransactionAborted?.Invoke(heroTransaction);
             heroTransaction = default;
             
             return true;

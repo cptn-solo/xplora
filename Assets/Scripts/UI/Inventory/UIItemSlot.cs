@@ -10,8 +10,8 @@ namespace Assets.Scripts.UI.Inventory
     public delegate bool AssetTransferEndDelegate(Transform item, UIItemSlot slot, bool accepted);
     public delegate bool AssetTransferAbortDelegate();
 
-    public class UIItemSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
-    {
+    public class UIItemSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, IDragHandler
+    {        
         private RectTransform rectTransform;
         private Image backgroundImage;
         private Color normalColor;
@@ -25,12 +25,10 @@ namespace Assets.Scripts.UI.Inventory
         public AssetTransferEndDelegate TransactionEnd;
         public AssetTransferAbortDelegate TransactionAbort;
 
-        private Transform itemTransform = null;
-        public Transform ItemTransform => itemTransform;
-
         [SerializeField] private int slotIndex;
-
         public int SlotIndex => slotIndex;
+
+        public bool IsEmpty => transform.childCount == 0;
 
         private void Start()
         {
@@ -46,18 +44,18 @@ namespace Assets.Scripts.UI.Inventory
             rectTransform.SetAsLastSibling();
             OnBeginDragItem?.Invoke();
             
-            TransactionStart(itemTransform, this);
+            TransactionStart(Take(), this);
         }
 
         public void Put(Transform itemTransform)
         {
             if (itemTransform == null)
             {
-                if (this.itemTransform == null)
+                if (this.transform.childCount == 0)
                     return;
 
-                this.itemTransform.gameObject.SetActive(false);
-                this.itemTransform.SetParent(null);
+                var cargo = Take();
+                cargo.gameObject.SetActive(false);
 
                 return;
             }
@@ -69,15 +67,17 @@ namespace Assets.Scripts.UI.Inventory
 
             itemTransform.SetParent(transform);
             itemTransform.localPosition = Vector3.zero;
-
-            this.itemTransform = itemTransform;
         }
 
         public Transform Take()
         {
-            var cargo = itemTransform;
-            itemTransform = null;
-            return cargo;
+            if (transform.childCount > 0 && 
+                transform.GetChild(0).TryGetComponent<InventoryItem>(out var cargo))
+            {
+                cargo.transform.SetParent(null);
+                return cargo.transform;
+            }
+            return null;
         }
 
         public void OnDrop(PointerEventData eventData)
@@ -112,5 +112,10 @@ namespace Assets.Scripts.UI.Inventory
 
         private void SetNormalStyle() =>
             backgroundImage.color = normalColor;
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            Debug.Log($"slot drag {eventData.delta}");
+        }
     }
 }

@@ -1,40 +1,15 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen // Inventory
     {
-        private readonly Dictionary<AssetType, List<InventoryItem>> assetPool = new();
+        [SerializeField] private AssetPool assetPool;
         private GameObject ItemForAsset(Asset asset)
         {
-            List<InventoryItem> cachedItems = null;
-            InventoryItem assetCard = null;
-
-            if (!assetPool.TryGetValue(asset.AssetType, out cachedItems))
-            {
-                cachedItems = new();
-                assetCard = Instantiate(itemPrefab).GetComponent<InventoryItem>();
-                cachedItems.Add(assetCard);
-            }
-
-            if (cachedItems.Where(x => !x.enabled).FirstOrDefault() is InventoryItem instance)
-            {
-                if (instance == null)
-                {
-                    assetCard = Instantiate(itemPrefab).GetComponent<InventoryItem>();
-                    cachedItems.Add(assetCard);
-                }
-                else
-                {
-                    assetCard = instance;
-                    assetCard.transform.SetParent(null);
-                    assetCard.gameObject.SetActive(true);
-                }                    
-            }
+            InventoryItem assetCard = assetPool.GetAssetCard(asset.AssetType);
 
             assetCard.Asset = asset;
 

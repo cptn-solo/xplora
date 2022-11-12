@@ -40,10 +40,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private RectTransform heroInventory;
 
         [SerializeField] private GameObject heroPrefab;
-        [SerializeField] private GameObject itemPrefab;
 
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
-
 
         private readonly UIItemSlot[] playerFrontSlots = new UIItemSlot[4];
         private readonly UIItemSlot[] playerBackSlots = new UIItemSlot[4];
@@ -106,8 +104,9 @@ namespace Assets.Scripts.UI.Battle
                     teamManager.BeginHeroTransfer(team.FrontLine, cargo.GetComponent<RaidMember>().Hero, slot.SlotIndex);
                 slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
                     teamManager.CommitHeroTransfer(team.FrontLine, slot.SlotIndex, cargo.GetComponent<RaidMember>().Hero);
+                slot.TransactionAbort = () => teamManager.AbortHeroTransfer();
                 slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<RaidMember>() != null && slot.ItemTransform == null;
+                    cargo.GetComponent<RaidMember>() != null && slot.IsEmpty;
                 playerFrontSlots[slot.SlotIndex] = slot;
             }
 
@@ -117,55 +116,70 @@ namespace Assets.Scripts.UI.Battle
                     teamManager.BeginHeroTransfer(team.BackLine, cargo.GetComponent<RaidMember>().Hero, slot.SlotIndex);
                 slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
                     teamManager.CommitHeroTransfer(team.BackLine, slot.SlotIndex, cargo.GetComponent<RaidMember>().Hero);
+                slot.TransactionAbort = () => teamManager.AbortHeroTransfer();
                 slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<RaidMember>() != null && slot.ItemTransform == null;
+                    cargo.GetComponent<RaidMember>() != null && slot.IsEmpty;
                 playerBackSlots[slot.SlotIndex] = slot;
             }
 
+        }
+
+        private Asset PooledAsset(Transform cargo)
+        {
+            cargo.SetParent(assetPool.transform);
+            return cargo.GetComponent<InventoryItem>().Asset;
         }
         private void InitInventorySlots()
         {
             foreach (var slot in teamInventory.GetComponentsInChildren<TeamInventorySlot>())
             {
                 slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(team.Inventory, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset);
+                    teamManager.BeginAssetTransfer(team.Inventory, slot.SlotIndex,
+                    PooledAsset(cargo));
                 slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
                     teamManager.CommitAssetTransfer(team.Inventory, slot.SlotIndex);
+                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
                 slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
                 teamInventorySlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in heroInventory.GetComponentsInChildren<HeroInventorySlot>())
             {
                 slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(selectedHero.Inventory, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset, selectedHero);
+                    teamManager.BeginAssetTransfer(selectedHero.Inventory, slot.SlotIndex,
+                    PooledAsset(cargo), selectedHero);
                 slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
                     teamManager.CommitAssetTransfer(selectedHero.Inventory, slot.SlotIndex, selectedHero);
+                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
                 slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
                 heroInventorySlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in heroInventory.GetComponentsInChildren<HeroAttackSlot>())
             {
                 slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(selectedHero.Attack, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset, selectedHero);
+                    teamManager.BeginAssetTransfer(selectedHero.Attack, slot.SlotIndex,
+                    PooledAsset(cargo), selectedHero);
                 slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
                     teamManager.CommitAssetTransfer(selectedHero.Attack, slot.SlotIndex, selectedHero);
+                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
                 slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
                 heroAttackSlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in heroInventory.GetComponentsInChildren<HeroDefenceSlot>())
             {
                 slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(selectedHero.Defence, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset, selectedHero);
+                    teamManager.BeginAssetTransfer(selectedHero.Defence, slot.SlotIndex,
+                    PooledAsset(cargo), selectedHero);
                 slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
                     teamManager.CommitAssetTransfer(selectedHero.Defence, slot.SlotIndex, selectedHero);
+                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
                 slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
                 heroDefenceSlots[slot.SlotIndex] = slot;
             }
         }
