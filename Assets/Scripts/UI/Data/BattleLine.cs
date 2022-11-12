@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.UI.Battle
+﻿namespace Assets.Scripts.UI.Data
 {
     public enum BattleLine
     {

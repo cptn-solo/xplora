@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,7 +10,7 @@ namespace Assets.Scripts.UI.Inventory
         private RectTransform rectTransform;
         private Canvas canvas;
         private CanvasGroup canvasGroup;
-
+        
         void Start()
         {
             rectTransform = GetComponent<RectTransform>();
@@ -18,6 +19,7 @@ namespace Assets.Scripts.UI.Inventory
 
             transform.localScale *= canvas.transform.localScale.x;
         }
+
 
         public void OnBeginDrag(PointerEventData eventData)
         {

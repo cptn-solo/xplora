@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Inventory;
+﻿using Assets.Scripts.UI.Data;
+using Assets.Scripts.UI.Inventory;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,62 +7,67 @@ namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen // Battle Units
     {
-        private List<BattleUnit> playerUnits = new();
-        private List<BattleUnit> enemyUnits = new();
+        private Hero selectedHero;
+        private readonly Dictionary<Hero, RaidMember> heroCards = new();
 
-        public void AddPlayerUnit(BattleUnit unit)
+        public GameObject ItemForHero(Hero hero)
         {
-            playerUnits.Add(unit);
-            var card = Instantiate(heroPrefab);
+            RaidMember rm = null;
 
-            var raidMember = card.GetComponent<RaidMember>();
-            raidMember.Unit = unit;
+            if (heroCards.TryGetValue(hero, out var raidmember))
+            {
+                rm = raidmember;
+            }
+            else
+            {
+                var card = Instantiate(heroPrefab).transform;
+                rm = card.GetComponent<RaidMember>();
 
-            var actionButton = card.GetComponent<UIActionButton>();
-            actionButton.OnActionButtonClick += HeroSelected;
+                rm.OnItemDropped += RaidMember_OnItemDropped;
+                rm.Validator = (Transform cargo) => cargo.GetComponent<InventoryItem>() != null;
 
-            if (FirstAvailableHeroSlot(unit.Line) is UIItemSlot slot)
-                slot.Put(card.GetComponent<RectTransform>());
+                var actionButton = card.GetComponent<UIActionButton>();
+                actionButton.OnActionButtonClick += HeroSelected;
 
+                heroCards[hero] = rm;
+            }
+
+            rm.Hero = hero;
+
+            return rm.gameObject;
+        }
+
+        private void RaidMember_OnItemDropped(Hero hero, InventoryItem inventoryItem)
+        {
+            teamManager.CommitAssetTransfer(hero.Inventory, -1, hero);
+            ShowHeroInventory(selectedHero);
+            ShowTeamInventory(team);
         }
 
         private void HeroSelected(Actions action, Transform actionTransform)
         {
             var raidMemeber = actionTransform.GetComponent<RaidMember>();
-            Debug.Log($"Hero from line #{raidMemeber.Unit} selected");
-            ShowHeroInventory(raidMemeber.Unit);
+            Debug.Log($"Hero from line #{raidMemeber.Hero} selected");
+            selectedHero = raidMemeber.Hero;
+
+            ShowHeroInventory(selectedHero);
+
+            foreach (var card in heroCards)
+                card.Value.Selected = card.Key.Equals(selectedHero);
         }
 
-        private void ShowHeroInventory(BattleUnit unit)
+        private void ShowTeamBatleUnits(Team team)
         {
-            for (int i = 0; i < heroInventorySlots.Length; i++)
-            {
-                UIItemSlot slot = heroInventorySlots[i];
-                slot.Put(null);
-                if (unit.Hero.Inventory.TryGetValue(i, out var asset) &&
-                    !asset.Equals(default))
-                    slot.Put(ItemForAsset(asset).transform);
-            }
+            foreach (var hero in team.FrontLine)
+                playerFrontSlots[hero.Key].Put(
+                    hero.Value.HeroType == HeroType.NA ? null :
+                    ItemForHero(hero.Value).transform);
 
-            for (int i = 0; i < heroAttackSlots.Length; i++)
-            {
-                UIItemSlot slot = heroAttackSlots[i];
-                slot.Put(null);
-                if (unit.Hero.Attack.TryGetValue(i, out var asset) &&
-                    !asset.Equals(default))
-                    slot.Put(ItemForAsset(asset).transform);
+            foreach (var hero in team.BackLine)
+                playerBackSlots[hero.Key].Put(
+                    hero.Value.HeroType == HeroType.NA ? null :
+                    ItemForHero(hero.Value).transform);
 
-            }
-
-            for (int i = 0; i < heroDefenceSlots.Length; i++)
-            {
-                UIItemSlot slot = heroDefenceSlots[i];
-                slot.Put(null);
-                if (unit.Hero.Defence.TryGetValue(i, out var asset) &&
-                    !asset.Equals(default))
-                    slot.Put(ItemForAsset(asset).transform);
-
-            }
         }
     }
 }

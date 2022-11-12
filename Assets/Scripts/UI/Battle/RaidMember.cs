@@ -1,35 +1,75 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Asset = Assets.Scripts.UI.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public class RaidMember : MonoBehaviour, IDropHandler
+    public class RaidMember : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image priAttackImage;
         [SerializeField] private Image secAttackImage;
         [SerializeField] private Image priDefenceImage;
         [SerializeField] private Image secDefenceImage;
+        
+        [SerializeField] private Image heroIconImage;
+        [SerializeField] private TextMeshProUGUI heroNameText;
 
-        private BattleUnit unit;
-        public BattleUnit Unit
+        public event UnityAction<Hero, InventoryItem> OnItemDropped;
+        public AcceptableItemChecker Validator;
+
+        private Color normalColor;
+        private Image backgroundImage;
+        [SerializeField] private Color acceptingColor;
+        [SerializeField] private Color selectedColor;
+
+
+        private Hero hero;
+        public Hero Hero
         {
-            get => unit;
+            get => hero;
             set
             {
-                unit = value;
+                hero = value;
                 ResolveIcons();
+                heroNameText.text = hero.Name;
             }
         }
 
+        private bool selected;
+        public bool Selected
+        {
+            get => selected;
+            set
+            {
+                selected = value;
+                backgroundImage.color = value ? selectedColor : normalColor;
+            }
+        }
         private void ResolveIcons()
         {
-            ResolveIcon(priAttackImage, unit.Hero.Attack[0]);
-            ResolveIcon(secAttackImage, unit.Hero.Attack[1]);
-            ResolveIcon(priDefenceImage, unit.Hero.Defence[0]);
-            ResolveIcon(secDefenceImage, unit.Hero.Defence[1]);
+            ResolveIcon(priAttackImage, Hero.Attack[0]);
+            ResolveIcon(secAttackImage, Hero.Attack[1]);
+            ResolveIcon(priDefenceImage, Hero.Defence[0]);
+            ResolveIcon(secDefenceImage, Hero.Defence[1]);
+
+            ResolveIcon(heroIconImage, Hero);
+
+        }
+
+        private void ResolveIcon(Image image, Hero hero)
+        {
+            image.sprite = null;
+            image.enabled = false;
+            if (hero.IconName != null)
+            {
+                image.sprite = SpriteForResourceName(hero.IconName);
+                image.enabled = true;
+            }
         }
 
         private void ResolveIcon(Image image, Asset asset)
@@ -54,9 +94,35 @@ namespace Assets.Scripts.UI.Battle
             var cargo = eventData.pointerDrag.transform;
 
             if (cargo.GetComponent<InventoryItem>() is InventoryItem inventoryItem)
-            {
-                Debug.Log($"InventoryItem: {inventoryItem}");
-            }
+                OnItemDropped?.Invoke(Hero, inventoryItem);
         }
+
+        private void Awake()
+        {
+            backgroundImage = GetComponent<Image>();
+            normalColor = backgroundImage.color;
+        }
+
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (eventData.pointerDrag == null)
+                return;
+
+            var cargo = eventData.pointerDrag.transform;
+            if (Validator(cargo))
+                SetReadyToAcceptItemStyle();
+
+        }
+
+        public void OnPointerExit(PointerEventData eventData) =>
+            SetNormalStyle();
+
+        private void SetReadyToAcceptItemStyle() =>
+            backgroundImage.color = acceptingColor;
+
+        private void SetNormalStyle() =>
+            backgroundImage.color = Selected ? selectedColor : normalColor;
+
     }
 }

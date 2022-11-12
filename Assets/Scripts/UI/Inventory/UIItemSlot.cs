@@ -5,7 +5,11 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Inventory
 {
-    public delegate bool AcceptableItemChecker(Transform item, UIItemSlot slot);
+    public delegate bool AcceptableItemChecker(Transform item);
+    public delegate void AssetTransferStartDelegate<T>(Transform item, T slot);
+    public delegate bool AssetTransferEndDelegate(Transform item, UIItemSlot slot, bool accepted);
+    public delegate bool AssetTransferAbortDelegate();
+
     public class UIItemSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
     {
         private RectTransform rectTransform;
@@ -14,10 +18,12 @@ namespace Assets.Scripts.UI.Inventory
         private Color acceptingColor;
 
         public event UnityAction OnBeginDragItem;
-        public event UnityAction<Transform, UIItemSlot> OnItemAccepted;
-        public event UnityAction<Transform, UIItemSlot> OnItemRejected;
 
         public AcceptableItemChecker Validator;
+        
+        public AssetTransferStartDelegate<UIItemSlot> TransactionStart;
+        public AssetTransferEndDelegate TransactionEnd;
+        public AssetTransferAbortDelegate TransactionAbort;
 
         private Transform itemTransform = null;
         public Transform ItemTransform => itemTransform;
@@ -39,6 +45,8 @@ namespace Assets.Scripts.UI.Inventory
         {
             rectTransform.SetAsLastSibling();
             OnBeginDragItem?.Invoke();
+            
+            TransactionStart(itemTransform, this);
         }
 
         public void Put(Transform itemTransform)
@@ -50,7 +58,6 @@ namespace Assets.Scripts.UI.Inventory
 
                 this.itemTransform.gameObject.SetActive(false);
                 this.itemTransform.SetParent(null);
-                Destroy(this.itemTransform.gameObject);
 
                 return;
             }
@@ -76,19 +83,15 @@ namespace Assets.Scripts.UI.Inventory
         public void OnDrop(PointerEventData eventData)
         {
             var cargo = eventData.pointerDrag.transform;
-            if (CheckIfItemAccpetableForSlot(cargo))
+            if (Validator(cargo) && TransactionEnd(cargo, this, true))
             {
                 Put(cargo);
-                OnItemAccepted?.Invoke(itemTransform, this);
             }
             else
             {
-                OnItemRejected?.Invoke(itemTransform, this);
+                TransactionAbort?.Invoke();
             }
         }
-
-        private bool CheckIfItemAccpetableForSlot(Transform cargo) =>
-            Validator(cargo, this);
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -96,7 +99,7 @@ namespace Assets.Scripts.UI.Inventory
                 return;
 
             var cargo = eventData.pointerDrag.transform;
-            if (CheckIfItemAccpetableForSlot(cargo))
+            if (Validator(cargo))
                 SetReadyToAcceptItemStyle();
 
         }

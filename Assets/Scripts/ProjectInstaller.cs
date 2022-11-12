@@ -1,4 +1,3 @@
-using Assets.Scripts.UI;
 using UnityEngine;
 using Zenject;
 
@@ -8,16 +7,24 @@ namespace Assets.Scripts
     public class ProjectInstaller : MonoInstaller, IInitializable
     {
         [SerializeField] private MenuNavigationService menuNavigationService;
+        [SerializeField] private TeamManagementService teamManagementService;
 
         public override void InstallBindings()
         {
-            Container.Bind<MenuNavigationService>().FromInstance(menuNavigationService).AsSingle();
+            Container
+                .Bind<MenuNavigationService>()
+                .FromInstance(menuNavigationService).AsSingle();
+
+            Container
+                .Bind<TeamManagementService>()
+                .FromInstance(teamManagementService).AsSingle();
+
             BindInstallerInterfaces();
         }
 
         public void Initialize()
         {
-            
+            teamManagementService.LoadData();
         }
 
         private void BindInstallerInterfaces()

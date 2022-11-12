@@ -11,16 +11,11 @@ namespace Assets.Scripts.UI
         private MenuScreen[] screens;
 
         [Inject]
-        public void Construct(MenuNavigationService nav)
-        {
-            Debug.Log($"UIManager.Construct: {nav}");
+        public void Construct(MenuNavigationService nav) =>
             nav.UIManager = this;
-        }
 
-        private void Awake()
-        {
+        private void Awake() =>
             DontDestroyOnLoad(this.gameObject);
-        }
 
         private void Start()
         {

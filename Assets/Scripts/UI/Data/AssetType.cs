@@ -8,5 +8,10 @@
         Resource = 300,
     }
 
+    public enum HeroType
+    {
+        NA = 0,
+        Human = 100,
+    }
 
 }

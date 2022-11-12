@@ -2,29 +2,36 @@
 
 namespace Assets.Scripts.UI.Data
 {
+    using AssetDict = Dictionary<int, Asset>;
     public struct Hero : IEntity
     {
         private int id;
         private string name;
-        private Dictionary<int, Asset> inventory; // index, item
+        private AssetDict inventory; // index, item
+
+        public HeroType HeroType;
+        public string IconName;
 
         public int Id => id;
 
         public string Name => name;
 
-        public Dictionary<int, Asset> Inventory => inventory; // index, item
-        public Dictionary<int, Asset> Attack; // index, item
-        public Dictionary<int, Asset> Defence; // index, item
+        public AssetDict Inventory => inventory; // index, item
+        public AssetDict Attack; // index, item
+        public AssetDict Defence; // index, item
 
-        public static Hero EmptyHero(int id, string name)
+        public static Hero EmptyHero(int id, string name,
+            string iconName = "hero1", HeroType heroType = HeroType.Human)
         {
             Hero hero = default;
             hero.name = name;
             hero.id = id;
-            hero.inventory = DefaultHeroInventory();
+            hero.inventory = DefaultInventory();
+            hero.HeroType = heroType;
+            hero.IconName = iconName;
 
-            hero.Attack = DefaultHeroAttack();
-            hero.Defence = DefaultHeroDefence();
+            hero.Attack = DefaultAttack();
+            hero.Defence = DefaultDefence();
 
             return hero;
         }
@@ -41,17 +48,17 @@ namespace Assets.Scripts.UI.Data
             throw new System.NotImplementedException();
         }
 
-        private static Dictionary<int, Asset> DefaultHeroDefence() => new() {
-            {0, default},{1, default},
+        private static AssetDict DefaultDefence() => new() {
+            {0, default}, {1, default},
         };
 
-        private static Dictionary<int, Asset> DefaultHeroAttack() => new() {
-            {0, default},{1, default},
+        private static AssetDict DefaultAttack() => new() {
+            {0, default}, {1, default},
         };
 
-        private static Dictionary<int, Asset> DefaultHeroInventory() => new() {
-            {0, default}, {1, default}, {2, default}, {3, default},{4, default},
-            {5, default}, {6, default},{7, default},{8, default},{9, default},
+        private static AssetDict DefaultInventory() => new() {
+            {0, default}, {1, default}, {2, default}, {3, default}, {4, default},
+            {5, default}, {6, default}, {7, default}, {8, default}, {9, default},
         };
 
     }

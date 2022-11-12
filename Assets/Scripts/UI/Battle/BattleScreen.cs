@@ -1,12 +1,35 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
+using Zenject;
 
 namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen : MenuScreen
     {
+        private TeamManagementService teamManager = null;
+
+        [Inject]
+        public void Construct(TeamManagementService teamManager)
+        {
+            this.teamManager = teamManager;           
+        }
+
+        private void TeamManager_OnAssetTransactionAborted(TeamManagementService.AssetTransaction arg0)
+        {
+        }
+
+        private void TeamManager_OnAssetTransactionCompleted(TeamManagementService.AssetTransaction arg0)
+        {
+            if (arg0.FromHero.HeroType != HeroType.NA)
+                heroCards[arg0.FromHero].Hero = arg0.FromHero;
+
+            if (arg0.ToHero.HeroType != HeroType.NA)
+                heroCards[arg0.ToHero].Hero = arg0.ToHero;
+        }
+
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
 
@@ -19,6 +42,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private GameObject heroPrefab;
         [SerializeField] private GameObject itemPrefab;
 
+        [SerializeField] private TextMeshProUGUI heroInventoryTitle;
+
 
         private readonly UIItemSlot[] playerFrontSlots = new UIItemSlot[4];
         private readonly UIItemSlot[] playerBackSlots = new UIItemSlot[4];
@@ -28,16 +53,24 @@ namespace Assets.Scripts.UI.Battle
         private readonly UIItemSlot[] heroAttackSlots = new UIItemSlot[2];
         private readonly UIItemSlot[] heroDefenceSlots = new UIItemSlot[2];
 
-        private Team team = Team.EmptyTeam(0, "A Team");
-        private readonly List<Hero> heroes = new();
+        private Team team = default;
 
         protected override void OnBeforeAwake() =>
             InitInputActions();
-        protected override void OnBeforeEnable() =>
+        protected override void OnBeforeEnable()
+        {
             EnableInputActions();
+            this.teamManager.OnAssetTransactionCompleted += TeamManager_OnAssetTransactionCompleted;
+            this.teamManager.OnAssetTransactionAborted += TeamManager_OnAssetTransactionAborted;
+        }
 
-        protected override void OnBeforeDisable() =>
+        protected override void OnBeforeDisable()
+        {
             DisableInputActions();
+            this.teamManager.OnAssetTransactionCompleted -= TeamManager_OnAssetTransactionCompleted;
+            this.teamManager.OnAssetTransactionAborted -= TeamManager_OnAssetTransactionAborted;
+
+        }
 
         protected override void OnBeforeUpdate() =>
             ProcessInputActions();
@@ -48,102 +81,93 @@ namespace Assets.Scripts.UI.Battle
             InitPlayerHeroSlots();
             InitInventorySlots();
 
-            var hp = Asset.EmptyAsset(AssetType.Defence, "HP", "hp");
-            var shield = Asset.EmptyAsset(AssetType.Defence, "Shield", "shield");
-            var bomb = Asset.EmptyAsset(AssetType.Attack, "Bomb", "bomb");
-            var shuriken = Asset.EmptyAsset(AssetType.Attack, "Shuriken", "shuriken");
-            var power = Asset.EmptyAsset(AssetType.Attack, "Power", "power");
+            team = teamManager.Team;
 
-            hp.GiveAsset(team, 5);
-            shield.GiveAsset(team, 5);
-            bomb.GiveAsset(team, 5);
-            shuriken.GiveAsset(team, 5);
-            power.GiveAsset(team, 5);
+            foreach (var hero in team.FrontLine.Where(x => x.Value.HeroType != HeroType.NA))
+                ItemForHero(hero.Value);
+            
+            foreach (var hero in team.BackLine.Where(x => x.Value.HeroType != HeroType.NA))
+                ItemForHero(hero.Value);
 
-            foreach (var asset in team.Inventory)
-                teamInventorySlots[asset.Key].Put(ItemForAsset(asset.Value).transform);
+            ShowTeamBatleUnits(team);
+            ShowTeamInventory(team);
 
-            for (int i = 0; i < 4; i++)
-                heroes.Add(Hero.EmptyHero(i, $"Hero {i}"));
+            selectedHero = team.FrontLine[0];
+            heroCards[selectedHero].Selected = true;
 
-            hp.GiveAsset(heroes[0], 2);
-            hp.GiveAsset(heroes[2], 2);
-            shield.GiveAsset(heroes[2], 2);
-            shield.GiveAsset(heroes[3], 3);
-            bomb.GiveAsset(heroes[3], 2);
-            bomb.GiveAsset(heroes[0], 2);
-            shuriken.GiveAsset(heroes[0], 1);
-            shuriken.GiveAsset(heroes[1], 3);
-            power.GiveAsset(heroes[1], 2);
-            power.GiveAsset(heroes[2], 1);
-
-
-            AddBattleUnit(heroes[0], BattleLine.Front);           
-            AddBattleUnit(heroes[1], BattleLine.Front);
-            AddBattleUnit(heroes[2], BattleLine.Front);
-            AddBattleUnit(heroes[3], BattleLine.Back);
+            ShowHeroInventory(selectedHero);
         }
-
-        private void AddBattleUnit(Hero hero, BattleLine line)
-        {
-            var bu1 = new BattleUnit
-            {
-                Line = line,
-                Hero = hero,
-            };
-
-            AddPlayerUnit(bu1);
-        }        
 
         private void InitPlayerHeroSlots()
         {
             foreach (var slot in playerPartyFront.GetComponentsInChildren<BattleLineSlot>())
+            {
+                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
+                    teamManager.BeginHeroTransfer(team.FrontLine, cargo.GetComponent<RaidMember>().Hero, slot.SlotIndex);
+                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
+                    teamManager.CommitHeroTransfer(team.FrontLine, slot.SlotIndex, cargo.GetComponent<RaidMember>().Hero);
+                slot.Validator = (Transform cargo) =>
+                    cargo.GetComponent<RaidMember>() != null && slot.ItemTransform == null;
                 playerFrontSlots[slot.SlotIndex] = slot;
+            }
 
             foreach (var slot in playerPartyBack.GetComponentsInChildren<BattleLineSlot>())
+            {
+                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
+                    teamManager.BeginHeroTransfer(team.BackLine, cargo.GetComponent<RaidMember>().Hero, slot.SlotIndex);
+                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
+                    teamManager.CommitHeroTransfer(team.BackLine, slot.SlotIndex, cargo.GetComponent<RaidMember>().Hero);
+                slot.Validator = (Transform cargo) =>
+                    cargo.GetComponent<RaidMember>() != null && slot.ItemTransform == null;
                 playerBackSlots[slot.SlotIndex] = slot;
+            }
 
         }
         private void InitInventorySlots()
         {
             foreach (var slot in teamInventory.GetComponentsInChildren<TeamInventorySlot>())
+            {
+                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
+                    teamManager.BeginAssetTransfer(team.Inventory, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset);
+                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
+                    teamManager.CommitAssetTransfer(team.Inventory, slot.SlotIndex);
+                slot.Validator = (Transform cargo) =>
+                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
                 teamInventorySlots[slot.SlotIndex] = slot;
-
-            foreach (var slot in heroInventory.GetComponentsInChildren<HeroInventorySlot>())
-                heroInventorySlots[slot.SlotIndex] = slot;
-
-            foreach (var slot in heroInventory.GetComponentsInChildren<HeroAttackSlot>())
-                heroAttackSlots[slot.SlotIndex] = slot;
-
-            foreach (var slot in heroInventory.GetComponentsInChildren<HeroDefenceSlot>())
-                heroDefenceSlots[slot.SlotIndex] = slot;
-        }
-
-        private UIItemSlot FirstAvailableHeroSlot(BattleLine line)
-        {
-            var slots = line switch
-            {
-                BattleLine.Back => playerBackSlots,
-                BattleLine.Front => playerFrontSlots,
-                _ => null
-            };
-
-            return FirstFreeSlot(slots);
-        }
-        
-        private static UIItemSlot FirstFreeSlot(UIItemSlot[] slots)
-        {
-            if (slots == null)
-                return null;
-
-            for (int i = 0; i < slots.Length; i++)
-            {
-                var slot = slots[i];
-                if (slot.ItemTransform == null)
-                    return slot;
             }
 
-            return null;
+            foreach (var slot in heroInventory.GetComponentsInChildren<HeroInventorySlot>())
+            {
+                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
+                    teamManager.BeginAssetTransfer(selectedHero.Inventory, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset, selectedHero);
+                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
+                    teamManager.CommitAssetTransfer(selectedHero.Inventory, slot.SlotIndex, selectedHero);
+                slot.Validator = (Transform cargo) =>
+                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                heroInventorySlots[slot.SlotIndex] = slot;
+            }
+
+            foreach (var slot in heroInventory.GetComponentsInChildren<HeroAttackSlot>())
+            {
+                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
+                    teamManager.BeginAssetTransfer(selectedHero.Attack, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset, selectedHero);
+                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
+                    teamManager.CommitAssetTransfer(selectedHero.Attack, slot.SlotIndex, selectedHero);
+                slot.Validator = (Transform cargo) =>
+                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                heroAttackSlots[slot.SlotIndex] = slot;
+            }
+
+            foreach (var slot in heroInventory.GetComponentsInChildren<HeroDefenceSlot>())
+            {
+                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
+                    teamManager.BeginAssetTransfer(selectedHero.Defence, slot.SlotIndex, cargo.GetComponent<InventoryItem>().Asset, selectedHero);
+                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
+                    teamManager.CommitAssetTransfer(selectedHero.Defence, slot.SlotIndex, selectedHero);
+                slot.Validator = (Transform cargo) =>
+                    cargo.GetComponent<InventoryItem>() != null && slot.ItemTransform == null;
+                heroDefenceSlots[slot.SlotIndex] = slot;
+            }
         }
     }
 

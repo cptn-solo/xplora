@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.UI.Battle;
-using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.UI.Data;
 using UnityEngine;
 using UnityEngine.UI;
 
