@@ -56,7 +56,7 @@ namespace Assets.Scripts
         }
         public bool CommitAssetTransfer(AssetDict toInventory, int toIdx, Hero toHero = default)
         {
-            if (assetTransaction.Equals(default))
+            if (assetTransaction.Asset.AssetType == AssetType.NA)
             {
                 OnAssetTransactionAborted?.Invoke(assetTransaction);
                 return false;
@@ -107,14 +107,13 @@ namespace Assets.Scripts
 
         public bool CommitHeroTransfer(HeroDict toLine, int toIndex)
         {
-            if (heroTransaction.Equals(default))
+            if (heroTransaction.Hero.HeroType == HeroType.NA)
                 return false;
 
             heroTransaction.ToLine = toLine;
             heroTransaction.ToIdx = toIndex;
 
             var moved = team.MoveHero(heroTransaction.Hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
-            Debug.Log($"{team.BackLine} {team.FrontLine} {moved}");
             
             heroTransaction = default;
             

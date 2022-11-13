@@ -19,25 +19,6 @@ namespace Assets.Scripts.UI.Battle
             this.teamManager = teamManager;           
         }
 
-        private void TeamManager_OnAssetTransactionAborted(TeamManagementService.AssetTransaction arg0)
-        {
-        }
-
-        private void TeamManager_OnAssetTransactionCompleted(TeamManagementService.AssetTransaction arg0)
-        {
-            if (arg0.FromHero.HeroType != HeroType.NA ||
-                arg0.ToHero.HeroType != HeroType.NA)
-                ShowTeamBatleUnits(team);
-        }
-        private void TeamManager_OnHeroTransactionAborted(TeamManagementService.HeroTransaction arg0)
-        {
-        }
-
-        private void TeamManager_OnHeroTransactionCompleted(TeamManagementService.HeroTransaction arg0)
-        {
-        }
-
-
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
 
@@ -65,23 +46,11 @@ namespace Assets.Scripts.UI.Battle
 
         protected override void OnBeforeAwake() =>
             InitInputActions();
-        protected override void OnBeforeEnable()
-        {
+        protected override void OnBeforeEnable() =>
             EnableInputActions();
-            this.teamManager.OnAssetTransactionCompleted += TeamManager_OnAssetTransactionCompleted;
-            this.teamManager.OnAssetTransactionAborted += TeamManager_OnAssetTransactionAborted;
-            this.teamManager.OnHeroTransactionCompleted += TeamManager_OnHeroTransactionCompleted;
-            this.teamManager.OnHeroTransactionAborted += TeamManager_OnHeroTransactionAborted;
-        }
 
-        protected override void OnBeforeDisable()
-        {
+        protected override void OnBeforeDisable() =>
             DisableInputActions();
-            this.teamManager.OnAssetTransactionCompleted -= TeamManager_OnAssetTransactionCompleted;
-            this.teamManager.OnAssetTransactionAborted -= TeamManager_OnAssetTransactionAborted;
-            this.teamManager.OnHeroTransactionCompleted -= TeamManager_OnHeroTransactionCompleted;
-            this.teamManager.OnHeroTransactionAborted -= TeamManager_OnHeroTransactionAborted;
-        }
 
         protected override void OnBeforeUpdate() =>
             ProcessInputActions();
@@ -158,7 +127,7 @@ namespace Assets.Scripts.UI.Battle
         private Transform PooledHeroItem(Transform sample = null)
         {
             if (sample == null)
-                sample = ItemForHero(default).transform;
+                sample = ItemForHero(Hero.Default).transform;
 
             var heroCard = sample.GetComponent<RaidMember>();
             var card = assetPool.GetHeroCard(heroCard.Hero);

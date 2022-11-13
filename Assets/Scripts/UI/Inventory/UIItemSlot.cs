@@ -9,8 +9,6 @@ namespace Assets.Scripts.UI.Inventory
     public class UIItemSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, 
         IDragHandler, IBeginDragHandler, IEndDragHandler
     {
-        private Canvas canvas;
-        private RectTransform rectTransform;
         private RectTransform dragCargo;
 
         private Image backgroundImage;
@@ -36,17 +34,11 @@ namespace Assets.Scripts.UI.Inventory
 
         private void Awake()
         {
-            rectTransform = GetComponent<RectTransform>();
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
             Color.RGBToHSV(normalColor, out var h, out var s, out var v);
             acceptingColor = Color.HSVToRGB(h, s, v * .7f);
             acceptingColor.a = normalColor.a;
-        }
-
-        private void Start()
-        {
-            canvas = GetComponentInParent<Canvas>();
         }
 
         public virtual void Put(Transform itemTransform)
@@ -74,15 +66,14 @@ namespace Assets.Scripts.UI.Inventory
         public void OnPointerExit(PointerEventData eventData) =>
             SetNormalStyle();
 
-        public void OnDrag(PointerEventData eventData)
-        {
+        public void OnDrag(PointerEventData eventData) =>
             dragCargo.position = eventData.position;
-        }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (transform.childCount == 0)
                 return;
+
             dragCargo = delegateProvider.Pool(this).GetComponent<RectTransform>();
             delegateProvider.TransferStart(this, dragCargo);
             dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = false;
