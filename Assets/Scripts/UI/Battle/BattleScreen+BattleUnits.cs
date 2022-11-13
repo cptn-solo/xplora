@@ -8,7 +8,6 @@ namespace Assets.Scripts.UI.Battle
     public partial class BattleScreen // Battle Units
     {
         private Hero selectedHero;
-        //private readonly Dictionary<Hero, RaidMember> heroCards = new();
 
         public GameObject ItemForHero(Hero hero)
         {
@@ -35,10 +34,15 @@ namespace Assets.Scripts.UI.Battle
         {
             var raidMemeber = actionTransform.GetComponent<RaidMember>();
             Debug.Log($"Hero from line #{raidMemeber.Hero} selected");
-            selectedHero = raidMemeber.Hero;
-
+            
+            selectedHero = raidMemeber.Hero;            
+            SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
 
+        }
+
+        private void SyncHeroCardSelectionWithHero()
+        {
             foreach (var card in playerFrontSlots.Select(x => x.RaidMember).ToArray())
                 card.Selected = card.Hero.Equals(selectedHero);
 

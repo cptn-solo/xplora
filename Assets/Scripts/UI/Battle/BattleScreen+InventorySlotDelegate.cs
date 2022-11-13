@@ -2,13 +2,20 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen // Inventory Slot Delegate
     {
+        private event UnityAction<Hero> OnHeroMoved;
+        private event UnityAction<Hero> OnHeroUpdated;
+
         private void InitInventorySlotDelegates()
         {
+            OnHeroMoved += SlotDelegate_HeroMoved;
+            OnHeroUpdated += SlotDelegate_HeroUpdated;
+            
             slotDelegate.Pool = PooledItem;
             slotDelegate.Validator = CheckSlot;
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>
@@ -36,12 +43,16 @@ namespace Assets.Scripts.UI.Battle
                     var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
                     success = teamManager.CommitHeroTransfer(dict, s.SlotIndex);
                     bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
+
+                    OnHeroMoved?.Invoke(bls.Hero);
                 }
                 else if (s is AssetInventorySlot ais)
                 {
                     var dict = GetAssetDictForSlot(s);
                     success = teamManager.CommitAssetTransfer(dict, s.SlotIndex);
                     ais.Asset = success ? dict[s.SlotIndex] : default;
+
+                    OnHeroUpdated?.Invoke(selectedHero);
                 }
 
                 if (!success)
@@ -79,6 +90,21 @@ namespace Assets.Scripts.UI.Battle
                 return success;
             };
         }
+
+        private void SlotDelegate_HeroUpdated(Hero hero) =>
+            RaidMemberForHero(hero).Hero = hero;
+
+        private RaidMember RaidMemberForHero(Hero hero)
+        {
+            var rm = playerFrontSlots.Where(x => x.RaidMember.Hero.Id == hero.Id).Select(x => x.RaidMember).FirstOrDefault();
+            if (rm == null)
+                rm = playerBackSlots.Where(x => x.RaidMember.Hero.Id == hero.Id).Select(x => x.RaidMember).FirstOrDefault();
+
+            return rm;
+        }
+
+        private void SlotDelegate_HeroMoved(Hero hero) =>
+            SyncHeroCardSelectionWithHero();
     }
 }
 

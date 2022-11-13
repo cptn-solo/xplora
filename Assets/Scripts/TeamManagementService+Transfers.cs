@@ -1,7 +1,5 @@
 ﻿using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
 using Asset = Assets.Scripts.UI.Data.Asset;
 
 namespace Assets.Scripts
@@ -11,12 +9,6 @@ namespace Assets.Scripts
 
     public partial class TeamManagementService // Asset Transfers
     {
-        public event UnityAction<AssetTransaction> OnAssetTransactionCompleted;
-        public event UnityAction<AssetTransaction> OnAssetTransactionAborted;
-        
-        public event UnityAction<HeroTransaction> OnHeroTransactionCompleted;
-        public event UnityAction<HeroTransaction> OnHeroTransactionAborted;
-
         public struct AssetTransaction
         {
             public AssetDict FromInventory;
@@ -57,10 +49,7 @@ namespace Assets.Scripts
         public bool CommitAssetTransfer(AssetDict toInventory, int toIdx, Hero toHero = default)
         {
             if (assetTransaction.Asset.AssetType == AssetType.NA)
-            {
-                OnAssetTransactionAborted?.Invoke(assetTransaction);
                 return false;
-            }
 
             if (toIdx < 0 && toHero.HeroType != HeroType.NA)
             {
@@ -89,8 +78,6 @@ namespace Assets.Scripts
             assetTransaction.FromInventory.TakeAsset(assetTransaction.FromIdx);
             assetTransaction.ToInventory.PutAsset(assetTransaction.Asset, assetTransaction.ToIdx);
             
-            OnAssetTransactionCompleted?.Invoke(assetTransaction);
-            
             assetTransaction = default;
             return true;
         }
@@ -113,7 +100,7 @@ namespace Assets.Scripts
             heroTransaction.ToLine = toLine;
             heroTransaction.ToIdx = toIndex;
 
-            var moved = team.MoveHero(heroTransaction.Hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
+            team.MoveHero(heroTransaction.Hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
             
             heroTransaction = default;
             
@@ -122,7 +109,6 @@ namespace Assets.Scripts
 
         public bool AbortAssetTransfer()
         {
-            OnAssetTransactionAborted?.Invoke(assetTransaction);
             assetTransaction = default;
             
             return true;
@@ -130,7 +116,6 @@ namespace Assets.Scripts
 
         public bool AbortHeroTransfer()
         {
-            OnHeroTransactionAborted?.Invoke(heroTransaction);
             heroTransaction = default;
             
             return true;

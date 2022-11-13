@@ -61,7 +61,14 @@ namespace Assets.Scripts.UI.Battle
                 return false;
 
             if (slot is AssetInventorySlot)
-                return teamManager.TransferAsset.AssetType != AssetType.NA;
+            {
+                if (slot is HeroAttackSlot)
+                    return teamManager.TransferAsset.AssetType == AssetType.Attack;
+                else if (slot is HeroDefenceSlot)
+                    return teamManager.TransferAsset.AssetType == AssetType.Defence;
+                else
+                    return teamManager.TransferAsset.AssetType != AssetType.NA;
+            }
             else if (slot is BattleLineSlot)            
                 return teamManager.TransferHero.HeroType != HeroType.NA;
             else
@@ -82,8 +89,7 @@ namespace Assets.Scripts.UI.Battle
             ShowTeamInventory(team);
 
             selectedHero = team.FrontLine[0];
-            playerFrontSlots[0].RaidMember.Selected = true;
-
+            SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
         }
 
