@@ -2,7 +2,7 @@
 
 namespace Assets.Scripts.UI.Battle
 {
-    public class HeroInventorySlot : UIItemSlot
+    public class HeroInventorySlot : AssetInventorySlot
     {
 
     }

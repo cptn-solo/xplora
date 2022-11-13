@@ -81,6 +81,12 @@ namespace Assets.Scripts.UI.Data
             }
             return default;
         }
+        public static Asset Copy(this Asset asset)
+        {
+            Asset cp = default;
+            return cp.CopyFrom(asset);
+        }
+
     }
 
 

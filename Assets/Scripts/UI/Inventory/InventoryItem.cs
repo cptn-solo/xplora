@@ -15,6 +15,14 @@ namespace Assets.Scripts.UI.Inventory
             set
             {
                 asset = value;
+                if (asset.AssetType == AssetType.NA)
+                {
+                    gameObject.SetActive(false);
+                    return;
+                }
+                
+                gameObject.SetActive(true);
+
                 ResolveIcons();
             }
         }
@@ -33,7 +41,7 @@ namespace Assets.Scripts.UI.Inventory
         {
             image.sprite = null;
             image.enabled = false;
-            if (!asset.Equals(default) && asset.IconName != null)
+            if (asset.AssetType != AssetType.NA && asset.IconName != null)
             {
                 image.sprite = SpriteForResourceName(asset.IconName);
                 image.enabled = true;

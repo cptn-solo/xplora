@@ -1,9 +1,11 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using Asset = Assets.Scripts.UI.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -23,12 +25,18 @@ namespace Assets.Scripts.UI.Battle
 
         private void TeamManager_OnAssetTransactionCompleted(TeamManagementService.AssetTransaction arg0)
         {
-            if (arg0.FromHero.HeroType != HeroType.NA)
-                heroCards[arg0.FromHero].Hero = arg0.FromHero;
-
-            if (arg0.ToHero.HeroType != HeroType.NA)
-                heroCards[arg0.ToHero].Hero = arg0.ToHero;
+            if (arg0.FromHero.HeroType != HeroType.NA ||
+                arg0.ToHero.HeroType != HeroType.NA)
+                ShowTeamBatleUnits(team);
         }
+        private void TeamManager_OnHeroTransactionAborted(TeamManagementService.HeroTransaction arg0)
+        {
+        }
+
+        private void TeamManager_OnHeroTransactionCompleted(TeamManagementService.HeroTransaction arg0)
+        {
+        }
+
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
@@ -39,19 +47,18 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private RectTransform teamInventory;
         [SerializeField] private RectTransform heroInventory;
 
-        [SerializeField] private GameObject heroPrefab;
-
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
 
-        private readonly UIItemSlot[] playerFrontSlots = new UIItemSlot[4];
-        private readonly UIItemSlot[] playerBackSlots = new UIItemSlot[4];
+        private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
+        private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
         
-        private readonly UIItemSlot[] teamInventorySlots = new UIItemSlot[15];
-        private readonly UIItemSlot[] heroInventorySlots = new UIItemSlot[10];
-        private readonly UIItemSlot[] heroAttackSlots = new UIItemSlot[2];
-        private readonly UIItemSlot[] heroDefenceSlots = new UIItemSlot[2];
+        private readonly TeamInventorySlot[] teamInventorySlots = new TeamInventorySlot[15];
+        private readonly HeroInventorySlot[] heroInventorySlots = new HeroInventorySlot[10];
+        private readonly HeroAttackSlot[] heroAttackSlots = new HeroAttackSlot[2];
+        private readonly HeroDefenceSlot[] heroDefenceSlots = new HeroDefenceSlot[2];
 
         private Team team = default;
+        private SlotDelegateProvider slotDelegate = default;
 
         protected override void OnBeforeAwake() =>
             InitInputActions();
@@ -60,6 +67,8 @@ namespace Assets.Scripts.UI.Battle
             EnableInputActions();
             this.teamManager.OnAssetTransactionCompleted += TeamManager_OnAssetTransactionCompleted;
             this.teamManager.OnAssetTransactionAborted += TeamManager_OnAssetTransactionAborted;
+            this.teamManager.OnHeroTransactionCompleted += TeamManager_OnHeroTransactionCompleted;
+            this.teamManager.OnHeroTransactionAborted += TeamManager_OnHeroTransactionAborted;
         }
 
         protected override void OnBeforeDisable()
@@ -67,63 +76,163 @@ namespace Assets.Scripts.UI.Battle
             DisableInputActions();
             this.teamManager.OnAssetTransactionCompleted -= TeamManager_OnAssetTransactionCompleted;
             this.teamManager.OnAssetTransactionAborted -= TeamManager_OnAssetTransactionAborted;
-
+            this.teamManager.OnHeroTransactionCompleted -= TeamManager_OnHeroTransactionCompleted;
+            this.teamManager.OnHeroTransactionAborted -= TeamManager_OnHeroTransactionAborted;
         }
 
         protected override void OnBeforeUpdate() =>
             ProcessInputActions();
 
+        private bool CheckSlot(UIItemSlot slot)
+        {
+            if (!slot.IsEmpty)
+                return false;
+
+            if (slot is AssetInventorySlot)
+                return teamManager.TransferAsset.AssetType != AssetType.NA;
+            else if (slot is BattleLineSlot)            
+                return teamManager.TransferHero.HeroType != HeroType.NA;
+            else
+                return false;
+        }
+        delegate void Rollback();
+        Rollback rollback;
+
         protected override void OnBeforeStart()
         {
+            slotDelegate.Pool = PooledItem;
+            slotDelegate.Validator = CheckSlot;
+            slotDelegate.TransferStart = (UIItemSlot s, Transform t) => {
+                if (s is BattleLineSlot bls)
+                {
+                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
+                    teamManager.BeginHeroTransfer(dict, s.SlotIndex);
+                    bls.Hero = Hero.Default;
+                    rollback = () => bls.Hero = dict[s.SlotIndex];
+                }
+                else if (s is AssetInventorySlot ais)
+                {
+                    var dict = GetAssetDictForSlot(s);
+                    teamManager.BeginAssetTransfer(dict, s.SlotIndex);
+                    ais.Asset = default;
+                    rollback = () => ais.Asset = dict[s.SlotIndex];
+                }
+            };
+            slotDelegate.TransferEnd = (UIItemSlot s, bool accepted) => {
+                var success = false;
+                if (s is BattleLineSlot bls)
+                {
+                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
+                    success = teamManager.CommitHeroTransfer(dict, s.SlotIndex);
+                    bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
+                }
+                else if (s is AssetInventorySlot ais)
+                {
+                    var dict = GetAssetDictForSlot(s);
+                    success = teamManager.CommitAssetTransfer(dict, s.SlotIndex);
+                    ais.Asset = success ? dict[s.SlotIndex] : default;
+                }
+
+                if (!success)
+                    rollback?.Invoke();
+
+                rollback = null;
+
+                return success; 
+            };
+            slotDelegate.TransferAbort = (UIItemSlot s) => {
+                var success = false;
+                if (s is BattleLineSlot bls)
+                {
+                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
+                    success = teamManager.AbortHeroTransfer();
+                }
+                else
+                {
+                    var dict = GetAssetDictForSlot(s);
+                    success = teamManager.AbortAssetTransfer();
+                }
+
+                if (success)
+                    rollback?.Invoke();
+
+                rollback = null;
+
+                return success;
+            };
 
             InitPlayerHeroSlots();
             InitInventorySlots();
 
             team = teamManager.Team;
 
-            foreach (var hero in team.FrontLine.Where(x => x.Value.HeroType != HeroType.NA))
-                ItemForHero(hero.Value);
-            
-            foreach (var hero in team.BackLine.Where(x => x.Value.HeroType != HeroType.NA))
-                ItemForHero(hero.Value);
-
             ShowTeamBatleUnits(team);
             ShowTeamInventory(team);
 
             selectedHero = team.FrontLine[0];
-            heroCards[selectedHero].Selected = true;
+            playerFrontSlots[0].RaidMember.Selected = true;
 
             ShowHeroInventory(selectedHero);
+        }
+
+        private Dictionary<int, Asset> GetAssetDictForSlot(UIItemSlot s)
+        {
+            return s is HeroInventorySlot ? selectedHero.Inventory :
+                                    s is HeroDefenceSlot ? selectedHero.Defence :
+                                    s is HeroAttackSlot ? selectedHero.Attack :
+                                    team.Inventory;
         }
 
         private void InitPlayerHeroSlots()
         {
             foreach (var slot in playerPartyFront.GetComponentsInChildren<BattleLineSlot>())
             {
-                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginHeroTransfer(team.FrontLine, cargo.GetComponent<RaidMember>().Hero, slot.SlotIndex);
-                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
-                    teamManager.CommitHeroTransfer(team.FrontLine, slot.SlotIndex, cargo.GetComponent<RaidMember>().Hero);
-                slot.TransactionAbort = () => teamManager.AbortHeroTransfer();
-                slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<RaidMember>() != null && slot.IsEmpty;
+                
+                slot.DelegateProvider = slotDelegate;
                 playerFrontSlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in playerPartyBack.GetComponentsInChildren<BattleLineSlot>())
             {
-                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginHeroTransfer(team.BackLine, cargo.GetComponent<RaidMember>().Hero, slot.SlotIndex);
-                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
-                    teamManager.CommitHeroTransfer(team.BackLine, slot.SlotIndex, cargo.GetComponent<RaidMember>().Hero);
-                slot.TransactionAbort = () => teamManager.AbortHeroTransfer();
-                slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<RaidMember>() != null && slot.IsEmpty;
+                slot.DelegateProvider = slotDelegate;
                 playerBackSlots[slot.SlotIndex] = slot;
             }
+        }
+        private Transform PooledItem(UIItemSlot slot)
+        {
+            var sample = slot.transform.childCount == 0 ? null : slot.transform.GetChild(0);
+            if (slot is AssetInventorySlot)
+            {
+                return PooledInventoryItem(sample);
+            }
+            else if (slot is BattleLineSlot)
+            {
+                return PooledHeroItem(sample);
+            }
+            else
+                return null;
+        }
+        private Transform PooledHeroItem(Transform sample = null)
+        {
+            if (sample == null)
+                sample = ItemForHero(default).transform;
+
+            var heroCard = sample.GetComponent<RaidMember>();
+            var card = assetPool.GetHeroCard(heroCard.Hero);
+            return card.transform;
 
         }
 
+        private Transform PooledInventoryItem(Transform sample = null)
+        {
+            if (sample == null)
+                sample = ItemForAsset(default).transform;
+
+            var inventoryItem = sample.GetComponent<InventoryItem>();
+            var card = assetPool.GetAssetCard(inventoryItem.Asset);
+            return card.transform;
+
+        }
         private Asset PooledAsset(Transform cargo)
         {
             cargo.SetParent(assetPool.transform);
@@ -133,53 +242,25 @@ namespace Assets.Scripts.UI.Battle
         {
             foreach (var slot in teamInventory.GetComponentsInChildren<TeamInventorySlot>())
             {
-                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(team.Inventory, slot.SlotIndex,
-                    PooledAsset(cargo));
-                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
-                    teamManager.CommitAssetTransfer(team.Inventory, slot.SlotIndex);
-                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
-                slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
+                slot.DelegateProvider = slotDelegate;
                 teamInventorySlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in heroInventory.GetComponentsInChildren<HeroInventorySlot>())
             {
-                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(selectedHero.Inventory, slot.SlotIndex,
-                    PooledAsset(cargo), selectedHero);
-                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
-                    teamManager.CommitAssetTransfer(selectedHero.Inventory, slot.SlotIndex, selectedHero);
-                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
-                slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
+                slot.DelegateProvider = slotDelegate;
                 heroInventorySlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in heroInventory.GetComponentsInChildren<HeroAttackSlot>())
             {
-                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(selectedHero.Attack, slot.SlotIndex,
-                    PooledAsset(cargo), selectedHero);
-                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
-                    teamManager.CommitAssetTransfer(selectedHero.Attack, slot.SlotIndex, selectedHero);
-                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
-                slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
+                slot.DelegateProvider = slotDelegate;
                 heroAttackSlots[slot.SlotIndex] = slot;
             }
 
             foreach (var slot in heroInventory.GetComponentsInChildren<HeroDefenceSlot>())
             {
-                slot.TransactionStart = (Transform cargo, UIItemSlot slot) =>
-                    teamManager.BeginAssetTransfer(selectedHero.Defence, slot.SlotIndex,
-                    PooledAsset(cargo), selectedHero);
-                slot.TransactionEnd = (Transform cargo, UIItemSlot slot, bool success) =>
-                    teamManager.CommitAssetTransfer(selectedHero.Defence, slot.SlotIndex, selectedHero);
-                slot.TransactionAbort = () => teamManager.AbortAssetTransfer();
-                slot.Validator = (Transform cargo) =>
-                    cargo.GetComponent<InventoryItem>() != null && slot.IsEmpty;
+                slot.DelegateProvider = slotDelegate;
                 heroDefenceSlots[slot.SlotIndex] = slot;
             }
         }

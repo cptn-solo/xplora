@@ -20,7 +20,9 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private TextMeshProUGUI heroNameText;
 
         public event UnityAction<Hero, InventoryItem> OnItemDropped;
-        public AcceptableItemChecker Validator;
+        public delegate bool Validator (Transform t, RaidMember m);
+
+        public Validator CargoValidator { get; set; }
 
         private Color normalColor;
         private Image backgroundImage;
@@ -35,6 +37,14 @@ namespace Assets.Scripts.UI.Battle
             set
             {
                 hero = value;
+                if (hero.HeroType == HeroType.NA)
+                {
+                    this.gameObject.SetActive(false);
+                    return;
+                }
+
+                this.gameObject.SetActive(true);
+
                 ResolveIcons();
                 heroNameText.text = hero.Name;
             }
@@ -110,7 +120,7 @@ namespace Assets.Scripts.UI.Battle
                 return;
 
             var cargo = eventData.pointerDrag.transform;
-            if (Validator(cargo))
+            if (CargoValidator(cargo, this))
                 SetReadyToAcceptItemStyle();
 
         }

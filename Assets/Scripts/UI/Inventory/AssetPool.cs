@@ -1,3 +1,4 @@
+using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,13 @@ namespace Assets.Scripts.UI.Inventory
     public class AssetPool : MonoBehaviour, IObjectPool<InventoryItem>
     {
         [SerializeField] private GameObject itemPrefab;
+        [SerializeField] private GameObject heroPrefab;
 
-        private readonly Dictionary<AssetType, List<InventoryItem>> assetPool = new();
+        private readonly Dictionary<string, List<InventoryItem>> assetPool = new();
+        private readonly Dictionary<int, List<RaidMember>> heroPool = new();
 
-        public bool TryGetValue(AssetType assetType, out List<InventoryItem> cachedItems) =>
-            assetPool.TryGetValue(assetType, out cachedItems);
+        public bool TryGetValue(Asset asset, out List<InventoryItem> cachedItems) =>
+            assetPool.TryGetValue(asset.Code, out cachedItems);
 
         public int CountInactive => throw new System.NotImplementedException();
 
@@ -36,29 +39,67 @@ namespace Assets.Scripts.UI.Inventory
         {
             throw new System.NotImplementedException();
         }
-
-        internal InventoryItem GetAssetCard(AssetType assetType)
+        
+        internal RaidMember GetHeroCard(Hero hero)
         {
-            List<InventoryItem> cachedItems;
+            RaidMember heroCard = null;
+
+            if (!heroPool.TryGetValue(hero.Id, out List<RaidMember> cachedItems))
+            {
+                cachedItems = new();
+                
+                heroCard = Instantiate(heroPrefab).GetComponent<RaidMember>();
+                heroCard.Hero = hero;
+                cachedItems.Add(heroCard);
+
+                heroPool[hero.Id] = cachedItems;
+            }
+
+            if (cachedItems.Where(x => !x.enabled).FirstOrDefault() is RaidMember instance)
+            {
+                heroCard = instance;
+            }
+            else
+            {
+                heroCard = Instantiate(heroPrefab).GetComponent<RaidMember>();
+                heroCard.Hero = hero;
+                cachedItems.Add(heroCard);
+            }
+
+            heroCard.transform.SetParent(transform);
+            heroCard.gameObject.SetActive(true);
+
+            return heroCard;
+
+        }
+
+        internal InventoryItem GetAssetCard(Asset asset)
+        {
             InventoryItem assetCard = null;
-            if (!assetPool.TryGetValue(assetType, out cachedItems))
+
+            asset.Code ??= "NA";
+
+            if (!assetPool.TryGetValue(asset.Code, out List<InventoryItem> cachedItems))
             {
                 cachedItems = new();
                 assetCard = Instantiate(itemPrefab).GetComponent<InventoryItem>();
+                assetCard.Asset = asset;
                 cachedItems.Add(assetCard);
                 
-                assetPool[assetType] = cachedItems;
+                assetPool[asset.Code] = cachedItems;
             }
 
-            if (cachedItems.Where(x => !x.enabled).FirstOrDefault() is InventoryItem instance)
+            if (cachedItems.Where(x => !x.isActiveAndEnabled).FirstOrDefault() is InventoryItem instance)
             {
                 assetCard = instance;
             }
-            else {
+            else
+            {
                 assetCard = Instantiate(itemPrefab).GetComponent<InventoryItem>();
+                assetCard.Asset = asset;
                 cachedItems.Add(assetCard);
             }
-            
+
             assetCard.transform.SetParent(transform);
             assetCard.gameObject.SetActive(true);
 

@@ -1,6 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
@@ -8,34 +8,29 @@ namespace Assets.Scripts.UI.Battle
     public partial class BattleScreen // Battle Units
     {
         private Hero selectedHero;
-        private readonly Dictionary<Hero, RaidMember> heroCards = new();
+        //private readonly Dictionary<Hero, RaidMember> heroCards = new();
 
         public GameObject ItemForHero(Hero hero)
         {
-            RaidMember rm = null;
 
-            if (heroCards.TryGetValue(hero, out var raidmember))
-            {
-                rm = raidmember;
-            }
-            else
-            {
-                var card = Instantiate(heroPrefab).transform;
-                rm = card.GetComponent<RaidMember>();
+            RaidMember card = assetPool.GetHeroCard(hero);
+            card.Hero = hero;
 
-                rm.OnItemDropped += RaidMember_OnItemDropped;
-                rm.Validator = (Transform cargo) => cargo.GetComponent<InventoryItem>() != null;
+            if (hero.Equals(default))
+                BindHeroCard(card); //placeholders are just filled with data on cargo drop
 
-                var actionButton = card.GetComponent<UIActionButton>();
-                actionButton.OnActionButtonClick += HeroSelected;
-
-                heroCards[hero] = rm;
-            }
-
-            rm.Hero = hero;
-
-            return rm.gameObject;
+            return card.gameObject;
         }
+
+        private void BindHeroCard(RaidMember heroCard)
+        {
+            heroCard.OnItemDropped += RaidMember_OnItemDropped;
+            heroCard.CargoValidator = (Transform cargo, RaidMember card) => cargo.GetComponent<InventoryItem>() != null;
+
+            var actionButton = heroCard.GetComponent<UIActionButton>();
+            actionButton.OnActionButtonClick += HeroSelected;
+        }
+
 
         private void RaidMember_OnItemDropped(Hero hero, InventoryItem inventoryItem)
         {
@@ -52,21 +47,20 @@ namespace Assets.Scripts.UI.Battle
 
             ShowHeroInventory(selectedHero);
 
-            foreach (var card in heroCards)
-                card.Value.Selected = card.Key.Equals(selectedHero);
+            foreach (var card in playerFrontSlots.Select(x => x.RaidMember).ToArray())
+                card.Selected = card.Hero.Equals(selectedHero);
+
+            foreach (var card in playerBackSlots.Select(x => x.RaidMember).ToArray())
+                card.Selected = card.Hero.Equals(selectedHero);
         }
 
         private void ShowTeamBatleUnits(Team team)
         {
             foreach (var hero in team.FrontLine)
-                playerFrontSlots[hero.Key].Put(
-                    hero.Value.HeroType == HeroType.NA ? null :
-                    ItemForHero(hero.Value).transform);
+                playerFrontSlots[hero.Key].Hero = hero.Value;
 
             foreach (var hero in team.BackLine)
-                playerBackSlots[hero.Key].Put(
-                    hero.Value.HeroType == HeroType.NA ? null :
-                    ItemForHero(hero.Value).transform);
+                playerBackSlots[hero.Key].Hero = hero.Value;
 
         }
     }

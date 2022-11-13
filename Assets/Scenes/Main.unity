@@ -5829,6 +5829,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 1529533773831937153, guid: a5dd7dbb9195b7545bcfe867c8291620,
     type: 3}
+  heroPrefab: {fileID: 5222742129451753485, guid: 83d11b9d73f06b547a01b5a228ffe110,
+    type: 3}
 --- !u!1 &1579312844
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,32 +5,36 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Inventory
 {
-    public delegate bool AcceptableItemChecker(Transform item);
-    public delegate void AssetTransferStartDelegate<T>(Transform item, T slot);
-    public delegate bool AssetTransferEndDelegate(Transform item, UIItemSlot slot, bool accepted);
-    public delegate bool AssetTransferAbortDelegate();
 
-    public class UIItemSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, IDragHandler
-    {        
+    public class UIItemSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, 
+        IDragHandler, IBeginDragHandler, IEndDragHandler
+    {
+        private Canvas canvas;
         private RectTransform rectTransform;
+        private RectTransform dragCargo;
+
         private Image backgroundImage;
         private Color normalColor;
         private Color acceptingColor;
 
         public event UnityAction OnBeginDragItem;
 
-        public AcceptableItemChecker Validator;
-        
-        public AssetTransferStartDelegate<UIItemSlot> TransactionStart;
-        public AssetTransferEndDelegate TransactionEnd;
-        public AssetTransferAbortDelegate TransactionAbort;
+        private SlotDelegateProvider delegateProvider = default;
+        public SlotDelegateProvider DelegateProvider { 
+            get => delegateProvider; 
+            set
+            {
+                delegateProvider = value;
+                Put(delegateProvider.Pool(this));
+            }
+        }
 
         [SerializeField] private int slotIndex;
         public int SlotIndex => slotIndex;
 
-        public bool IsEmpty => transform.childCount == 0;
+        public bool IsEmpty => transform.childCount == 0 || !transform.GetChild(0).gameObject.activeSelf;
 
-        private void Start()
+        private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
             backgroundImage = GetComponent<Image>();
@@ -39,58 +43,22 @@ namespace Assets.Scripts.UI.Inventory
             acceptingColor = Color.HSVToRGB(h, s, v * .7f);
             acceptingColor.a = normalColor.a;
         }
-        public void HandleDragStart()
+
+        private void Start()
         {
-            rectTransform.SetAsLastSibling();
-            OnBeginDragItem?.Invoke();
-            
-            TransactionStart(Take(), this);
+            canvas = GetComponentInParent<Canvas>();
         }
 
-        public void Put(Transform itemTransform)
+        public virtual void Put(Transform itemTransform)
         {
-            if (itemTransform == null)
-            {
-                if (this.transform.childCount == 0)
-                    return;
-
-                var cargo = Take();
-                cargo.gameObject.SetActive(false);
-
-                return;
-            }
-
-            var prevParent = itemTransform.parent;
-            if (prevParent != null &&
-                prevParent.GetComponent<UIItemSlot>() is UIItemSlot prevSlot)
-                prevSlot.Take();
-
             itemTransform.SetParent(transform);
             itemTransform.localPosition = Vector3.zero;
         }
 
-        public Transform Take()
-        {
-            if (transform.childCount > 0 && 
-                transform.GetChild(0).TryGetComponent<InventoryItem>(out var cargo))
-            {
-                cargo.transform.SetParent(null);
-                return cargo.transform;
-            }
-            return null;
-        }
-
         public void OnDrop(PointerEventData eventData)
         {
-            var cargo = eventData.pointerDrag.transform;
-            if (Validator(cargo) && TransactionEnd(cargo, this, true))
-            {
-                Put(cargo);
-            }
-            else
-            {
-                TransactionAbort?.Invoke();
-            }
+            if (!delegateProvider.Validator(this) || !delegateProvider.TransferEnd(this, true))
+                delegateProvider.TransferAbort?.Invoke(this);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -98,8 +66,7 @@ namespace Assets.Scripts.UI.Inventory
             if (eventData.pointerDrag == null)
                 return;
 
-            var cargo = eventData.pointerDrag.transform;
-            if (Validator(cargo))
+            if (delegateProvider.Validator(this))
                 SetReadyToAcceptItemStyle();
 
         }
@@ -115,7 +82,24 @@ namespace Assets.Scripts.UI.Inventory
 
         public void OnDrag(PointerEventData eventData)
         {
-            Debug.Log($"slot drag {eventData.delta}");
+            dragCargo.position = eventData.position;
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (transform.childCount == 0)
+                return;
+            dragCargo = delegateProvider.Pool(this).GetComponent<RectTransform>();
+            delegateProvider.TransferStart(this, dragCargo);
+            dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            dragCargo.position = eventData.position;
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = true;
+            dragCargo.gameObject.SetActive(false);
+            dragCargo = null;
         }
     }
 }

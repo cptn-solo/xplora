@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.UI.Data
+﻿using System.Collections;
+
+namespace Assets.Scripts.UI.Data
 {
     public struct Asset
     {
@@ -9,6 +11,7 @@
         public AssetType AssetType;
         public string IconName;
         public string Name;
+        internal string Code;
 
         public override string ToString() =>
             $"{AssetType} {Name} {IconName}";
@@ -21,9 +24,10 @@
             asset.Name = name;
             asset.IconName = iconName;
             asset.MaxCount = maxCount;
+            asset.Code = $"{asset.AssetType} {asset.Name}";
 
             return asset;
-        }
+        }        
 
         public Asset CopyFrom(Asset asset)
         {
@@ -31,6 +35,7 @@
             Name = asset.Name;
             IconName = asset.IconName;
             MaxCount = asset.MaxCount;
+            Code = $"{asset.AssetType} {asset.Name}";
 
             return this;
 

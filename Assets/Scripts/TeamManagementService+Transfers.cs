@@ -41,14 +41,17 @@ namespace Assets.Scripts
         private AssetTransaction assetTransaction = default;
         private HeroTransaction heroTransaction = default;
 
-        public void BeginAssetTransfer(AssetDict fromInventory, int fromIdx, Asset asset, Hero fromHero = default)
+        public Asset TransferAsset => assetTransaction.Asset;
+        public Hero TransferHero => heroTransaction.Hero;
+
+        public void BeginAssetTransfer(AssetDict fromInventory, int fromIdx, Hero fromHero = default)
         {
             assetTransaction = new AssetTransaction
             {
                 FromInventory = fromInventory,
                 FromIdx = fromIdx,
                 FromHero = fromHero,
-                Asset = asset,
+                Asset = fromInventory[fromIdx],
             };
         }
         public bool CommitAssetTransfer(AssetDict toInventory, int toIdx, Hero toHero = default)
@@ -92,17 +95,17 @@ namespace Assets.Scripts
             return true;
         }
 
-        public void BeginHeroTransfer(HeroDict from, Hero hero, int fromIdx)
+        public void BeginHeroTransfer(HeroDict from, int fromIdx)
         {
             heroTransaction = new HeroTransaction
             {
-                Hero = hero,
+                Hero = from[fromIdx],
                 FromLine = from,
                 FromIdx = fromIdx,
             };
         }
 
-        public bool CommitHeroTransfer(HeroDict toLine, int toIndex, Hero hero)
+        public bool CommitHeroTransfer(HeroDict toLine, int toIndex)
         {
             if (heroTransaction.Equals(default))
                 return false;
@@ -110,7 +113,7 @@ namespace Assets.Scripts
             heroTransaction.ToLine = toLine;
             heroTransaction.ToIdx = toIndex;
 
-            var moved = team.MoveHero(hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
+            var moved = team.MoveHero(heroTransaction.Hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
             Debug.Log($"{team.BackLine} {team.FrontLine} {moved}");
             
             heroTransaction = default;

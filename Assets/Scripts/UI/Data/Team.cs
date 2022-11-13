@@ -63,10 +63,10 @@ namespace Assets.Scripts.UI.Data
             {10, default}, {11, default}, {12, default}, {13, default}, {14, default},
         };
         private static HeroDict DefaultFrontLine() => new() {
-            {0, default}, {1, default}, {2, default}, {3, default},
+            {0, Hero.Default}, {1, Hero.Default}, {2, Hero.Default}, {3, Hero.Default},
         };
         private static HeroDict DefaultBackLine() => new() {
-            {0, default}, {1, default}, {2, default}, {3, default},
+            {0, Hero.Default}, {1, Hero.Default}, {2, Hero.Default}, {3, Hero.Default},
         };
     }
 

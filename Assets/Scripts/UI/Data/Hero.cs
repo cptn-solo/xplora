@@ -20,6 +20,10 @@ namespace Assets.Scripts.UI.Data
         public AssetDict Attack; // index, item
         public AssetDict Defence; // index, item
 
+        public static Hero Default => EmptyHero();
+        public static Hero EmptyHero() => 
+            EmptyHero(-1, "", null, HeroType.NA);
+
         public static Hero EmptyHero(int id, string name,
             string iconName = "hero1", HeroType heroType = HeroType.Human)
         {

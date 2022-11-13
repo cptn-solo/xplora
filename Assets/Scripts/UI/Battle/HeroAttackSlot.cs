@@ -1,6 +1,8 @@
-﻿namespace Assets.Scripts.UI.Battle
+﻿using Assets.Scripts.UI.Inventory;
+
+namespace Assets.Scripts.UI.Battle
 {
-    public class HeroAttackSlot : HeroActiveSlot
+    public class HeroAttackSlot : AssetInventorySlot
     {
 
     }
