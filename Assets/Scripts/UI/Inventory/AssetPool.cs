@@ -55,7 +55,7 @@ namespace Assets.Scripts.UI.Inventory
                 heroPool[hero.Id] = cachedItems;
             }
 
-            if (cachedItems.Where(x => !x.enabled).FirstOrDefault() is RaidMember instance)
+            if (cachedItems.Where(x => !x.isActiveAndEnabled).FirstOrDefault() is RaidMember instance)
             {
                 heroCard = instance;
             }

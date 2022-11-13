@@ -59,6 +59,9 @@ namespace Assets.Scripts.UI.Battle
 
         private Team team = default;
         private SlotDelegateProvider slotDelegate = default;
+        private HeroDelegateProvider heroDelegate = default;
+        delegate void TransferRollback();
+        TransferRollback Rollback { get; set; }// initialised on transaction start
 
         protected override void OnBeforeAwake() =>
             InitInputActions();
@@ -95,71 +98,11 @@ namespace Assets.Scripts.UI.Battle
             else
                 return false;
         }
-        delegate void Rollback();
-        Rollback rollback;
-
+        
         protected override void OnBeforeStart()
         {
-            slotDelegate.Pool = PooledItem;
-            slotDelegate.Validator = CheckSlot;
-            slotDelegate.TransferStart = (UIItemSlot s, Transform t) => {
-                if (s is BattleLineSlot bls)
-                {
-                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
-                    teamManager.BeginHeroTransfer(dict, s.SlotIndex);
-                    bls.Hero = Hero.Default;
-                    rollback = () => bls.Hero = dict[s.SlotIndex];
-                }
-                else if (s is AssetInventorySlot ais)
-                {
-                    var dict = GetAssetDictForSlot(s);
-                    teamManager.BeginAssetTransfer(dict, s.SlotIndex);
-                    ais.Asset = default;
-                    rollback = () => ais.Asset = dict[s.SlotIndex];
-                }
-            };
-            slotDelegate.TransferEnd = (UIItemSlot s, bool accepted) => {
-                var success = false;
-                if (s is BattleLineSlot bls)
-                {
-                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
-                    success = teamManager.CommitHeroTransfer(dict, s.SlotIndex);
-                    bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
-                }
-                else if (s is AssetInventorySlot ais)
-                {
-                    var dict = GetAssetDictForSlot(s);
-                    success = teamManager.CommitAssetTransfer(dict, s.SlotIndex);
-                    ais.Asset = success ? dict[s.SlotIndex] : default;
-                }
-
-                if (!success)
-                    rollback?.Invoke();
-
-                rollback = null;
-
-                return success; 
-            };
-            slotDelegate.TransferAbort = (UIItemSlot s) => {
-                var success = false;
-                if (s is BattleLineSlot bls)
-                {
-                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
-                    success = teamManager.AbortHeroTransfer();
-                }
-                else
-                {
-                    var dict = GetAssetDictForSlot(s);
-                    success = teamManager.AbortAssetTransfer();
-                }
-
-                if (success)
-                    rollback?.Invoke();
-
-                rollback = null;
-
-                return success;
-            };
+            InitInventorySlotDelegates(); // drop between slots (both assets and heroes)
+            InitRaidMemberDelegates(); // drop on hero cards
 
             InitPlayerHeroSlots();
             InitInventorySlots();

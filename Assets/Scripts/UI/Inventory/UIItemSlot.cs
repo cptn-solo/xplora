@@ -55,11 +55,11 @@ namespace Assets.Scripts.UI.Inventory
             itemTransform.localPosition = Vector3.zero;
         }
 
-        public void OnDrop(PointerEventData eventData)
-        {
-            if (!delegateProvider.Validator(this) || !delegateProvider.TransferEnd(this, true))
-                delegateProvider.TransferAbort?.Invoke(this);
-        }
+        private void SetReadyToAcceptItemStyle() =>
+            backgroundImage.color = acceptingColor;
+
+        private void SetNormalStyle() =>
+            backgroundImage.color = normalColor;
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -73,12 +73,6 @@ namespace Assets.Scripts.UI.Inventory
 
         public void OnPointerExit(PointerEventData eventData) =>
             SetNormalStyle();
-
-        private void SetReadyToAcceptItemStyle() =>
-            backgroundImage.color = acceptingColor;
-
-        private void SetNormalStyle() =>
-            backgroundImage.color = normalColor;
 
         public void OnDrag(PointerEventData eventData)
         {
@@ -100,6 +94,14 @@ namespace Assets.Scripts.UI.Inventory
             dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = true;
             dragCargo.gameObject.SetActive(false);
             dragCargo = null;
+
+            delegateProvider.TransferCleanup(this);
+        }
+
+        public void OnDrop(PointerEventData eventData)
+        {
+            if (!delegateProvider.Validator(this) || !delegateProvider.TransferEnd(this))
+                delegateProvider.TransferAbort?.Invoke(this);
         }
     }
 }

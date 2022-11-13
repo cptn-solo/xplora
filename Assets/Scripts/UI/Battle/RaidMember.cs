@@ -18,11 +18,8 @@ namespace Assets.Scripts.UI.Battle
         
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
-
-        public event UnityAction<Hero, InventoryItem> OnItemDropped;
-        public delegate bool Validator (Transform t, RaidMember m);
-
-        public Validator CargoValidator { get; set; }
+        
+        public HeroDelegateProvider DelegateProvider { get; set; }
 
         private Color normalColor;
         private Image backgroundImage;
@@ -86,7 +83,7 @@ namespace Assets.Scripts.UI.Battle
         {
             image.sprite = null;
             image.enabled = false;
-            if (!asset.Equals(default) && asset.IconName != null)
+            if (asset.AssetType != AssetType.NA && asset.IconName != null)
             {
                 image.sprite = SpriteForResourceName(asset.IconName);
                 image.enabled = true;
@@ -101,10 +98,8 @@ namespace Assets.Scripts.UI.Battle
 
         public void OnDrop(PointerEventData eventData)
         {
-            var cargo = eventData.pointerDrag.transform;
-
-            if (cargo.GetComponent<InventoryItem>() is InventoryItem inventoryItem)
-                OnItemDropped?.Invoke(Hero, inventoryItem);
+            if (!DelegateProvider.Validator(this) || !DelegateProvider.TransferEnd(this, true))
+                DelegateProvider.TransferAbort?.Invoke(this);
         }
 
         private void Awake()
@@ -119,10 +114,8 @@ namespace Assets.Scripts.UI.Battle
             if (eventData.pointerDrag == null)
                 return;
 
-            var cargo = eventData.pointerDrag.transform;
-            if (CargoValidator(cargo, this))
+            if (DelegateProvider.Validator(this))
                 SetReadyToAcceptItemStyle();
-
         }
 
         public void OnPointerExit(PointerEventData eventData) =>

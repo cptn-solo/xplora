@@ -16,7 +16,7 @@ namespace Assets.Scripts.UI.Battle
             RaidMember card = assetPool.GetHeroCard(hero);
             card.Hero = hero;
 
-            if (hero.Equals(default))
+            if (hero.HeroType == HeroType.NA)
                 BindHeroCard(card); //placeholders are just filled with data on cargo drop
 
             return card.gameObject;
@@ -24,20 +24,12 @@ namespace Assets.Scripts.UI.Battle
 
         private void BindHeroCard(RaidMember heroCard)
         {
-            heroCard.OnItemDropped += RaidMember_OnItemDropped;
-            heroCard.CargoValidator = (Transform cargo, RaidMember card) => cargo.GetComponent<InventoryItem>() != null;
+            heroCard.DelegateProvider = heroDelegate;
 
             var actionButton = heroCard.GetComponent<UIActionButton>();
             actionButton.OnActionButtonClick += HeroSelected;
         }
 
-
-        private void RaidMember_OnItemDropped(Hero hero, InventoryItem inventoryItem)
-        {
-            teamManager.CommitAssetTransfer(hero.Inventory, -1, hero);
-            ShowHeroInventory(selectedHero);
-            ShowTeamInventory(team);
-        }
 
         private void HeroSelected(Actions action, Transform actionTransform)
         {
