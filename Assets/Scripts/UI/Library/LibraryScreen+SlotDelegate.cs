@@ -1,3 +1,4 @@
+using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System.Linq;
@@ -78,15 +79,24 @@ namespace Assets.Scripts.UI.Library
             };
         }
 
-        private Transform PooledItem(Transform sample = null)
+        private Transform PooledItem(Transform placeholder)
         {
-            if (sample == null)
-                sample = ItemForHero(Hero.Default).transform;
-
-            var sampleCard = sample.GetComponent<HeroCard>();
-            var card = cardPool.GetHeroCard(sampleCard.Hero);
-            return card.transform;
-
+            if (placeholder == null) // create and bind a new card
+            {
+                var placeholderCard = cardPool.GetHeroCard(
+                    Hero.Default, canvas.transform.localScale)
+                    .transform.GetComponent<HeroCard>();
+                BindHeroCard(placeholderCard); //placeholders are just filled with data on cargo drop
+                return placeholderCard.transform;
+            }
+            else // grab a card from the pool for display purposes
+            {
+                var placeholderCard = placeholder
+                    .transform.GetComponent<HeroCard>();
+                var hero = placeholderCard.Hero;
+                var card = cardPool.GetHeroCard(hero, canvas.transform.localScale);
+                return card.transform;
+            }
         }
 
 

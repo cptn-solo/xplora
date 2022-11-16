@@ -18,12 +18,13 @@ namespace Assets.Scripts.UI.Library
         {
             this.libManager = libManager;
         }
-        
+
         private Hero selectedHero = Hero.Default;
 
         private readonly LibrarySlot[] librarySlots = new LibrarySlot[24];
         private SlotDelegateProvider slotDelegate = default;
         private HeroesLibrary library;
+        private LibrarySlot[] libraryHeroSlots;
 
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; }// initialised on transaction start
@@ -32,12 +33,28 @@ namespace Assets.Scripts.UI.Library
         {
             InitSlotDelegates();
 
-            library = libManager.Library;
+            var actionButtons = GetComponentsInChildren<UIActionButton>();
+            foreach (var button in actionButtons)
+                button.OnActionButtonClick += OnActionButtonPressed;
 
-            var slots = libraryContainer.GetComponentsInChildren<LibrarySlot>();
-            for (int i = 0; i < slots.Length; i++)
+            library = libManager.Library;
+            InitLibraryHeroSlots();
+
+            ShowHeroeLibraryCards();
+        }
+
+        private void ShowHeroeLibraryCards()
+        {
+            foreach (var hero in library.Heroes)
+                libraryHeroSlots[hero.Key].Hero = hero.Value;
+        }
+
+        private void InitLibraryHeroSlots()
+        {
+            libraryHeroSlots = libraryContainer.GetComponentsInChildren<LibrarySlot>();
+            for (int i = 0; i < libraryHeroSlots.Length; i++)
             {
-                var slot = slots[i];
+                var slot = libraryHeroSlots[i];
                 slot.SlotIndex = i;
                 slot.DelegateProvider = slotDelegate;
                 librarySlots[i] = slot;
@@ -48,35 +65,37 @@ namespace Assets.Scripts.UI.Library
             foreach (var card in librarySlots.Select(x => x.HeroCard).ToArray())
                 card.Selected = card.Hero.Id == selectedHero.Id;
         }
-        public GameObject ItemForHero(Hero hero)
-        {
-            HeroCard card = cardPool.GetHeroCard(hero);
-            card.Hero = hero;
-
-            if (hero.HeroType == HeroType.NA)
-            {
-                card.transform.localScale *= canvas.transform.localScale.x;
-                BindHeroCard(card); //placeholders are just filled with data on cargo drop
-            }
-
-            return card.gameObject;
-        }
 
         private void BindHeroCard(HeroCard heroCard)
         {
             var actionButton = heroCard.GetComponent<UIActionButton>();
-            actionButton.OnActionButtonClick += HeroSelected;
+            actionButton.OnActionButtonClick += OnActionButtonPressed;
         }
 
 
-        private void HeroSelected(Actions action, Transform actionTransform)
+        private void OnActionButtonPressed(Actions action, Transform actionTransform)
         {
-            var heroCard = actionTransform.GetComponent<HeroCard>();
-            Debug.Log($"Hero from line #{heroCard.Hero} selected");
+            switch (action)
+            {
+                case Actions.SelectHero:
+                    {
+                        var heroCard = actionTransform.GetComponent<HeroCard>();
+                        Debug.Log($"Hero from line #{heroCard.Hero} selected");
 
-            selectedHero = heroCard.Hero;
-            SyncHeroCardSelectionWithHero();
-            //ShowHeroInventory(selectedHero);
+                        selectedHero = heroCard.Hero;
+                        SyncHeroCardSelectionWithHero();
+                        //ShowHeroInventory(selectedHero);
+                    }
+                    break;
+                case Actions.ReloadMetadata:
+                    {
+                        libManager.LoadData();
+                        ShowHeroeLibraryCards();
+                    }
+                    break;
+                default:
+                    break;
+            }
 
         }
 

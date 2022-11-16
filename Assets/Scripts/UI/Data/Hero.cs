@@ -14,7 +14,11 @@ namespace Assets.Scripts.UI.Data
 
         public int Id => id;
 
-        public string Name => name;
+        public string Name
+        {
+            get => name;
+            set => name = value;
+        }
 
         public AssetDict Inventory => inventory; // index, item
         public AssetDict Attack; // index, item
