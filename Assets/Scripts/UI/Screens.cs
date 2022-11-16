@@ -9,6 +9,7 @@
         Heroes = 400,
         Buildings = 500,
         Battle = 600,
+        HeroesLibrary = 700,
     }
 
 }

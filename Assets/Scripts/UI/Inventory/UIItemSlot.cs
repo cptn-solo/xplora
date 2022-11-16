@@ -28,7 +28,11 @@ namespace Assets.Scripts.UI.Inventory
         }
 
         [SerializeField] private int slotIndex;
-        public int SlotIndex => slotIndex;
+        public int SlotIndex
+        {
+            get => slotIndex;
+            set => slotIndex = value;
+        }
 
         public bool IsEmpty => transform.childCount == 0 || !transform.GetChild(0).gameObject.activeSelf;
 
@@ -66,8 +70,13 @@ namespace Assets.Scripts.UI.Inventory
         public void OnPointerExit(PointerEventData eventData) =>
             SetNormalStyle();
 
-        public void OnDrag(PointerEventData eventData) =>
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (dragCargo == null)
+                return;
+
             dragCargo.position = eventData.position;
+        }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
@@ -82,6 +91,12 @@ namespace Assets.Scripts.UI.Inventory
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            if (dragCargo == null)
+            {
+                delegateProvider.TransferCleanup(this);
+                return;
+            }
+
             dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = true;
             dragCargo.gameObject.SetActive(false);
             dragCargo = null;

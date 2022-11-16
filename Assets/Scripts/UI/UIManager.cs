@@ -23,6 +23,7 @@ namespace Assets.Scripts.UI
             
             //ToggleScreen(Screens.Hub);
             ToggleScreen(Screens.Battle);
+            //ToggleScreen(Screens.HeroesLibrary);
         }
 
         public void ToggleScreen(Screens screen)

@@ -28,6 +28,8 @@ namespace Assets.Scripts
                     break;
                 case Screens.Buildings:
                     break;
+                case Screens.HeroesLibrary:
+                    break;
                 default:
                     break;
             }

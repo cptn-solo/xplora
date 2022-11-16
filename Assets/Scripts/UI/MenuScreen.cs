@@ -6,15 +6,18 @@ namespace Assets.Scripts.UI
     public class MenuScreen : MonoBehaviour
     {
         [SerializeField] private Screens screen;
-        public Screens Screen => screen;
 
         private MenuNavigationService nav;
-        
-        private UIMenuButton[] menuButtons;
-        
+
         [Inject]
         public void Construct(MenuNavigationService nav) =>
             this.nav = nav;
+
+        private UIMenuButton[] menuButtons;
+
+        protected Canvas canvas;
+        public Screens Screen => screen;
+
 
         protected virtual void OnBeforeAwake() { }
         protected virtual void OnBeforeStart() { }
@@ -28,6 +31,8 @@ namespace Assets.Scripts.UI
 
         private void Start()
         {
+            canvas = GetComponentInParent<Canvas>();
+
             OnBeforeStart();
             
             menuButtons = GetComponentsInChildren<UIMenuButton>();

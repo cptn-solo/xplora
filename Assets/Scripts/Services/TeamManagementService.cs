@@ -10,6 +10,7 @@ namespace Assets.Scripts
         private Team team = Team.EmptyTeam(0, "A Team");
 
         public Team Team => team;
+
         private Team LoadTeamData()
         {
             var hp = Asset.EmptyAsset(AssetType.Defence, "HP", "hp");

@@ -7,14 +7,6 @@ namespace Assets.Scripts.UI.Battle
     public partial class BattleScreen // Inventory
     {
         [SerializeField] private AssetPool assetPool;
-        private GameObject ItemForAsset(Asset asset)
-        {
-            InventoryItem assetCard = assetPool.GetAssetCard(asset);
-
-            assetCard.Asset = asset;
-
-            return assetCard.gameObject;
-        }
         private void ShowTeamInventory(Team team)
         {
             foreach (var asset in team.Inventory)

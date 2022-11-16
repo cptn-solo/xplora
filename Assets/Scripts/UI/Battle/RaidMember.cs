@@ -2,7 +2,6 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Asset = Assets.Scripts.UI.Data.Asset;
@@ -19,7 +18,10 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
         
-        public HeroDelegateProvider DelegateProvider { get; set; }
+        public HeroDelegateProvider DelegateProvider { 
+            get; 
+            set; 
+        }
 
         private Color normalColor;
         private Image backgroundImage;

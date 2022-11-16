@@ -1,5 +1,4 @@
 ﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.UI.Inventory;
 using System.Linq;
 using UnityEngine;
 
@@ -8,18 +7,6 @@ namespace Assets.Scripts.UI.Battle
     public partial class BattleScreen // Battle Units
     {
         private Hero selectedHero;
-
-        public GameObject ItemForHero(Hero hero)
-        {
-
-            RaidMember card = assetPool.GetHeroCard(hero);
-            card.Hero = hero;
-
-            if (hero.HeroType == HeroType.NA)
-                BindHeroCard(card); //placeholders are just filled with data on cargo drop
-
-            return card.gameObject;
-        }
 
         private void BindHeroCard(RaidMember heroCard)
         {

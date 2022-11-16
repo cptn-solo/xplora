@@ -15,55 +15,56 @@ namespace Assets.Scripts.UI.Inventory
         private readonly Dictionary<string, List<InventoryItem>> assetPool = new();
         private readonly Dictionary<int, List<RaidMember>> heroPool = new();
 
-        public bool TryGetValue(Asset asset, out List<InventoryItem> cachedItems) =>
-            assetPool.TryGetValue(asset.Code, out cachedItems);
-       
-        private RaidMember CreateCachedHeroCard(Hero hero, List<RaidMember> cachedItems)
+        
+        private RaidMember CreateCachedRaidMember(Hero hero, List<RaidMember> cachedItems, Vector3 scale)
         {
             RaidMember heroCard = Instantiate(heroPrefab).GetComponent<RaidMember>();
             heroCard.Hero = hero;
             heroCard.gameObject.SetActive(false);
+            heroCard.transform.localScale = scale;
             heroCard.transform.SetParent(transform);
             cachedItems.Add(heroCard);
             return heroCard;
         }
-        private InventoryItem CreateCachedAssetCard(Asset asset, List<InventoryItem> cachedItems)
+        private InventoryItem CreateCachedAssetCard(Asset asset, List<InventoryItem> cachedItems, Vector3 scale)
         {
             InventoryItem card = Instantiate(itemPrefab).GetComponent<InventoryItem>();
             card.Asset = asset;
             card.gameObject.SetActive(false);
+            card.transform.localScale = scale;
             card.transform.SetParent(transform);
             cachedItems.Add(card);
             return card;
         }
 
-        internal RaidMember GetHeroCard(Hero hero)
+        internal RaidMember GetRaidMember(Hero hero, Vector3 scale)
         {
             RaidMember heroCard = null;
 
             if (!heroPool.TryGetValue(hero.Id, out List<RaidMember> cachedItems))
             {
                 cachedItems = new();
-                heroCard = CreateCachedHeroCard(hero, cachedItems);
+                heroCard = CreateCachedRaidMember(hero, cachedItems, scale);
                 heroPool[hero.Id] = cachedItems;
             }
 
-            if (cachedItems.Where(x => !x.isActiveAndEnabled).FirstOrDefault() is RaidMember instance)
+            if (hero.HeroType != HeroType.NA &&
+                cachedItems.Where(x => !x.isActiveAndEnabled).FirstOrDefault() is RaidMember instance)
             {
                 heroCard = instance;
             }
             else
             {
-                heroCard = CreateCachedHeroCard(hero, cachedItems);
+                heroCard = CreateCachedRaidMember(hero, cachedItems, scale);
             }
 
-            heroCard.gameObject.SetActive(true);
+            heroCard.gameObject.SetActive(hero.HeroType != HeroType.NA);
 
             return heroCard;
 
         }
 
-        internal InventoryItem GetAssetCard(Asset asset)
+        internal InventoryItem GetAssetCard(Asset asset, Vector3 scale)
         {
             InventoryItem assetCard = null;
 
@@ -72,20 +73,21 @@ namespace Assets.Scripts.UI.Inventory
             if (!assetPool.TryGetValue(asset.Code, out List<InventoryItem> cachedItems))
             {
                 cachedItems = new();
-                assetCard = CreateCachedAssetCard(asset, cachedItems);                
+                assetCard = CreateCachedAssetCard(asset, cachedItems, scale);                
                 assetPool[asset.Code] = cachedItems;
             }
 
-            if (cachedItems.Where(x => !x.isActiveAndEnabled).FirstOrDefault() is InventoryItem instance)
+            if (asset.AssetType != AssetType.NA &&
+                cachedItems.Where(x => !x.isActiveAndEnabled).FirstOrDefault() is InventoryItem instance)
             {
                 assetCard = instance;
             }
             else
             {
-                assetCard = CreateCachedAssetCard(asset, cachedItems);
+                assetCard = CreateCachedAssetCard(asset, cachedItems, scale);
             }
 
-            assetCard.gameObject.SetActive(true);
+            assetCard.gameObject.SetActive(asset.AssetType != AssetType.NA);
 
             return assetCard;            
         }

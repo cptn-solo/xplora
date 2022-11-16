@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -130,31 +129,44 @@ namespace Assets.Scripts.UI.Battle
             else
                 return null;
         }
-        private Transform PooledHeroItem(Transform sample = null)
+        private Transform PooledHeroItem(Transform placeholder)
         {
-            if (sample == null)
-                sample = ItemForHero(Hero.Default).transform;
+            if (placeholder == null) // create and bind a new card
+            {
+                var placeholderCard = assetPool.GetRaidMember(
+                    Hero.Default, canvas.transform.localScale)
+                    .transform.GetComponent<RaidMember>();
+                BindHeroCard(placeholderCard); //placeholders are just filled with data on cargo drop
+                return placeholderCard.transform;
+            }
+            else // grab a card from the pool for display purposes
+            {
+                var placeholderCard = placeholder
+                    .transform.GetComponent<RaidMember>();
+                var hero = placeholderCard.Hero;
+                var card = assetPool.GetRaidMember(hero, canvas.transform.localScale);
+                return card.transform;
 
-            var heroCard = sample.GetComponent<RaidMember>();
-            var card = assetPool.GetHeroCard(heroCard.Hero);
-            return card.transform;
-
+            }
         }
 
-        private Transform PooledInventoryItem(Transform sample = null)
+        private Transform PooledInventoryItem(Transform placeholder)
         {
-            if (sample == null)
-                sample = ItemForAsset(default).transform;
-
-            var inventoryItem = sample.GetComponent<InventoryItem>();
-            var card = assetPool.GetAssetCard(inventoryItem.Asset);
-            return card.transform;
-
-        }
-        private Asset PooledAsset(Transform cargo)
-        {
-            cargo.SetParent(assetPool.transform);
-            return cargo.GetComponent<InventoryItem>().Asset;
+            if (placeholder == null) // new asset card for placeholder
+            {
+                var placeholderCard = assetPool.GetAssetCard(
+                    default, canvas.transform.localScale)
+                    .transform.GetComponent<InventoryItem>();
+                return placeholderCard.transform;
+            }
+            else // grab a card from the pool for display purposes
+            {
+                var placeholderCard = placeholder
+                    .transform.GetComponent<InventoryItem>();
+                var asset = placeholderCard.Asset;
+                var card = assetPool.GetAssetCard(asset, canvas.transform.localScale);
+                return card.transform;
+            }
         }
         private void InitInventorySlots()
         {

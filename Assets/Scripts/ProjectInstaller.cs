@@ -8,7 +8,7 @@ namespace Assets.Scripts
     {
         [SerializeField] private MenuNavigationService menuNavigationService;
         [SerializeField] private TeamManagementService teamManagementService;
-
+        [SerializeField] private HeroLibraryManagementService libManagementService;
         public override void InstallBindings()
         {
             Container
@@ -19,12 +19,17 @@ namespace Assets.Scripts
                 .Bind<TeamManagementService>()
                 .FromInstance(teamManagementService).AsSingle();
 
+            Container
+                .Bind<HeroLibraryManagementService>()
+                .FromInstance(libManagementService).AsSingle();
+
             BindInstallerInterfaces();
         }
 
         public void Initialize()
         {
             teamManagementService.LoadData();
+            libManagementService.LoadData();
         }
 
         private void BindInstallerInterfaces()

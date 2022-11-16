@@ -1309,6 +1309,7 @@ GameObject:
   - component: {fileID: 6251990544492435705}
   - component: {fileID: 6251990544492435706}
   - component: {fileID: 6251990544492435707}
+  - component: {fileID: 6981848910252469229}
   m_Layer: 5
   m_Name: Raid
   m_TagString: Untagged
@@ -1399,6 +1400,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &6981848910252469229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6251990544492435686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84656ca06ba929544b191a38d8bfa12c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  screen: 100
 --- !u!1 &6251990545006810762
 GameObject:
   m_ObjectHideFlags: 0

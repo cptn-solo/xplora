@@ -9,7 +9,7 @@ namespace Assets.Scripts.UI.Inventory
     {
         private RectTransform rectTransform;
         private CanvasGroup canvasGroup;
-        private Canvas canvas;
+        //private Canvas canvas;
 
         private void Awake()
         {
@@ -18,10 +18,10 @@ namespace Assets.Scripts.UI.Inventory
         }
         void Start()
         {
-            canvas = GetComponentInParent<Canvas>();
+            //canvas = GetComponentInParent<Canvas>();
 
-            if (transform.parent != null && canvas != null)
-                transform.localScale *= canvas.transform.localScale.x;
+            //if (transform.parent != null && canvas != null)
+            //    transform.localScale *= canvas.transform.localScale.x;
         }
     }
 }
