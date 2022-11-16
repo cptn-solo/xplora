@@ -12,15 +12,19 @@ using System.IO;
 public class GoogleSheetReader
 {
     private static readonly string spreadsheetId = "12acMQ8UTlDRHP0NvzSGVLYKb9QMhw2AjD9EKXTQug3U";
-    private static readonly string jsonPath = "/StreamingAssets/Credentials/xplora-368713-9739f2b0a7e8.json";
-    
+    private static readonly string jsonPath = "Credentials/key";
+    private static readonly string serviceAccountId = "xplora-metadata-reader@xplora-368713.iam.gserviceaccount.com";
+
+
     private static readonly SheetsService service;
 
     static GoogleSheetReader()
     {
-        string fullJsonPath = Application.dataPath + jsonPath;
-        Stream jsonCreds = (Stream)File.Open(fullJsonPath, FileMode.Open);
-        ServiceAccountCredential credential = ServiceAccountCredential.FromServiceAccountData(jsonCreds);
+        string key = Resources.Load<TextAsset>(jsonPath).ToString();
+        ServiceAccountCredential.Initializer initializer = new(
+            serviceAccountId);
+        ServiceAccountCredential credential = new(
+            initializer.FromPrivateKey(key));
 
         service = new SheetsService(
             new BaseClientService.Initializer()
