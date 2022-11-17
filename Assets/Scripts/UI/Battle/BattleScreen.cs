@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -10,13 +11,7 @@ namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen : MenuScreen
     {
-        private TeamManagementService teamManager = null;
-
-        [Inject]
-        public void Construct(TeamManagementService teamManager)
-        {
-            this.teamManager = teamManager;           
-        }
+        [Inject] private readonly TeamManagementService teamManager;
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
@@ -38,15 +33,27 @@ namespace Assets.Scripts.UI.Battle
         private readonly HeroDefenceSlot[] heroDefenceSlots = new HeroDefenceSlot[2];
 
         private Team team = default;
+        private HeroesLibrary library = default;
+
         private SlotDelegateProvider slotDelegate = default;
         private HeroDelegateProvider heroDelegate = default;
+        private bool initialized;
+
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; }// initialised on transaction start
 
         protected override void OnBeforeAwake() =>
             InitInputActions();
-        protected override void OnBeforeEnable() =>
+        protected override void OnBeforeEnable()
+        {
+            if (initialized)
+            {
+                ShowTeamBatleUnits(team);
+                ShowTeamInventory(team);
+            }
+
             EnableInputActions();
+        }
 
         protected override void OnBeforeDisable() =>
             DisableInputActions();
@@ -90,6 +97,7 @@ namespace Assets.Scripts.UI.Battle
             selectedHero = team.FrontLine[0];
             SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
+            initialized = true;
         }
 
         private Dictionary<int, Asset> GetAssetDictForSlot(UIItemSlot s)

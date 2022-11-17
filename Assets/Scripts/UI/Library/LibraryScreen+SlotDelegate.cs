@@ -1,6 +1,7 @@
 using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -25,13 +26,13 @@ namespace Assets.Scripts.UI.Library
                 return PooledItem(libSlot.HeroCard != null ? libSlot.HeroCard.transform : null);
             };
             slotDelegate.Validator = (UIItemSlot s) => {
-                return true;
+                return s.IsEmpty;
             };
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>
             {
                 if (s is LibrarySlot bls)
                 {
-                    var dict = library.Heroes;
+                    var dict = DictForSlot(s);
                     libManager.BeginHeroTransfer(dict, s.SlotIndex);
                     bls.Hero = Hero.Default;
                     Rollback = () => bls.Hero = dict[s.SlotIndex];
@@ -42,7 +43,7 @@ namespace Assets.Scripts.UI.Library
                 var success = false;
                 if (s is LibrarySlot bls)
                 {
-                    var dict = library.Heroes;
+                    var dict = DictForSlot(s);
                     success = libManager.CommitHeroTransfer(dict, s.SlotIndex);
                     bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
 
@@ -66,7 +67,7 @@ namespace Assets.Scripts.UI.Library
                 var success = false;
                 if (s is LibrarySlot bls)
                 {
-                    var dict = library.Heroes;
+                    var dict = DictForSlot(s);
                     success = libManager.AbortHeroTransfer();
                 }
 
@@ -77,6 +78,15 @@ namespace Assets.Scripts.UI.Library
 
                 return success;
             };
+        }
+
+        private Dictionary<int, Hero> DictForSlot(UIItemSlot s)
+        {
+            if (s is PlayerTeamSlot)
+                return library.PlayerTeam;
+            else if (s is EnemyTeamSlot)
+                return library.EnemyTeam;
+            else return library.Heroes;
         }
 
         private Transform PooledItem(Transform placeholder)

@@ -7,6 +7,7 @@
         RetreatBattle = 200,
         AutoBattle = 300,
         ReloadMetadata = 400,
+        SaveTeamForBattle = 500,
     }
 
 }

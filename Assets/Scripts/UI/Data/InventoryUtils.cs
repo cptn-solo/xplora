@@ -41,7 +41,7 @@ namespace Assets.Scripts.UI.Data
                 from[idx] is Hero current &&
                 current.HeroType != HeroType.NA)
             {
-                from[idx] = default;
+                from[idx] = Hero.Default;
                 return current;
             }
             return default;

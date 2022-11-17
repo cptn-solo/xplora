@@ -2,16 +2,19 @@
 
 namespace Assets.Scripts.UI.Data
 {
-    public struct Asset
+    public struct Asset : IIdentifiable<int>
     {
+        public int id;
         public IEntity Owner;
         public int Count;
         public int MaxCount;
+        
+        internal string Code;
 
         public AssetType AssetType;
         public string IconName;
         public string Name;
-        internal string Code;
+        public int Id => id;
 
         public override string ToString() =>
             $"{AssetType} {Name} {IconName}";
