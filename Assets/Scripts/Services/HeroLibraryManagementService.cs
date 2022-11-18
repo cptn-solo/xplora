@@ -1,4 +1,12 @@
 ﻿using Assets.Scripts.UI.Data;
+
+#if !PLATFORM_STANDALONE_WIN && !UNITY_EDITOR
+
+using Newtonsoft.Json;
+using System.IO;
+
+#endif
+
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,17 +15,25 @@ namespace Assets.Scripts
 {
     public partial class HeroLibraryManagementService : MonoBehaviour
     {
-        private GoogleSheetReader libraryMetadata;
         private HeroesLibrary library = HeroesLibrary.EmptyLibrary();
         public HeroesLibrary Library => library;
 
         private const int heroesNumber = 8;
         private const string heroesIconsPath = "Heroes/Icons";
 
+        [SerializeField] private List<List<object>> heroesRawData;
         public void LoadData()
         {
-            libraryMetadata = new GoogleSheetReader();
-            var list = libraryMetadata.GetSheetRange("'Герои'!A1:I19");
+            IList<IList<object>> list = null;
+
+#if PLATFORM_STANDALONE_WIN || UNITY_EDITOR
+            var libraryMetadata = new GoogleSheetReader();
+            list = libraryMetadata.GetSheetRange("'Герои'!A1:I19");
+#else
+            var serialized = File.ReadAllText(Application.dataPath + "/Heroes.json");
+            list = JsonConvert.DeserializeObject<string[][]>(serialized);
+#endif
+
             if (list.Count < 3)
                 return;
             
