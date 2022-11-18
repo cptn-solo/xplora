@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 using Google.Apis.Services;
@@ -7,7 +6,6 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 
 using UnityEngine;
-using System.IO;
 
 public class GoogleSheetReader
 {
@@ -36,7 +34,8 @@ public class GoogleSheetReader
 
     public IList<IList<object>> GetSheetRange(string sheetNameAndRange)
     {
-        SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
+        SpreadsheetsResource.ValuesResource.GetRequest request =
+            service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
 
         ValueRange response = request.Execute();
         IList<IList<object>> values = response.Values;

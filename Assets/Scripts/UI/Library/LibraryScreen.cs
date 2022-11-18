@@ -1,5 +1,6 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -20,13 +21,14 @@ namespace Assets.Scripts.UI.Library
 
         private Hero selectedHero = Hero.Default;
 
+        private bool googleHeroesAvailable = true;
+
         private readonly LibrarySlot[] librarySlots = new LibrarySlot[24];
         private readonly PlayerTeamSlot[] playerSlots = new PlayerTeamSlot[4];
         private readonly EnemyTeamSlot[] enemySlots = new EnemyTeamSlot[4];
 
         private SlotDelegateProvider slotDelegate = default;
-        private HeroesLibrary library;
-        
+        private HeroesLibrary library;        
 
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; }// initialised on transaction start
@@ -36,8 +38,21 @@ namespace Assets.Scripts.UI.Library
             InitSlotDelegates();
 
             var actionButtons = GetComponentsInChildren<UIActionButton>();
+
+#if !PLATFORM_STANDALONE_WIN && !UNITY_EDITOR
+            googleHeroesAvailable = false;
+#endif
+
             foreach (var button in actionButtons)
+            {
+                button.gameObject.SetActive(false);
+
+                if (button.Action == Actions.ReloadMetadata &&
+                    !googleHeroesAvailable) continue;
+
+                button.gameObject.SetActive(true);
                 button.OnActionButtonClick += OnActionButtonPressed;
+            }
 
             library = libManager.Library;
 
@@ -45,6 +60,15 @@ namespace Assets.Scripts.UI.Library
             InitSlots(playerTeamContainer, playerSlots);
             InitSlots(enemyTeamContainer, enemySlots);
 
+            ShowHeroesLibraryCards();
+            ShowPlayerCards();
+            ShowEnemyCards();
+
+            libManager.OnDataAvailable += LibManager_OnDataAvailable; ;
+        }
+
+        private void LibManager_OnDataAvailable()
+        {            
             ShowHeroesLibraryCards();
             ShowPlayerCards();
             ShowEnemyCards();
@@ -123,10 +147,8 @@ namespace Assets.Scripts.UI.Library
                     break;
                 case Actions.ReloadMetadata:
                     {
-                        libManager.LoadData();
-                        ShowHeroesLibraryCards();
-                        ShowPlayerCards();
-                        ShowEnemyCards();
+                        if (googleHeroesAvailable)
+                            libManager.LoadGoogleData();
                     }
                     break;
                 default:

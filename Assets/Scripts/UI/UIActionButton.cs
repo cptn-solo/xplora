@@ -1,13 +1,14 @@
 ﻿using Assets.Scripts.UI;
 using System;
 using UnityEngine;
-using UnityEngine.Device;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class UIActionButton : MonoBehaviour
 {
     [SerializeField] private Actions action;
+
+    public Actions Action => action;
 
     private event UnityAction OnButtonClick;
     private Button button;
