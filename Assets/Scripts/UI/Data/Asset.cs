@@ -4,6 +4,8 @@ namespace Assets.Scripts.UI.Data
 {
     public struct Asset : IIdentifiable<int>
     {
+        public static int lastUsedAssetId = -1;
+
         public int id;
         public IEntity Owner;
         public int Count;
@@ -22,7 +24,10 @@ namespace Assets.Scripts.UI.Data
         public static Asset EmptyAsset(AssetType assetType, string name, string iconName, int maxCount = 1)
         {
             Asset asset = default;
-
+            
+            asset.id = assetType != AssetType.NA ? 
+                lastUsedAssetId++ : -1;
+            
             asset.AssetType = assetType;
             asset.Name = name;
             asset.IconName = iconName;

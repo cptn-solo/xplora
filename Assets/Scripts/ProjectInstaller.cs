@@ -29,6 +29,7 @@ namespace Assets.Scripts
         public void Initialize()
         {
             libManagementService.LoadData();
+            battleManagementService.LoadData();
         }
 
         private void BindInstallerInterfaces()
