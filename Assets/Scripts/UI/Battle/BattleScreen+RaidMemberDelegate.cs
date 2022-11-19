@@ -7,11 +7,11 @@ namespace Assets.Scripts.UI.Battle
         private void InitRaidMemberDelegates()
         {
             heroDelegate.Validator = (RaidMember s) => {
-                return teamManager.TransferAsset.AssetType != AssetType.NA;
+                return assetTransfer.TransferAsset.AssetType != AssetType.NA;
             };
             heroDelegate.TransferEnd = (RaidMember s, bool accepted) =>
             {
-                var success = teamManager.CommitAssetTransfer(s.Hero.Inventory, -1, s.Hero);
+                var success = assetTransfer.Commit(s.Hero.Inventory, -1, s.Hero);
                 s.Hero = s.Hero;
 
                 if (!success)
@@ -24,7 +24,7 @@ namespace Assets.Scripts.UI.Battle
             heroDelegate.TransferAbort = (RaidMember s) =>
             {
                 var success = false;
-                success = teamManager.AbortAssetTransfer();
+                success = assetTransfer.Abort();
 
                 if (success)
                     Rollback?.Invoke();

@@ -1,27 +1,25 @@
-using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
-using static Assets.Scripts.TeamManagementService;
 
 namespace Assets.Scripts
 {
     using HeroDict = Dictionary<int, Hero>;
-    public partial class HeroLibraryManagementService
+
+    public class HeroTransfer
     {
-        public struct HeroCardTransaction
+        public struct HeroTransaction
         {
             public Hero Hero;
-            public HeroDict FromLine; // for example library
+            public HeroDict FromLine;
             public int FromIdx;
-            public HeroDict ToLine; //for example player team slots or enemy team slots
+            public HeroDict ToLine;
             public int ToIdx;
 
         }
-
         private HeroTransaction heroTransaction = default;
         public Hero TransferHero => heroTransaction.Hero;
 
-
-        public void BeginHeroTransfer(HeroDict from, int fromIdx)
+        public void Begin(HeroDict from, int fromIdx)
         {
             heroTransaction = new HeroTransaction
             {
@@ -31,7 +29,7 @@ namespace Assets.Scripts
             };
         }
 
-        public bool CommitHeroTransfer(HeroDict toLine, int toIndex)
+        public bool Commit(HeroDict toLine, int toIndex)
         {
             if (heroTransaction.Hero.HeroType == HeroType.NA)
                 return false;
@@ -39,20 +37,20 @@ namespace Assets.Scripts
             heroTransaction.ToLine = toLine;
             heroTransaction.ToIdx = toIndex;
 
-            library.MoveHero(heroTransaction.Hero, heroTransaction.FromLine, heroTransaction.FromIdx, toLine, toIndex);
+            heroTransaction.FromLine.TakeHero(heroTransaction.FromIdx);
+            heroTransaction.ToLine.PutHero(heroTransaction.Hero, heroTransaction.ToIdx);
 
             heroTransaction = default;
 
             return true;
         }
-
-        public bool AbortHeroTransfer()
+        public bool Abort()
         {
             heroTransaction = default;
 
             return true;
         }
 
+
     }
 }
-

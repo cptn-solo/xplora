@@ -3,12 +3,12 @@ using Zenject;
 
 namespace Assets.Scripts
 {
-
     public class ProjectInstaller : MonoInstaller, IInitializable
     {
         [SerializeField] private MenuNavigationService menuNavigationService;
-        [SerializeField] private TeamManagementService teamManagementService;
         [SerializeField] private HeroLibraryManagementService libManagementService;
+        [SerializeField] private BattleManagementService battleManagementService;
+        
         public override void InstallBindings()
         {
             Container
@@ -16,19 +16,18 @@ namespace Assets.Scripts
                 .FromInstance(menuNavigationService).AsSingle();
 
             Container
-                .Bind<TeamManagementService>()
-                .FromInstance(teamManagementService).AsSingle();
-
-            Container
                 .Bind<HeroLibraryManagementService>()
                 .FromInstance(libManagementService).AsSingle();
+
+            Container
+                .Bind<BattleManagementService>()
+                .FromInstance(battleManagementService).AsSingle();
 
             BindInstallerInterfaces();
         }
 
         public void Initialize()
         {
-            teamManagementService.LoadData();
             libManagementService.LoadData();
         }
 

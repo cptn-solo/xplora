@@ -20,6 +20,8 @@ namespace Assets.Scripts.UI.Library
             }
         }
 
+        public int TeamId { get; set; }
+
         private HeroCard heroCard;
         public HeroCard HeroCard => heroCard;
         public override void Put(Transform itemTransform)

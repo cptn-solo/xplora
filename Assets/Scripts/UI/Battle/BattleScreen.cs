@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -11,7 +10,7 @@ namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen : MenuScreen
     {
-        [Inject] private readonly TeamManagementService teamManager;
+        [Inject] private readonly BattleManagementService battleManager;
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
@@ -19,28 +18,38 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private RectTransform enemyPartyFront;
         [SerializeField] private RectTransform enemyPartyBack;
         
-        [SerializeField] private RectTransform teamInventory;
+        [SerializeField] private RectTransform playerTeamInventory;
+        [SerializeField] private RectTransform enemyTeamInventory;
         [SerializeField] private RectTransform heroInventory;
 
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
+        private readonly BattleLineSlot[] enemyFrontSlots = new BattleLineSlot[4];
+        private readonly BattleLineSlot[] enemyBackSlots = new BattleLineSlot[4];
+
+        private readonly TeamInventorySlot[] playerTeamInventorySlots = 
+            new TeamInventorySlot[15];
+        private readonly TeamInventorySlot[] enemyTeamInventorySlots = 
+            new TeamInventorySlot[15];
+        private readonly HeroInventorySlot[] heroInventorySlots = 
+            new HeroInventorySlot[10];
         
-        private readonly TeamInventorySlot[] teamInventorySlots = new TeamInventorySlot[15];
-        private readonly HeroInventorySlot[] heroInventorySlots = new HeroInventorySlot[10];
         private readonly HeroAttackSlot[] heroAttackSlots = new HeroAttackSlot[2];
         private readonly HeroDefenceSlot[] heroDefenceSlots = new HeroDefenceSlot[2];
 
-        private Team team = default;
-        private HeroesLibrary library = default;
-
         private SlotDelegateProvider slotDelegate = default;
         private HeroDelegateProvider heroDelegate = default;
+
+
+        private readonly AssetTransfer assetTransfer = new();
+        private readonly HeroTransfer heroTransfer = new();
+        
         private bool initialized;
 
         delegate void TransferRollback();
-        TransferRollback Rollback { get; set; }// initialised on transaction start
+        TransferRollback Rollback { get; set; } // initialised on transaction start
 
         protected override void OnBeforeAwake() =>
             InitInputActions();
@@ -48,8 +57,11 @@ namespace Assets.Scripts.UI.Battle
         {
             if (initialized)
             {
-                ShowTeamBatleUnits(team);
-                ShowTeamInventory(team);
+                ShowTeamBatleUnits(battleManager.PlayerTeam);
+                ShowTeamInventory(battleManager.PlayerTeam);
+                
+                ShowTeamBatleUnits(battleManager.EnemyTeam);
+                ShowTeamInventory(battleManager.EnemyTeam);
             }
 
             EnableInputActions();
@@ -69,14 +81,15 @@ namespace Assets.Scripts.UI.Battle
             if (slot is AssetInventorySlot)
             {
                 if (slot is HeroAttackSlot)
-                    return teamManager.TransferAsset.AssetType == AssetType.Attack;
+                    return assetTransfer.TransferAsset.AssetType == AssetType.Attack;
                 else if (slot is HeroDefenceSlot)
-                    return teamManager.TransferAsset.AssetType == AssetType.Defence;
+                    return assetTransfer.TransferAsset.AssetType == AssetType.Defence;
                 else
-                    return teamManager.TransferAsset.AssetType != AssetType.NA;
+                    return assetTransfer.TransferAsset.AssetType != AssetType.NA;
             }
-            else if (slot is BattleLineSlot)            
-                return teamManager.TransferHero.HeroType != HeroType.NA;
+            else if (slot is BattleLineSlot bls)            
+                return heroTransfer.TransferHero.HeroType != HeroType.NA &&
+                    heroTransfer.TransferHero.TeamId == bls.TeamId;
             else
                 return false;
         }
@@ -84,43 +97,43 @@ namespace Assets.Scripts.UI.Battle
         protected override void OnBeforeStart()
         {
             InitInventorySlotDelegates(); // drop between slots (both assets and heroes)
+            
+            InitTeamInventorySlots(playerTeamInventory, playerTeamInventorySlots, 
+                battleManager.PlayerTeam.Id);            
+            InitTeamInventorySlots(enemyTeamInventory, enemyTeamInventorySlots,
+                battleManager.EnemyTeam.Id);
+            
+            InitInventorySlots(heroInventory, heroInventorySlots);
+            InitInventorySlots(heroInventory, heroAttackSlots);
+            InitInventorySlots(heroInventory, heroDefenceSlots);
+
             InitRaidMemberDelegates(); // drop on hero cards
 
-            InitPlayerHeroSlots();
-            InitInventorySlots();
+            InitHeroSlots(playerPartyFront, playerFrontSlots, battleManager.PlayerTeam.Id);
+            InitHeroSlots(playerPartyBack, playerBackSlots, battleManager.PlayerTeam.Id);
 
-            team = teamManager.Team;
+            InitHeroSlots(enemyPartyFront, enemyFrontSlots, battleManager.EnemyTeam.Id);
+            InitHeroSlots(enemyPartyBack, enemyBackSlots, battleManager.EnemyTeam.Id);
 
-            ShowTeamBatleUnits(team);
-            ShowTeamInventory(team);
+            ShowTeamBatleUnits(battleManager.PlayerTeam);
+            ShowTeamInventory(battleManager.PlayerTeam);
 
-            selectedHero = team.FrontLine[0];
+            ShowTeamBatleUnits(battleManager.EnemyTeam);
+            ShowTeamInventory(battleManager.EnemyTeam);
+
+            selectedHero = battleManager.PlayerTeam.FrontLine[0];
             SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
             initialized = true;
         }
 
-        private Dictionary<int, Asset> GetAssetDictForSlot(UIItemSlot s)
+        private void InitHeroSlots(Transform containerTransform, BattleLineSlot[] slots, int teamId)
         {
-            return s is HeroInventorySlot ? selectedHero.Inventory :
-                                    s is HeroDefenceSlot ? selectedHero.Defence :
-                                    s is HeroAttackSlot ? selectedHero.Attack :
-                                    team.Inventory;
-        }
-
-        private void InitPlayerHeroSlots()
-        {
-            foreach (var slot in playerPartyFront.GetComponentsInChildren<BattleLineSlot>())
-            {
-                
-                slot.DelegateProvider = slotDelegate;
-                playerFrontSlots[slot.SlotIndex] = slot;
-            }
-
-            foreach (var slot in playerPartyBack.GetComponentsInChildren<BattleLineSlot>())
+            foreach (var slot in containerTransform.GetComponentsInChildren<BattleLineSlot>())
             {
                 slot.DelegateProvider = slotDelegate;
-                playerBackSlots[slot.SlotIndex] = slot;
+                slot.SetTeamId(teamId);
+                slots[slot.SlotIndex] = slot;
             }
         }
         private Transform PooledItem(UIItemSlot slot)
@@ -176,30 +189,25 @@ namespace Assets.Scripts.UI.Battle
                 return card.transform;
             }
         }
-        private void InitInventorySlots()
+        private void InitTeamInventorySlots(Transform containerTransform, 
+            TeamInventorySlot[] slots, int teamId)
         {
-            foreach (var slot in teamInventory.GetComponentsInChildren<TeamInventorySlot>())
+            foreach (var slot in containerTransform
+                .GetComponentsInChildren<TeamInventorySlot>())
             {
                 slot.DelegateProvider = slotDelegate;
-                teamInventorySlots[slot.SlotIndex] = slot;
+                slot.SetTeamId(teamId);
+                slots[slot.SlotIndex] = slot;
             }
+        }
 
-            foreach (var slot in heroInventory.GetComponentsInChildren<HeroInventorySlot>())
+        private void InitInventorySlots<T>(Transform containerTransform, T[] slots)
+            where T : AssetInventorySlot
+        {
+            foreach (var slot in containerTransform.GetComponentsInChildren<T>())
             {
                 slot.DelegateProvider = slotDelegate;
-                heroInventorySlots[slot.SlotIndex] = slot;
-            }
-
-            foreach (var slot in heroInventory.GetComponentsInChildren<HeroAttackSlot>())
-            {
-                slot.DelegateProvider = slotDelegate;
-                heroAttackSlots[slot.SlotIndex] = slot;
-            }
-
-            foreach (var slot in heroInventory.GetComponentsInChildren<HeroDefenceSlot>())
-            {
-                slot.DelegateProvider = slotDelegate;
-                heroDefenceSlots[slot.SlotIndex] = slot;
+                slots[slot.SlotIndex] = slot;
             }
         }
     }

@@ -30,20 +30,27 @@ namespace Assets.Scripts.UI.Battle
 
         private void SyncHeroCardSelectionWithHero()
         {
-            foreach (var card in playerFrontSlots.Select(x => x.RaidMember).ToArray())
-                card.Selected = card.Hero.Equals(selectedHero);
+            var slots = playerFrontSlots
+                .Concat(playerBackSlots)
+                .Concat(enemyFrontSlots)
+                .Concat(enemyBackSlots);
 
-            foreach (var card in playerBackSlots.Select(x => x.RaidMember).ToArray())
+            foreach (var card in slots.Select(x => x.RaidMember).ToArray())
                 card.Selected = card.Hero.Equals(selectedHero);
         }
 
         private void ShowTeamBatleUnits(Team team)
         {
+            var frontSlots = (team.Id == battleManager.PlayerTeam.Id) ?
+                playerFrontSlots : enemyFrontSlots;
+            var backSlots = (team.Id == battleManager.PlayerTeam.Id) ?
+                playerBackSlots : enemyBackSlots;
+
             foreach (var hero in team.FrontLine)
-                playerFrontSlots[hero.Key].Hero = hero.Value;
+                frontSlots[hero.Key].Hero = hero.Value;
 
             foreach (var hero in team.BackLine)
-                playerBackSlots[hero.Key].Hero = hero.Value;
+                backSlots[hero.Key].Hero = hero.Value;
 
         }
     }

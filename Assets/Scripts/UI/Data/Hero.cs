@@ -11,6 +11,7 @@ namespace Assets.Scripts.UI.Data
 
         public HeroType HeroType;
         public string IconName;
+        public int TeamId { get; set; }
 
         public int Id => id;
 
@@ -25,6 +26,7 @@ namespace Assets.Scripts.UI.Data
         public AssetDict Defence; // index, item
 
         public static Hero Default => EmptyHero();
+
         public static Hero EmptyHero() => 
             EmptyHero(-1, "", null, HeroType.NA);
 
@@ -37,6 +39,7 @@ namespace Assets.Scripts.UI.Data
             hero.inventory = DefaultInventory();
             hero.HeroType = heroType;
             hero.IconName = iconName;
+            hero.TeamId = -1;
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();

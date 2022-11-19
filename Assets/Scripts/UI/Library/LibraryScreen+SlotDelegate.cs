@@ -1,4 +1,3 @@
-using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System.Collections.Generic;
@@ -33,7 +32,7 @@ namespace Assets.Scripts.UI.Library
                 if (s is LibrarySlot bls)
                 {
                     var dict = DictForSlot(s);
-                    libManager.BeginHeroTransfer(dict, s.SlotIndex);
+                    heroTransfer.Begin(dict, s.SlotIndex);
                     bls.Hero = Hero.Default;
                     Rollback = () => bls.Hero = dict[s.SlotIndex];
                 }
@@ -44,8 +43,20 @@ namespace Assets.Scripts.UI.Library
                 if (s is LibrarySlot bls)
                 {
                     var dict = DictForSlot(s);
-                    success = libManager.CommitHeroTransfer(dict, s.SlotIndex);
-                    bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
+                    success = heroTransfer.Commit(dict, s.SlotIndex);
+
+                    if (success)
+                    {
+                        var hero = dict[s.SlotIndex];
+
+                        hero.TeamId = bls.TeamId;
+                        bls.Hero = hero;
+                        dict[s.SlotIndex] = hero;
+                    }
+                    else
+                    {
+                        bls.Hero = Hero.Default;
+                    }
 
                     OnHeroMoved?.Invoke(bls.Hero);
                 }
@@ -59,7 +70,7 @@ namespace Assets.Scripts.UI.Library
             };
             slotDelegate.TransferCleanup = (UIItemSlot s) =>
             {
-                if (libManager.TransferHero.HeroType != HeroType.NA)
+                if (heroTransfer.TransferHero.HeroType != HeroType.NA)
                     slotDelegate.TransferAbort(s);
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>
@@ -68,7 +79,7 @@ namespace Assets.Scripts.UI.Library
                 if (s is LibrarySlot bls)
                 {
                     var dict = DictForSlot(s);
-                    success = libManager.AbortHeroTransfer();
+                    success = heroTransfer.Abort();
                 }
 
                 if (success)

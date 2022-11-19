@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Assets.Scripts
 {
-    public partial class HeroLibraryManagementService : MonoBehaviour
+    public class HeroLibraryManagementService : MonoBehaviour
     {
         private HeroesLibrary library = HeroesLibrary.EmptyLibrary();
         public HeroesLibrary Library => library;
@@ -129,7 +129,6 @@ namespace Assets.Scripts
             {
                 return dict.Where(x => x.Value.Id.Equals(id));
             }
-
         }
     }
 }

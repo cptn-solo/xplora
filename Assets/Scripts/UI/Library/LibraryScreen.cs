@@ -1,6 +1,5 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -10,7 +9,7 @@ namespace Assets.Scripts.UI.Library
     public partial class LibraryScreen : MenuScreen
     {
         [Inject] private readonly HeroLibraryManagementService libManager;
-        [Inject] private readonly TeamManagementService teamManager;
+        [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly MenuNavigationService nav;
 
         [SerializeField] private Transform libraryContainer;
@@ -28,7 +27,9 @@ namespace Assets.Scripts.UI.Library
         private readonly EnemyTeamSlot[] enemySlots = new EnemyTeamSlot[4];
 
         private SlotDelegateProvider slotDelegate = default;
-        private HeroesLibrary library;        
+        private HeroesLibrary library;
+
+        private readonly HeroTransfer heroTransfer = new();
 
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; }// initialised on transaction start
@@ -56,15 +57,15 @@ namespace Assets.Scripts.UI.Library
 
             library = libManager.Library;
 
-            InitSlots(libraryContainer, librarySlots);
-            InitSlots(playerTeamContainer, playerSlots);
-            InitSlots(enemyTeamContainer, enemySlots);
+            InitSlots<LibrarySlot>(libraryContainer, librarySlots, -1);
+            InitSlots<PlayerTeamSlot>(playerTeamContainer, playerSlots, battleManager.PlayerTeam.Id);
+            InitSlots<EnemyTeamSlot>(enemyTeamContainer, enemySlots, battleManager.EnemyTeam.Id);
 
             ShowHeroesLibraryCards();
             ShowPlayerCards();
             ShowEnemyCards();
 
-            libManager.OnDataAvailable += LibManager_OnDataAvailable; ;
+            libManager.OnDataAvailable += LibManager_OnDataAvailable;
         }
 
         private void LibManager_OnDataAvailable()
@@ -90,13 +91,14 @@ namespace Assets.Scripts.UI.Library
                 enemySlots[hero.Key].Hero = hero.Value;
         }
 
-        private void InitSlots<T>(Transform container, T[] outSlots) where T: UIItemSlot
+        private void InitSlots<T>(Transform container, T[] outSlots, int teamId) where T: LibrarySlot
         {
             var slots = container.GetComponentsInChildren<T>();
             for (int i = 0; i < slots.Length; i++)
             {
                 var slot = slots[i];
                 slot.SlotIndex = i;
+                slot.TeamId = teamId;
                 slot.DelegateProvider = slotDelegate;
                 outSlots[i] = slot;
             }
@@ -132,16 +134,19 @@ namespace Assets.Scripts.UI.Library
                 case Actions.SaveTeamForBattle:
                     {
                         
-                        if (library.PlayerTeam.Where(x => x.Value.HeroType != HeroType.NA).Count() > 0)
+                        if (library.PlayerTeam.Where(x => 
+                            x.Value.HeroType != HeroType.NA).Count() > 0)
                         {
-                            var team = teamManager.Team;
-                            
-                            for (int i = 0; i < 4; i++)
-                                team.BackLine[i] = Hero.Default;
-
-                            for (int i = 0; i < library.PlayerTeam.Count; i++)
-                                team.FrontLine[i] = library.PlayerTeam[i];
+                            battleManager.PrepareTeam(library.PlayerTeam, 
+                                battleManager.PlayerTeam.Id);
                         }
+                        if (library.EnemyTeam.Where(x =>
+                            x.Value.HeroType != HeroType.NA).Count() > 0)
+                        {
+                            battleManager.PrepareTeam(library.EnemyTeam,
+                                battleManager.EnemyTeam.Id);
+                        }
+
                         nav.NavigateToScreen(Screens.Battle);
                     }
                     break;
@@ -156,7 +161,6 @@ namespace Assets.Scripts.UI.Library
             }
 
         }
-
 
     }
 }

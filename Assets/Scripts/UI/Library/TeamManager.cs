@@ -1,11 +1,10 @@
 ﻿using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
-using UnityEngine;
 using Asset = Assets.Scripts.UI.Data.Asset;
 
 namespace Assets.Scripts
 {
-    public partial class TeamManagementService : MonoBehaviour
+    public partial class TeamManager
     {
         private Team team = Team.EmptyTeam(0, "A Team");
 

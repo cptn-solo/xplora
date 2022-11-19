@@ -4,6 +4,5 @@ namespace Assets.Scripts.UI.Battle
 {
     public class HeroInventorySlot : AssetInventorySlot
     {
-
     }
 }

@@ -1,11 +1,14 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Battle
 {
+    using HeroDict = Dictionary<int, Hero>;
+    using AssetDict = Dictionary<int, Asset>;
     public partial class BattleScreen // Inventory Slot Delegate
     {
         private event UnityAction<Hero> OnHeroMoved;
@@ -22,15 +25,15 @@ namespace Assets.Scripts.UI.Battle
             {
                 if (s is BattleLineSlot bls)
                 {
-                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
-                    teamManager.BeginHeroTransfer(dict, s.SlotIndex);
+                    var dict = DictForBattleSlot(bls);
+                    heroTransfer.Begin(dict, s.SlotIndex);
                     bls.Hero = Hero.Default;
                     Rollback = () => bls.Hero = dict[s.SlotIndex];
                 }
                 else if (s is AssetInventorySlot ais)
                 {
-                    var dict = GetAssetDictForSlot(s);
-                    teamManager.BeginAssetTransfer(dict, s.SlotIndex);
+                    var dict = DictForAssetSlot(ais);
+                    assetTransfer.Begin(dict, s.SlotIndex);
                     ais.Asset = default;
                     Rollback = () => ais.Asset = dict[s.SlotIndex];
                 }
@@ -40,16 +43,16 @@ namespace Assets.Scripts.UI.Battle
                 var success = false;
                 if (s is BattleLineSlot bls)
                 {
-                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
-                    success = teamManager.CommitHeroTransfer(dict, s.SlotIndex);
+                    var dict = DictForBattleSlot(bls);
+                    success = heroTransfer.Commit(dict, s.SlotIndex);
                     bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
 
                     OnHeroMoved?.Invoke(bls.Hero);
                 }
                 else if (s is AssetInventorySlot ais)
                 {
-                    var dict = GetAssetDictForSlot(s);
-                    success = teamManager.CommitAssetTransfer(dict, s.SlotIndex);
+                    var dict = DictForAssetSlot(ais);
+                    success = assetTransfer.Commit(dict, s.SlotIndex);
                     ais.Asset = success ? dict[s.SlotIndex] : default;
 
                     OnHeroUpdated?.Invoke(selectedHero);
@@ -64,23 +67,13 @@ namespace Assets.Scripts.UI.Battle
             };
             slotDelegate.TransferCleanup = (UIItemSlot s) =>
             {
-                if (teamManager.TransferAsset.AssetType != AssetType.NA ||
-                    teamManager.TransferHero.HeroType != HeroType.NA)
+                if (assetTransfer.TransferAsset.AssetType != AssetType.NA ||
+                    heroTransfer.TransferHero.HeroType != HeroType.NA)
                     slotDelegate.TransferAbort(s);
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>
             {
-                var success = false;
-                if (s is BattleLineSlot bls)
-                {
-                    var dict = playerFrontSlots.Contains(s) ? team.FrontLine : team.BackLine;
-                    success = teamManager.AbortHeroTransfer();
-                }
-                else
-                {
-                    var dict = GetAssetDictForSlot(s);
-                    success = teamManager.AbortAssetTransfer();
-                }
+                var success = s is BattleLineSlot bls ? heroTransfer.Abort() : assetTransfer.Abort();
 
                 if (success)
                     Rollback?.Invoke();
@@ -91,14 +84,37 @@ namespace Assets.Scripts.UI.Battle
             };
         }
 
+        private HeroDict DictForBattleSlot(BattleLineSlot bls)
+        {
+            var playerTeamId = battleManager.PlayerTeam.Id;
+            var team = bls.TeamId == playerTeamId ? battleManager.PlayerTeam : battleManager.EnemyTeam;
+            var frontSlots = bls.TeamId == playerTeamId ? playerFrontSlots : enemyFrontSlots;
+            var dict = frontSlots.Contains(bls) ? team.FrontLine : team.BackLine;
+            return dict;
+        }
+        private AssetDict DictForAssetSlot(AssetInventorySlot s)
+        {
+            if (s is TeamInventorySlot tis)
+                return tis.TeamId == battleManager.PlayerTeam.Id ?
+                    battleManager.PlayerTeam.Inventory :
+                    battleManager.EnemyTeam.Inventory;
+
+            return s is HeroDefenceSlot ? selectedHero.Defence :
+                                    s is HeroAttackSlot ? selectedHero.Attack :
+                                    selectedHero.Inventory;
+        }
+
         private void SlotDelegate_HeroUpdated(Hero hero) =>
             RaidMemberForHero(hero).Hero = hero;
 
         private RaidMember RaidMemberForHero(Hero hero)
         {
-            var rm = playerFrontSlots.Where(x => x.RaidMember.Hero.Id == hero.Id).Select(x => x.RaidMember).FirstOrDefault();
-            if (rm == null)
-                rm = playerBackSlots.Where(x => x.RaidMember.Hero.Id == hero.Id).Select(x => x.RaidMember).FirstOrDefault();
+            var slots = (hero.TeamId == battleManager.PlayerTeam.Id) ?
+                playerFrontSlots.Concat(playerBackSlots) :
+                enemyFrontSlots.Concat(enemyBackSlots);
+
+            var rm = slots.Where(x => x.RaidMember.Hero.Id == hero.Id)
+                .Select(x => x.RaidMember).FirstOrDefault();
 
             return rm;
         }
