@@ -8,6 +8,7 @@
         AutoBattle = 300,
         ReloadMetadata = 400,
         SaveTeamForBattle = 500,
+        ToggleInventoryPanel = 600,
     }
 
 }

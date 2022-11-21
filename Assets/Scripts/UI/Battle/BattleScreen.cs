@@ -22,6 +22,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private RectTransform enemyTeamInventory;
         [SerializeField] private RectTransform heroInventory;
 
+        [SerializeField] private RectTransform inventoryPanel;
+        [SerializeField] private RectTransform battleQueuePanel;
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
@@ -47,6 +49,7 @@ namespace Assets.Scripts.UI.Battle
         private readonly HeroTransfer heroTransfer = new();
         
         private bool initialized;
+        private bool inventoryToggle = true;
 
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; } // initialised on transaction start
@@ -96,6 +99,13 @@ namespace Assets.Scripts.UI.Battle
         
         protected override void OnBeforeStart()
         {
+            var actionButtons = GetComponentsInChildren<UIActionButton>();
+            foreach (var button in actionButtons)
+                button.OnActionButtonClick += Button_OnActionButtonClick;
+
+            inventoryPanel.gameObject.SetActive(inventoryToggle);
+            battleQueuePanel.gameObject.SetActive(!inventoryToggle);
+
             InitInventorySlotDelegates(); // drop between slots (both assets and heroes)
             
             InitTeamInventorySlots(playerTeamInventory, playerTeamInventorySlots, 
@@ -124,7 +134,32 @@ namespace Assets.Scripts.UI.Battle
             selectedHero = battleManager.PlayerTeam.FrontLine[0];
             SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
+
             initialized = true;
+        }
+
+        private void Button_OnActionButtonClick(Actions arg1, Transform arg2)
+        {
+            switch (arg1)
+            {                
+                case Actions.ToggleInventoryPanel:
+                    {
+                        var toggleButton = arg2.GetComponent<UIActionToggleButton>();
+                        inventoryToggle = !inventoryToggle;
+                        toggleButton.Toggle(inventoryToggle);
+
+                        var pos = inventoryPanel.position;
+                        pos.y = inventoryToggle ? 0f : -350f;
+
+                        inventoryPanel.position = pos;
+                        inventoryPanel.gameObject.SetActive(inventoryToggle);
+                        battleQueuePanel.gameObject.SetActive(!inventoryToggle);
+
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void InitHeroSlots(Transform containerTransform, BattleLineSlot[] slots, int teamId)

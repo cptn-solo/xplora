@@ -14,6 +14,9 @@ public class UIActionButton : MonoBehaviour
     private Button button;
 
     public event Action<Actions, Transform> OnActionButtonClick;
+    
+    protected Button Button => button;
+    
     private void Awake()
     {
         button = GetComponent<Button>();
