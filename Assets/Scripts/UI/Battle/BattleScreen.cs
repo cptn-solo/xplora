@@ -1,10 +1,7 @@
-﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.UI.Inventory;
-using System.Collections.Generic;
+﻿using Assets.Scripts.UI.Inventory;
 using TMPro;
 using UnityEngine;
 using Zenject;
-using Asset = Assets.Scripts.UI.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -17,13 +14,11 @@ namespace Assets.Scripts.UI.Battle
 
         [SerializeField] private RectTransform enemyPartyFront;
         [SerializeField] private RectTransform enemyPartyBack;
-        
+
         [SerializeField] private RectTransform playerTeamInventory;
         [SerializeField] private RectTransform enemyTeamInventory;
         [SerializeField] private RectTransform heroInventory;
 
-        [SerializeField] private RectTransform inventoryPanel;
-        [SerializeField] private RectTransform battleQueuePanel;
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
@@ -31,13 +26,13 @@ namespace Assets.Scripts.UI.Battle
         private readonly BattleLineSlot[] enemyFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] enemyBackSlots = new BattleLineSlot[4];
 
-        private readonly TeamInventorySlot[] playerTeamInventorySlots = 
+        private readonly TeamInventorySlot[] playerTeamInventorySlots =
             new TeamInventorySlot[15];
-        private readonly TeamInventorySlot[] enemyTeamInventorySlots = 
+        private readonly TeamInventorySlot[] enemyTeamInventorySlots =
             new TeamInventorySlot[15];
-        private readonly HeroInventorySlot[] heroInventorySlots = 
+        private readonly HeroInventorySlot[] heroInventorySlots =
             new HeroInventorySlot[10];
-        
+
         private readonly HeroAttackSlot[] heroAttackSlots = new HeroAttackSlot[2];
         private readonly HeroDefenceSlot[] heroDefenceSlots = new HeroDefenceSlot[2];
 
@@ -47,64 +42,80 @@ namespace Assets.Scripts.UI.Battle
 
         private readonly AssetTransfer assetTransfer = new();
         private readonly HeroTransfer heroTransfer = new();
-        
+
         private bool initialized;
         private bool inventoryToggle = true;
+        
+        private BattleInventory battleInventory;
+        private BattleQueue battleQueue;
+        private UIActionButton[] actionButtons;
+
+        private UIActionToggleButton toggleInventoryButton;
 
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; } // initialised on transaction start
 
-        protected override void OnBeforeAwake() =>
-            InitInputActions();
+        protected override void OnBeforeAwake()
+        {
+            battleInventory = GetComponent<BattleInventory>();
+            battleQueue = GetComponent<BattleQueue>();
+        }
         protected override void OnBeforeEnable()
         {
             if (initialized)
             {
                 ShowTeamBatleUnits(battleManager.PlayerTeam);
                 ShowTeamInventory(battleManager.PlayerTeam);
-                
+
                 ShowTeamBatleUnits(battleManager.EnemyTeam);
                 ShowTeamInventory(battleManager.EnemyTeam);
-            }
 
-            EnableInputActions();
+                UpdateActionButtons();
+
+                if (battleManager.ResetBattle)
+                {
+                    battleQueue.Prepare();
+                }
+            }
         }
 
-        protected override void OnBeforeDisable() =>
-            DisableInputActions();
-
-        protected override void OnBeforeUpdate() =>
-            ProcessInputActions();
-
-        private bool CheckSlot(UIItemSlot slot)
+        private void UpdateActionButtons()
         {
-            if (!slot.IsEmpty)
-                return false;
-
-            if (slot is AssetInventorySlot)
+            foreach (var button in actionButtons)
             {
-                if (slot is HeroAttackSlot)
-                    return assetTransfer.TransferAsset.AssetType == AssetType.Attack;
-                else if (slot is HeroDefenceSlot)
-                    return assetTransfer.TransferAsset.AssetType == AssetType.Defence;
-                else
-                    return assetTransfer.TransferAsset.AssetType != AssetType.NA;
+                if (button.Action == Actions.PrepareQueue)
+                    button.gameObject.SetActive(battleManager.CurrentTurn < 0);
+
+                if (button.Action == Actions.BeginBattle)
+                    button.gameObject.SetActive(battleManager.CurrentTurn < 0);
+
+                if (button.Action == Actions.CompleteTurn)
+                    button.gameObject.SetActive(battleManager.CurrentTurn >= 0);
+
             }
-            else if (slot is BattleLineSlot bls)            
-                return heroTransfer.TransferHero.HeroType != HeroType.NA &&
-                    heroTransfer.TransferHero.TeamId == bls.TeamId;
-            else
-                return false;
+        }
+
+        protected override void OnBeforeDisable()
+        {
+        }
+
+        protected override void OnBeforeUpdate()
+        { 
         }
         
         protected override void OnBeforeStart()
         {
-            var actionButtons = GetComponentsInChildren<UIActionButton>();
+            actionButtons = GetComponentsInChildren<UIActionButton>();
             foreach (var button in actionButtons)
+            {
                 button.OnActionButtonClick += Button_OnActionButtonClick;
 
-            inventoryPanel.gameObject.SetActive(inventoryToggle);
-            battleQueuePanel.gameObject.SetActive(!inventoryToggle);
+                if (button.Action == Actions.ToggleInventoryPanel)
+                    toggleInventoryButton = (UIActionToggleButton)button;
+            }
+
+            battleInventory.Toggle(inventoryToggle);
+            battleQueue.Toggle(!inventoryToggle);
 
             InitInventorySlotDelegates(); // drop between slots (both assets and heroes)
             
@@ -136,6 +147,8 @@ namespace Assets.Scripts.UI.Battle
             ShowHeroInventory(selectedHero);
 
             initialized = true;
+
+            UpdateActionButtons();
         }
 
         private void Button_OnActionButtonClick(Actions arg1, Transform arg2)
@@ -144,22 +157,48 @@ namespace Assets.Scripts.UI.Battle
             {                
                 case Actions.ToggleInventoryPanel:
                     {
-                        var toggleButton = arg2.GetComponent<UIActionToggleButton>();
-                        inventoryToggle = !inventoryToggle;
-                        toggleButton.Toggle(inventoryToggle);
+                        ToggleInventory();
+                    }
+                    break;
+                case Actions.BeginBattle:
+                    {
+                        if (inventoryToggle)
+                            ToggleInventory();
 
-                        var pos = inventoryPanel.position;
-                        pos.y = inventoryToggle ? 0f : -350f;
+                        battleManager.BeginBattle();
 
-                        inventoryPanel.position = pos;
-                        inventoryPanel.gameObject.SetActive(inventoryToggle);
-                        battleQueuePanel.gameObject.SetActive(!inventoryToggle);
+                        UpdateActionButtons();
+                    }
+                    break;
 
+                case Actions.PrepareQueue:
+                    {
+                        if (inventoryToggle)
+                            ToggleInventory();
+
+                        battleQueue.Prepare();
+                    }
+                    break;
+                case Actions.CompleteTurn:
+                    {
+                        battleManager.CompleteTurn();
+                        battleQueue.CompleteTurn();
+                        
+                        UpdateActionButtons();
                     }
                     break;
                 default:
                     break;
             }
+        }
+
+        private void ToggleInventory()
+        {
+            inventoryToggle = !inventoryToggle;
+            toggleInventoryButton.Toggle(inventoryToggle);
+
+            battleInventory.Toggle(inventoryToggle);
+            battleQueue.Toggle(!inventoryToggle);
         }
 
         private void InitHeroSlots(Transform containerTransform, BattleLineSlot[] slots, int teamId)
@@ -171,59 +210,7 @@ namespace Assets.Scripts.UI.Battle
                 slots[slot.SlotIndex] = slot;
             }
         }
-        private Transform PooledItem(UIItemSlot slot)
-        {
-            var sample = slot.transform.childCount == 0 ? null : slot.transform.GetChild(0);
-            if (slot is AssetInventorySlot)
-            {
-                return PooledInventoryItem(sample);
-            }
-            else if (slot is BattleLineSlot)
-            {
-                return PooledHeroItem(sample);
-            }
-            else
-                return null;
-        }
-        private Transform PooledHeroItem(Transform placeholder)
-        {
-            if (placeholder == null) // create and bind a new card
-            {
-                var placeholderCard = assetPool.GetRaidMember(
-                    Hero.Default, canvas.transform.localScale)
-                    .transform.GetComponent<RaidMember>();
-                BindHeroCard(placeholderCard); //placeholders are just filled with data on cargo drop
-                return placeholderCard.transform;
-            }
-            else // grab a card from the pool for display purposes
-            {
-                var placeholderCard = placeholder
-                    .transform.GetComponent<RaidMember>();
-                var hero = placeholderCard.Hero;
-                var card = assetPool.GetRaidMember(hero, canvas.transform.localScale);
-                return card.transform;
-
-            }
-        }
-
-        private Transform PooledInventoryItem(Transform placeholder)
-        {
-            if (placeholder == null) // new asset card for placeholder
-            {
-                var placeholderCard = assetPool.GetAssetCard(
-                    default, canvas.transform.localScale)
-                    .transform.GetComponent<InventoryItem>();
-                return placeholderCard.transform;
-            }
-            else // grab a card from the pool for display purposes
-            {
-                var placeholderCard = placeholder
-                    .transform.GetComponent<InventoryItem>();
-                var asset = placeholderCard.Asset;
-                var card = assetPool.GetAssetCard(asset, canvas.transform.localScale);
-                return card.transform;
-            }
-        }
+        
         private void InitTeamInventorySlots(Transform containerTransform, 
             TeamInventorySlot[] slots, int teamId)
         {

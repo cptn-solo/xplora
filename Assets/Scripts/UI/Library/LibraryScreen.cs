@@ -147,6 +147,8 @@ namespace Assets.Scripts.UI.Library
                                 battleManager.EnemyTeam.Id);
                         }
 
+                        battleManager.ResetBattle = true;
+
                         nav.NavigateToScreen(Screens.Battle);
                     }
                     break;

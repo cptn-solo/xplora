@@ -84,6 +84,81 @@ namespace Assets.Scripts.UI.Battle
             };
         }
 
+        private bool CheckSlot(UIItemSlot slot)
+        {
+            if (!slot.IsEmpty)
+                return false;
+
+            if (slot is AssetInventorySlot)
+            {
+                if (slot is HeroAttackSlot)
+                    return assetTransfer.TransferAsset.AssetType == AssetType.Attack;
+                else if (slot is HeroDefenceSlot)
+                    return assetTransfer.TransferAsset.AssetType == AssetType.Defence;
+                else
+                    return assetTransfer.TransferAsset.AssetType != AssetType.NA;
+            }
+            else if (slot is BattleLineSlot bls)
+                return heroTransfer.TransferHero.HeroType != HeroType.NA &&
+                    heroTransfer.TransferHero.TeamId == bls.TeamId;
+            else
+                return false;
+        }
+
+        private Transform PooledItem(UIItemSlot slot)
+        {
+            var sample = slot.transform.childCount == 0 ? null : slot.transform.GetChild(0);
+            if (slot is AssetInventorySlot)
+            {
+                return PooledInventoryItem(sample);
+            }
+            else if (slot is BattleLineSlot)
+            {
+                return PooledHeroItem(sample);
+            }
+            else
+                return null;
+        }
+        private Transform PooledHeroItem(Transform placeholder)
+        {
+            if (placeholder == null) // create and bind a new card
+            {
+                var placeholderCard = assetPool.GetRaidMember(
+                    Hero.Default, canvas.transform.localScale)
+                    .transform.GetComponent<RaidMember>();
+                BindHeroCard(placeholderCard); //placeholders are just filled with data on cargo drop
+                return placeholderCard.transform;
+            }
+            else // grab a card from the pool for display purposes
+            {
+                var placeholderCard = placeholder
+                    .transform.GetComponent<RaidMember>();
+                var hero = placeholderCard.Hero;
+                var card = assetPool.GetRaidMember(hero, canvas.transform.localScale);
+                return card.transform;
+
+            }
+        }
+
+        private Transform PooledInventoryItem(Transform placeholder)
+        {
+            if (placeholder == null) // new asset card for placeholder
+            {
+                var placeholderCard = assetPool.GetAssetCard(
+                    default, canvas.transform.localScale)
+                    .transform.GetComponent<InventoryItem>();
+                return placeholderCard.transform;
+            }
+            else // grab a card from the pool for display purposes
+            {
+                var placeholderCard = placeholder
+                    .transform.GetComponent<InventoryItem>();
+                var asset = placeholderCard.Asset;
+                var card = assetPool.GetAssetCard(asset, canvas.transform.localScale);
+                return card.transform;
+            }
+        }
+
         private HeroDict DictForBattleSlot(BattleLineSlot bls)
         {
             var playerTeamId = battleManager.PlayerTeam.Id;
@@ -104,9 +179,6 @@ namespace Assets.Scripts.UI.Battle
                                     selectedHero.Inventory;
         }
 
-        private void SlotDelegate_HeroUpdated(Hero hero) =>
-            RaidMemberForHero(hero).Hero = hero;
-
         private RaidMember RaidMemberForHero(Hero hero)
         {
             var slots = (hero.TeamId == battleManager.PlayerTeam.Id) ?
@@ -118,6 +190,9 @@ namespace Assets.Scripts.UI.Battle
 
             return rm;
         }
+
+        private void SlotDelegate_HeroUpdated(Hero hero) =>
+            RaidMemberForHero(hero).Hero = hero;
 
         private void SlotDelegate_HeroMoved(Hero hero) =>
             SyncHeroCardSelectionWithHero();

@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.UI.Data;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,26 @@ namespace Assets.Scripts
 
         public Team PlayerTeam => playerTeam;
         public Team EnemyTeam => enemyTeam;
+
+        private bool resetBattle;
+        /// <summary>
+        ///     Flag to let the battle screen know if it should reset the battle/queue
+        /// </summary>
+        public bool ResetBattle { 
+            get => resetBattle;
+            internal set {
+                resetBattle = value;
+                if (resetBattle)
+                    CurrentTurn = -1;
+            } 
+        }
+
+        public void BeginBattle()
+        {
+            CurrentTurn = 0;
+        }
+
+        public int CurrentTurn { get; private set; }
 
         public void PrepareTeam(HeroDict dict, int id)
         {
@@ -47,5 +68,9 @@ namespace Assets.Scripts
 
         }
 
+        internal void CompleteTurn()
+        {
+            CurrentTurn++;
+        }
     }
 }

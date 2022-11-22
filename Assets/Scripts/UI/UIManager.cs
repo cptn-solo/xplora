@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Device;
 using Zenject;
 
 namespace Assets.Scripts.UI
@@ -20,10 +21,14 @@ namespace Assets.Scripts.UI
         private void Start()
         {
             screens = GetComponentsInChildren<MenuScreen>(true);
-            
+
+            foreach (var screen in screens)
+                screen.gameObject.SetActive(false);
+
             //ToggleScreen(Screens.Hub);
             //ToggleScreen(Screens.Battle);
             ToggleScreen(Screens.HeroesLibrary);
+
         }
 
         public void ToggleScreen(Screens screen)
