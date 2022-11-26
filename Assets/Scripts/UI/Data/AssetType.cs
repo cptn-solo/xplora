@@ -14,4 +14,22 @@
         Human = 100,
     }
 
+    public enum AttackType
+    {
+        NA = 0,
+        Melee = 100,
+        Ranged = 200,
+        Magic = 300,
+    }
+
+    public enum DamageType
+    {
+        NA = 0,
+        Force = 100,    // Силовой
+        Cut = 200,      // Режущий
+        Pierce = 300,   // Колющий
+        Fire = 400,     // Огненный
+        Frost = 500,    // Замораживающий
+    }
+
 }

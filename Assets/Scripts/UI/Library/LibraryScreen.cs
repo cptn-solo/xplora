@@ -15,6 +15,8 @@ namespace Assets.Scripts.UI.Library
         [SerializeField] private Transform libraryContainer;
         [SerializeField] private Transform playerTeamContainer;
         [SerializeField] private Transform enemyTeamContainer;
+        
+        [SerializeField] private HeroDetailsHover heroDetails;
 
         [SerializeField] private HeroCardPool cardPool;
 
@@ -129,6 +131,8 @@ namespace Assets.Scripts.UI.Library
                         selectedHero = heroCard.Hero;
                         SyncHeroCardSelectionWithHero();
                         //ShowHeroInventory(selectedHero);
+
+                        heroDetails.Hero = selectedHero;
                     }
                     break;
                 case Actions.SaveTeamForBattle:

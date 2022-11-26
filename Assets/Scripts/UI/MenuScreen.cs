@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.UI.Data;
+using UnityEngine;
 using Zenject;
 
 namespace Assets.Scripts.UI

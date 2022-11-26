@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using Unity.VisualScripting;
+using System;
 
 namespace Assets.Scripts
 {
@@ -93,6 +95,21 @@ namespace Assets.Scripts
 
             var heroTypes = list[0];
             var names = list[1];
+            var damageMinMax = list[4];
+            var defenceRates = list[5];
+            var accuracyRates = list[6];
+            var dodgeRates = list[7];
+            var healths = list[8];
+            var speeds = list[9];
+            var criticalHitRates = list[10];
+            var attackTypes = list[11];
+            var damageTypes = list[12];
+            var resistBleedRates = list[13];
+            var resistPoisonRates = list[14];
+            var resistStunRates = list[15];
+            var resistBurnRates = list[16];
+            var resistFrostRates = list[17];
+            var resistFlushRates = list[18];
 
             for (int col = 0; col < heroesNumber; col++)
             {
@@ -102,23 +119,44 @@ namespace Assets.Scripts
                 var typeName = (string)heroTypes[cellNumber];
 
                 var iconName = $"{heroesIconsPath}/{typeName}";
-                if (!UpdateHero(id, library.Heroes, heroName) &&
-                    !UpdateHero(id, library.PlayerTeam, heroName) &&
-                    !UpdateHero(id, library.EnemyTeam, heroName))
+
+                if (!UpdateHero(id, library.Heroes, cellNumber) &&
+                    !UpdateHero(id, library.PlayerTeam, cellNumber) &&
+                    !UpdateHero(id, library.EnemyTeam, cellNumber))
                 {
                     library.GiveHero(Hero.EmptyHero(id, heroName, iconName));
+                    UpdateHero(id, library.Heroes, cellNumber);
                 }
             }
 
             OnDataAvailable?.Invoke();
 
-            bool UpdateHero(int id, Dictionary<int, Hero> dict, string heroName)
+            bool UpdateHero(int id, Dictionary<int, Hero> dict, int cellNumber)
             {
                 if (ExistingItem(dict, id).FirstOrDefault() is KeyValuePair<int, Hero> h &&
                     h.Value.HeroType != HeroType.NA)
                 {
                     var hero = h.Value;
-                    hero.Name = heroName;
+                    hero.Name = (string)names[cellNumber];
+
+                    ParseAbsoluteRangeValue((string)damageMinMax[cellNumber], out int minVal, out int maxVal);
+                    hero.DamageMin = minVal;
+                    hero.DamageMax = maxVal;
+                    
+                    hero.DefenceRate = ParseRateValue((string)defenceRates[cellNumber]);
+                    hero.AccuracyRate = ParseRateValue((string)accuracyRates[cellNumber]);
+                    hero.DodgeRate = ParseRateValue((string)dodgeRates[cellNumber]);
+                    hero.Health = ParseAbsoluteValue((string)healths[cellNumber]);
+                    hero.Speed = ParseAbsoluteValue((string)speeds[cellNumber]);
+                    hero.CriticalHitRate = ParseRateValue((string)criticalHitRates[cellNumber]);
+
+                    hero.ResistBleedRate = ParseAbsoluteValue((string)resistBleedRates[cellNumber]);
+                    hero.ResistPoisonRate = ParseAbsoluteValue((string)resistPoisonRates[cellNumber]);
+                    hero.ResistStunRate = ParseAbsoluteValue((string)resistStunRates[cellNumber]);
+                    hero.ResistBurnRate = ParseAbsoluteValue((string)resistBurnRates[cellNumber]);
+                    hero.ResistFrostRate = ParseAbsoluteValue((string)resistFrostRates[cellNumber]);
+                    hero.ResistFlushRate = ParseAbsoluteValue((string)resistFlushRates[cellNumber]);
+
                     dict[h.Key] = hero;
                     return true;
                 }
@@ -130,5 +168,49 @@ namespace Assets.Scripts
                 return dict.Where(x => x.Value.Id.Equals(id));
             }
         }
+
+        private static void ParseAbsoluteRangeValue(string rawValue, out int minVal, out int maxVal)
+        {
+            try
+            {
+                var rawValues = rawValue.Replace(" ", "").Split('-');
+                minVal = int.Parse(rawValues[0], System.Globalization.NumberStyles.None);
+                maxVal = int.Parse(rawValues[1], System.Globalization.NumberStyles.None);
+            }
+            catch (Exception ex)
+            {
+                minVal = 0;
+                maxVal = 0;
+                Debug.LogError($"ParseAbsoluteRangeValue [{rawValue}] Exception: {ex.Message}");
+            }
+        }
+
+        private static int ParseRateValue(string rawValue)
+        {
+            try
+            {
+                var rawValues = rawValue.Replace("%", "").Replace(" ", "");
+                return int.Parse(rawValues, System.Globalization.NumberStyles.None);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseRateValue [{rawValue}] Exception: {ex.Message}");
+                return 0;
+            }
+        }
+
+        private static int ParseAbsoluteValue(string rawValue)
+        {
+            try
+            {
+                var rawValues = rawValue.Replace("%", "").Replace(" ", "");
+                return int.Parse(rawValues, System.Globalization.NumberStyles.None);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseAbsoluteValue [{rawValue}] Exception: {ex.Message}");
+                return 0;
+            }
+        }        
     }
 }

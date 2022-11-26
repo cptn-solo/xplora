@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.UI
+﻿namespace Assets.Scripts.UI.Data
 {
     public enum Actions
     {

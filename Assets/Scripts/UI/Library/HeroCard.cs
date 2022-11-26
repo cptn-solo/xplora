@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.UI.Common;
+using Assets.Scripts.UI.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ namespace Assets.Scripts.UI.Library
 
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
+        [SerializeField] private BarsContainer barsContainer;
 
         private Color normalColor;
         private Image backgroundImage;
@@ -34,6 +36,8 @@ namespace Assets.Scripts.UI.Library
 
                 ResolveIcons();
                 heroNameText.text = hero.Name;
+                
+                barsContainer.SetData(hero.BarsInfoShort);
             }
         }
 

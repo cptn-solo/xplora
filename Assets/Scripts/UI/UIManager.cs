@@ -1,3 +1,4 @@
+using Assets.Scripts.UI.Data;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Device;

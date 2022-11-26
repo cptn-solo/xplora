@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.UI;
+﻿using Assets.Scripts.UI.Data;
 using System;
 using UnityEngine;
 using UnityEngine.Events;

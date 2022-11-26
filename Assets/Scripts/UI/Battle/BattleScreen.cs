@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Inventory;
+﻿using Assets.Scripts.UI.Data;
+using Assets.Scripts.UI.Inventory;
 using TMPro;
 using UnityEngine;
 using Zenject;

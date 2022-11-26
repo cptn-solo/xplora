@@ -1,3 +1,4 @@
+using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using TMPro;
@@ -17,6 +18,7 @@ namespace Assets.Scripts.UI.Battle
         
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
+        [SerializeField] private BarsContainer barsContainer;
         
         public HeroDelegateProvider DelegateProvider { 
             get; 
@@ -46,6 +48,8 @@ namespace Assets.Scripts.UI.Battle
 
                 ResolveIcons();
                 heroNameText.text = hero.Name;
+
+                barsContainer.SetData(hero.BarsInfoShort);
             }
         }
 

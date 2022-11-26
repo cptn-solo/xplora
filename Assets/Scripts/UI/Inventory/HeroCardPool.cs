@@ -9,10 +9,23 @@ namespace Assets.Scripts.UI.Inventory
     public class HeroCardPool : MonoBehaviour
     {
         [SerializeField] private GameObject heroCardPrefab;
+        [SerializeField] private GameObject heroDetailsPrefab;
+
         private readonly Dictionary<int, List<HeroCard>> heroCardPool = new();
+        private readonly Dictionary<int, List<HeroDetailsHover>> heroDetailsPool = new();
         private HeroCard CreateCachedHeroCard(Hero hero, List<HeroCard> cachedItems, Vector3 scale)
         {
             HeroCard heroCard = Instantiate(heroCardPrefab).GetComponent<HeroCard>();
+            heroCard.transform.localScale = scale;
+            heroCard.transform.SetParent(transform);
+            heroCard.Hero = hero;
+            heroCard.gameObject.SetActive(false);
+            cachedItems.Add(heroCard);
+            return heroCard;
+        }
+        private HeroDetailsHover CreateHeroDetailsHoverCard(Hero hero, List<HeroDetailsHover> cachedItems, Vector3 scale)
+        {
+            HeroDetailsHover heroCard = Instantiate(heroDetailsPrefab).GetComponent<HeroDetailsHover>();
             heroCard.Hero = hero;
             heroCard.gameObject.SetActive(false);
             heroCard.transform.localScale = scale;

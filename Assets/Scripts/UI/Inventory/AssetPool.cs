@@ -19,20 +19,20 @@ namespace Assets.Scripts.UI.Inventory
         private RaidMember CreateCachedRaidMember(Hero hero, List<RaidMember> cachedItems, Vector3 scale)
         {
             RaidMember heroCard = Instantiate(heroPrefab).GetComponent<RaidMember>();
-            heroCard.Hero = hero;
-            heroCard.gameObject.SetActive(false);
             heroCard.transform.localScale = scale;
             heroCard.transform.SetParent(transform);
+            heroCard.Hero = hero;
+            heroCard.gameObject.SetActive(false);
             cachedItems.Add(heroCard);
             return heroCard;
         }
         private InventoryItem CreateCachedAssetCard(Asset asset, List<InventoryItem> cachedItems, Vector3 scale)
         {
             InventoryItem card = Instantiate(itemPrefab).GetComponent<InventoryItem>();
-            card.Asset = asset;
-            card.gameObject.SetActive(false);
             card.transform.localScale = scale;
             card.transform.SetParent(transform);
+            card.Asset = asset;
+            card.gameObject.SetActive(false);
             cachedItems.Add(card);
             return card;
         }
