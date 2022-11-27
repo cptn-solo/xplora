@@ -44,7 +44,7 @@ namespace Assets.Scripts.UI.Battle
                 if (s is BattleLineSlot bls)
                 {
                     var dict = DictForBattleSlot(bls);
-                    success = heroTransfer.Commit(dict, s.SlotIndex);
+                    success = heroTransfer.Commit(dict, s.SlotIndex, bls.Line);
                     bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
 
                     OnHeroMoved?.Invoke(bls.Hero);

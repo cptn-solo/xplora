@@ -29,7 +29,7 @@ namespace Assets.Scripts
             };
         }
 
-        public bool Commit(HeroDict toLine, int toIndex)
+        public bool Commit(HeroDict toLine, int toIndex, BattleLine line)
         {
             if (heroTransaction.Hero.HeroType == HeroType.NA)
                 return false;
@@ -38,7 +38,10 @@ namespace Assets.Scripts
             heroTransaction.ToIdx = toIndex;
 
             heroTransaction.FromLine.TakeHero(heroTransaction.FromIdx);
-            heroTransaction.ToLine.PutHero(heroTransaction.Hero, heroTransaction.ToIdx);
+
+            var hero = heroTransaction.Hero;
+            hero.Line = line;
+            heroTransaction.ToLine.PutHero(hero, heroTransaction.ToIdx);
 
             heroTransaction = default;
 

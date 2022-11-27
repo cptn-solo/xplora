@@ -693,6 +693,8 @@ MonoBehaviour:
   barsContainer: {fileID: 4782242935045299702}
   acceptingColor: {r: 0.18222119, g: 0.735849, b: 0.14346735, a: 0.9137255}
   selectedColor: {r: 0.048059728, g: 0.08813983, b: 0.764151, a: 0.95686275}
+  playerColor: {r: 0.1254902, g: 0.13725491, b: 0.20392159, a: 0.90588236}
+  enemyColor: {r: 0.5283019, g: 0.09303425, b: 0.09303425, a: 0.8980392}
 --- !u!225 &-8504297149246846156
 CanvasGroup:
   m_ObjectHideFlags: 0

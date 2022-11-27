@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.UI.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -14,6 +15,10 @@ namespace Assets.Scripts
 
         public Team PlayerTeam => playerTeam;
         public Team EnemyTeam => enemyTeam;
+
+        public IEnumerable<KeyValuePair<int, Hero>> AllBattleHeroes =>
+            PlayerTeam.FrontLine.Concat(PlayerTeam.BackLine)
+            .Concat(EnemyTeam.FrontLine).Concat(EnemyTeam.BackLine);
 
         private bool resetBattle;
         /// <summary>
@@ -31,6 +36,27 @@ namespace Assets.Scripts
         public void BeginBattle()
         {
             CurrentTurn = 0;
+            ResetTeamHeroes();
+        }
+
+        private void ResetTeamHeroes()
+        {
+            ResetHealthCurrent(playerTeam.FrontLine);
+            ResetHealthCurrent(playerTeam.BackLine);
+            ResetHealthCurrent(enemyTeam.FrontLine);
+            ResetHealthCurrent(enemyTeam.BackLine);
+
+            Debug.Log("ResetTeamHeroes");
+        }
+
+        private static void ResetHealthCurrent(HeroDict dict)
+        {
+            foreach (var key in dict.Keys.ToArray())
+            {
+                var hero = dict[key];
+                hero.HealthCurrent = hero.Health;
+                dict[key] = hero;
+            }
         }
 
         public int CurrentTurn { get; private set; }
@@ -43,7 +69,12 @@ namespace Assets.Scripts
                 team.BackLine[i] = Hero.Default;
 
             for (int i = 0; i < dict.Count; i++)
-                team.FrontLine[i] = dict[i];
+            {
+                var hero = dict[i];
+                hero.Line = BattleLine.Front;
+                hero.HealthCurrent = hero.Health;
+                team.FrontLine[i] = hero;
+            }
         }
 
         public void LoadData()

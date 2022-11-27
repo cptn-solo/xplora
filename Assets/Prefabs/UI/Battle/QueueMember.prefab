@@ -691,6 +691,8 @@ MonoBehaviour:
   heroNameText: {fileID: 948249746073738884}
   barsContainer: {fileID: 1950684215816497304}
   selectedColor: {r: 0.35315052, g: 0.446699, b: 0.8773585, a: 0.8980392}
+  playerColor: {r: 0.1254902, g: 0.13725491, b: 0.20392159, a: 0.9254902}
+  enemyColor: {r: 0.3679245, g: 0.09603059, b: 0.09603059, a: 0.95686275}
 --- !u!225 &-8504297149246846156
 CanvasGroup:
   m_ObjectHideFlags: 0

@@ -43,7 +43,7 @@ namespace Assets.Scripts.UI.Library
                 if (s is LibrarySlot bls)
                 {
                     var dict = DictForSlot(s);
-                    success = heroTransfer.Commit(dict, s.SlotIndex);
+                    success = heroTransfer.Commit(dict, s.SlotIndex, BattleLine.NA);
 
                     if (success)
                     {

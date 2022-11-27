@@ -23,6 +23,7 @@ namespace Assets.Scripts.UI.Data
         private int accuracyRate;   // Точность, %
         private int dodgeRate;      // Уклонение, %
         private int health;     // Здоровье
+        private int healthCurrent; // HP
         private int speed;      // Скорость
         private int criticalHitRate;// Критический удар, %
         
@@ -38,6 +39,7 @@ namespace Assets.Scripts.UI.Data
         // end specs
 
         public int TeamId { get; set; }
+        public BattleLine Line { get; set; }             
 
         public int Id => id;
 
@@ -59,6 +61,7 @@ namespace Assets.Scripts.UI.Data
         public int AccuracyRate { get => accuracyRate; set => accuracyRate = value; }
         public int DodgeRate { get => dodgeRate; set => dodgeRate = value; }
         public int Health { get => health; set => health = value; }
+        public int HealthCurrent { get => healthCurrent; set => healthCurrent = value; }
         public int Speed { get => speed; set => speed = value; }
         public int CriticalHitRate { get => criticalHitRate; set => criticalHitRate = value; }
         public AttackType AttackType { get => attackType; set => attackType = value; }
@@ -93,6 +96,11 @@ namespace Assets.Scripts.UI.Data
         }
         public List<BarInfo> BarsInfoShort => BarsInfo.GetRange(0, 2);
 
+        public List<BarInfo> BarsInfoBattle => new() {
+            BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, HealthCurrent / 100f),
+            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / 10f),
+        };
+
         public static Hero EmptyHero() => 
             EmptyHero(-1, "", null, HeroType.NA);
 
@@ -106,6 +114,7 @@ namespace Assets.Scripts.UI.Data
             hero.HeroType = heroType;
             hero.IconName = iconName;
             hero.TeamId = -1;
+            hero.Line = BattleLine.NA;
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();

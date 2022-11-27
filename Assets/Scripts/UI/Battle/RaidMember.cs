@@ -29,6 +29,9 @@ namespace Assets.Scripts.UI.Battle
         private Image backgroundImage;
         [SerializeField] private Color acceptingColor;
         [SerializeField] private Color selectedColor;
+        [SerializeField] private Color playerColor;
+        [SerializeField] private Color enemyColor;
+
 
 
         private Hero hero;
@@ -48,8 +51,11 @@ namespace Assets.Scripts.UI.Battle
 
                 ResolveIcons();
                 heroNameText.text = hero.Name;
+                
+                normalColor = hero.TeamId == 0 ? playerColor : enemyColor;
+                backgroundImage.color = normalColor;
 
-                barsContainer.SetData(hero.BarsInfoShort);
+                barsContainer.SetData(hero.BarsInfoBattle);
             }
         }
 

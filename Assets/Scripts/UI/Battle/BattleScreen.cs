@@ -126,11 +126,11 @@ namespace Assets.Scripts.UI.Battle
 
             InitRaidMemberDelegates(); // drop on hero cards
 
-            InitHeroSlots(playerPartyFront, playerFrontSlots, battleManager.PlayerTeam.Id);
-            InitHeroSlots(playerPartyBack, playerBackSlots, battleManager.PlayerTeam.Id);
+            InitHeroSlots(playerPartyFront, playerFrontSlots, battleManager.PlayerTeam.Id, BattleLine.Front);
+            InitHeroSlots(playerPartyBack, playerBackSlots, battleManager.PlayerTeam.Id, BattleLine.Back);
 
-            InitHeroSlots(enemyPartyFront, enemyFrontSlots, battleManager.EnemyTeam.Id);
-            InitHeroSlots(enemyPartyBack, enemyBackSlots, battleManager.EnemyTeam.Id);
+            InitHeroSlots(enemyPartyFront, enemyFrontSlots, battleManager.EnemyTeam.Id, BattleLine.Front);
+            InitHeroSlots(enemyPartyBack, enemyBackSlots, battleManager.EnemyTeam.Id, BattleLine.Back);
 
             ShowTeamBatleUnits(battleManager.PlayerTeam);
             ShowTeamInventory(battleManager.PlayerTeam);
@@ -172,7 +172,7 @@ namespace Assets.Scripts.UI.Battle
                         if (inventoryToggle)
                             ToggleInventory();
 
-                        battleQueue.Prepare();
+                        battleQueue.PrepareRound();
                     }
                     break;
                 case Actions.CompleteTurn:
@@ -197,12 +197,13 @@ namespace Assets.Scripts.UI.Battle
             battleQueue.Toggle(!inventoryToggle);
         }
 
-        private void InitHeroSlots(Transform containerTransform, BattleLineSlot[] slots, int teamId)
+        private void InitHeroSlots(Transform containerTransform, BattleLineSlot[] slots, int teamId, BattleLine line)
         {
             foreach (var slot in containerTransform.GetComponentsInChildren<BattleLineSlot>())
             {
                 slot.DelegateProvider = slotDelegate;
                 slot.SetTeamId(teamId);
+                slot.SetLine(line);
                 slots[slot.SlotIndex] = slot;
             }
         }
