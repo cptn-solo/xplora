@@ -8,23 +8,14 @@ namespace Assets.Scripts.UI.Battle
 {
     public class BattleQueue : MonoBehaviour
     {
-        [Inject] private readonly BattleManagementService battleManager;
+        [Inject] private BattleManagementService battleManager;
 
         [SerializeField] private RectTransform battleQueuePanel;
 
         private BattleQueueSlot[] playerSlots;
         private BattleQueueSlot[] enemySlots;
 
-        private bool initialized;
-
-        private void OnEnable()
-        {
-            if (!initialized)
-            {
-                InitSlots();
-                initialized = true;
-            }
-        }
+        private bool slotsInitialized;
 
         internal void CompleteTurn()
         {
@@ -61,11 +52,13 @@ namespace Assets.Scripts.UI.Battle
         internal void Toggle(bool toggle)
         {
             battleQueuePanel.gameObject.SetActive(toggle);
+            if (!slotsInitialized)
+                InitSlots();
         }
 
         public void InitSlots()
         {
-            var slots = battleQueuePanel.GetComponentsInChildren<BattleQueueSlot>();
+            var slots = battleQueuePanel.GetComponentsInChildren<BattleQueueSlot>(true);
             foreach (var slot in slots)
                 slot.InitQueueMember();
 
@@ -78,8 +71,8 @@ namespace Assets.Scripts.UI.Battle
                 .OrderBy(x => x.QueueIndex)
                 .ToArray();
 
-            Debug.Log("Battle Queue Start");
-            
+            slotsInitialized = true;
+
         }
     }
 }

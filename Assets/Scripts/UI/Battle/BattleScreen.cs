@@ -72,11 +72,6 @@ namespace Assets.Scripts.UI.Battle
                 ShowTeamInventory(battleManager.EnemyTeam);
 
                 UpdateActionButtons();
-
-                if (battleManager.ResetBattle)
-                {
-                    battleQueue.Prepare();
-                }
             }
         }
 

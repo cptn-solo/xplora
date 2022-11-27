@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Common
 {
@@ -21,11 +19,8 @@ namespace Assets.Scripts.UI.Common
         }
         public void SetData(List<BarInfo> value) {
             var canvas = GetComponentInParent<Canvas>();
-            var parentRectTransform = (RectTransform)rectTransform.parent;
             if (bars.Count == 0)
             {
-//                rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, parentRectTransform.rect.width);
-
                 var arr = new BarWithTitle[value.Count];                
                 for (int i = 0; i < value.Count; i++)
                 {
