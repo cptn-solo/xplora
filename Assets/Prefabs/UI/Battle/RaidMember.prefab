@@ -522,6 +522,7 @@ GameObject:
   - component: {fileID: -1753162742681727471}
   - component: {fileID: -8504297149246846156}
   - component: {fileID: 3714480927714868945}
+  - component: {fileID: -4644507195865271327}
   m_Layer: 5
   m_Name: RaidMember
   m_TagString: Untagged
@@ -719,6 +720,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd56bab55aaccf4f9ee03473863840e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &-4644507195865271327
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5222742129451753485}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 972e5ab50ddc3e8428b12541be070b67, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &6078217298297782471
 GameObject:
   m_ObjectHideFlags: 0

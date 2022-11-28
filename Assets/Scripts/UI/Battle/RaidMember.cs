@@ -1,6 +1,8 @@
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +13,8 @@ namespace Assets.Scripts.UI.Battle
 {
     public class RaidMember : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
     {
+        private const string AnimatorBuzz = "buzz";
+
         [SerializeField] private Image priAttackImage;
         [SerializeField] private Image secAttackImage;
         [SerializeField] private Image priDefenceImage;
@@ -19,6 +23,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
         [SerializeField] private BarsContainer barsContainer;
+
+        private Animator animator;
         
         public HeroDelegateProvider DelegateProvider { 
             get; 
@@ -40,6 +46,11 @@ namespace Assets.Scripts.UI.Battle
             get => hero;
             set
             {
+                if (hero.HeroType != HeroType.NA && 
+                    value.HeroType != HeroType.NA &&
+                    hero.HealthCurrent > value.HealthCurrent)
+                    StartCoroutine(AnimateDamage());
+
                 hero = value;
                 if (hero.HeroType == HeroType.NA)
                 {
@@ -57,6 +68,13 @@ namespace Assets.Scripts.UI.Battle
 
                 barsContainer.SetData(hero.BarsInfoBattle);
             }
+        }
+
+        private IEnumerator AnimateDamage()
+        {
+            animator.SetBool(AnimatorBuzz, true);
+            yield return new WaitForSeconds(.6f);
+            animator.SetBool(AnimatorBuzz, false);
         }
 
         private bool selected;
@@ -118,6 +136,7 @@ namespace Assets.Scripts.UI.Battle
         {
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
+            animator = GetComponent<Animator>();
         }
 
 
