@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Assets.Scripts.UI.Data
 {
@@ -56,6 +57,14 @@ namespace Assets.Scripts.UI.Data
             from.TakeHero(idxFrom);
             to.PutHero(hero, idxTo);
             return hero;
+        }
+
+        public void UpdateHero(Hero hero)
+        {
+            if (frontLine.Where(x => x.Value.Id == hero.Id).FirstOrDefault() is KeyValuePair<int, Hero> f)
+                frontLine[f.Key] = hero;
+            else if (backLine.Where(x => x.Value.Id == hero.Id).FirstOrDefault() is KeyValuePair<int, Hero> b)
+                backLine[b.Key] = hero;
         }
         private static AssetDict DefaultInventory() => new() {
             {0, default}, {1, default}, {2, default}, {3, default}, {4, default},

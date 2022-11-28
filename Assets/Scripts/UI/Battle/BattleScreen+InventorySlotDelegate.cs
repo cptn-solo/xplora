@@ -190,12 +190,6 @@ namespace Assets.Scripts.UI.Battle
 
             return rm;
         }
-
-        private void SlotDelegate_HeroUpdated(Hero hero) =>
-            RaidMemberForHero(hero).Hero = hero;
-
-        private void SlotDelegate_HeroMoved(Hero hero) =>
-            SyncHeroCardSelectionWithHero();
     }
 }
 

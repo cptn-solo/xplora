@@ -72,6 +72,8 @@ namespace Assets.Scripts.UI.Battle
                 ShowTeamInventory(battleManager.EnemyTeam);
 
                 UpdateActionButtons();
+
+                battleManager.OnHeroUpdated += BattleManager_OnHeroUpdated;
             }
         }
 
@@ -80,19 +82,20 @@ namespace Assets.Scripts.UI.Battle
             foreach (var button in actionButtons)
             {
                 if (button.Action == Actions.PrepareQueue)
-                    button.gameObject.SetActive(battleManager.CurrentTurn < 0);
+                    button.gameObject.SetActive(battleManager.CanPrepareRound);
 
                 if (button.Action == Actions.BeginBattle)
-                    button.gameObject.SetActive(battleManager.CurrentTurn < 0);
+                    button.gameObject.SetActive(battleManager.CanBeginBattle);
 
                 if (button.Action == Actions.CompleteTurn)
-                    button.gameObject.SetActive(battleManager.CurrentTurn >= 0);
+                    button.gameObject.SetActive(battleManager.CanMakeTurn);
 
             }
         }
 
         protected override void OnBeforeDisable()
         {
+            battleManager.OnHeroUpdated -= BattleManager_OnHeroUpdated;
         }
 
         protected override void OnBeforeUpdate()
@@ -109,6 +112,8 @@ namespace Assets.Scripts.UI.Battle
                 if (button.Action == Actions.ToggleInventoryPanel)
                     toggleInventoryButton = (UIActionToggleButton)button;
             }
+
+            battleManager.OnHeroUpdated += BattleManager_OnHeroUpdated;
 
             battleInventory.Toggle(inventoryToggle);
             battleQueue.Toggle(!inventoryToggle);
@@ -147,6 +152,21 @@ namespace Assets.Scripts.UI.Battle
             UpdateActionButtons();
         }
 
+        private void SlotDelegate_HeroUpdated(Hero hero) =>
+            RaidMemberForHero(hero).Hero = hero;
+
+        private void SlotDelegate_HeroMoved(Hero hero) =>
+            SyncHeroCardSelectionWithHero();
+
+        private void BattleManager_OnHeroUpdated(Hero hero)
+        {
+            var raidMember = RaidMemberForHero(hero);
+            if (raidMember != default)
+                raidMember.Hero = hero;
+
+            battleQueue.UpdateHero(hero);
+        }
+
         private void Button_OnActionButtonClick(Actions arg1, Transform arg2)
         {
             switch (arg1)
@@ -172,13 +192,16 @@ namespace Assets.Scripts.UI.Battle
                         if (inventoryToggle)
                             ToggleInventory();
 
-                        battleQueue.PrepareRound();
+                        var queuedHeroes = battleManager.PrepareRound();
+                        battleQueue.LayoutHeroes(queuedHeroes);
+                        
+                        UpdateActionButtons();
                     }
                     break;
                 case Actions.CompleteTurn:
                     {
-                        battleManager.CompleteTurn();
-                        battleQueue.CompleteTurn();
+                        var queuedHeroes = battleManager.CompleteTurn();
+                        battleQueue.CompleteTurn(queuedHeroes);
                         
                         UpdateActionButtons();
                     }
