@@ -22,6 +22,9 @@ namespace Assets.Scripts.UI.Battle
 
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
 
+        [SerializeField] private HeroAnimation playerHeroAnimation;        
+        [SerializeField] private HeroAnimation enemyHeroAnimation;
+
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] enemyFrontSlots = new BattleLineSlot[4];
@@ -147,6 +150,9 @@ namespace Assets.Scripts.UI.Battle
             SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
 
+            playerHeroAnimation.Initialize();
+            enemyHeroAnimation.Initialize();
+
             initialized = true;
 
             UpdateActionButtons();
@@ -194,7 +200,10 @@ namespace Assets.Scripts.UI.Battle
 
                         var queuedHeroes = battleManager.PrepareRound();
                         battleQueue.LayoutHeroes(queuedHeroes);
-                        
+
+                        playerHeroAnimation.SetHero(queuedHeroes[0]);
+                        enemyHeroAnimation.SetHero(Hero.Default);
+
                         UpdateActionButtons();
                     }
                     break;

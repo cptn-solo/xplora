@@ -28,6 +28,9 @@ namespace Assets.Scripts.UI.Inventory
         }
 
         [SerializeField] private int slotIndex;
+        
+        private Canvas canvas;
+
         public int SlotIndex
         {
             get => slotIndex;
@@ -49,6 +52,7 @@ namespace Assets.Scripts.UI.Inventory
         {
             itemTransform.SetParent(transform);
             itemTransform.localPosition = Vector3.zero;
+            canvas = GetComponentInParent<Canvas>();
         }
 
         private void SetReadyToAcceptItemStyle() =>
@@ -75,18 +79,17 @@ namespace Assets.Scripts.UI.Inventory
             if (dragCargo == null)
                 return;
 
-            dragCargo.position = eventData.position;
+            dragCargo.anchoredPosition += eventData.delta / canvas.scaleFactor;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (transform.childCount == 0)
                 return;
-
             dragCargo = delegateProvider.Pool(this).GetComponent<RectTransform>();
+            dragCargo.position = transform.position;
             delegateProvider.TransferStart(this, dragCargo);
             dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = false;
-            dragCargo.position = eventData.position;
         }
 
         public void OnEndDrag(PointerEventData eventData)

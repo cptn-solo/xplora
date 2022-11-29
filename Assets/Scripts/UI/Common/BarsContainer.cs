@@ -29,6 +29,7 @@ namespace Assets.Scripts.UI.Common
                     var barRectTransform = bar.GetComponent<RectTransform>();
                     barRectTransform.localScale = canvas.transform.localScale;
                     barRectTransform.SetParent(rectTransform);
+                    barRectTransform.anchoredPosition3D = Vector3.zero;
                     barRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rectTransform.rect.width);
                     
                     bar.SetInfo(barInfo);
