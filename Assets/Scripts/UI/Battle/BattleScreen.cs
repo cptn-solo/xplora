@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -77,6 +78,7 @@ namespace Assets.Scripts.UI.Battle
                 UpdateActionButtons();
 
                 battleManager.OnHeroUpdated += BattleManager_OnHeroUpdated;
+                battleManager.OnAttack += BattleManager_OnAttack;
             }
         }
 
@@ -99,6 +101,7 @@ namespace Assets.Scripts.UI.Battle
         protected override void OnBeforeDisable()
         {
             battleManager.OnHeroUpdated -= BattleManager_OnHeroUpdated;
+            battleManager.OnAttack -= BattleManager_OnAttack;
         }
 
         protected override void OnBeforeUpdate()
@@ -117,6 +120,7 @@ namespace Assets.Scripts.UI.Battle
             }
 
             battleManager.OnHeroUpdated += BattleManager_OnHeroUpdated;
+            battleManager.OnAttack += BattleManager_OnAttack;
 
             battleInventory.Toggle(inventoryToggle);
             battleQueue.Toggle(!inventoryToggle);
@@ -173,6 +177,12 @@ namespace Assets.Scripts.UI.Battle
             battleQueue.UpdateHero(hero);
         }
 
+        private void BattleManager_OnAttack(AttackInfo info)
+        {
+            StartCoroutine(SetAttackAnimation(info));
+        }
+
+
         private void Button_OnActionButtonClick(Actions arg1, Transform arg2)
         {
             switch (arg1)
@@ -201,8 +211,7 @@ namespace Assets.Scripts.UI.Battle
                         var queuedHeroes = battleManager.PrepareRound();
                         battleQueue.LayoutHeroes(queuedHeroes);
 
-                        playerHeroAnimation.SetHero(queuedHeroes[0]);
-                        enemyHeroAnimation.SetHero(Hero.Default);
+                        SetCurrentAttackerAnimation(battleManager.CurrentAttacker);
 
                         UpdateActionButtons();
                     }
@@ -211,13 +220,50 @@ namespace Assets.Scripts.UI.Battle
                     {
                         var queuedHeroes = battleManager.CompleteTurn();
                         battleQueue.CompleteTurn(queuedHeroes);
-                        
+
                         UpdateActionButtons();
                     }
                     break;
                 default:
                     break;
             }
+        }
+        private IEnumerator SetAttackAnimation(AttackInfo info)
+        {
+            var attackerAnimation =
+                info.Attacker.TeamId == battleManager.PlayerTeam.Id ?
+                playerHeroAnimation : enemyHeroAnimation;
+            var targetAnimation =
+                info.Target.TeamId == battleManager.PlayerTeam.Id ?
+                playerHeroAnimation : enemyHeroAnimation;
+
+
+            attackerAnimation.SetHero(info.Attacker);
+            targetAnimation.SetHero(info.Target);
+
+            attackerAnimation.Attack();
+            yield return new WaitForSeconds(.5f);
+            targetAnimation.Hit(info.Lethal);
+            yield return new WaitForSeconds(.5f);
+            SetCurrentAttackerAnimation(battleManager.CurrentAttacker);
+
+        }
+        private void SetCurrentAttackerAnimation(Hero attacker)
+        {
+            if (attacker.HeroType == HeroType.NA)
+            {
+                playerHeroAnimation.SetHero(Hero.Default);
+                enemyHeroAnimation.SetHero(Hero.Default);
+                return;
+
+            }
+
+            playerHeroAnimation.SetHero(
+                attacker.TeamId == battleManager.PlayerTeam.Id ?
+                attacker : Hero.Default);
+            enemyHeroAnimation.SetHero(
+                attacker.TeamId == battleManager.EnemyTeam.Id ?
+                attacker : Hero.Default);
         }
 
         private void ToggleInventory()

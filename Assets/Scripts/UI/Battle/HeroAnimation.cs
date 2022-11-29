@@ -45,9 +45,12 @@ namespace Assets.Scripts.UI.Battle
         {
             StartCoroutine(TimedAnimationCorotine(AnimBoolAttack));
         }
-        public void Hit()
+        public void Hit(bool lethal)
         {
-            StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
+            if (lethal)
+                StartCoroutine(TimedAnimationCorotine(AnimBoolDeath));
+            else
+                StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
         }
         public void Death()
         {
@@ -71,8 +74,14 @@ namespace Assets.Scripts.UI.Battle
             if (hero.HeroType == HeroType.NA)
                 animator.runtimeAnimatorController = null;
             else
-                animator.runtimeAnimatorController =
-                    Instantiate(Resources.Load($"Hero_{hero.Id}")) as RuntimeAnimatorController;
+            {
+                var res = Resources.Load($"Hero_{hero.Id}");
+                if (res != null)
+                    animator.runtimeAnimatorController =
+                        Instantiate(res) as RuntimeAnimatorController;
+                else
+                    animator.runtimeAnimatorController = null;
+            }
 
         }
     }

@@ -1,11 +1,9 @@
-﻿using Assets.Scripts.UI.Data;
-using ModestTree;
-using System;
+﻿using Assets.Scripts.UI.Common;
+using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 namespace Assets.Scripts
 {
@@ -18,6 +16,7 @@ namespace Assets.Scripts
         private readonly Team enemyTeam = Team.EmptyTeam(1, "Enemy");
 
         public event UnityAction<Hero> OnHeroUpdated;
+        public event UnityAction<AttackInfo> OnAttack;
 
         public Team PlayerTeam => playerTeam;
         public Team EnemyTeam => enemyTeam;
@@ -28,6 +27,8 @@ namespace Assets.Scripts
 
         private bool resetBattle;
         private readonly List<Hero> queuedHeroes = new();
+
+        public Hero CurrentAttacker => queuedHeroes.Count > 0 ? queuedHeroes[0] : Hero.Default;
 
         /// <summary>
         ///     Flag to let the battle screen know if it should reset the battle/queue
@@ -158,8 +159,11 @@ namespace Assets.Scripts
             target.HealthCurrent -= damage;
 
             UpdateBattleHero(target); // Sync health
+            
+            OnAttack?.Invoke(AttackInfo.Create(attaker, target));
 
             Debug.Log($"{attaker.Name} attaked {target.Name}, damage: {damage}");
+
 
             OnHeroUpdated?.Invoke(target);
 
