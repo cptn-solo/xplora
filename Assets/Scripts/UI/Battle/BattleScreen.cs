@@ -49,7 +49,7 @@ namespace Assets.Scripts.UI.Battle
         private readonly HeroTransfer heroTransfer = new();
 
         private bool initialized;
-        private bool inventoryToggle = true;
+        private bool inventoryToggle = false;
         
         private BattleInventory battleInventory;
         private BattleQueue battleQueue;
@@ -123,6 +123,7 @@ namespace Assets.Scripts.UI.Battle
             battleManager.OnAttack += BattleManager_OnAttack;
 
             battleInventory.Toggle(inventoryToggle);
+            toggleInventoryButton.Toggle(inventoryToggle);
             battleQueue.Toggle(!inventoryToggle);
 
             InitInventorySlotDelegates(); // drop between slots (both assets and heroes)

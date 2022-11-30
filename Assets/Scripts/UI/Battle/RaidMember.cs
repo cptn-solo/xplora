@@ -24,6 +24,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private TextMeshProUGUI heroNameText;
         [SerializeField] private BarsContainer barsContainer;
 
+        [SerializeField] private HeroAnimation heroAnimation;
+
         private Animator animator;
         
         public HeroDelegateProvider DelegateProvider { 
@@ -55,6 +57,10 @@ namespace Assets.Scripts.UI.Battle
                 if (hero.HeroType == HeroType.NA)
                 {
                     this.gameObject.SetActive(false);
+                    
+                    if (heroAnimation != null)
+                        heroAnimation.SetHero(hero);
+
                     return;
                 }
 
@@ -67,6 +73,12 @@ namespace Assets.Scripts.UI.Battle
                 backgroundImage.color = normalColor;
 
                 barsContainer.SetData(hero.BarsInfoBattle);
+                
+                if (heroAnimation != null)
+                {
+                    heroAnimation.SetHero(hero);
+                    heroAnimation.Initialize();
+                }
             }
         }
 

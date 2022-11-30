@@ -75,6 +75,14 @@ namespace Assets.Scripts.UI.Battle
                 animator.runtimeAnimatorController = null;
             else
             {
+                
+                if (hero.TeamId == 1)
+                {
+                    var ls = transform.localScale;
+                    ls.x = -1;
+                    transform.localScale = ls;
+                }
+
                 var res = Resources.Load($"Hero_{hero.Id}");
                 if (res != null)
                     animator.runtimeAnimatorController =
