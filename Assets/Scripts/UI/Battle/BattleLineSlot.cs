@@ -1,23 +1,15 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public class BattleLineSlot : UIItemSlot, ITeamId
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
+    public class BattleLineSlot : UIItemSlot
     {
         private Hero hero;        
-        private int teamId;
-        private BattleLine line;
-
-        public int TeamId => teamId;
-        public BattleLine Line;
-
-        public void SetTeamId(int id) =>
-            teamId = id;
-        public void SetLine(BattleLine line) =>
-            this.line = line;
-
         private RaidMember raidMember;
 
         public Hero Hero { 
@@ -33,6 +25,8 @@ namespace Assets.Scripts.UI.Battle
         }
 
         public RaidMember RaidMember => raidMember;
+
+        public HeroPosition Position { get; internal set; }
 
         public override void Put(Transform itemTransform)
         {

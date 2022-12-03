@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,7 +8,24 @@ namespace Assets.Scripts.UI.Data
     public static class InventoryUtils
     {
         public delegate bool ItemComparer<T>(T val);
-        public static int FirstFreeSlotIndex<T>(this Dictionary<int, T> inventory, ItemComparer<T> comparer)
+        public static Tuple<int, BattleLine, int> FirstFreeSlotIndex<T>(
+            this Dictionary<Tuple<int, BattleLine, int>, T> heroes, 
+            ItemComparer<T> comparer)
+        {
+            var sorted = heroes.OrderBy(x => x.Key).ToArray();
+            for (int i = 0; i < sorted.Length; i++)
+            {
+                var slot = sorted[i];
+                if (comparer(slot.Value))
+                    return sorted[i].Key;
+            }
+
+            return new(-1, BattleLine.NA, -1);
+        }        
+
+        public static int FirstFreeSlotIndex<T>(
+            this Dictionary<int, T> inventory, 
+            ItemComparer<T> comparer)
         {
             var sorted = inventory.OrderBy(x => x.Key).ToArray();
             for (int i = 0; i < sorted.Length; i++)
@@ -18,33 +36,6 @@ namespace Assets.Scripts.UI.Data
             }
 
             return -1;
-        }
-
-        public static int PutHero(this Dictionary<int, Hero> inventory, Hero hero, int index)
-        {
-            var idx = index >= 0 ? index :
-                inventory.FirstFreeSlotIndex(x => x.HeroType == HeroType.NA);
-
-            if (idx >= 0 &&
-                inventory[idx] is Hero current &&
-                current.HeroType == HeroType.NA)
-            {                
-                inventory[idx] = hero;
-                return idx;
-            }
-            return -1;
-        }
-
-        public static Hero TakeHero(this Dictionary<int, Hero> from, int idx)
-        {
-            if (idx >= 0 &&
-                from[idx] is Hero current &&
-                current.HeroType != HeroType.NA)
-            {
-                from[idx] = Hero.Default;
-                return current;
-            }
-            return default;
         }
 
 

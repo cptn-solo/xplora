@@ -27,7 +27,9 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private HeroAnimation heroAnimation;
 
         private Animator animator;
-        
+
+        public HeroAnimation HeroAnimation => heroAnimation;
+
         public HeroDelegateProvider DelegateProvider { 
             get; 
             set; 

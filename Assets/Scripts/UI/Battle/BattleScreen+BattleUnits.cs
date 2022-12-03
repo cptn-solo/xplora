@@ -46,12 +46,11 @@ namespace Assets.Scripts.UI.Battle
             var backSlots = (team.Id == battleManager.PlayerTeam.Id) ?
                 playerBackSlots : enemyBackSlots;
 
-            foreach (var hero in team.FrontLine)
-                frontSlots[hero.Key].Hero = hero.Value;
+            foreach (var slot in frontSlots)
+                slot.Hero = libraryManager.Library.HeroAtPosition(slot.Position);
 
-            foreach (var hero in team.BackLine)
-                backSlots[hero.Key].Hero = hero.Value;
-
+            foreach (var slot in backSlots)
+                slot.Hero = libraryManager.Library.HeroAtPosition(slot.Position);
         }
     }
 }

@@ -1,11 +1,14 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
 
 namespace Assets.Scripts.UI.Library
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public partial class LibraryScreen : MenuScreen
     {
         [Inject] private readonly HeroLibraryManagementService libManager;
@@ -59,9 +62,9 @@ namespace Assets.Scripts.UI.Library
 
             library = libManager.Library;
 
-            InitSlots<LibrarySlot>(libraryContainer, librarySlots, -1);
-            InitSlots<PlayerTeamSlot>(playerTeamContainer, playerSlots, battleManager.PlayerTeam.Id);
-            InitSlots<EnemyTeamSlot>(enemyTeamContainer, enemySlots, battleManager.EnemyTeam.Id);
+            InitSlots(libraryContainer, librarySlots, -1);
+            InitSlots(playerTeamContainer, playerSlots, battleManager.PlayerTeam.Id);
+            InitSlots(enemyTeamContainer, enemySlots, battleManager.EnemyTeam.Id);
 
             ShowHeroesLibraryCards();
             ShowPlayerCards();
@@ -79,18 +82,18 @@ namespace Assets.Scripts.UI.Library
 
         private void ShowHeroesLibraryCards()
         {
-            foreach (var hero in library.Heroes)
-                librarySlots[hero.Key].Hero = hero.Value;
+            foreach (var slot in librarySlots)
+                slot.Hero = library.HeroAtPosition(slot.Position);
         }
         private void ShowPlayerCards()
         {
-            foreach (var hero in library.PlayerTeam)
-                playerSlots[hero.Key].Hero = hero.Value;
+            foreach (var slot in playerSlots)
+                slot.Hero = library.HeroAtPosition(slot.Position);
         }
         private void ShowEnemyCards()
         {
-            foreach (var hero in library.EnemyTeam)
-                enemySlots[hero.Key].Hero = hero.Value;
+            foreach (var slot in enemySlots)
+                slot.Hero = library.HeroAtPosition(slot.Position);
         }
 
         private void InitSlots<T>(Transform container, T[] outSlots, int teamId) where T: LibrarySlot
@@ -99,8 +102,11 @@ namespace Assets.Scripts.UI.Library
             for (int i = 0; i < slots.Length; i++)
             {
                 var slot = slots[i];
+
+                var line = (slot is TeamMemberSlot) ? BattleLine.Front : BattleLine.NA;
+
+                slot.Position = new HeroPosition(teamId, line, i); 
                 slot.SlotIndex = i;
-                slot.TeamId = teamId;
                 slot.DelegateProvider = slotDelegate;
                 outSlots[i] = slot;
             }
@@ -136,22 +142,8 @@ namespace Assets.Scripts.UI.Library
                     }
                     break;
                 case Actions.SaveTeamForBattle:
-                    {
-                        
-                        if (library.PlayerTeam.Where(x => 
-                            x.Value.HeroType != HeroType.NA).Count() > 0)
-                        {
-                            battleManager.PrepareTeam(library.PlayerTeam, 
-                                battleManager.PlayerTeam.Id);
-                        }
-                        if (library.EnemyTeam.Where(x =>
-                            x.Value.HeroType != HeroType.NA).Count() > 0)
-                        {
-                            battleManager.PrepareTeam(library.EnemyTeam,
-                                battleManager.EnemyTeam.Id);
-                        }
-
-                        battleManager.ResetBattle = true;
+                    {                        
+                        battleManager.ResetBattle();
 
                         nav.NavigateToScreen(Screens.Battle);
                     }

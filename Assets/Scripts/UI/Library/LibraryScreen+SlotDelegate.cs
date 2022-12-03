@@ -1,12 +1,14 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Library
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public partial class LibraryScreen // Slot Delegate 
     {
         private event UnityAction<Hero> OnHeroMoved;
@@ -29,37 +31,31 @@ namespace Assets.Scripts.UI.Library
             };
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>
             {
-                if (s is LibrarySlot bls)
-                {
-                    var dict = DictForSlot(s);
-                    heroTransfer.Begin(dict, s.SlotIndex);
-                    bls.Hero = Hero.Default;
-                    Rollback = () => bls.Hero = dict[s.SlotIndex];
-                }
+                var bls = s as LibrarySlot;
+                HeroPosition pos = s is TeamMemberSlot pts ? 
+                    pts.Position :
+                    new(-1, BattleLine.NA, s.SlotIndex);
+
+                heroTransfer.Begin(bls.Hero, pos);
+
+                Rollback = () => bls.Hero = heroTransfer.TransferHero;
+                bls.Hero = Hero.Default;
+
             };
             slotDelegate.TransferEnd = (UIItemSlot s) =>
             {
                 var success = false;
-                if (s is LibrarySlot bls)
-                {
-                    var dict = DictForSlot(s);
-                    success = heroTransfer.Commit(dict, s.SlotIndex, BattleLine.NA);
+                var bls = s as LibrarySlot;
+                HeroPosition pos = s is TeamMemberSlot pts ?
+                    pts.Position :
+                    new(-1, BattleLine.NA, s.SlotIndex);
 
-                    if (success)
-                    {
-                        var hero = dict[s.SlotIndex];
+                success = heroTransfer.Commit(pos, out var hero);
 
-                        hero.TeamId = bls.TeamId;
-                        bls.Hero = hero;
-                        dict[s.SlotIndex] = hero;
-                    }
-                    else
-                    {
-                        bls.Hero = Hero.Default;
-                    }
+                bls.Hero = hero;
 
-                    OnHeroMoved?.Invoke(bls.Hero);
-                }
+                if (success)
+                    OnHeroMoved?.Invoke(bls.Hero);                
 
                 if (!success)
                     Rollback?.Invoke();
@@ -77,10 +73,7 @@ namespace Assets.Scripts.UI.Library
             {
                 var success = false;
                 if (s is LibrarySlot bls)
-                {
-                    var dict = DictForSlot(s);
                     success = heroTransfer.Abort();
-                }
 
                 if (success)
                     Rollback?.Invoke();
@@ -89,15 +82,6 @@ namespace Assets.Scripts.UI.Library
 
                 return success;
             };
-        }
-
-        private Dictionary<int, Hero> DictForSlot(UIItemSlot s)
-        {
-            if (s is PlayerTeamSlot)
-                return library.PlayerTeam;
-            else if (s is EnemyTeamSlot)
-                return library.EnemyTeam;
-            else return library.Heroes;
         }
 
         private Transform PooledItem(Transform placeholder)
@@ -120,18 +104,20 @@ namespace Assets.Scripts.UI.Library
             }
         }
 
+        private void SlotDelegate_HeroMoved(Hero hero) =>
+            SyncHeroCardSelectionWithHero();
 
         private void SlotDelegate_HeroUpdated(Hero hero) =>
             CardForHero(hero).Hero = hero;
 
         private HeroCard CardForHero(Hero hero)
         {
-            var card = librarySlots.Where(x => x.HeroCard.Hero.Id == hero.Id).Select(x => x.HeroCard).FirstOrDefault();
+            var card = librarySlots
+                .Where(x => x.HeroCard.Hero.Id == hero.Id)
+                .Select(x => x.HeroCard)
+                .FirstOrDefault();
 
             return card;
         }
-
-        private void SlotDelegate_HeroMoved(Hero hero) =>
-            SyncHeroCardSelectionWithHero();
     }
 }

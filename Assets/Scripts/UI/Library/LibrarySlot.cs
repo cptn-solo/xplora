@@ -1,9 +1,12 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Library
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public class LibrarySlot : UIItemSlot
     {
         private Hero hero;
@@ -20,10 +23,11 @@ namespace Assets.Scripts.UI.Library
             }
         }
 
-        public int TeamId { get; set; }
-
         private HeroCard heroCard;
         public HeroCard HeroCard => heroCard;
+
+        public HeroPosition Position { get; internal set; }
+
         public override void Put(Transform itemTransform)
         {
             base.Put(itemTransform);

@@ -1,47 +1,42 @@
 ﻿using Assets.Scripts.UI.Data;
-using System.Collections.Generic;
+using System;
 
 namespace Assets.Scripts
 {
-    using HeroDict = Dictionary<int, Hero>;
+    using HeroPosition = Tuple<int, BattleLine, int>;
 
     public class HeroTransfer
     {
         public struct HeroTransaction
         {
             public Hero Hero;
-            public HeroDict FromLine;
-            public int FromIdx;
-            public HeroDict ToLine;
-            public int ToIdx;
-
+            public HeroPosition FromPosition;
+            public HeroPosition ToPosition;
         }
         private HeroTransaction heroTransaction = default;
         public Hero TransferHero => heroTransaction.Hero;
 
-        public void Begin(HeroDict from, int fromIdx)
+        public void Begin(Hero hero, HeroPosition from)
         {
             heroTransaction = new HeroTransaction
             {
-                Hero = from[fromIdx],
-                FromLine = from,
-                FromIdx = fromIdx,
+                Hero = hero,
+                FromPosition = from,
             };
         }
 
-        public bool Commit(HeroDict toLine, int toIndex, BattleLine line)
+        public bool Commit(HeroPosition toPosition, out Hero hero)
         {
+            hero = Hero.Default;
             if (heroTransaction.Hero.HeroType == HeroType.NA)
                 return false;
 
-            heroTransaction.ToLine = toLine;
-            heroTransaction.ToIdx = toIndex;
+            heroTransaction.ToPosition = toPosition;
 
-            heroTransaction.FromLine.TakeHero(heroTransaction.FromIdx);
-
-            var hero = heroTransaction.Hero;
-            hero.Line = line;
-            heroTransaction.ToLine.PutHero(hero, heroTransaction.ToIdx);
+            hero = heroTransaction.Hero;
+            hero.TeamId = toPosition.Item1;
+            hero.Line = toPosition.Item2;
+            hero.Position = toPosition.Item3;
 
             heroTransaction = default;
 

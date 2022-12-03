@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
-using Unity.VisualScripting;
 using System;
 
 namespace Assets.Scripts
@@ -120,47 +119,41 @@ namespace Assets.Scripts
 
                 var iconName = $"{heroesIconsPath}/{typeName}";
 
-                if (!UpdateHero(id, library.Heroes, cellNumber) &&
-                    !UpdateHero(id, library.PlayerTeam, cellNumber) &&
-                    !UpdateHero(id, library.EnemyTeam, cellNumber))
+                if (library.HeroById(id) is Hero hero && hero.HeroType != HeroType.NA)
                 {
-                    library.GiveHero(Hero.EmptyHero(id, heroName, iconName));
-                    UpdateHero(id, library.Heroes, cellNumber);
+                    UpdateHero(hero, cellNumber);
+                }
+                else if(library.GiveHero(Hero.EmptyHero(id, heroName, iconName)))
+                { 
+                    UpdateHero(library.HeroById(id), cellNumber);
                 }
             }
 
             OnDataAvailable?.Invoke();
 
-            bool UpdateHero(int id, Dictionary<int, Hero> dict, int cellNumber)
+            bool UpdateHero(Hero hero, int cellNumber)
             {
-                if (ExistingItem(dict, id).FirstOrDefault() is KeyValuePair<int, Hero> h &&
-                    h.Value.HeroType != HeroType.NA)
-                {
-                    var hero = h.Value;
-                    hero.Name = (string)names[cellNumber];
+                hero.Name = (string)names[cellNumber];
 
-                    ParseAbsoluteRangeValue((string)damageMinMax[cellNumber], out int minVal, out int maxVal);
-                    hero.DamageMin = minVal;
-                    hero.DamageMax = maxVal;
-                    
-                    hero.DefenceRate = ParseRateValue((string)defenceRates[cellNumber]);
-                    hero.AccuracyRate = ParseRateValue((string)accuracyRates[cellNumber]);
-                    hero.DodgeRate = ParseRateValue((string)dodgeRates[cellNumber]);
-                    hero.Health = ParseAbsoluteValue((string)healths[cellNumber]);
-                    hero.Speed = ParseAbsoluteValue((string)speeds[cellNumber]);
-                    hero.CriticalHitRate = ParseRateValue((string)criticalHitRates[cellNumber]);
+                ParseAbsoluteRangeValue((string)damageMinMax[cellNumber], out int minVal, out int maxVal);
+                hero.DamageMin = minVal;
+                hero.DamageMax = maxVal;
 
-                    hero.ResistBleedRate = ParseAbsoluteValue((string)resistBleedRates[cellNumber]);
-                    hero.ResistPoisonRate = ParseAbsoluteValue((string)resistPoisonRates[cellNumber]);
-                    hero.ResistStunRate = ParseAbsoluteValue((string)resistStunRates[cellNumber]);
-                    hero.ResistBurnRate = ParseAbsoluteValue((string)resistBurnRates[cellNumber]);
-                    hero.ResistFrostRate = ParseAbsoluteValue((string)resistFrostRates[cellNumber]);
-                    hero.ResistFlushRate = ParseAbsoluteValue((string)resistFlushRates[cellNumber]);
+                hero.DefenceRate = ParseRateValue((string)defenceRates[cellNumber]);
+                hero.AccuracyRate = ParseRateValue((string)accuracyRates[cellNumber]);
+                hero.DodgeRate = ParseRateValue((string)dodgeRates[cellNumber]);
+                hero.Health = ParseAbsoluteValue((string)healths[cellNumber]);
+                hero.Speed = ParseAbsoluteValue((string)speeds[cellNumber]);
+                hero.CriticalHitRate = ParseRateValue((string)criticalHitRates[cellNumber]);
 
-                    dict[h.Key] = hero;
-                    return true;
-                }
-                return false;
+                hero.ResistBleedRate = ParseAbsoluteValue((string)resistBleedRates[cellNumber]);
+                hero.ResistPoisonRate = ParseAbsoluteValue((string)resistPoisonRates[cellNumber]);
+                hero.ResistStunRate = ParseAbsoluteValue((string)resistStunRates[cellNumber]);
+                hero.ResistBurnRate = ParseAbsoluteValue((string)resistBurnRates[cellNumber]);
+                hero.ResistFrostRate = ParseAbsoluteValue((string)resistFrostRates[cellNumber]);
+                hero.ResistFlushRate = ParseAbsoluteValue((string)resistFlushRates[cellNumber]);
+                
+                return true;
             }
 
             IEnumerable<KeyValuePair<K, T>> ExistingItem<T, K>(Dictionary<K, T> dict, K id) where T : IIdentifiable<K>
@@ -211,6 +204,9 @@ namespace Assets.Scripts
                 Debug.LogError($"ParseAbsoluteValue [{rawValue}] Exception: {ex.Message}");
                 return 0;
             }
-        }        
+        }
+
+        internal void ResetHealthCurrent() =>
+            library.ResetHealthCurrent();
     }
 }

@@ -39,7 +39,8 @@ namespace Assets.Scripts.UI.Data
         // end specs
 
         public int TeamId { get; set; }
-        public BattleLine Line { get; set; }             
+        public BattleLine Line { get; set; }            
+        public int Position { get; set; }
 
         public int Id => id;
 

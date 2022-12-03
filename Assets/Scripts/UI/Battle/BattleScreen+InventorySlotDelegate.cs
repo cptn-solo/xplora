@@ -1,13 +1,13 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Battle
-{
-    using HeroDict = Dictionary<int, Hero>;
+{    
     using AssetDict = Dictionary<int, Asset>;
     public partial class BattleScreen // Inventory Slot Delegate
     {
@@ -25,10 +25,10 @@ namespace Assets.Scripts.UI.Battle
             {
                 if (s is BattleLineSlot bls)
                 {
-                    var dict = DictForBattleSlot(bls);
-                    heroTransfer.Begin(dict, s.SlotIndex);
+                    heroTransfer.Begin(bls.Hero, bls.Position);
+                    Rollback = () => bls.Hero = heroTransfer.TransferHero;
                     bls.Hero = Hero.Default;
-                    Rollback = () => bls.Hero = dict[s.SlotIndex];
+
                 }
                 else if (s is AssetInventorySlot ais)
                 {
@@ -43,11 +43,11 @@ namespace Assets.Scripts.UI.Battle
                 var success = false;
                 if (s is BattleLineSlot bls)
                 {
-                    var dict = DictForBattleSlot(bls);
-                    success = heroTransfer.Commit(dict, s.SlotIndex, bls.Line);
-                    bls.Hero = success ? dict[s.SlotIndex] : Hero.Default;
+                    success = heroTransfer.Commit(bls.Position, out var hero);
+                    bls.Hero = hero;
 
-                    OnHeroMoved?.Invoke(bls.Hero);
+                    if (success)
+                        OnHeroMoved?.Invoke(bls.Hero);
                 }
                 else if (s is AssetInventorySlot ais)
                 {
@@ -100,7 +100,7 @@ namespace Assets.Scripts.UI.Battle
             }
             else if (slot is BattleLineSlot bls)
                 return heroTransfer.TransferHero.HeroType != HeroType.NA &&
-                    heroTransfer.TransferHero.TeamId == bls.TeamId;
+                    heroTransfer.TransferHero.TeamId == bls.Position.Item1;
             else
                 return false;
         }
@@ -159,14 +159,6 @@ namespace Assets.Scripts.UI.Battle
             }
         }
 
-        private HeroDict DictForBattleSlot(BattleLineSlot bls)
-        {
-            var playerTeamId = battleManager.PlayerTeam.Id;
-            var team = bls.TeamId == playerTeamId ? battleManager.PlayerTeam : battleManager.EnemyTeam;
-            var frontSlots = bls.TeamId == playerTeamId ? playerFrontSlots : enemyFrontSlots;
-            var dict = frontSlots.Contains(bls) ? team.FrontLine : team.BackLine;
-            return dict;
-        }
         private AssetDict DictForAssetSlot(AssetInventorySlot s)
         {
             if (s is TeamInventorySlot tis)

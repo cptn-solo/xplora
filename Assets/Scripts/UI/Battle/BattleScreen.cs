@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -7,9 +8,12 @@ using Zenject;
 
 namespace Assets.Scripts.UI.Battle
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public partial class BattleScreen : MenuScreen
     {
         [Inject] private readonly BattleManagementService battleManager;
+        [Inject] private readonly HeroLibraryManagementService libraryManager;
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
@@ -23,8 +27,8 @@ namespace Assets.Scripts.UI.Battle
 
         [SerializeField] private TextMeshProUGUI heroInventoryTitle;
 
-        [SerializeField] private HeroAnimation playerHeroAnimation;        
-        [SerializeField] private HeroAnimation enemyHeroAnimation;
+        [SerializeField] private Transform playerBattleGround;        
+        [SerializeField] private Transform enemyBattleGround;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
@@ -77,8 +81,9 @@ namespace Assets.Scripts.UI.Battle
 
                 UpdateActionButtons();
 
-                battleManager.OnHeroUpdated += BattleManager_OnHeroUpdated;
-                battleManager.OnAttack += BattleManager_OnAttack;
+                battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
+                battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
+                battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
             }
         }
 
@@ -100,8 +105,9 @@ namespace Assets.Scripts.UI.Battle
 
         protected override void OnBeforeDisable()
         {
-            battleManager.OnHeroUpdated -= BattleManager_OnHeroUpdated;
-            battleManager.OnAttack -= BattleManager_OnAttack;
+            battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
+            battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
+            battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
         }
 
         protected override void OnBeforeUpdate()
@@ -119,8 +125,9 @@ namespace Assets.Scripts.UI.Battle
                     toggleInventoryButton = (UIActionToggleButton)button;
             }
 
-            battleManager.OnHeroUpdated += BattleManager_OnHeroUpdated;
-            battleManager.OnAttack += BattleManager_OnAttack;
+            battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
+            battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
+            battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
 
             battleInventory.Toggle(inventoryToggle);
             toggleInventoryButton.Toggle(inventoryToggle);
@@ -151,12 +158,8 @@ namespace Assets.Scripts.UI.Battle
             ShowTeamBatleUnits(battleManager.EnemyTeam);
             ShowTeamInventory(battleManager.EnemyTeam);
 
-            selectedHero = battleManager.PlayerTeam.FrontLine[0];
             SyncHeroCardSelectionWithHero();
             ShowHeroInventory(selectedHero);
-
-            playerHeroAnimation.Initialize();
-            enemyHeroAnimation.Initialize();
 
             initialized = true;
 
@@ -166,23 +169,22 @@ namespace Assets.Scripts.UI.Battle
         private void SlotDelegate_HeroUpdated(Hero hero) =>
             RaidMemberForHero(hero).Hero = hero;
 
-        private void SlotDelegate_HeroMoved(Hero hero) =>
+        private void SlotDelegate_HeroMoved(Hero hero)
+        {
             SyncHeroCardSelectionWithHero();
-
-        private void BattleManager_OnHeroUpdated(Hero hero)
-        {
-            var raidMember = RaidMemberForHero(hero);
-            if (raidMember != default)
-                raidMember.Hero = hero;
-
-            battleQueue.UpdateHero(hero);
+            battleManager.MoveHero(hero);
         }
 
-        private void BattleManager_OnAttack(AttackInfo info)
+        private void BattleManager_OnBattleEvent(BattleInfo battleInfo)
         {
-            StartCoroutine(SetAttackAnimation(info));
         }
-
+        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo)
+        {
+            StartCoroutine(SetTurnAnimation(turnInfo));
+        }
+        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo)
+        {
+        }
 
         private void Button_OnActionButtonClick(Actions arg1, Transform arg2)
         {
@@ -212,8 +214,6 @@ namespace Assets.Scripts.UI.Battle
                         var queuedHeroes = battleManager.PrepareRound();
                         battleQueue.LayoutHeroes(queuedHeroes);
 
-                        SetCurrentAttackerAnimation(battleManager.CurrentAttacker);
-
                         UpdateActionButtons();
                     }
                     break;
@@ -229,42 +229,30 @@ namespace Assets.Scripts.UI.Battle
                     break;
             }
         }
-        private IEnumerator SetAttackAnimation(AttackInfo info)
+        private IEnumerator SetTurnAnimation(BattleTurnInfo info)
         {
             var attackerAnimation =
                 info.Attacker.TeamId == battleManager.PlayerTeam.Id ?
-                playerHeroAnimation : enemyHeroAnimation;
+                playerBattleGround : enemyBattleGround;
             var targetAnimation =
                 info.Target.TeamId == battleManager.PlayerTeam.Id ?
-                playerHeroAnimation : enemyHeroAnimation;
+                playerBattleGround : enemyBattleGround;
 
+            var attakerRM = RaidMemberForHero(info.Attacker);
+            var targetRM = RaidMemberForHero(info.Target);
 
-            attackerAnimation.SetHero(info.Attacker);
-            targetAnimation.SetHero(info.Target);
+            attakerRM.HeroAnimation.Attack();
 
-            attackerAnimation.Attack();
             yield return new WaitForSeconds(.5f);
-            targetAnimation.Hit(info.Lethal);
-            yield return new WaitForSeconds(.5f);
-            SetCurrentAttackerAnimation(battleManager.CurrentAttacker);
 
-        }
-        private void SetCurrentAttackerAnimation(Hero attacker)
-        {
-            if (attacker.HeroType == HeroType.NA)
-            {
-                playerHeroAnimation.SetHero(Hero.Default);
-                enemyHeroAnimation.SetHero(Hero.Default);
-                return;
+            targetRM.HeroAnimation.Hit(info.Lethal);
 
-            }
+            yield return new WaitForSeconds(1f);
 
-            playerHeroAnimation.SetHero(
-                attacker.TeamId == battleManager.PlayerTeam.Id ?
-                attacker : Hero.Default);
-            enemyHeroAnimation.SetHero(
-                attacker.TeamId == battleManager.EnemyTeam.Id ?
-                attacker : Hero.Default);
+            // ??
+            targetRM.Hero = info.Target;
+
+            battleQueue.UpdateHero(info.Target);
         }
 
         private void ToggleInventory()
@@ -281,8 +269,7 @@ namespace Assets.Scripts.UI.Battle
             foreach (var slot in containerTransform.GetComponentsInChildren<BattleLineSlot>())
             {
                 slot.DelegateProvider = slotDelegate;
-                slot.SetTeamId(teamId);
-                slot.SetLine(line);
+                slot.Position = new HeroPosition(teamId, line, slot.SlotIndex);
                 slots[slot.SlotIndex] = slot;
             }
         }
