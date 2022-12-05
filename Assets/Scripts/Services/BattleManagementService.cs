@@ -4,13 +4,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using Zenject;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts
 {
-    using static UnityEngine.Rendering.DebugUI;
-    using HeroDict = Dictionary<int, Hero>;
-    using Random = UnityEngine.Random;
-
     public class BattleManagementService : MonoBehaviour
     {
         [Inject] private readonly HeroLibraryManagementService libraryManager;
@@ -20,8 +17,29 @@ namespace Assets.Scripts
         public event UnityAction<BattleTurnInfo> OnTurnEvent;
 
         private BattleInfo battle;
+        public BattleInfo CurrentBattle => battle;
 
         public Hero CurrentAttacker => battle.CurrentRound.CurrentAttacker;
+        public int CurrentTurn => battle.CurrentTurn.Turn;
+        public int QueueLength { get; internal set; }
+        public bool CanPrepareRound => battle.CurrentRound.State switch
+        {
+            RoundState.PrepareRound => true,
+            RoundState.RoundPrepared => true,
+            RoundState.RoundCompleted => true,
+            _ => false
+        }; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
+        public bool CanBeginBattle => battle.CurrentRound.State switch
+        {
+            RoundState.RoundPrepared => true,
+            _ => false
+        }; //queuedHeroes.Count > 0 && CurrentTurn < 0
+        public bool CanMakeTurn => battle.CurrentTurn.State switch
+        {
+            TurnState.TurnPrepared => true,
+            _ => false
+        }; //queuedHeroes.Count > 0;        
+
 
         /// <summary>
         ///     Flag to let the battle screen know if it should reset the battle/queue
@@ -33,36 +51,21 @@ namespace Assets.Scripts
 
             GiveAssetsToTeams();
 
+            battle.SetState(BattleState.PrepareTeams);
             OnBattleEvent?.Invoke(battle);
-        }
 
-        public void BeginBattle()
-        {
-            libraryManager.ResetHealthCurrent();
-        }
-
-        public int CurrentTurn => battle.CurrentTurn.Turn;
-        public int QueueLength { get; internal set; }
-        public bool CanPrepareRound => battle.State == BattleState.PrepareRound; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
-        public bool CanBeginBattle => battle.State == BattleState.RoundPrepared; //queuedHeroes.Count > 0 && CurrentTurn < 0
-        public bool CanMakeTurn => battle.State == BattleState.TurnCompleted; //queuedHeroes.Count > 0;
-
-        /// <summary>
-        ///     Initial team layout as it comes from the library (all to front line)
-        /// </summary>
-        public void InitBattleTeams()
-        {
-            battle.SetState(BattleState.TeamsPrepared);
-            OnBattleEvent?.Invoke(battle);
+            battle.SetRoundState(RoundState.PrepareRound);
+            OnRoundEvent?.Invoke(battle.CurrentRound);
         }
 
         public void MoveHero(Hero hero)
         {
 
-        }    
+        }
 
-        internal Hero[] PrepareRound()
+        internal void PrepareRound()
         {
+            battle.SetRoundState(RoundState.PrepareRound);
 
             battle.CurrentRound.QueuedHeroes.Clear();
 
@@ -92,9 +95,35 @@ namespace Assets.Scripts
                 }
             }
 
-            return battle.CurrentRound.QueuedHeroes.ToArray();
+            battle.SetRoundState(RoundState.RoundPrepared);
+
+            OnRoundEvent?.Invoke(battle.CurrentRound);
         }
-        internal Hero[] CompleteTurn()
+
+        public void BeginBattle()
+        {
+            libraryManager.ResetHealthCurrent();
+
+            battle.SetState(BattleState.BattleInProgress);
+            OnBattleEvent?.Invoke(CurrentBattle);
+
+            battle.SetRoundState(RoundState.RoundInProgress);
+            OnRoundEvent?.Invoke(battle.CurrentRound);
+
+            battle.SetTurnState(TurnState.PrepareTurn);
+            OnRoundEvent?.Invoke(battle.CurrentRound);
+
+            if (PrepareTurn() == TurnState.TurnPrepared)
+            {
+                OnTurnEvent?.Invoke(battle.CurrentTurn);
+            }
+            else
+            {
+                Debug.Log("Can't prepare turn");
+            }
+        }
+
+        internal TurnState PrepareTurn()
         {
             var allBattleHeroes = libraryManager.Library.BattleHeroes;
             var activeHeroes = allBattleHeroes.Where(x => x.HealthCurrent > 0);
@@ -104,7 +133,7 @@ namespace Assets.Scripts
             {
                 // round is over, prepare new one
                 Debug.Log($"Round is over, prepare new one");
-                return battle.CurrentRound.QueuedHeroes.ToArray();
+                return TurnState.NA;
             }
             var attaker = battle.CurrentRound.QueuedHeroes[0];
             var attackTeam = attaker.TeamId;
@@ -122,24 +151,38 @@ namespace Assets.Scripts
             {
                 // battle won, complete
                 Debug.Log($"Battle won, complete");
-                return battle.CurrentRound.QueuedHeroes.ToArray();
+                return TurnState.NoTargets;
             }
 
-            var damage = Mathf.Min(target.HealthCurrent, Random.Range(attaker.DamageMin, attaker.DamageMax + 1));
-            target.HealthCurrent -= damage;
+            var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn + 1, attaker, target);
+            turnInfo.SetState(TurnState.TurnPrepared);
+            battle.SetTurnInfo(turnInfo);
+
+            return turnInfo.State;
+
+        }
+        internal void CompleteTurn()
+        {
+
+            var turn = battle.CurrentTurn;
+            var damage = Mathf.Min(
+                turn.Target.HealthCurrent, 
+                Random.Range(turn.Attacker.DamageMin, turn.Attacker.DamageMax + 1));
+            var hp = turn.Target.HealthCurrent - damage;
+            
+            var target = turn.Target.UpdateHealthCurrent(hp);
 
             UpdateBattleHero(target); // Sync health
 
-            var turn = BattleTurnInfo.Create(CurrentTurn, attaker, target);
-            OnTurnEvent?.Invoke(turn);
+            turn = BattleTurnInfo.Create(CurrentTurn, battle.CurrentTurn.Attacker, target, damage);
+            battle.SetTurnInfo(turn);
+            battle.SetTurnState(TurnState.TurnInProgress);
+            OnTurnEvent?.Invoke(battle.CurrentTurn);
 
-            Debug.Log($"{attaker.Name} attaked {target.Name}, damage: {damage}");
-
-            battle.CurrentRound.QueuedHeroes.RemoveAt(0);            
+            battle.CurrentRound.QueuedHeroes.RemoveAt(0);
             
-            battle.CurrentTurn.Increment();
-
-            return battle.CurrentRound.QueuedHeroes.ToArray();
+            battle.SetTurnState(TurnState.TurnCompleted);
+            OnTurnEvent?.Invoke(battle.CurrentTurn);
         }
 
         private void UpdateBattleHero(Hero target)

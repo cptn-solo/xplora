@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.UI.Common;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Data
@@ -121,6 +120,12 @@ namespace Assets.Scripts.UI.Data
             hero.Defence = DefaultDefence();
 
             return hero;
+        }
+
+        public Hero UpdateHealthCurrent(int val)
+        {
+            this.HealthCurrent = val;
+            return this;
         }
 
         public int GiveAsset(Asset asset, int index = -1) =>

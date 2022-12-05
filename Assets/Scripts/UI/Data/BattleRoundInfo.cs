@@ -6,8 +6,9 @@ namespace Assets.Scripts.UI.Data
     {
         private List<Hero> queuedHeroes;
         private Hero currentAttacker;
-
+        private RoundState state;
         public Hero CurrentAttacker => currentAttacker;
+        public RoundState State => state;
         public List<Hero> QueuedHeroes => queuedHeroes;
 
         public static BattleRoundInfo Create()
@@ -17,6 +18,11 @@ namespace Assets.Scripts.UI.Data
             info.queuedHeroes = new();
 
             return info;
+        }
+        public BattleRoundInfo SetState(RoundState state)
+        { 
+            this.state = state;
+            return this;
         }
     }
 }

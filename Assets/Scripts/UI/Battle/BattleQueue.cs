@@ -19,12 +19,16 @@ namespace Assets.Scripts.UI.Battle
         {
             // TODO: ???
             LayoutHeroes(heroes);
-        }        
-
-        internal void LayoutHeroes(Hero[] heroes)
+        }
+        internal void ResetQueue()
         {
             foreach (var slot in combinedSlots)
                 slot.QueueMember.Hero = Hero.Default;
+        }
+
+        internal void LayoutHeroes(Hero[] heroes)
+        {
+            ResetQueue();
 
             for (int idx = 0; idx < heroes.Length; idx++)
                 combinedSlots[idx].QueueMember.Hero = heroes[idx];

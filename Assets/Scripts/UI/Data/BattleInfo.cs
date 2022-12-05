@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.UI.Data
 {
@@ -8,6 +9,8 @@ namespace Assets.Scripts.UI.Data
         private BattleState state;
         private BattleTurnInfo currentTurn;
         private BattleRoundInfo currentRound;
+        
+        private List<BattleTurnInfo> prevTurns;
 
         private Team playerTeam;
         private Team enemyTeam;
@@ -23,6 +26,8 @@ namespace Assets.Scripts.UI.Data
         public BattleRoundInfo CurrentRound => currentRound;
         public int WinnerTeamId => winnerTeamId;
 
+        public List<BattleTurnInfo> BattleLog => prevTurns;
+
         internal static BattleInfo Create(Team playerTeam, Team enemyTeam)
         {
             BattleInfo battle = default;
@@ -36,7 +41,7 @@ namespace Assets.Scripts.UI.Data
             battle.enemyTeam = enemyTeam;
 
             battle.winnerTeamId = -1;
-
+            battle.prevTurns = new();
 
             return battle;
         }
@@ -44,6 +49,23 @@ namespace Assets.Scripts.UI.Data
         internal void SetState(BattleState state)
         {
             this.state = state;
+        }
+        internal void SetRoundState(RoundState state)
+        {
+            currentRound.SetState(state);                
+        }
+        internal void SetRoundInfo(BattleRoundInfo info)
+        { 
+            currentRound = info;
+        }
+        internal void SetTurnState(TurnState state)
+        {
+            currentTurn.SetState(state);
+        }
+        internal void SetTurnInfo(BattleTurnInfo info)
+        {
+            prevTurns.Add(currentTurn);
+            currentTurn = info;
         }
     }
 }

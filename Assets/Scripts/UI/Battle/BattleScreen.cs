@@ -2,6 +2,7 @@
 using Assets.Scripts.UI.Inventory;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -85,22 +86,6 @@ namespace Assets.Scripts.UI.Battle
             }
         }
 
-        private void UpdateActionButtons()
-        {
-            foreach (var button in actionButtons)
-            {
-                if (button.Action == Actions.PrepareQueue)
-                    button.gameObject.SetActive(battleManager.CanPrepareRound);
-
-                if (button.Action == Actions.BeginBattle)
-                    button.gameObject.SetActive(battleManager.CanBeginBattle);
-
-                if (button.Action == Actions.CompleteTurn)
-                    button.gameObject.SetActive(battleManager.CanMakeTurn);
-
-            }
-        }
-
         protected override void OnBeforeDisable()
         {
             battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
@@ -165,6 +150,10 @@ namespace Assets.Scripts.UI.Battle
             ShowTeamInventory(libraryManager.PlayerTeam);
             ShowTeamInventory(libraryManager.EnemyTeam);
 
+
+            battleQueue.LayoutHeroes(
+                battleManager.CurrentBattle.CurrentRound.QueuedHeroes.ToArray());
+
             UpdateActionButtons();
         }
 
@@ -176,122 +165,7 @@ namespace Assets.Scripts.UI.Battle
             SyncHeroCardSelectionWithHero();
             battleManager.MoveHero(hero);
         }
-
-        private void BattleManager_OnBattleEvent(BattleInfo battleInfo)
-        {
-            switch (battleInfo.State)
-            {
-                case BattleState.NA:
-                    break;
-                case BattleState.Created:
-                    {
-                        ShowTeamInventory(libraryManager.PlayerTeam);
-                        ShowTeamInventory(libraryManager.EnemyTeam);
-                    }
-                    break;
-                case BattleState.PrepareTeams:
-                    break;
-                case BattleState.TeamsPrepared:
-                    break;
-                case BattleState.PrepareRound:
-                    break;
-                case BattleState.RoundPrepared:
-                    break;
-                case BattleState.PrepareTurn:
-                    break;
-                case BattleState.TurnPrepared:
-                    break;
-                case BattleState.TurnInProgress:
-                    break;
-                case BattleState.TurnCompleted:
-                    break;
-                case BattleState.RoundCompleted:
-                    break;
-                case BattleState.NoTargets:
-                    break;
-                case BattleState.Completed:
-                    break;
-                default:
-                    break;
-            }
-        }
-        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo)
-        {
-            StartCoroutine(SetTurnAnimation(turnInfo));
-        }
-        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo)
-        {
-        }
-
-        private void Button_OnActionButtonClick(Actions arg1, Transform arg2)
-        {
-            switch (arg1)
-            {                
-                case Actions.ToggleInventoryPanel:
-                    {
-                        ToggleInventory();
-                    }
-                    break;
-                case Actions.BeginBattle:
-                    {
-                        if (inventoryToggle)
-                            ToggleInventory();
-
-                        battleManager.BeginBattle();
-
-                        UpdateActionButtons();
-                    }
-                    break;
-
-                case Actions.PrepareQueue:
-                    {
-                        if (inventoryToggle)
-                            ToggleInventory();
-
-                        var queuedHeroes = battleManager.PrepareRound();
-                        battleQueue.LayoutHeroes(queuedHeroes);
-
-                        UpdateActionButtons();
-                    }
-                    break;
-                case Actions.CompleteTurn:
-                    {
-                        var queuedHeroes = battleManager.CompleteTurn();
-                        battleQueue.CompleteTurn(queuedHeroes);
-
-                        UpdateActionButtons();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        private IEnumerator SetTurnAnimation(BattleTurnInfo info)
-        {
-            var attackerAnimation =
-                info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
-                playerBattleGround : enemyBattleGround;
-            var targetAnimation =
-                info.Target.TeamId == libraryManager.PlayerTeam.Id ?
-                playerBattleGround : enemyBattleGround;
-
-            var attakerRM = RaidMemberForHero(info.Attacker);
-            var targetRM = RaidMemberForHero(info.Target);
-
-            attakerRM.HeroAnimation.Attack();
-
-            yield return new WaitForSeconds(.5f);
-
-            targetRM.HeroAnimation.Hit(info.Lethal);
-
-            yield return new WaitForSeconds(1f);
-
-            // ??
-            targetRM.Hero = info.Target;
-
-            battleQueue.UpdateHero(info.Target);
-        }
-
+        
         private void ToggleInventory()
         {
             inventoryToggle = !inventoryToggle;
