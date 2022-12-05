@@ -111,7 +111,7 @@ namespace Assets.Scripts
             OnRoundEvent?.Invoke(battle.CurrentRound);
 
             battle.SetTurnState(TurnState.PrepareTurn);
-            OnRoundEvent?.Invoke(battle.CurrentRound);
+            OnTurnEvent?.Invoke(battle.CurrentTurn);
 
             if (PrepareTurn() == TurnState.TurnPrepared)
             {

@@ -55,13 +55,18 @@ namespace Assets.Scripts.UI.Battle
             switch (turnInfo.State)
             {
                 case TurnState.PrepareTurn:
-                    ResetTurnProcessingQueue(turnInfo);
+                    {
+                        ResetTurnProcessingQueue(turnInfo);
+                        EnqueueTurnProcessingStage(turnInfo);
+                    }
                     break;
                 case TurnState.TurnPrepared:
                 case TurnState.TurnInProgress:
                 case TurnState.TurnCompleted:
                 case TurnState.NoTargets:
-                    EnqueueTurnProcessingStage(turnInfo);
+                    {
+                        EnqueueTurnProcessingStage(turnInfo);
+                    }
                     break;
                 default:
                     break;

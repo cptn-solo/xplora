@@ -16,10 +16,14 @@ namespace Assets.Scripts.UI.Battle
         private void ResetTurnProcessingQueue(BattleTurnInfo turnInfo)
         {
             turnProcessingQueue.Clear();
+            
             turnProcessingQueueActive = false;
             if (turnProcessingCoroutine != null)
                 StopCoroutine(turnProcessingCoroutine);
-            EnqueueTurnProcessingStage(turnInfo);
+            
+            turnStageProcessingActive = false;
+            if (turnStageProcessingCoroutine != null)
+                StopCoroutine(turnStageProcessingCoroutine);           
         }
         private void EnqueueTurnProcessingStage(BattleTurnInfo info)
         {
