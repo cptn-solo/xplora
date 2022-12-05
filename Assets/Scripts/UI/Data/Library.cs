@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Assets.Scripts.UI.Data
@@ -16,6 +15,12 @@ namespace Assets.Scripts.UI.Data
         private HeroesDict heroById;
         private PositionedHeroes heroes;
         private HeroesPositions positions;
+        
+        private Team playerTeam;
+        private Team enemyTeam;
+
+        public Team PlayerTeam => playerTeam;
+        public Team EnemyTeam => enemyTeam;
 
         private const int maxHeroes = 24;
 
@@ -37,6 +42,8 @@ namespace Assets.Scripts.UI.Data
         public static HeroesLibrary EmptyLibrary()
         {
             HeroesLibrary library = default;
+            library.playerTeam = Team.Create(0, "Player");
+            library.enemyTeam = Team.Create(1, "Enemy");
             library.heroes = new();
             library.heroById = new();
             library.positions = new();
@@ -106,12 +113,19 @@ namespace Assets.Scripts.UI.Data
 
         public void ResetHealthCurrent()
         {
-            foreach (var item in heroById.Select(x => x.Key))
+            var keys = heroById.Select(x => x.Key).ToArray();
+            foreach (var item in keys)
             {
                 var hero = heroById[item];
                 hero.HealthCurrent = hero.Health;
                 heroById[item] = hero;
             }    
+        }
+        internal HeroesLibrary ResetTeamAssets()
+        {
+            playerTeam = playerTeam.ResetAssets();
+            enemyTeam = enemyTeam.ResetAssets();
+            return this;
         }
 
         private readonly void SyncHeroPosition(Hero hero, HeroPosition pos)

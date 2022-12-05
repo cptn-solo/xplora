@@ -33,7 +33,7 @@ namespace Assets.Scripts.UI.Library
 
         private SlotDelegateProvider slotDelegate = default;
         private HeroesLibrary library;
-
+        private bool initialized;
         private readonly HeroTransfer heroTransfer = new();
 
         delegate void TransferRollback();
@@ -63,14 +63,21 @@ namespace Assets.Scripts.UI.Library
             library = libManager.Library;
 
             InitSlots(libraryContainer, librarySlots, -1);
-            InitSlots(playerTeamContainer, playerSlots, libManager.PlayerTeam.Id);
-            InitSlots(enemyTeamContainer, enemySlots, libManager.EnemyTeam.Id);
-
-            ShowHeroesLibraryCards();
-            ShowPlayerCards();
-            ShowEnemyCards();
+            InitSlots(playerTeamContainer, playerSlots, library.PlayerTeam.Id);
+            InitSlots(enemyTeamContainer, enemySlots, library.EnemyTeam.Id);
 
             libManager.OnDataAvailable += LibManager_OnDataAvailable;
+
+            initialized = true;
+
+            if (libManager.DataAvailable)
+                LibManager_OnDataAvailable();
+        }
+
+        protected override void OnBeforeEnable()
+        {
+            if (initialized && libManager.DataAvailable)
+                LibManager_OnDataAvailable();
         }
 
         private void LibManager_OnDataAvailable()

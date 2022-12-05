@@ -14,11 +14,9 @@ namespace Assets.Scripts
     {
         private HeroesLibrary library = HeroesLibrary.EmptyLibrary();
 
-        private Team playerTeam;
-        private Team enemyTeam;
         public HeroesLibrary Library => library;
-        public Team PlayerTeam => playerTeam;
-        public Team EnemyTeam => enemyTeam;
+        public Team PlayerTeam => library.PlayerTeam;
+        public Team EnemyTeam => library.EnemyTeam;
 
 
         private const int heroesNumber = 8;
@@ -28,6 +26,9 @@ namespace Assets.Scripts
 
         public event UnityAction<string> OnDataLoaded;
         public event UnityAction OnDataAvailable;
+
+        private bool dataAvailable = false;
+        public bool DataAvailable => dataAvailable;
 
         private void Awake()
         {
@@ -71,9 +72,6 @@ namespace Assets.Scripts
 
         public void LoadData()
         {
-            playerTeam = Team.Create(0, "Player");
-            enemyTeam = Team.Create(1, "Enemy");
-
             StartCoroutine(LoadStreamingAsset("Heroes.json"));
         }
 
@@ -137,11 +135,14 @@ namespace Assets.Scripts
                     UpdateHero(library.HeroById(id), cellNumber);
                 }
             }
-
+            
+            dataAvailable = true;
             OnDataAvailable?.Invoke();
 
-            bool UpdateHero(Hero hero, int cellNumber)
+            bool UpdateHero(Hero oldHero, int cellNumber)
             {
+                var hero = oldHero;
+
                 hero.Name = (string)names[cellNumber];
 
                 ParseAbsoluteRangeValue((string)damageMinMax[cellNumber], out int minVal, out int maxVal);
@@ -161,7 +162,9 @@ namespace Assets.Scripts
                 hero.ResistBurnRate = ParseAbsoluteValue((string)resistBurnRates[cellNumber]);
                 hero.ResistFrostRate = ParseAbsoluteValue((string)resistFrostRates[cellNumber]);
                 hero.ResistFlushRate = ParseAbsoluteValue((string)resistFlushRates[cellNumber]);
-                
+
+                library.UpdateHero(hero);
+
                 return true;
             }
 
@@ -217,5 +220,12 @@ namespace Assets.Scripts
 
         internal void ResetHealthCurrent() =>
             library.ResetHealthCurrent();
+
+        internal void ResetTeams()
+        {
+            library = Library.ResetTeamAssets();
+            Library.ResetHealthCurrent();
+
+        }
     }
 }

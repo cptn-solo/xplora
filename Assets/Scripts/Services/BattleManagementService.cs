@@ -28,7 +28,9 @@ namespace Assets.Scripts
         /// </summary>
         public void ResetBattle()
         {
+            libraryManager.ResetTeams();            
             battle = BattleInfo.Create(libraryManager.PlayerTeam, libraryManager.EnemyTeam);
+
             GiveAssetsToTeams();
 
             OnBattleEvent?.Invoke(battle);

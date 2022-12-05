@@ -76,15 +76,12 @@ namespace Assets.Scripts.UI.Battle
         protected override void OnBeforeEnable()
         {
             if (initialized)
-            {
-                ShowTeamBatleUnits(playerTeamId);
-                ShowTeamBatleUnits(enemyTeamId);
-
-                UpdateActionButtons();
-
+            {               
                 battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
                 battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
                 battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
+
+                UpdateView();
             }
         }
 
@@ -155,11 +152,18 @@ namespace Assets.Scripts.UI.Battle
 
             InitHeroSlots(enemyPartyFront, enemyFrontSlots, enemyTeamId, BattleLine.Front);
             InitHeroSlots(enemyPartyBack, enemyBackSlots, enemyTeamId, BattleLine.Back);
-
-            ShowTeamBatleUnits(playerTeamId);
-            ShowTeamBatleUnits(enemyTeamId);
             
             initialized = true;
+
+            UpdateView();
+        }
+
+        private void UpdateView()
+        {
+            ShowTeamBatleUnits(playerTeamId);
+            ShowTeamBatleUnits(enemyTeamId);
+            ShowTeamInventory(libraryManager.PlayerTeam);
+            ShowTeamInventory(libraryManager.EnemyTeam);
 
             UpdateActionButtons();
         }

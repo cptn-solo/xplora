@@ -37,6 +37,12 @@ namespace Assets.Scripts.UI.Data
             return inventory.TakeAsset(index);
         }
 
+        public Team ResetAssets()        
+        {
+            inventory = DefaultInventory();
+            return this;
+        }
+
         private static AssetDict DefaultInventory() => new() {
             {0, default}, {1, default}, {2, default}, {3, default}, {4, default},
             {5, default}, {6, default}, {7, default}, {8, default}, {9, default},
