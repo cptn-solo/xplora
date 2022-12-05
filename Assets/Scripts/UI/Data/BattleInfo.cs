@@ -23,7 +23,7 @@ namespace Assets.Scripts.UI.Data
         public BattleRoundInfo CurrentRound => currentRound;
         public int WinnerTeamId => winnerTeamId;
 
-        internal static BattleInfo Create()
+        internal static BattleInfo Create(Team playerTeam, Team enemyTeam)
         {
             BattleInfo battle = default;
             
@@ -32,8 +32,9 @@ namespace Assets.Scripts.UI.Data
             battle.currentTurn = BattleTurnInfo.Create(-1, Hero.Default, Hero.Default);
             battle.currentRound = BattleRoundInfo.Create();
 
-            battle.playerTeam = Team.Create(0, "Player");
-            battle.enemyTeam = Team.Create(1, "Enemy");
+            battle.playerTeam = playerTeam;
+            battle.enemyTeam = enemyTeam;
+
             battle.winnerTeamId = -1;
 
 

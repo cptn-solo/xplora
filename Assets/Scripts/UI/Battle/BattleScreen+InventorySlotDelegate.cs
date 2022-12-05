@@ -26,7 +26,7 @@ namespace Assets.Scripts.UI.Battle
                 if (s is BattleLineSlot bls)
                 {
                     heroTransfer.Begin(bls.Hero, bls.Position);
-                    Rollback = () => bls.Hero = heroTransfer.TransferHero;
+                    Rollback = () => bls.Hero = libraryManager.Library.HeroAtPosition(bls.Position);
                     bls.Hero = Hero.Default;
 
                 }
@@ -47,7 +47,10 @@ namespace Assets.Scripts.UI.Battle
                     bls.Hero = hero;
 
                     if (success)
+                    {
+                        libraryManager.Library.MoveHero(hero, bls.Position);
                         OnHeroMoved?.Invoke(bls.Hero);
+                    }
                 }
                 else if (s is AssetInventorySlot ais)
                 {
@@ -162,9 +165,9 @@ namespace Assets.Scripts.UI.Battle
         private AssetDict DictForAssetSlot(AssetInventorySlot s)
         {
             if (s is TeamInventorySlot tis)
-                return tis.TeamId == battleManager.PlayerTeam.Id ?
-                    battleManager.PlayerTeam.Inventory :
-                    battleManager.EnemyTeam.Inventory;
+                return tis.TeamId == playerTeamId ?
+                    libraryManager.PlayerTeam.Inventory :
+                    libraryManager.EnemyTeam.Inventory;
 
             return s is HeroDefenceSlot ? selectedHero.Defence :
                                     s is HeroAttackSlot ? selectedHero.Attack :
@@ -173,7 +176,7 @@ namespace Assets.Scripts.UI.Battle
 
         private RaidMember RaidMemberForHero(Hero hero)
         {
-            var slots = (hero.TeamId == battleManager.PlayerTeam.Id) ?
+            var slots = (hero.TeamId == playerTeamId) ?
                 playerFrontSlots.Concat(playerBackSlots) :
                 enemyFrontSlots.Concat(enemyBackSlots);
 

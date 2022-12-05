@@ -61,6 +61,9 @@ namespace Assets.Scripts.UI.Battle
 
         private UIActionToggleButton toggleInventoryButton;
 
+        private int playerTeamId;
+        private int enemyTeamId;
+
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; } // initialised on transaction start
 
@@ -69,15 +72,13 @@ namespace Assets.Scripts.UI.Battle
             battleInventory = GetComponent<BattleInventory>();
             battleQueue = GetComponent<BattleQueue>();
         }
+
         protected override void OnBeforeEnable()
         {
             if (initialized)
             {
-                ShowTeamBatleUnits(battleManager.PlayerTeam);
-                ShowTeamInventory(battleManager.PlayerTeam);
-
-                ShowTeamBatleUnits(battleManager.EnemyTeam);
-                ShowTeamInventory(battleManager.EnemyTeam);
+                ShowTeamBatleUnits(playerTeamId);
+                ShowTeamBatleUnits(enemyTeamId);
 
                 UpdateActionButtons();
 
@@ -133,12 +134,15 @@ namespace Assets.Scripts.UI.Battle
             toggleInventoryButton.Toggle(inventoryToggle);
             battleQueue.Toggle(!inventoryToggle);
 
+            playerTeamId = libraryManager.PlayerTeam.Id;
+            enemyTeamId = libraryManager.EnemyTeam.Id;
+
             InitInventorySlotDelegates(); // drop between slots (both assets and heroes)
             
-            InitTeamInventorySlots(playerTeamInventory, playerTeamInventorySlots, 
-                battleManager.PlayerTeam.Id);            
+            InitTeamInventorySlots(playerTeamInventory, playerTeamInventorySlots,
+                playerTeamId);            
             InitTeamInventorySlots(enemyTeamInventory, enemyTeamInventorySlots,
-                battleManager.EnemyTeam.Id);
+                enemyTeamId);
             
             InitInventorySlots(heroInventory, heroInventorySlots);
             InitInventorySlots(heroInventory, heroAttackSlots);
@@ -146,21 +150,15 @@ namespace Assets.Scripts.UI.Battle
 
             InitRaidMemberDelegates(); // drop on hero cards
 
-            InitHeroSlots(playerPartyFront, playerFrontSlots, battleManager.PlayerTeam.Id, BattleLine.Front);
-            InitHeroSlots(playerPartyBack, playerBackSlots, battleManager.PlayerTeam.Id, BattleLine.Back);
+            InitHeroSlots(playerPartyFront, playerFrontSlots, playerTeamId, BattleLine.Front);
+            InitHeroSlots(playerPartyBack, playerBackSlots, playerTeamId, BattleLine.Back);
 
-            InitHeroSlots(enemyPartyFront, enemyFrontSlots, battleManager.EnemyTeam.Id, BattleLine.Front);
-            InitHeroSlots(enemyPartyBack, enemyBackSlots, battleManager.EnemyTeam.Id, BattleLine.Back);
+            InitHeroSlots(enemyPartyFront, enemyFrontSlots, enemyTeamId, BattleLine.Front);
+            InitHeroSlots(enemyPartyBack, enemyBackSlots, enemyTeamId, BattleLine.Back);
 
-            ShowTeamBatleUnits(battleManager.PlayerTeam);
-            ShowTeamInventory(battleManager.PlayerTeam);
-
-            ShowTeamBatleUnits(battleManager.EnemyTeam);
-            ShowTeamInventory(battleManager.EnemyTeam);
-
-            SyncHeroCardSelectionWithHero();
-            ShowHeroInventory(selectedHero);
-
+            ShowTeamBatleUnits(playerTeamId);
+            ShowTeamBatleUnits(enemyTeamId);
+            
             initialized = true;
 
             UpdateActionButtons();
@@ -177,6 +175,41 @@ namespace Assets.Scripts.UI.Battle
 
         private void BattleManager_OnBattleEvent(BattleInfo battleInfo)
         {
+            switch (battleInfo.State)
+            {
+                case BattleState.NA:
+                    break;
+                case BattleState.Created:
+                    {
+                        ShowTeamInventory(libraryManager.PlayerTeam);
+                        ShowTeamInventory(libraryManager.EnemyTeam);
+                    }
+                    break;
+                case BattleState.PrepareTeams:
+                    break;
+                case BattleState.TeamsPrepared:
+                    break;
+                case BattleState.PrepareRound:
+                    break;
+                case BattleState.RoundPrepared:
+                    break;
+                case BattleState.PrepareTurn:
+                    break;
+                case BattleState.TurnPrepared:
+                    break;
+                case BattleState.TurnInProgress:
+                    break;
+                case BattleState.TurnCompleted:
+                    break;
+                case BattleState.RoundCompleted:
+                    break;
+                case BattleState.NoTargets:
+                    break;
+                case BattleState.Completed:
+                    break;
+                default:
+                    break;
+            }
         }
         private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo)
         {
@@ -232,10 +265,10 @@ namespace Assets.Scripts.UI.Battle
         private IEnumerator SetTurnAnimation(BattleTurnInfo info)
         {
             var attackerAnimation =
-                info.Attacker.TeamId == battleManager.PlayerTeam.Id ?
+                info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
                 playerBattleGround : enemyBattleGround;
             var targetAnimation =
-                info.Target.TeamId == battleManager.PlayerTeam.Id ?
+                info.Target.TeamId == libraryManager.PlayerTeam.Id ?
                 playerBattleGround : enemyBattleGround;
 
             var attakerRM = RaidMemberForHero(info.Attacker);

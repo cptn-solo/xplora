@@ -9,7 +9,7 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private AssetPool assetPool;
         private void ShowTeamInventory(Team team)
         {
-            var slots = (team.Id == battleManager.PlayerTeam.Id) ?
+            var slots = (team.Id == playerTeamId) ?
                 playerTeamInventorySlots : enemyTeamInventorySlots;
             foreach (var asset in team.Inventory)
                 slots[asset.Key].Asset = asset.Value;

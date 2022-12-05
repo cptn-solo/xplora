@@ -39,11 +39,11 @@ namespace Assets.Scripts.UI.Battle
                 card.Selected = card.Hero.Equals(selectedHero);
         }
 
-        private void ShowTeamBatleUnits(Team team)
+        private void ShowTeamBatleUnits(int teamId)
         {
-            var frontSlots = (team.Id == battleManager.PlayerTeam.Id) ?
+            var frontSlots = (teamId == playerTeamId) ?
                 playerFrontSlots : enemyFrontSlots;
-            var backSlots = (team.Id == battleManager.PlayerTeam.Id) ?
+            var backSlots = (teamId == enemyTeamId) ?
                 playerBackSlots : enemyBackSlots;
 
             foreach (var slot in frontSlots)

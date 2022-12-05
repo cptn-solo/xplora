@@ -21,9 +21,6 @@ namespace Assets.Scripts
 
         private BattleInfo battle;
 
-        public Team PlayerTeam => battle.PlayerTeam;
-        public Team EnemyTeam => battle.EnemyTeam;
-
         public Hero CurrentAttacker => battle.CurrentRound.CurrentAttacker;
 
         /// <summary>
@@ -31,7 +28,7 @@ namespace Assets.Scripts
         /// </summary>
         public void ResetBattle()
         {
-            battle = BattleInfo.Create();
+            battle = BattleInfo.Create(libraryManager.PlayerTeam, libraryManager.EnemyTeam);
             GiveAssetsToTeams();
 
             OnBattleEvent?.Invoke(battle);

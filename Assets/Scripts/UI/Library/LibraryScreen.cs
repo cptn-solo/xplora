@@ -63,8 +63,8 @@ namespace Assets.Scripts.UI.Library
             library = libManager.Library;
 
             InitSlots(libraryContainer, librarySlots, -1);
-            InitSlots(playerTeamContainer, playerSlots, battleManager.PlayerTeam.Id);
-            InitSlots(enemyTeamContainer, enemySlots, battleManager.EnemyTeam.Id);
+            InitSlots(playerTeamContainer, playerSlots, libManager.PlayerTeam.Id);
+            InitSlots(enemyTeamContainer, enemySlots, libManager.EnemyTeam.Id);
 
             ShowHeroesLibraryCards();
             ShowPlayerCards();

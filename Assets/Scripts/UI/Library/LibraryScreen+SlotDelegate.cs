@@ -38,7 +38,7 @@ namespace Assets.Scripts.UI.Library
 
                 heroTransfer.Begin(bls.Hero, pos);
 
-                Rollback = () => bls.Hero = heroTransfer.TransferHero;
+                Rollback = () => bls.Hero = library.HeroAtPosition(pos);
                 bls.Hero = Hero.Default;
 
             };
@@ -55,7 +55,10 @@ namespace Assets.Scripts.UI.Library
                 bls.Hero = hero;
 
                 if (success)
-                    OnHeroMoved?.Invoke(bls.Hero);                
+                {
+                    library.MoveHero(hero, pos);
+                    OnHeroMoved?.Invoke(bls.Hero);
+                }
 
                 if (!success)
                     Rollback?.Invoke();

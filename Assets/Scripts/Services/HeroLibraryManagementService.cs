@@ -13,7 +13,13 @@ namespace Assets.Scripts
     public class HeroLibraryManagementService : MonoBehaviour
     {
         private HeroesLibrary library = HeroesLibrary.EmptyLibrary();
+
+        private Team playerTeam;
+        private Team enemyTeam;
         public HeroesLibrary Library => library;
+        public Team PlayerTeam => playerTeam;
+        public Team EnemyTeam => enemyTeam;
+
 
         private const int heroesNumber = 8;
         private const string heroesIconsPath = "Heroes/Icons";
@@ -65,6 +71,9 @@ namespace Assets.Scripts
 
         public void LoadData()
         {
+            playerTeam = Team.Create(0, "Player");
+            enemyTeam = Team.Create(1, "Enemy");
+
             StartCoroutine(LoadStreamingAsset("Heroes.json"));
         }
 

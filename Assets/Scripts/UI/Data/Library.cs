@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Assets.Scripts.UI.Data
@@ -15,6 +16,8 @@ namespace Assets.Scripts.UI.Data
         private HeroesDict heroById;
         private PositionedHeroes heroes;
         private HeroesPositions positions;
+
+        private const int maxHeroes = 24;
 
         public Hero[] BattleHeroes
         {
@@ -57,26 +60,31 @@ namespace Assets.Scripts.UI.Data
 
             return Hero.Default;
         }
-
+        private HeroPosition NextFreePosion()
+        {
+            var pos = new HeroPosition(-1, BattleLine.NA, heroes.Count);
+            return pos;
+        }
         public bool GiveHero(Hero hero) {
             var pos = heroes.FirstFreeSlotIndex(x => x == -1);
             if (pos.Item3 == -1)
-                return false;
+            {
+                if (heroes.Count < maxHeroes)
+                    pos = NextFreePosion();
+                else
+                    return false;
+            }
 
             hero.TeamId = pos.Item1;
             hero.Line = pos.Item2;
             hero.Position = pos.Item3;
 
             SyncHeroPosition(hero, pos);
-            SyncHeroId(hero);
 
             return true;
         }
         public bool MoveHero(Hero hero, HeroPosition to)
         {
-            if (heroes[to] != -1)
-                return false;
-
             hero.TeamId = to.Item1;
             hero.Line = to.Item2;
             hero.Position = to.Item3;
@@ -108,20 +116,21 @@ namespace Assets.Scripts.UI.Data
 
         private readonly void SyncHeroPosition(Hero hero, HeroPosition pos)
         {
-            if (positions.ContainsKey(hero.Id))
+            if (positions.TryGetValue(hero.Id, out var oldPos))
+            {
                 positions[hero.Id] = pos;
+                if (heroes.TryGetValue(oldPos, out _))
+                    heroes.Remove(oldPos);
+            }
             else
+            {
                 positions.Add(hero.Id, pos);
-        }
+            }
 
-        private readonly void SyncHeroId(Hero hero)
-        {
-            if (heroById.ContainsKey(hero.Id))
-                heroById[hero.Id] = hero;
-            else
-                heroById.Add(hero.Id, hero);
-        }
+            heroes.Add(pos, hero.Id);
 
+            heroById[hero.Id] = hero;
+        }
     }
 
 
