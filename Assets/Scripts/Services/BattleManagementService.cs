@@ -1,11 +1,9 @@
 ﻿using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 using Zenject;
-using static UnityEngine.GraphicsBuffer;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts

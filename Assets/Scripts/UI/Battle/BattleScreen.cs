@@ -1,8 +1,7 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -155,7 +154,15 @@ namespace Assets.Scripts.UI.Battle
                 battleManager.CurrentBattle.CurrentRound.QueuedHeroes.ToArray());
 
             UpdateActionButtons();
+            ResetBattlefieldPositions();
         }
+        private void ResetBattlefieldPositions()
+        {
+            var allSlots = playerFrontSlots.Concat(playerBackSlots).Concat(enemyFrontSlots).Concat(enemyBackSlots);
+            foreach (BattleLineSlot slot in allSlots)
+                slot.RaidMember.HeroAnimation.transform.localPosition = Vector3.zero;
+        }
+
 
         private void SlotDelegate_HeroUpdated(Hero hero) =>
             RaidMemberForHero(hero).Hero = hero;

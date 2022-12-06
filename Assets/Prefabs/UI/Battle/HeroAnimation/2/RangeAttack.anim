@@ -20,7 +20,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: 0, y: 30, z: 0}
+        value: {x: 0, y: 0, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -29,25 +29,25 @@ AnimationClip:
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 0.1
-        value: {x: 142, y: 30, z: 0}
-        inSlope: {x: 3258, y: 0, z: 0}
-        outSlope: {x: 3258, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        inSlope: {x: 0, y: 0, z: 0}
+        outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 0.16666667
-        value: {x: 543, y: 30, z: 0}
-        inSlope: {x: 7395.0005, y: 0, z: 0}
-        outSlope: {x: 7395.0005, y: 0, z: 0}
+        value: {x: 247, y: 0, z: 0}
+        inSlope: {x: 4350.0005, y: 0, z: 0}
+        outSlope: {x: 4350.0005, y: 0, z: 0}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 0.23333333
-        value: {x: 1128, y: 30, z: 0}
+        value: {x: 580, y: 0, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -116,6 +116,8 @@ AnimationClip:
       value: {fileID: 438820144, guid: b54d29efe8df278418d3b1576cf477a9, type: 3}
     - time: 0.23333333
       value: {fileID: -992745298, guid: b54d29efe8df278418d3b1576cf477a9, type: 3}
+    - time: 0.25
+      value: {fileID: 0}
     attribute: m_Sprite
     path: RangeAttack
     classID: 212
@@ -153,12 +155,13 @@ AnimationClip:
     - {fileID: -2132371649, guid: b54d29efe8df278418d3b1576cf477a9, type: 3}
     - {fileID: 438820144, guid: b54d29efe8df278418d3b1576cf477a9, type: 3}
     - {fileID: -992745298, guid: b54d29efe8df278418d3b1576cf477a9, type: 3}
+    - {fileID: 0}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.25
+    m_StopTime: 0.26666668
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -188,25 +191,25 @@ AnimationClip:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.1
-        value: 142
-        inSlope: 3258
-        outSlope: 3258
+        value: 0
+        inSlope: 0
+        outSlope: 0
         tangentMode: 136
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.16666667
-        value: 543
-        inSlope: 7395.0005
-        outSlope: 7395.0005
+        value: 247
+        inSlope: 4350.0005
+        outSlope: 4350.0005
         tangentMode: 136
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.23333333
-        value: 1128
+        value: 580
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -217,34 +220,6 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: RangeAttack
-    classID: 4
-    script: {fileID: 0}
-  - curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 30
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.23333333
-        value: 30
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalPosition.y
     path: RangeAttack
     classID: 4
     script: {fileID: 0}

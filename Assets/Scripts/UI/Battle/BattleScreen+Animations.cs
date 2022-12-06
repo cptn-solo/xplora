@@ -1,4 +1,5 @@
 using Assets.Scripts.UI.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,11 @@ namespace Assets.Scripts.UI.Battle
             
             turnStageProcessingActive = false;
             if (turnStageProcessingCoroutine != null)
-                StopCoroutine(turnStageProcessingCoroutine);           
+                StopCoroutine(turnStageProcessingCoroutine);
+
+            ResetBattlefieldPositions();
         }
+
         private void EnqueueTurnProcessingStage(BattleTurnInfo info)
         {
             turnProcessingQueue.Add(info);
@@ -105,7 +109,7 @@ namespace Assets.Scripts.UI.Battle
                 //Debug.Break();
                 attakerRM.HeroAnimation.Attack(info.Attacker.Ranged);
 
-                yield return new WaitForSeconds(.5f);
+                yield return new WaitForSeconds(.8f);
 
                 targetRM.HeroAnimation.Hit(info.Lethal);
 
