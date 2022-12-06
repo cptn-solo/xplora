@@ -155,7 +155,7 @@ namespace Assets.Scripts
                 hero.Health = ParseAbsoluteValue((string)healths[cellNumber]);
                 hero.Speed = ParseAbsoluteValue((string)speeds[cellNumber]);
                 hero.CriticalHitRate = ParseRateValue((string)criticalHitRates[cellNumber]);
-
+                hero.AttackType = ParseAttackType((string)attackTypes[cellNumber]);
                 hero.ResistBleedRate = ParseAbsoluteValue((string)resistBleedRates[cellNumber]);
                 hero.ResistPoisonRate = ParseAbsoluteValue((string)resistPoisonRates[cellNumber]);
                 hero.ResistStunRate = ParseAbsoluteValue((string)resistStunRates[cellNumber]);
@@ -172,6 +172,28 @@ namespace Assets.Scripts
             {
                 return dict.Where(x => x.Value.Id.Equals(id));
             }
+        }
+
+        private AttackType ParseAttackType(string rawValue)
+        {
+            try
+            {
+                var rawValues = rawValue.Replace(" ", "").ToLower();
+                return rawValues switch
+                {
+                    "дистанционная" => AttackType.Ranged,
+                    "ближняя" => AttackType.Melee,
+                    "магическая" => AttackType.Magic,
+                    _ => AttackType.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseAttackType [{rawValue}] Exception: {ex.Message}");
+                return 0;
+            }
+
+            
         }
 
         private static void ParseAbsoluteRangeValue(string rawValue, out int minVal, out int maxVal)

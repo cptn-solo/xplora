@@ -46,15 +46,21 @@ namespace Assets.Scripts.UI.Battle
                     turnProcessingQueue.RemoveAt(0);
 
                     turnStageProcessingActive = true;
-                    turnStageProcessingCoroutine = StartCoroutine(SetTurnAnimation(stage));
+                    turnStageProcessingCoroutine = StartCoroutine(TurnStageAnimation(stage));
                     while (turnStageProcessingActive)
                         yield return null;
+                    if (stage.State == TurnState.TurnCompleted ||
+                        stage.State == TurnState.NoTargets)
+                    {
+                        turnProcessingQueueActive = false;
+                        battleManager.SetTurnProcessed(stage);
+                    }
                 }
                 yield return null;
 
             }
         }
-        private IEnumerator SetTurnAnimation(BattleTurnInfo info)
+        private IEnumerator TurnStageAnimation(BattleTurnInfo info)
         {
             var attackerAnimation =
                 info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
@@ -68,14 +74,36 @@ namespace Assets.Scripts.UI.Battle
 
             if (info.State == TurnState.TurnPrepared)
             {
+                var move = 1.0f;
+
+                attakerRM.HeroAnimation.Run(move);
+                targetRM.HeroAnimation.Run(move);
                 // move cards to the battle ground
-                attakerRM.HeroAnimation.transform.position = attackerAnimation.position;
-                targetRM.HeroAnimation.transform.position = targetAnimation.position;
+                attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                var attackerMove = attackerAnimation.position - attakerRM.HeroAnimation.transform.position;
+                var targetMove = targetAnimation.position - targetRM.HeroAnimation.transform.position;
+
+                while (move > 0f)
+                {
+                    attakerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
+                    targetRM.HeroAnimation.transform.position += targetMove * Time.deltaTime;
+                    
+                    move -= Time.deltaTime;
+                    
+                    yield return null;
+                }
+                //attakerRM.HeroAnimation.transform.position = attackerAnimation.position;
+                //targetRM.HeroAnimation.transform.position = targetAnimation.position;
+                
+                yield return new WaitForSeconds(.3f);
+
             }
             else if (info.State == TurnState.TurnInProgress)
             {
                 // animate attack and hit
-                attakerRM.HeroAnimation.Attack();
+                //Debug.Break();
+                attakerRM.HeroAnimation.Attack(info.Attacker.Ranged);
 
                 yield return new WaitForSeconds(.5f);
 
@@ -88,9 +116,21 @@ namespace Assets.Scripts.UI.Battle
             }
             else if (info.State == TurnState.TurnCompleted)
             {
+                if (info.Lethal)
+                {
+                    targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                    targetRM.Hero = Hero.Default;
+                }                    
+                else
+                {
+                    targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                }
+
                 // move cards back or remove dead ones from the field
-                attakerRM.HeroAnimation.transform.localPosition =  Vector3.zero;
-                targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                
+                yield return new WaitForSeconds(.3f);
+
             }
 
             battleQueue.UpdateHero(info.Target);

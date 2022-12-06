@@ -67,5 +67,10 @@ namespace Assets.Scripts.UI.Data
             prevTurns.Add(currentTurn);
             currentTurn = info;
         }
+
+        internal void SetWinnerTeamId(int teamId)
+        {
+            this.winnerTeamId = teamId;
+        }
     }
 }

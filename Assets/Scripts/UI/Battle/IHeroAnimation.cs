@@ -2,7 +2,7 @@
 {
     internal interface IHeroAnimation
     {
-        void Attack();
+        void Attack(bool range = false);
         void Hit(bool lethal);
         void Death();
     }

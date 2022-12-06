@@ -65,6 +65,8 @@ namespace Assets.Scripts.UI.Data
         public int Speed { get => speed; set => speed = value; }
         public int CriticalHitRate { get => criticalHitRate; set => criticalHitRate = value; }
         public AttackType AttackType { get => attackType; set => attackType = value; }
+        public bool Ranged => attackType == AttackType.Ranged;
+
         public DamageType DamageType { get => damageType; set => damageType = value; }
         public int ResistBleedRate { get => resistBleedRate; set => resistBleedRate = value; }
         public int ResistPoisonRate { get => resistPoisonRate; set => resistPoisonRate = value; }
@@ -100,6 +102,7 @@ namespace Assets.Scripts.UI.Data
             BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, HealthCurrent / 100f),
             BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / 10f),
         };
+
 
         public static Hero EmptyHero() => 
             EmptyHero(-1, "", null, HeroType.NA);

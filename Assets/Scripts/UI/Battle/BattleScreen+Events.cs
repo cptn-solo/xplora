@@ -28,6 +28,9 @@ namespace Assets.Scripts.UI.Battle
                 default:
                     break;
             }
+
+            UpdateActionButtons();
+
         }
 
         private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo)
@@ -42,12 +45,16 @@ namespace Assets.Scripts.UI.Battle
                     battleQueue.LayoutHeroes(roundInfo.QueuedHeroes.ToArray());
                     break;
                 case RoundState.RoundInProgress:
+                    battleQueue.LayoutHeroes(roundInfo.QueuedHeroes.ToArray());
                     break;
                 case RoundState.RoundCompleted:
+                    battleQueue.LayoutHeroes(roundInfo.QueuedHeroes.ToArray());
                     break;
                 default:
                     break;
             }
+            
+            UpdateActionButtons();
         }
 
         private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo)
@@ -68,9 +75,14 @@ namespace Assets.Scripts.UI.Battle
                         EnqueueTurnProcessingStage(turnInfo);
                     }
                     break;
+                case TurnState.TurnProcessed:
+                    break;
                 default:
                     break;
             }
+            
+            UpdateActionButtons();
+
         }
     }
 }
