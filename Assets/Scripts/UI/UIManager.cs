@@ -12,6 +12,9 @@ namespace Assets.Scripts.UI
         private GameObject activeScreen;
         private MenuScreen[] screens;
 
+        private HUD HUD;
+        private ApplicationSettingsScreen appSettingsScreen;
+
         [Inject]
         public void Construct(MenuNavigationService nav) =>
             nav.UIManager = this;
@@ -21,6 +24,12 @@ namespace Assets.Scripts.UI
 
         private void Start()
         {
+            HUD = GetComponentInChildren<HUD>(true);
+            HUD.OnSettingsButtonPressed += HUD_OnSettingsButtonPressed;
+            
+            appSettingsScreen = GetComponentInChildren<ApplicationSettingsScreen>(true);
+            appSettingsScreen.OnCloseButtonPressed += AppSettingsScreen_OnCloseButtonPressed;
+
             screens = GetComponentsInChildren<MenuScreen>(true);
 
             foreach (var screen in screens)
@@ -30,6 +39,18 @@ namespace Assets.Scripts.UI
             //ToggleScreen(Screens.Battle);
             ToggleScreen(Screens.HeroesLibrary);
 
+        }
+
+        private void AppSettingsScreen_OnCloseButtonPressed()
+        {
+            appSettingsScreen.gameObject.SetActive(false);
+            HUD.gameObject.SetActive(true);
+        }
+
+        private void HUD_OnSettingsButtonPressed()
+        {
+            appSettingsScreen.gameObject.SetActive(true);
+            HUD.gameObject.SetActive(false);
         }
 
         public void ToggleScreen(Screens screen)

@@ -2,6 +2,7 @@
 {
     public enum Screens
     {
+        NA = 0,
         Hub = 1,
         Raid = 100,
         Missions = 200,
