@@ -82,7 +82,7 @@ namespace Assets.Scripts
 #if PLATFORM_STANDALONE_WIN || UNITY_EDITOR
 
             var libraryMetadata = new GoogleSheetReader();
-            list = libraryMetadata.GetSheetRange("'Герои'!A1:I19");
+            list = libraryMetadata.GetSheetRange("'Герои'!A1:I31");
 
 #endif
             ProcessHeroesList(list);
@@ -116,6 +116,17 @@ namespace Assets.Scripts
             var resistBurnRates = list[16];
             var resistFrostRates = list[17];
             var resistFlushRates = list[18];
+
+            var sndAttack = list[21]; // Герой атакует
+            var sndBlock = list[22]; // Герой увернулся(дамаг не был наложен)
+            var sndHit = list[23]; // Герой принял обычный удар
+            var sndStunned = list[24]; // Герой принял или находится Оглушение
+            var sndBleeding = list[25]; // Герой принял или находится Кровотечение
+            var sndPierced = list[26]; // Герой принял Пробитие брони
+            var sndBurning = list[27]; // Герой принял или находится Горение
+            var sndFreezed = list[28]; // Герой принял или находится Заморозка
+            var sndCritHit = list[29]; // Герой принял Критический удар
+            var sndDied = list[30]; // Герой умер
 
             for (int col = 0; col < heroesNumber; col++)
             {
@@ -162,6 +173,17 @@ namespace Assets.Scripts
                 hero.ResistBurnRate = ParseAbsoluteValue((string)resistBurnRates[cellNumber]);
                 hero.ResistFrostRate = ParseAbsoluteValue((string)resistFrostRates[cellNumber]);
                 hero.ResistFlushRate = ParseAbsoluteValue((string)resistFlushRates[cellNumber]);
+
+                hero.SndAttack = ParseSoundFileValue((string)sndAttack[cellNumber]);
+                hero.SndBlock = ParseSoundFileValue((string)sndBlock[cellNumber]);
+                hero.SndHit = ParseSoundFileValue((string)sndHit[cellNumber]);
+                hero.SndStunned = ParseSoundFileValue((string)sndStunned[cellNumber]);
+                hero.SndBleeding = ParseSoundFileValue((string)sndBleeding[cellNumber]);
+                hero.SndPierced = ParseSoundFileValue((string)sndPierced[cellNumber]);
+                hero.SndBurning = ParseSoundFileValue((string)sndBurning[cellNumber]);
+                hero.SndFreezed = ParseSoundFileValue((string)sndFreezed[cellNumber]);
+                hero.SndCritHit = ParseSoundFileValue((string)sndCritHit[cellNumber]);
+                hero.SndDied = ParseSoundFileValue((string)sndDied[cellNumber]);
 
                 library.UpdateHero(hero);
 
@@ -225,7 +247,19 @@ namespace Assets.Scripts
                 return 0;
             }
         }
-
+        private static string ParseSoundFileValue(string rawValue)
+        {
+            try
+            {
+                var rawValues = rawValue.ToLower().Replace(".mp3", "").Replace(" ", "");
+                return rawValues.Trim();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseSoundFileValue [{rawValue}] Exception: {ex.Message}");
+                return "nosound";
+            }
+        }
         private static int ParseAbsoluteValue(string rawValue)
         {
             try

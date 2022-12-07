@@ -1,5 +1,6 @@
 using Assets.Scripts.UI.Data;
 using System;
+using Zenject;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -21,9 +22,13 @@ namespace Assets.Scripts.UI.Battle
                     break;
                 case BattleState.TeamsPrepared:
                     break;
+                case BattleState.BattleStarted:
+                    audioService.Play(SFX.MainTheme);
+                    break;
                 case BattleState.BattleInProgress:
                     break;
                 case BattleState.Completed:
+                    audioService.Stop();
                     break;
                 default:
                     break;

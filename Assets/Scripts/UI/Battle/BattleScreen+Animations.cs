@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public partial class BattleScreen
+    public partial class BattleScreen // Animations
     {
         private readonly List<BattleTurnInfo> turnProcessingQueue = new();
+
         private bool turnProcessingQueueActive = false;
         private bool turnStageProcessingActive = false;
         private Coroutine turnProcessingCoroutine = null;
@@ -108,10 +109,12 @@ namespace Assets.Scripts.UI.Battle
                 // animate attack and hit
                 //Debug.Break();
                 attakerRM.HeroAnimation.Attack(info.Attacker.Ranged);
+                audioService.Play(SFX.Named(info.Attacker.SndAttack));
 
                 yield return new WaitForSeconds(.8f);
 
                 targetRM.HeroAnimation.Hit(info.Lethal);
+                audioService.Play(SFX.Named(info.Lethal ? info.Target.SndDied : info.Target.SndHit));
 
                 yield return new WaitForSeconds(1f);
 

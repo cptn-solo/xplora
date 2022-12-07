@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Services.App;
+using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -124,7 +125,12 @@ namespace Assets.Scripts
         {
             // same button for battle and round, but we'll omit manual rounds later
             if (battle.CurrentTurn.Turn < 0)
+            {
+                battle.SetState(BattleState.BattleStarted);
                 libraryManager.ResetHealthCurrent();
+
+                OnBattleEvent?.Invoke(CurrentBattle);
+            }
 
             battle.SetState(BattleState.BattleInProgress);
             OnBattleEvent?.Invoke(CurrentBattle);

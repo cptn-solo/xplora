@@ -81,11 +81,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f68148e77fbf0241bf2fb1fa42cf14f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerPrefsService: {fileID: 193555391534217768}
+  audioPlaybackService: {fileID: 1491712776932695904}
   menuNavigationService: {fileID: 5435959546544172477}
   libManagementService: {fileID: 4632796165003161585}
   battleManagementService: {fileID: 184332160464120156}
-  audioPlaybackService: {fileID: 1491712776932695904}
-  playerPrefsService: {fileID: 193555391534217768}
 --- !u!114 &5435959546544172477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,6 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPreferencesService: {fileID: 193555391534217768}
   mixer: {fileID: 24100000, guid: 78ea5aabf4efed3488b5d341ad776e27, type: 2}
+  meleeAttack: {fileID: 8300000, guid: 9d514d63ba2f62241b02156819679330, type: 3}
 --- !u!114 &193555391534217768
 MonoBehaviour:
   m_ObjectHideFlags: 0

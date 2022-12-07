@@ -1,37 +1,53 @@
-using System;
+using Assets.Scripts.Services.App;
+using Assets.Scripts.UI.Data;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace Assets.Scripts
 {
-    public interface IIngameMusicEvents
-    {
-        event EventHandler OnPlayerSpawned;
-        event EventHandler OnPlayerKilled;
-    }
-    
     public class IngameMusic : MonoBehaviour
     {
-        //[SerializeField] private Game musicEventsSource;
-        
-        [SerializeField] private AudioClip mainTheme;
-        [SerializeField] private AudioClip sadTheme;
+
+        [Inject] private readonly AudioPlaybackService audioService;
+
+        [SerializeField] private AudioClip[] sounds;
         
         private AudioSource audioSource;
+        private readonly Dictionary<string, AudioClip> soundsDict = new();
 
         private void Awake()
         {
             audioSource = GetComponent<AudioSource>();
+            foreach (var clip in sounds)
+                soundsDict.Add(clip.name, clip);
         }
 
-        private void MusicEventsSource_OnPlayerKilled(object sender, EventArgs e)
+        private void Start()
         {
-            StartCoroutine(ChangeTheme(sadTheme));
+            audioService.AttachMusic(this);
         }
 
-        private void MusicEventsSource_OnPlayerSpawned(object sender, EventArgs e)
+        public void Play(SFX sfx) =>
+            StartCoroutine(ChangeTheme(soundsDict[sfx.FileName]));
+
+        public void Pause()
         {
-            StartCoroutine(ChangeTheme(mainTheme));
+            if (audioSource.isPlaying)
+                audioSource.Pause();
+        }
+
+        public void Resume()
+        {
+            if (audioSource.clip != null)
+                audioSource.Play();
+        }
+
+        public void Stop()
+        {
+            if (audioSource.clip != null)
+                audioSource.Stop();
         }
 
         private IEnumerator ChangeTheme(AudioClip theme)
@@ -41,26 +57,17 @@ namespace Assets.Scripts
             while (audioSource.isPlaying)
                 yield return null;
 
-            audioSource.clip = theme;
-            audioSource.Play();
-        }
-
-        private void OnEnable()
-        {
-            //if (musicEventsSource == null)
-            //    return;
-
-            //musicEventsSource.OnPlayerSpawned += MusicEventsSource_OnPlayerSpawned;
-            //musicEventsSource.OnPlayerKilled += MusicEventsSource_OnPlayerKilled;
+            if (theme != null)
+            {
+                audioSource.clip = theme;
+                audioSource.Play();
+            }
         }
 
         private void OnDisable()
         {
-            //if (musicEventsSource == null)
-            //    return;
-
-            //musicEventsSource.OnPlayerSpawned -= MusicEventsSource_OnPlayerSpawned;
-            //musicEventsSource.OnPlayerKilled -= MusicEventsSource_OnPlayerKilled;
+            if (audioSource.isPlaying)
+                audioSource.Stop();
         }
 
     }

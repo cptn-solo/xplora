@@ -15,17 +15,17 @@ public class EditModeMenu : EditorWindow
 
     private void OnGUI()
     {
-        if (GUILayout.Button("Run Function"))
+        if (GUILayout.Button("Load Heroes (Google)"))
         {
-            FunctionToRun();
+            LoadHeroesFromGoogleSheet();
         }
     }
 
-    private void FunctionToRun()
+    private void LoadHeroesFromGoogleSheet()
     {
         Debug.Log("The function ran.");
         var libraryMetadata = new GoogleSheetReader();
-        var list = libraryMetadata.GetSheetRange("'Герои'!A1:I19");
+        var list = libraryMetadata.GetSheetRange("'Герои'!A1:I31");
         
         var serialized = JsonConvert.SerializeObject(list);
         File.WriteAllText(Application.dataPath + "/Heroes.json", serialized);

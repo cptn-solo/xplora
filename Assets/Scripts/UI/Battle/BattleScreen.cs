@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Services.App;
+using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace Assets.Scripts.UI.Battle
     {
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly HeroLibraryManagementService libraryManager;
+        [Inject] private readonly AudioPlaybackService audioService;
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
@@ -90,6 +92,8 @@ namespace Assets.Scripts.UI.Battle
             battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
             battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
             battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
+
+            audioService.Stop();
         }
 
         protected override void OnBeforeUpdate()

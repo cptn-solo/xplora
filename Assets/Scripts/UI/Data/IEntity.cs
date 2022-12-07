@@ -8,7 +8,6 @@ namespace Assets.Scripts.UI.Data
     }
     public interface IEntity : IIdentifiable<int>
     {
-        public int Id { get; }
         public string Name { get; }
         public Dictionary<int, Asset> Inventory { get; } // index, item
 

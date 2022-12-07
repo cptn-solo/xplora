@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.UI.Data;
+using UnityEngine;
 using UnityEngine.Audio;
 
 namespace Assets.Scripts.Services.App
@@ -8,12 +9,51 @@ namespace Assets.Scripts.Services.App
         [SerializeField] private PlayerPreferencesService playerPreferencesService;
         [SerializeField] private AudioMixer mixer;
 
+        private IngameSounds sounds;
+        private IngameMusic music;
+        private SFX currentTheme;
+
+        public SFX CurrentTheme => currentTheme;
+
         private const string fxGroupKey = "FXVolume";
         private const string musicGroupKey = "MusicVolume";
 
         private void Start()
         {
             InitAudioPlayback();            
+        }
+
+        public void Play(SFX sfx)
+        {
+            if (sfx.IsMusic)
+            {
+                currentTheme = sfx;
+                music.Play(sfx);
+            }
+            else
+            {
+                sounds.SoundEventHandler(sfx);
+            }
+        }
+        public void Stop()
+        {
+            music.Stop();
+        }
+
+        public void Resume()
+        {
+            music.Resume();
+        }
+
+
+        public void AttachSounds(IngameSounds sounds)
+        {
+            this.sounds = sounds;
+        }
+
+        public void AttachMusic(IngameMusic music)
+        {
+            this.music = music;
         }
 
         private void SetMixerValue(string key, float normalized)

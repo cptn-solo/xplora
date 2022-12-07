@@ -6,6 +6,7 @@
         Created = 100,
         PrepareTeams = 200,  // prepare team
         TeamsPrepared = 300, // ready for enqueue
+        BattleStarted = 350, // 1st round will begin now
         BattleInProgress = 400, // => RoundState
         Completed = 1200,
     }

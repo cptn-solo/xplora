@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Battle
-{    
+{
     using AssetDict = Dictionary<int, Asset>;
     public partial class BattleScreen // Inventory Slot Delegate
     {

@@ -13,13 +13,6 @@ namespace Assets.Scripts
         public const string SfxVolumeKey = "SfxVolume";
         public const int SfxVolumeDefault = 0;
 
-        public const string ScoreKey = "Score"; // temporary, to keep score between games
-        public const string BalanceKey = "Balance"; // temporary, to keep score between games        
-        public const string WeaponKey = "Weapon"; // temporary, to keep score between games        
-        public const string PerkKey = "Perk"; // temporary, to keep score between games        
-
-        public event Action<float> OnCameraSencitivityChanged;
-        public event Action<bool> OnCameraControlChanged;
 
         private void Awake()
         {
