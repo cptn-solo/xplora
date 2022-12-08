@@ -133,7 +133,7 @@ namespace Assets.Scripts.UI.Battle
                     targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
                 }
 
-                // move cards back or remove dead ones from the field
+                // move cards back or remove dead ones from the field.
                 attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
                 
                 yield return new WaitForSeconds(.3f);
