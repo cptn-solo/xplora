@@ -16,8 +16,12 @@ namespace Assets.Scripts.UI.Data
         public int Turn => turn;
         public int Damage => damage;
 
-        public bool Lethal => target.HealthCurrent <= 0;
-
+        // effects
+        public bool Lethal { get; set; }
+        public bool Critical { get; set; }
+        public bool Dodged { get; set; }
+        
+        // constructors
         public static BattleTurnInfo Create(int currentTurn, Hero attacker, Hero target, int damage = 0)
         {
             BattleTurnInfo info = default;

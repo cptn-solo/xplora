@@ -46,7 +46,7 @@ namespace Assets.Scripts.UI.Data
 
         #region Sounds
         public string SndAttack { get; internal set; }
-        public string SndBlock { get; internal set; }
+        public string SndDodged { get; internal set; }
         public string SndHit { get; internal set; }
         public string SndStunned { get; internal set; }
         public string SndBleeding { get; internal set; }

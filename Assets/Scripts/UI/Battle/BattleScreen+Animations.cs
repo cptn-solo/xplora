@@ -114,7 +114,15 @@ namespace Assets.Scripts.UI.Battle
                 yield return new WaitForSeconds(.8f);
 
                 targetRM.HeroAnimation.Hit(info.Lethal);
-                audioService.Play(SFX.Named(info.Lethal ? info.Target.SndDied : info.Target.SndHit));
+
+                if (info.Dodged)
+                    audioService.Play(SFX.Named(info.Target.SndDodged));
+                else if (info.Critical)
+                    audioService.Play(SFX.Named(info.Target.SndCritHit));
+                else if (info.Lethal)
+                    audioService.Play(SFX.Named(info.Target.SndDied));
+                else if (info.Damage > 0)
+                    audioService.Play(SFX.Named(info.Target.SndHit));
 
                 yield return new WaitForSeconds(1f);
 

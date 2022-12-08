@@ -118,7 +118,7 @@ namespace Assets.Scripts
             var resistFlushRates = list[18];
 
             var sndAttack = list[21]; // Герой атакует
-            var sndBlock = list[22]; // Герой увернулся(дамаг не был наложен)
+            var sndDodged = list[22]; // Герой увернулся(дамаг не был наложен)
             var sndHit = list[23]; // Герой принял обычный удар
             var sndStunned = list[24]; // Герой принял или находится Оглушение
             var sndBleeding = list[25]; // Герой принял или находится Кровотечение
@@ -167,6 +167,7 @@ namespace Assets.Scripts
                 hero.Speed = ParseAbsoluteValue((string)speeds[cellNumber]);
                 hero.CriticalHitRate = ParseRateValue((string)criticalHitRates[cellNumber]);
                 hero.AttackType = ParseAttackType((string)attackTypes[cellNumber]);
+                hero.DamageType = ParseDamageType((string)damageTypes[cellNumber]);
                 hero.ResistBleedRate = ParseAbsoluteValue((string)resistBleedRates[cellNumber]);
                 hero.ResistPoisonRate = ParseAbsoluteValue((string)resistPoisonRates[cellNumber]);
                 hero.ResistStunRate = ParseAbsoluteValue((string)resistStunRates[cellNumber]);
@@ -175,7 +176,7 @@ namespace Assets.Scripts
                 hero.ResistFlushRate = ParseAbsoluteValue((string)resistFlushRates[cellNumber]);
 
                 hero.SndAttack = ParseSoundFileValue((string)sndAttack[cellNumber]);
-                hero.SndBlock = ParseSoundFileValue((string)sndBlock[cellNumber]);
+                hero.SndDodged = ParseSoundFileValue((string)sndDodged[cellNumber]);
                 hero.SndHit = ParseSoundFileValue((string)sndHit[cellNumber]);
                 hero.SndStunned = ParseSoundFileValue((string)sndStunned[cellNumber]);
                 hero.SndBleeding = ParseSoundFileValue((string)sndBleeding[cellNumber]);
@@ -189,13 +190,28 @@ namespace Assets.Scripts
 
                 return true;
             }
-
-            IEnumerable<KeyValuePair<K, T>> ExistingItem<T, K>(Dictionary<K, T> dict, K id) where T : IIdentifiable<K>
+        }
+        private DamageType ParseDamageType(string rawValue)
+        {
+            try
             {
-                return dict.Where(x => x.Value.Id.Equals(id));
+                var rawValues = rawValue.Replace(" ", "").ToLower();
+                return rawValues switch
+                {
+                    "Силовой" => DamageType.Force,
+                    "Режущий" => DamageType.Cut,
+                    "Колющий" => DamageType.Pierce,
+                    "Огненный" => DamageType.Burn,
+                    "Замораживающий" => DamageType.Frost,
+                    _ => DamageType.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseDamageType [{rawValue}] Exception: {ex.Message}");
+                return DamageType.NA;
             }
         }
-
         private AttackType ParseAttackType(string rawValue)
         {
             try
@@ -212,12 +228,9 @@ namespace Assets.Scripts
             catch (Exception ex)
             {
                 Debug.LogError($"ParseAttackType [{rawValue}] Exception: {ex.Message}");
-                return 0;
+                return AttackType.NA;
             }
-
-            
         }
-
         private static void ParseAbsoluteRangeValue(string rawValue, out int minVal, out int maxVal)
         {
             try

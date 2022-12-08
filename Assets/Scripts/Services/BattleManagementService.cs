@@ -220,9 +220,29 @@ namespace Assets.Scripts
         {
 
             var turnInfo = battle.CurrentTurn;
-            var damage = Mathf.Min(
-                turnInfo.Target.HealthCurrent, 
-                Random.Range(turnInfo.Attacker.DamageMin, turnInfo.Attacker.DamageMax + 1));
+            
+            // attack:
+            var rawDamage = turnInfo.Attacker.RandomDamage;
+            var criticalDamage = turnInfo.Attacker.RandomCriticalHit;
+            var accurate = turnInfo.Attacker.RandomAccuracy;
+
+            // defence:
+            var dodged = turnInfo.Target.RandomDodge;
+            var shield = turnInfo.Target.DefenceRate;
+
+            var damage = rawDamage;
+            if (!accurate || dodged)
+            {
+                damage = 0;
+            }
+            else
+            {
+                damage *= (criticalDamage ? 2 : 1);
+                damage -= (int)Mathf.Ceil(damage * shield / 100f);
+                damage = Mathf.Max(0, damage);
+                damage = Mathf.Min(turnInfo.Target.HealthCurrent, damage);
+            }
+
             var hp = turnInfo.Target.HealthCurrent - damage;
             
             var target = turnInfo.Target.UpdateHealthCurrent(hp);
@@ -233,8 +253,13 @@ namespace Assets.Scripts
                 battle.CurrentRound.DequeueHero(target);
 
             turnInfo = BattleTurnInfo.Create(CurrentTurn, battle.CurrentTurn.Attacker, target, damage);
+            turnInfo.Critical = criticalDamage;
+            turnInfo.Dodged = dodged;
+            turnInfo.Lethal = hp == 0;
+
             battle.SetTurnInfo(turnInfo);
             battle.SetTurnState(TurnState.TurnInProgress);
+            
             OnTurnEvent?.Invoke(battle.CurrentTurn);
 
             battle.CurrentRound.QueuedHeroes.RemoveAt(0);
