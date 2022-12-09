@@ -1,5 +1,6 @@
 using Assets.Scripts.UI.Data;
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -15,7 +16,11 @@ namespace Assets.Scripts.UI.Battle
         
         private bool initialized;
         private Canvas canvas;
-        
+
+        private List<string> logRecordTexts = new();
+        private bool clearLogActive;
+        private bool enqueLogActive;
+
         private void Start()
         {
             canvas = GetComponentInParent<Canvas>();
@@ -27,9 +32,51 @@ namespace Assets.Scripts.UI.Battle
         }
         private void ClearLogRecords()
         {
+            if (!clearLogActive)
+                StartCoroutine(ClearLogCoroutine());
+        }
+        private void EnqueueText(string v)
+        {
+            logRecordTexts.Add(v);
+            if (!enqueLogActive)
+                StartCoroutine(AddLogRecordCoroutine());
+
+        }
+
+        private IEnumerator AddLogRecordCoroutine()
+        {
+            enqueLogActive = true;
+
+            while (clearLogActive)
+                yield return null;
+
+            while (logRecordTexts.Count > 0)
+            {
+                AddLogRecord(logRecordTexts[0]);
+                logRecordTexts.RemoveAt(0);
+
+                yield return null;
+            }
+
+            yield return null;
+
+            enqueLogActive = false;
+        }
+
+        private IEnumerator ClearLogCoroutine()
+        {
+            clearLogActive = true;
+
             if (contentTransform.childCount > 0)
-                for (int i = contentTransform.childCount - 1; i >= 0 ; i--)
+                for (int i = contentTransform.childCount - 1; i >= 0; i--)
+                {
                     Destroy(contentTransform.GetChild(i).gameObject);
+                    yield return null;
+                }
+            
+            yield return null;
+
+            clearLogActive = false;
         }
 
         private void AddLogRecord(string text)
@@ -44,20 +91,21 @@ namespace Assets.Scripts.UI.Battle
 
         private void BattleManager_OnTurnEvent(BattleTurnInfo arg0)
         {
-            AddLogRecord(arg0.ToString());
+            EnqueueText(arg0.ToString());
         }
 
         private void BattleManager_OnRoundEvent(BattleRoundInfo arg0)
         {
-            AddLogRecord(arg0.ToString());
+            EnqueueText(arg0.ToString());
         }
 
         private void BattleManager_OnBattleEvent(BattleInfo arg0)
         {
-            if (arg0.State == BattleState.BattleStarted)
+            if (arg0.State == BattleState.BattleStarted ||
+                arg0.State == BattleState.PrepareTeams)
                 ClearLogRecords();
 
-            AddLogRecord(arg0.ToString());
+            EnqueueText(arg0.ToString());
         }
 
         private void OnEnable()
@@ -78,6 +126,8 @@ namespace Assets.Scripts.UI.Battle
                 battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
                 battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
             }
+            clearLogActive = false;
+            enqueLogActive = false;
         }
     }
 }

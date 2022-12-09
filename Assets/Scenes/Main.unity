@@ -26568,7 +26568,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9108877584408823339}
   - component: {fileID: 9108877584408823341}
-  - component: {fileID: 9108877584408823342}
   m_Layer: 5
   m_Name: BattleLog
   m_TagString: Untagged
@@ -26591,16 +26590,3 @@ MonoBehaviour:
   contentTransform: {fileID: 2122035753}
   logRecordPrefab: {fileID: 9140026514801562490, guid: e80ce50e73a48904ebdf6bb7807aee22,
     type: 3}
---- !u!114 &9108877584408823342
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9108877584408823340}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _containerSource: 1

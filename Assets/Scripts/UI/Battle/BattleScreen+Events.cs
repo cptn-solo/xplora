@@ -1,7 +1,4 @@
 using Assets.Scripts.UI.Data;
-using System;
-using UnityEditor.SceneManagement;
-using Zenject;
 
 namespace Assets.Scripts.UI.Battle
 {

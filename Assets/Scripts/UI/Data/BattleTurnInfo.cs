@@ -1,7 +1,4 @@
-﻿using Assets.Scripts.UI.Data;
-using System;
-
-namespace Assets.Scripts.UI.Data
+﻿namespace Assets.Scripts.UI.Data
 {
     public struct BattleTurnInfo
     {
