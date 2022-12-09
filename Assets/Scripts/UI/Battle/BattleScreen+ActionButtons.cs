@@ -19,6 +19,8 @@ namespace Assets.Scripts.UI.Battle
                 if (button.Action == Actions.CompleteTurn)
                     button.gameObject.SetActive(battleManager.CanMakeTurn);
 
+                if (button.Action == Actions.AutoBattle)
+                    button.gameObject.SetActive(battleManager.CanAutoPlayBattle);
             }
         }
 
@@ -57,6 +59,21 @@ namespace Assets.Scripts.UI.Battle
                         battleManager.CompleteTurn();
 
                         UpdateActionButtons();
+                    }
+                    break;
+
+                case Actions.AutoBattle:
+                    {
+                        ResetTurnProcessingQueue();
+
+                        battleManager.Autoplay();
+
+                        UpdateActionButtons();
+                    }
+                    break;
+                case Actions.RetreatBattle:
+                    {
+                        navService.NavigateToScreen(Screens.HeroesLibrary);
                     }
                     break;
                 default:

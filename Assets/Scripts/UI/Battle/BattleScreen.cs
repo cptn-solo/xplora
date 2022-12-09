@@ -16,6 +16,7 @@ namespace Assets.Scripts.UI.Battle
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly HeroLibraryManagementService libraryManager;
         [Inject] private readonly AudioPlaybackService audioService;
+        [Inject] private readonly MenuNavigationService navService;
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;

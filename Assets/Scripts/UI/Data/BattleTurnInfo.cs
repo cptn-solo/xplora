@@ -20,7 +20,27 @@ namespace Assets.Scripts.UI.Data
         public bool Lethal { get; set; }
         public bool Critical { get; set; }
         public bool Dodged { get; set; }
-        
+        public override string ToString()
+        {
+            var prepared = $"Ход #{Turn}: " +
+                $"{State}, " +
+                $"атакует {Attacker}, " +
+                $"защищается {Target}";
+            var completed = $"Ход #{Turn}: " +
+                $"{State}, " +
+                $"атаковал {Attacker}, " +
+                $"защищался {Target}, " +
+                $"урон: {Damage}, " +
+                $"эффекты [L:{Lethal} C:{Critical} D:{Dodged}]";
+
+            return State switch
+            {
+                TurnState.TurnPrepared => prepared,             
+                TurnState.TurnCompleted => completed,
+                _ => $"Ход #{Turn}: {State}"
+            };
+        }
+
         // constructors
         public static BattleTurnInfo Create(int currentTurn, Hero attacker, Hero target, int damage = 0)
         {

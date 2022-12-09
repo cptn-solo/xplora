@@ -1,5 +1,6 @@
 using Assets.Scripts.UI.Data;
 using System;
+using UnityEditor.SceneManagement;
 using Zenject;
 
 namespace Assets.Scripts.UI.Battle
@@ -29,6 +30,7 @@ namespace Assets.Scripts.UI.Battle
                     break;
                 case BattleState.Completed:
                     audioService.Stop();
+                    UpdateView();
                     break;
                 default:
                     break;
@@ -64,12 +66,13 @@ namespace Assets.Scripts.UI.Battle
 
         private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo)
         {
+
             switch (turnInfo.State)
             {
                 case TurnState.PrepareTurn:
                     {
-                        ResetTurnProcessingQueue(turnInfo);
-                        EnqueueTurnProcessingStage(turnInfo);
+                        ResetTurnProcessingQueue();
+                        EnqueueOrAuto(turnInfo);
                     }
                     break;
                 case TurnState.TurnPrepared:
@@ -77,7 +80,7 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnCompleted:
                 case TurnState.NoTargets:
                     {
-                        EnqueueTurnProcessingStage(turnInfo);
+                        EnqueueOrAuto(turnInfo);
                     }
                     break;
                 case TurnState.TurnProcessed:
@@ -85,9 +88,19 @@ namespace Assets.Scripts.UI.Battle
                 default:
                     break;
             }
-            
+
             UpdateActionButtons();
 
+        }
+
+        private void EnqueueOrAuto(BattleTurnInfo turnInfo)
+        {
+            if (battleManager.CurrentBattle.Auto &&
+                (turnInfo.State == TurnState.TurnCompleted ||
+                    turnInfo.State == TurnState.NoTargets))
+                battleManager.SetTurnProcessed(turnInfo);
+            else
+                EnqueueTurnProcessingStage(turnInfo);
         }
     }
 }

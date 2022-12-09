@@ -1,5 +1,5 @@
-﻿using Assets.Scripts.Services.App;
-using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.UI.Data;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -41,6 +41,12 @@ namespace Assets.Scripts
             _ => false
         }; //queuedHeroes.Count > 0;        
 
+        public bool CanAutoPlayBattle => !battle.Auto && battle.State switch
+        {
+            BattleState.TeamsPrepared => true,
+            BattleState.BattleInProgress => true,
+            _ => false,
+        };
 
         /// <summary>
         ///     Flag to let the battle screen know if it should reset the battle/queue
@@ -55,8 +61,7 @@ namespace Assets.Scripts
             battle.SetState(BattleState.PrepareTeams);
             OnBattleEvent?.Invoke(battle);
 
-            battle.SetRoundState(RoundState.PrepareRound);
-            OnRoundEvent?.Invoke(battle.CurrentRound);
+            PrepareRound();
         }
 
         public void MoveHero(Hero hero)
@@ -66,9 +71,12 @@ namespace Assets.Scripts
 
         internal void PrepareRound()
         {
+            var round = BattleRoundInfo.Create();
+            battle.SetRoundInfo(round);
             battle.SetRoundState(RoundState.PrepareRound);
+            battle.CurrentRound.ResetQueue();
 
-            battle.CurrentRound.QueuedHeroes.Clear();
+            OnRoundEvent?.Invoke(battle.CurrentRound);
 
             var allBattleHeroes = libraryManager.Library.BattleHeroes;
             var activeHeroes = allBattleHeroes.Where(x => x.HealthCurrent > 0);
@@ -91,13 +99,14 @@ namespace Assets.Scripts
                 while (slots.Count() > 0)
                 {
                     var choosenIdx = slots.Count() == 1 ? 0 : Random.Range(0, slots.Count());
-                    battle.CurrentRound.QueuedHeroes.Add(slots[choosenIdx]);
+                    battle.CurrentRound.EnqueueHero(slots[choosenIdx]);                                            
                     slots.RemoveAt(choosenIdx);
                 }
             }
             if (battle.CurrentRound.QueuedHeroes.Count == 0)
             { 
                 battle.SetRoundState(RoundState.NA);
+                OnRoundEvent?.Invoke(battle.CurrentRound);
                 
                 battle.SetState(BattleState.Completed);
                 battle.SetWinnerTeamId(-1);
@@ -114,11 +123,16 @@ namespace Assets.Scripts
             else
             {
                 battle.SetRoundState(RoundState.NA);
+                OnRoundEvent?.Invoke(battle.CurrentRound);
+
                 var winner = battle.CurrentRound.QueuedHeroes.First();
                 battle.SetWinnerTeamId(winner.TeamId);
                 battle.SetState(BattleState.Completed);
                 OnBattleEvent?.Invoke(battle);
             }
+            
+            if (battle.Auto && CanBeginBattle)
+                StartCoroutine(AutoRound());
         }
 
         public void BeginBattle()
@@ -127,6 +141,7 @@ namespace Assets.Scripts
             if (battle.CurrentTurn.Turn < 0)
             {
                 battle.SetState(BattleState.BattleStarted);
+                battle.Auto = false;
                 libraryManager.ResetHealthCurrent();
 
                 OnBattleEvent?.Invoke(CurrentBattle);
@@ -173,6 +188,9 @@ namespace Assets.Scripts
                 default:
                     break;
             }
+
+            if (battle.Auto && CanMakeTurn)
+                StartCoroutine(AutoTurn());
         }
 
         internal TurnState PrepareTurn()
@@ -272,7 +290,9 @@ namespace Assets.Scripts
         {
             battle.SetTurnInfo(stage);
             battle.SetTurnState(TurnState.TurnProcessed);
-            OnTurnEvent?.Invoke(battle.CurrentTurn);
+            
+            if (!battle.Auto)
+                OnTurnEvent?.Invoke(battle.CurrentTurn);
 
             OnRoundEvent?.Invoke(battle.CurrentRound);
 
@@ -287,6 +307,16 @@ namespace Assets.Scripts
 
         public void LoadData()
         {
+        }
+        private IEnumerator AutoRound()
+        {
+            yield return null;
+            BeginBattle();
+        }
+        private IEnumerator AutoTurn()
+        {
+            yield return null;
+            CompleteTurn();
         }
 
         private void GiveAssetsToTeams()
@@ -311,5 +341,10 @@ namespace Assets.Scripts
 
         }
 
+        internal void Autoplay()
+        {
+            battle.Auto = true;
+            BeginBattle();
+        }
     }
 }

@@ -28,6 +28,26 @@ namespace Assets.Scripts.UI.Data
 
         public List<BattleTurnInfo> BattleLog => prevTurns;
 
+        public bool Auto { get; internal set; }
+
+        public override string ToString()
+        {
+            var full = $"Битва: " +
+                $"{State}, " +
+                $"{PlayerTeam} vs {EnemyTeam}, " +
+                $"ход: {CurrentTurn.Turn}";
+            var completed = $"Битва: " +
+                $"{State}, " +
+                $"{PlayerTeam} vs {EnemyTeam}, " +
+                $"победила команда: {WinnerTeamId}";
+            return State switch
+            { 
+                BattleState.BattleStarted => full,
+                BattleState.Completed => completed,
+                _ => $"Битва: {State}"
+            };
+        }
+
         internal static BattleInfo Create(Team playerTeam, Team enemyTeam)
         {
             BattleInfo battle = default;

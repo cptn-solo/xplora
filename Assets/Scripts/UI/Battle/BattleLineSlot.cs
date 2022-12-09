@@ -16,7 +16,7 @@ namespace Assets.Scripts.UI.Battle
             get => hero; 
             set
             {
-                hero = value;
+                hero = value.HealthCurrent > 0 ? value : Hero.Default;
                 if (transform.childCount == 0)
                     return;
 

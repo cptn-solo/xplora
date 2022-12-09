@@ -7,6 +7,11 @@ namespace Assets.Scripts.UI.Data
     using AssetDict = Dictionary<int, Asset>;
     public partial struct Hero : IEntity
     {
+        public override string ToString()
+        {
+            return $"#{Id} {Name} (команда {TeamId}, линия {Line}) HP: {HealthCurrent}";
+        }
+
         public static Hero Default =>
             EmptyHero();
 
@@ -61,7 +66,6 @@ namespace Assets.Scripts.UI.Data
             {0, default}, {1, default}, {2, default}, {3, default}, {4, default},
             {5, default}, {6, default}, {7, default}, {8, default}, {9, default},
         };
-
     }
 
 }

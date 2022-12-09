@@ -15,7 +15,7 @@ namespace Assets.Scripts.UI.Battle
         private bool turnStageProcessingActive = false;
         private Coroutine turnProcessingCoroutine = null;
         private Coroutine turnStageProcessingCoroutine = null;
-        private void ResetTurnProcessingQueue(BattleTurnInfo turnInfo)
+        private void ResetTurnProcessingQueue()
         {
             turnProcessingQueue.Clear();
             

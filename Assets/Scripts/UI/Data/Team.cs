@@ -9,6 +9,10 @@ namespace Assets.Scripts.UI.Data
         private int id;
         private string name;
         private AssetDict inventory; // index, item
+        public override string ToString()
+        {
+            return $"Команда {Id}: {Name}" ;
+        }
 
         public static Team Create(int id, string name)
         {
@@ -48,6 +52,7 @@ namespace Assets.Scripts.UI.Data
             {5, default}, {6, default}, {7, default}, {8, default}, {9, default},
             {10, default}, {11, default}, {12, default}, {13, default}, {14, default},
         };
+
         #endregion
 
     }
