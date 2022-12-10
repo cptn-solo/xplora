@@ -16,6 +16,9 @@ namespace Assets.Scripts.UI.Battle
                 if (button.Action == Actions.BeginBattle)
                     button.gameObject.SetActive(battleManager.CanBeginBattle);
 
+                if (button.Action == Actions.BeginRound)
+                    button.gameObject.SetActive(battleManager.CanBeginRound);
+
                 if (button.Action == Actions.CompleteTurn)
                     button.gameObject.SetActive(battleManager.CanMakeTurn);
 
@@ -43,13 +46,22 @@ namespace Assets.Scripts.UI.Battle
                         UpdateActionButtons();
                     }
                     break;
-
                 case Actions.PrepareQueue:
                     {
                         if (inventoryToggle)
                             ToggleInventory();
 
                         battleManager.PrepareRound();
+
+                        UpdateActionButtons();
+                    }
+                    break;
+                case Actions.BeginRound:
+                    {
+                        if (inventoryToggle)
+                            ToggleInventory();
+
+                        battleManager.BeginRound();
 
                         UpdateActionButtons();
                     }

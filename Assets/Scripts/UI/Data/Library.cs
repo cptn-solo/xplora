@@ -117,7 +117,7 @@ namespace Assets.Scripts.UI.Data
             foreach (var item in keys)
             {
                 var hero = heroById[item];
-                hero.HealthCurrent = hero.Health;
+                hero.HealthCurrent = 100;
                 heroById[item] = hero;
             }    
         }

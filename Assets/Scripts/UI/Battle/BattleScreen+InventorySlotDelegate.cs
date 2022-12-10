@@ -19,6 +19,8 @@ namespace Assets.Scripts.UI.Battle
             OnHeroMoved += SlotDelegate_HeroMoved;
             OnHeroUpdated += SlotDelegate_HeroUpdated;
             
+            slotDelegate.TransferEnabled = (UIItemSlot s) =>
+                battleManager.CurrentBattle.State != BattleState.BattleInProgress;
             slotDelegate.Pool = PooledItem;
             slotDelegate.Validator = CheckSlot;
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>

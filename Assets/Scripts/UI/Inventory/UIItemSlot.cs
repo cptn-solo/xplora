@@ -84,8 +84,12 @@ namespace Assets.Scripts.UI.Inventory
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (!delegateProvider.TransferEnabled(this))
+                return;
+
             if (transform.childCount == 0)
                 return;
+
             dragCargo = delegateProvider.Pool(this).GetComponent<RectTransform>();
             dragCargo.position = transform.position;
             delegateProvider.TransferStart(this, dragCargo);

@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.UI.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Data
@@ -8,8 +7,9 @@ namespace Assets.Scripts.UI.Data
     public partial struct Hero : IEntity
     {
         public override string ToString()
-        {
-            return $"#{Id} {Name} (команда {TeamId}, линия {Line}) HP: {HealthCurrent}";
+        { 
+            var current = (int)(HealthCurrent * (Health / 100f));
+            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}/{current}";
         }
 
         public static Hero Default =>
@@ -36,9 +36,15 @@ namespace Assets.Scripts.UI.Data
             return hero;
         }
 
-        public Hero UpdateHealthCurrent(int val)
+        public Hero UpdateHealthCurrent(int damage, out int displayVal, out int currentVal)
         {
-            HealthCurrent = val;
+            var unit = Health / 100f;
+            var result = Mathf.Max(0, HealthCurrent - (int)(damage / unit));
+            
+            displayVal = result;
+            currentVal = (int)(result * unit);
+            HealthCurrent = result;
+
             return this;
         }
 

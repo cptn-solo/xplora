@@ -30,7 +30,10 @@ namespace Assets.Scripts
             RoundState.RoundCompleted => true,
             _ => false
         }; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
-        public bool CanBeginBattle => battle.CurrentRound.State switch
+
+        public bool CanBeginBattle => battle.State == BattleState.Created;
+
+        public bool CanBeginRound => battle.CurrentRound.State switch
         {
             RoundState.RoundPrepared => true,
             _ => false
@@ -55,7 +58,9 @@ namespace Assets.Scripts
         {
             libraryManager.ResetTeams();            
             battle = BattleInfo.Create(libraryManager.PlayerTeam, libraryManager.EnemyTeam);
+            battle.Auto = false;
 
+            libraryManager.ResetHealthCurrent();
             GiveAssetsToTeams();
 
             battle.SetState(BattleState.PrepareTeams);
@@ -66,7 +71,7 @@ namespace Assets.Scripts
 
         public void MoveHero(Hero hero)
         {
-
+            PrepareRound();
         }
 
         internal void PrepareRound()
@@ -131,22 +136,18 @@ namespace Assets.Scripts
                 OnBattleEvent?.Invoke(battle);
             }
             
-            if (battle.Auto && CanBeginBattle)
+            if (battle.Auto && CanBeginRound)
                 StartCoroutine(AutoRound());
         }
 
         public void BeginBattle()
         {
-            // same button for battle and round, but we'll omit manual rounds later
-            if (battle.CurrentTurn.Turn < 0)
-            {
-                battle.SetState(BattleState.BattleStarted);
-                battle.Auto = false;
-                libraryManager.ResetHealthCurrent();
+            battle.SetState(BattleState.BattleStarted);
+            OnBattleEvent?.Invoke(CurrentBattle);
+        }
 
-                OnBattleEvent?.Invoke(CurrentBattle);
-            }
-
+        public void BeginRound()
+        {
             battle.SetState(BattleState.BattleInProgress);
             OnBattleEvent?.Invoke(CurrentBattle);
 
@@ -258,22 +259,19 @@ namespace Assets.Scripts
                 damage *= (criticalDamage ? 2 : 1);
                 damage -= (int)Mathf.Ceil(damage * shield / 100f);
                 damage = Mathf.Max(0, damage);
-                damage = Mathf.Min(turnInfo.Target.HealthCurrent, damage);
             }
-
-            var hp = turnInfo.Target.HealthCurrent - damage;
             
-            var target = turnInfo.Target.UpdateHealthCurrent(hp);
+            var target = turnInfo.Target.UpdateHealthCurrent(damage, out int display, out int current);
 
             UpdateBattleHero(target); // Sync health
             
-            if (hp <= 0)
+            if (current <= 0)
                 battle.CurrentRound.DequeueHero(target);
 
             turnInfo = BattleTurnInfo.Create(CurrentTurn, battle.CurrentTurn.Attacker, target, damage);
             turnInfo.Critical = criticalDamage;
             turnInfo.Dodged = dodged;
-            turnInfo.Lethal = hp == 0;
+            turnInfo.Lethal = current <= 0;
 
             battle.SetTurnInfo(turnInfo);
             battle.SetTurnState(TurnState.TurnInProgress);
@@ -311,7 +309,7 @@ namespace Assets.Scripts
         private IEnumerator AutoRound()
         {
             yield return null;
-            BeginBattle();
+            BeginRound();
         }
         private IEnumerator AutoTurn()
         {
@@ -344,7 +342,7 @@ namespace Assets.Scripts
         internal void Autoplay()
         {
             battle.Auto = true;
-            BeginBattle();
+            BeginRound();
         }
     }
 }

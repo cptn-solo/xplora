@@ -19,15 +19,14 @@ namespace Assets.Scripts.UI.Library
             OnHeroMoved += SlotDelegate_HeroMoved;
             OnHeroUpdated += SlotDelegate_HeroUpdated;
 
+            slotDelegate.TransferEnabled = (UIItemSlot s) => true;
+            slotDelegate.Validator = (UIItemSlot s) => s.IsEmpty;
             slotDelegate.Pool = (UIItemSlot s) =>
             {
                 if (s is not LibrarySlot libSlot)
                     return null;
 
                 return PooledItem(libSlot.HeroCard != null ? libSlot.HeroCard.transform : null);
-            };
-            slotDelegate.Validator = (UIItemSlot s) => {
-                return s.IsEmpty;
             };
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>
             {

@@ -39,8 +39,8 @@ namespace Assets.Scripts.UI.Data
             var full = $"Раунд: " +
                 $"{State}, " +
                 $"очередь: {QueuedHeroes?.Count}, " +
-                $"первый герой: {CurrentAttacker.Name}, " +
-                $"команда: {CurrentAttacker.TeamId}";
+                $"{CurrentAttacker.Name}, " +
+                $"К{CurrentAttacker.TeamId}";
             
             return State switch
             {

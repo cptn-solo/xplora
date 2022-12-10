@@ -21,14 +21,14 @@
         {
             var prepared = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"атакует {Attacker}, " +
-                $"защищается {Target}";
+                $"{Attacker} " +
+                $">>> {Target}";
             var completed = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"атаковал {Attacker}, " +
-                $"защищался {Target}, " +
-                $"урон: {Damage}, " +
-                $"эффекты [L:{Lethal} C:{Critical} D:{Dodged}]";
+                $"{Attacker}, " +
+                $">>> {Target}, " +
+                $"-{Damage}, " +
+                $"[L:{Lethal} C:{Critical} D:{Dodged}]";
 
             return State switch
             {

@@ -17,7 +17,7 @@ namespace Assets.Scripts.UI.Battle
         private bool initialized;
         private Canvas canvas;
 
-        private List<string> logRecordTexts = new();
+        private readonly List<string> logRecordTexts = new();
         private bool clearLogActive;
         private bool enqueLogActive;
 
@@ -66,6 +66,12 @@ namespace Assets.Scripts.UI.Battle
         private IEnumerator ClearLogCoroutine()
         {
             clearLogActive = true;
+            
+            if (logRecordTexts.Count > 0)
+            {
+                logRecordTexts.Clear();
+                yield return null;
+            }
 
             if (contentTransform.childCount > 0)
                 for (int i = contentTransform.childCount - 1; i >= 0; i--)
@@ -115,6 +121,8 @@ namespace Assets.Scripts.UI.Battle
                 battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
                 battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
                 battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
+
+                ClearLogRecords();
             }
         }
 
