@@ -19,6 +19,7 @@ namespace Assets.Scripts.UI.Common
         }
         public void SetData(List<BarInfo> value) {
             var canvas = GetComponentInParent<Canvas>();
+            var parentTransform = transform.parent;
             if (bars.Count == 0)
             {
                 var arr = new BarWithTitle[value.Count];                
@@ -27,7 +28,7 @@ namespace Assets.Scripts.UI.Common
                     var barInfo = value[i];
                     var bar = Instantiate(barPrefab).GetComponent<BarWithTitle>();
                     var barRectTransform = bar.GetComponent<RectTransform>();
-                    barRectTransform.localScale = canvas.transform.localScale;
+                    barRectTransform.localScale = canvas.transform.localScale * parentTransform.localScale.x;
                     barRectTransform.SetParent(rectTransform);
                     barRectTransform.anchoredPosition3D = Vector3.zero;
                     barRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rectTransform.rect.width);
