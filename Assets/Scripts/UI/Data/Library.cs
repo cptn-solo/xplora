@@ -39,6 +39,13 @@ namespace Assets.Scripts.UI.Data
             }
         } 
 
+        public Hero[] TeamHeroes(int teamId, bool aliveOnly = false)
+        {
+            var heroes = BattleHeroes.Where(x => x.TeamId == teamId && 
+                (aliveOnly == false || x.HealthCurrent > 0));
+            return heroes.ToArray();
+        }
+
         public static HeroesLibrary EmptyLibrary()
         {
             HeroesLibrary library = default;

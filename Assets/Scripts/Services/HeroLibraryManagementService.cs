@@ -35,6 +35,18 @@ namespace Assets.Scripts
             OnDataLoaded += HeroLibraryManagementService_OnDataLoaded;
         }
 
+        public bool PrepareTeamsForBattle()
+        {
+            ResetHealthCurrent();
+            var playerHeroes = library.TeamHeroes(PlayerTeam.Id, true);
+            var enemyHeroes = library.TeamHeroes(PlayerTeam.Id, true);
+            
+            if (playerHeroes.Length > 0 && enemyHeroes.Length > 0)
+                return true;
+
+            return false;
+        }
+
         private void HeroLibraryManagementService_OnDataLoaded(string serialized)
         {
             ProcessHeroesSerializedString(serialized);

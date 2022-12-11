@@ -31,11 +31,18 @@ namespace Assets.Scripts
             _ => false
         }; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
 
-        public bool CanBeginBattle => battle.State == BattleState.Created;
+        public bool CanBeginBattle => 
+            battle.State == BattleState.TeamsPrepared &&
+            battle.CurrentRound.State == RoundState.RoundPrepared;
 
         public bool CanBeginRound => battle.CurrentRound.State switch
         {
-            RoundState.RoundPrepared => true,
+            RoundState.RoundPrepared => battle.State switch
+            {
+                BattleState.BattleStarted => true,
+                BattleState.BattleInProgress => true,
+                _ => false
+            },
             _ => false
         }; //queuedHeroes.Count > 0 && CurrentTurn < 0
         public bool CanMakeTurn => battle.CurrentTurn.State switch
@@ -60,13 +67,19 @@ namespace Assets.Scripts
             battle = BattleInfo.Create(libraryManager.PlayerTeam, libraryManager.EnemyTeam);
             battle.Auto = false;
 
-            libraryManager.ResetHealthCurrent();
             GiveAssetsToTeams();
 
             battle.SetState(BattleState.PrepareTeams);
             OnBattleEvent?.Invoke(battle);
 
-            PrepareRound();
+            if (libraryManager.PrepareTeamsForBattle())
+            {
+                battle.SetState(BattleState.TeamsPrepared);
+                OnBattleEvent?.Invoke(battle);
+
+                PrepareRound();
+            }
+
         }
 
         public void MoveHero(Hero hero)
@@ -144,6 +157,9 @@ namespace Assets.Scripts
         {
             battle.SetState(BattleState.BattleStarted);
             OnBattleEvent?.Invoke(CurrentBattle);
+
+            if (CanBeginRound)
+                BeginRound();
         }
 
         public void BeginRound()

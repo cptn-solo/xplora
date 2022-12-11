@@ -27,6 +27,12 @@ namespace Assets.Scripts.UI.Battle
                     break;
                 case BattleState.Completed:
                     audioService.Stop();
+                    
+                    if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.PlayerTeam.Id)
+                        audioService.Play(SFX.WinTheme);
+                    else if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.EnemyTeam.Id)
+                        audioService.Play(SFX.LooseTheme);
+
                     UpdateView();
                     break;
                 default:

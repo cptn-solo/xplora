@@ -15,29 +15,26 @@
             return ret;
         }
 
-        public static SFX MeleeAttack
-        {
-            get
-            {
-                SFX ret = default;
-                ret.FileName = "melee_att";
-                return ret;
-            }
-        }
-
         #endregion
 
         #region Music
-        public static SFX MainTheme
+
+        public static SFX MainTheme =>
+            ThemeForEvent(CommonSoundEvent.Battle);
+        public static SFX LibraryTheme =>
+            ThemeForEvent(CommonSoundEvent.HeroLibrary);
+        public static SFX WinTheme =>
+            ThemeForEvent(CommonSoundEvent.BattleWon);
+        public static SFX LooseTheme =>
+            ThemeForEvent(CommonSoundEvent.BattleLost);
+
+        public static SFX ThemeForEvent(CommonSoundEvent evt)
         {
-            get
-            {
-                SFX ret = default;
-                ret.FileName = "battle";
-                ret.IsMusic = true;
-                ret.Loop = true;
-                return ret;
-            }
+            SFX ret = default;
+            ret.FileName = SoundUtils.FileForCSE(evt);
+            ret.IsMusic = true;
+            ret.Loop = true;
+            return ret;
         }
         #endregion
     }
