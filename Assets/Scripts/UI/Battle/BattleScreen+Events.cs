@@ -29,9 +29,9 @@ namespace Assets.Scripts.UI.Battle
                     audioService.Stop();
                     
                     if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.PlayerTeam.Id)
-                        audioService.Play(SFX.WinTheme);
+                        audioService.Play(SFX.Enumed(CommonSoundEvent.BattleWon));
                     else if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.EnemyTeam.Id)
-                        audioService.Play(SFX.LooseTheme);
+                        audioService.Play(SFX.Enumed(CommonSoundEvent.BattleLost));                    
 
                     UpdateView();
                     break;

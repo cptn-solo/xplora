@@ -8,6 +8,13 @@
 
         #region Sounds
 
+        public static SFX Enumed(CommonSoundEvent evt)
+        {
+            SFX ret = default;
+            ret.FileName = SoundUtils.FileForCSE(evt);
+            return ret;
+        }
+
         public static SFX Named(string name)
         {
             SFX ret = default;

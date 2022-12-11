@@ -23,7 +23,7 @@ namespace Assets.Scripts.Services.App
             InitAudioPlayback();            
         }
 
-        public void Play(SFX sfx)
+        public void Play(SFX sfx, bool mix = false)
         {
             if (sfx.IsMusic)
             {
