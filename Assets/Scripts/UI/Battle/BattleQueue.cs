@@ -1,25 +1,17 @@
 using Assets.Scripts.UI.Data;
 using System.Linq;
 using UnityEngine;
-using Zenject;
 
 namespace Assets.Scripts.UI.Battle
 {
     public class BattleQueue : MonoBehaviour
     {
-        [Inject] private readonly BattleManagementService battleManager;
-
-        [SerializeField] private RectTransform battleQueuePanel;
+       [SerializeField] private RectTransform battleQueuePanel;
 
         private BattleQueueSlot[] combinedSlots;
 
         private bool slotsInitialized;
 
-        internal void CompleteTurn(Hero[] heroes)
-        {
-            // TODO: ???
-            LayoutHeroes(heroes);
-        }
         internal void ResetQueue()
         {
             foreach (var slot in combinedSlots)
@@ -30,7 +22,7 @@ namespace Assets.Scripts.UI.Battle
         {
             ResetQueue();
 
-            for (int idx = 0; idx < heroes.Length; idx++)
+            for (int idx = 0; idx < Mathf.Min(heroes.Length, combinedSlots.Length); idx++)
                 combinedSlots[idx].QueueMember.Hero = heroes[idx];
         }
 

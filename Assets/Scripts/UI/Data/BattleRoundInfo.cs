@@ -3,10 +3,41 @@ using System.Linq;
 
 namespace Assets.Scripts.UI.Data
 {
+    public enum DamageEffect
+    {
+        NA = 0,
+        Stunned = 100,
+        Bleeding = 200,
+        Pierced = 300,
+        Burning = 400,
+        Frozing = 500,
+    }
+    public struct DamageEffectInfo
+    {
+        public Hero Hero { get; private set; }
+        public DamageEffect Effect { get; private set; }
+        public int RoundOn { get; private set; }
+        public int RoundOff { get; private set; }
+
+        public DamageEffectInfo Cast(Hero hero, DamageEffect effect, int roundOn, int roundOff)
+        {
+            DamageEffectInfo info = default;
+            
+            info.Hero = hero;
+            info.Effect = effect;
+            info.RoundOn = roundOn;
+            info.RoundOff = roundOff;
+
+            return info;
+        }
+    }
+
     public struct BattleRoundInfo
     {
         private List<Hero> queuedHeroes;
         private RoundState state;
+
+        private int round;
         public Hero CurrentAttacker
         {
             get
@@ -19,12 +50,14 @@ namespace Assets.Scripts.UI.Data
         }
 
         public RoundState State => state;
+        public int Round => round;
         public List<Hero> QueuedHeroes => queuedHeroes;
 
-        public static BattleRoundInfo Create()
+        public static BattleRoundInfo Create(int round)
         {
             BattleRoundInfo info = default;
             info.queuedHeroes = new();
+            info.round = round;
 
             return info;
         }
@@ -36,7 +69,7 @@ namespace Assets.Scripts.UI.Data
 
         public override string ToString()
         {
-            var full = $"Раунд: " +
+            var full = $"Раунд #{Round}: " +
                 $"{State}, " +
                 $"очередь: {QueuedHeroes?.Count}, " +
                 $"{CurrentAttacker.Name}, " +
@@ -46,17 +79,26 @@ namespace Assets.Scripts.UI.Data
             {
                 RoundState.RoundPrepared => full,
                 RoundState.RoundInProgress => full,
-                _ => $"Раунд: {State}"
+                _ => $"Раунд #{Round}: {State}"
             };
         }
 
         internal void DequeueHero(Hero target)
         {
-            var queue = this.queuedHeroes;
+            var queue = queuedHeroes;
             var idx = queue.FindIndex(x => x.Id == target.Id);
             if (idx >= 0)
                 queue.RemoveAt(idx);
-            this.queuedHeroes = queue;
+            queuedHeroes = queue;
+        }
+
+        internal void UpdateHero(Hero target)
+        {
+            var queue = queuedHeroes;
+            var idx = queue.FindIndex(x => x.Id == target.Id);
+            if (idx >= 0)
+                queue[idx] = target;
+            queuedHeroes = queue;
         }
 
         internal void EnqueueHero(Hero hero)

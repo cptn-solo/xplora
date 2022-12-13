@@ -95,23 +95,23 @@ namespace Assets.Scripts.UI.Battle
             record.transform.SetAsFirstSibling();
         }
 
-        private void BattleManager_OnTurnEvent(BattleTurnInfo arg0)
+        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo, BattleRoundInfo roundInfo, BattleInfo battleInfo)
         {
-            EnqueueText(arg0.ToString());
+            EnqueueText(turnInfo.ToString());
         }
 
-        private void BattleManager_OnRoundEvent(BattleRoundInfo arg0)
+        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo, BattleInfo battleInfo)
         {
-            EnqueueText(arg0.ToString());
+            EnqueueText(roundInfo.ToString());
         }
 
-        private void BattleManager_OnBattleEvent(BattleInfo arg0)
+        private void BattleManager_OnBattleEvent(BattleInfo battleInfo)
         {
-            if (arg0.State == BattleState.BattleStarted ||
-                arg0.State == BattleState.PrepareTeams)
+            if (battleInfo.State == BattleState.BattleStarted ||
+                battleInfo.State == BattleState.PrepareTeams)
                 ClearLogRecords();
 
-            EnqueueText(arg0.ToString());
+            EnqueueText(battleInfo.ToString());
         }
 
         private void OnEnable()

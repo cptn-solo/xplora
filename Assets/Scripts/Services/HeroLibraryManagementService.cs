@@ -35,11 +35,11 @@ namespace Assets.Scripts
             OnDataLoaded += HeroLibraryManagementService_OnDataLoaded;
         }
 
-        public bool PrepareTeamsForBattle()
+        public bool PrepareTeamsForBattle(out Hero[] playerHeroes, out Hero[] enemyHeroes)
         {
             ResetHealthCurrent();
-            var playerHeroes = library.TeamHeroes(PlayerTeam.Id, true);
-            var enemyHeroes = library.TeamHeroes(PlayerTeam.Id, true);
+            playerHeroes = library.TeamHeroes(PlayerTeam.Id, true);
+            enemyHeroes = library.TeamHeroes(EnemyTeam.Id, true);
             
             if (playerHeroes.Length > 0 && enemyHeroes.Length > 0)
                 return true;

@@ -8,19 +8,21 @@ namespace Assets.Scripts.UI.Data
 
     public partial struct Hero // Fields
     {
+        public int Id { get; private set; }
         public string Name { get; internal set; }
 
         public HeroType HeroType;
         public string IconName;
 
+        #region Dynamic
         public int TeamId { get; set; }
         public BattleLine Line { get; set; }
         public int Position { get; set; }
+        public int HealthCurrent { get; internal set; }
+        public List<DamageEffectInfo> Effects { get; private set; }
 
-        public int Id { get; private set; }
-        public AssetDict Inventory { get; private set; } // index, item
-        public AssetDict Attack; // index, item
-        public AssetDict Defence; // index, item
+        #endregion
+
         public bool Ranged => AttackType == AttackType.Ranged;
 
         #region Specs
@@ -30,7 +32,6 @@ namespace Assets.Scripts.UI.Data
         public int AccuracyRate { get; internal set; }
         public int DodgeRate { get; internal set; }
         public int Health { get; internal set; }
-        public int HealthCurrent { get; internal set; }
         public int Speed { get; internal set; }
         public int CriticalHitRate { get; internal set; }
         public AttackType AttackType { get; internal set; }
@@ -89,5 +90,11 @@ namespace Assets.Scripts.UI.Data
 
         #endregion
 
+        #region Visual/Inventory
+        public AssetDict Inventory { get; private set; } // index, item
+        public AssetDict Attack; // index, item
+        public AssetDict Defence; // index, item
+
+        #endregion
     }
 }

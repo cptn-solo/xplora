@@ -14,37 +14,22 @@ namespace Assets.Scripts
         [Inject] private readonly HeroLibraryManagementService libraryManager;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
-        public event UnityAction<BattleRoundInfo> OnRoundEvent;
-        public event UnityAction<BattleTurnInfo> OnTurnEvent;
+        public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
+        public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;
 
         private BattleInfo battle;
+        private readonly int minRoundsQueue = 3;
+
         public BattleInfo CurrentBattle => battle;
 
-        public Hero CurrentAttacker => battle.CurrentRound.CurrentAttacker;
         public int CurrentTurn => battle.CurrentTurn.Turn;
-        public int QueueLength { get; internal set; }
-        public bool CanPrepareRound => battle.CurrentRound.State switch
+        public bool CanReorderTurns => battle.State switch
         {
-            RoundState.PrepareRound => true,
-            RoundState.RoundPrepared => true,
-            RoundState.RoundCompleted => true,
+            BattleState.Created => true,
+            BattleState.TeamsPrepared => true,
             _ => false
         }; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
 
-        public bool CanBeginBattle => 
-            battle.State == BattleState.TeamsPrepared &&
-            battle.CurrentRound.State == RoundState.RoundPrepared;
-
-        public bool CanBeginRound => battle.CurrentRound.State switch
-        {
-            RoundState.RoundPrepared => battle.State switch
-            {
-                BattleState.BattleStarted => true,
-                BattleState.BattleInProgress => true,
-                _ => false
-            },
-            _ => false
-        }; //queuedHeroes.Count > 0 && CurrentTurn < 0
         public bool CanMakeTurn => battle.CurrentTurn.State switch
         {
             TurnState.TurnPrepared => true,
@@ -72,32 +57,47 @@ namespace Assets.Scripts
             battle.SetState(BattleState.PrepareTeams);
             OnBattleEvent?.Invoke(battle);
 
-            if (libraryManager.PrepareTeamsForBattle())
+            if (libraryManager.PrepareTeamsForBattle(out var playerHeroes, out var enemyHeroes))
             {
+                battle.SetHeroes(playerHeroes, enemyHeroes);
                 battle.SetState(BattleState.TeamsPrepared);
                 OnBattleEvent?.Invoke(battle);
 
-                PrepareRound();
+                StartCoroutine(PrepareNextRounds());
             }
 
         }
 
-        public void MoveHero(Hero hero)
+        private IEnumerator PrepareNextRounds()
         {
-            PrepareRound();
+            if (battle.CurrentRound.State == RoundState.RoundCompleted)
+                battle.RoundsQueue.RemoveAt(0);
+
+            while (battle.RoundsQueue.Count < minRoundsQueue)
+            {
+                var lastId = battle.RoundsQueue.Count > 0 ? battle.RoundsQueue.Last().Round : -1;
+                var draftRound = BattleRoundInfo.Create(lastId + 1);
+                var preparedRound = PrepareRound(draftRound);
+                battle.EnqueueRound(preparedRound);
+                yield return null;
+            }
+            
+            OnRoundEvent?.Invoke(battle.CurrentRound, battle);
+
+            PrepareNextTurn();
         }
 
-        internal void PrepareRound()
+        /// <summary>
+        ///     Enqueue heroes 
+        /// </summary>
+        /// <param name="info">Draft round</param>
+        /// <returns>Round with heroes</returns>
+        internal BattleRoundInfo PrepareRound(BattleRoundInfo info)
         {
-            var round = BattleRoundInfo.Create();
-            battle.SetRoundInfo(round);
-            battle.SetRoundState(RoundState.PrepareRound);
-            battle.CurrentRound.ResetQueue();
+            info.SetState(RoundState.PrepareRound);
+            info.ResetQueue();
 
-            OnRoundEvent?.Invoke(battle.CurrentRound);
-
-            var allBattleHeroes = libraryManager.Library.BattleHeroes;
-            var activeHeroes = allBattleHeroes.Where(x => x.HealthCurrent > 0);
+            var activeHeroes = battle.PlayerHeroes.Concat(battle.EnemyHeroes);
             var orderedHeroes = activeHeroes.OrderByDescending(x => x.Speed);
 
             Dictionary<int, List<Hero>> speedSlots = new();
@@ -117,94 +117,27 @@ namespace Assets.Scripts
                 while (slots.Count() > 0)
                 {
                     var choosenIdx = slots.Count() == 1 ? 0 : Random.Range(0, slots.Count());
-                    battle.CurrentRound.EnqueueHero(slots[choosenIdx]);                                            
+                    info.EnqueueHero(slots[choosenIdx]);                                            
                     slots.RemoveAt(choosenIdx);
                 }
             }
-            if (battle.CurrentRound.QueuedHeroes.Count == 0)
-            { 
-                battle.SetRoundState(RoundState.NA);
-                OnRoundEvent?.Invoke(battle.CurrentRound);
-                
-                battle.SetState(BattleState.Completed);
-                battle.SetWinnerTeamId(-1);
-                OnBattleEvent?.Invoke(battle);
-            }
-            else if (battle.CurrentRound.QueuedHeroes
-                        .Where(x => x.TeamId == libraryManager.PlayerTeam.Id).Count() > 0 &&
-                     battle.CurrentRound.QueuedHeroes
-                        .Where(x => x.TeamId == libraryManager.EnemyTeam.Id).Count() > 0)
-            {
-                battle.SetRoundState(RoundState.RoundPrepared);
-                OnRoundEvent?.Invoke(battle.CurrentRound);
-            }
-            else
-            {
-                battle.SetRoundState(RoundState.NA);
-                OnRoundEvent?.Invoke(battle.CurrentRound);
 
-                var winner = battle.CurrentRound.QueuedHeroes.First();
-                battle.SetWinnerTeamId(winner.TeamId);
-                battle.SetState(BattleState.Completed);
-                OnBattleEvent?.Invoke(battle);
-            }
-            
-            if (battle.Auto && CanBeginRound)
-                StartCoroutine(AutoRound());
-        }
+            info.SetState(RoundState.RoundPrepared);
 
-        public void BeginBattle()
-        {
-            battle.SetState(BattleState.BattleStarted);
-            OnBattleEvent?.Invoke(CurrentBattle);
-
-            if (CanBeginRound)
-                BeginRound();
-        }
-
-        public void BeginRound()
-        {
-            battle.SetState(BattleState.BattleInProgress);
-            OnBattleEvent?.Invoke(CurrentBattle);
-
-            battle.SetRoundState(RoundState.RoundInProgress);
-            OnRoundEvent?.Invoke(battle.CurrentRound);
-
-            PrepareNextTurn();
+            return info;
         }
 
         private void PrepareNextTurn()
         {
+
             var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn + 1, Hero.Default, Hero.Default);
             battle.SetTurnInfo(turnInfo);
             battle.SetTurnState(TurnState.PrepareTurn);
-            OnTurnEvent?.Invoke(battle.CurrentTurn);
+            OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
 
             var turnState = PrepareTurn();
-            switch (turnState)
-            {
-                case TurnState.NA:
-                    Debug.Log("Round queue empty, next queue");
-                    PrepareRound();
-                    break;
-                case TurnState.PrepareTurn:
-                    break;
-                case TurnState.TurnPrepared:
-                    OnTurnEvent?.Invoke(battle.CurrentTurn);
-                    break;
-                case TurnState.TurnInProgress:
-                    break;
-                case TurnState.TurnCompleted:
-                    break;
-                case TurnState.NoTargets:
-                    Debug.Log("Battle won!");
-                    PrepareRound();
-                    break;
-                case TurnState.TurnProcessed:
-                    break;
-                default:
-                    break;
-            }
+            if (turnState == TurnState.TurnPrepared)
+                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
 
             if (battle.Auto && CanMakeTurn)
                 StartCoroutine(AutoTurn());
@@ -212,27 +145,27 @@ namespace Assets.Scripts
 
         internal TurnState PrepareTurn()
         {
-            var allBattleHeroes = libraryManager.Library.BattleHeroes;
-            var activeHeroes = allBattleHeroes.Where(x => x.HealthCurrent > 0);
-            var orderedHeroes = activeHeroes.OrderByDescending(x => x.Speed);
-
-            if (battle.CurrentRound.QueuedHeroes.Count == 0)
-            {
-                // round is over, prepare new one
-                Debug.Log($"Round is over, prepare new one");
-                return TurnState.NA;
-            }
             var attaker = battle.CurrentRound.QueuedHeroes[0];
             var attackTeam = attaker.TeamId;
-            var targets = activeHeroes.Where(x => x.TeamId != attackTeam).ToArray();
-            var frontTargets = targets.Where(x => x.Line == BattleLine.Front).ToArray();
-            var backTargets = targets.Where(x => x.Line == BattleLine.Back).ToArray();
-            // TODO: consider range (not yet imported/parsed)
-            var target = frontTargets.Length > 0 ?
-                frontTargets[Random.Range(0, frontTargets.Length)] :
-                backTargets.Length > 0 ?
-                backTargets[Random.Range(0, backTargets.Length)] :
-                Hero.Default;
+            var targets = attackTeam == battle.PlayerTeam.Id ?
+                battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
+            
+            Hero target = default;
+            if (attaker.Ranged)
+            {
+                target = targets[Random.Range(0, targets.Length)];
+            }
+            else
+            {
+                var frontTargets = targets.Where(x => x.Line == BattleLine.Front).ToArray();
+                var backTargets = targets.Where(x => x.Line == BattleLine.Back).ToArray();
+                // TODO: consider range (not yet imported/parsed)
+                target = frontTargets.Length > 0 ?
+                    frontTargets[Random.Range(0, frontTargets.Length)] :
+                    backTargets.Length > 0 ?
+                    backTargets[Random.Range(0, backTargets.Length)] :
+                    Hero.Default;
+            }
 
             var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target);
             battle.SetTurnInfo(turnInfo);
@@ -253,6 +186,14 @@ namespace Assets.Scripts
 
         internal void CompleteTurn()
         {
+            if (battle.State == BattleState.TeamsPrepared)
+            {
+                battle.SetState(BattleState.BattleStarted);
+                OnBattleEvent?.Invoke(battle);
+            }
+
+            battle.SetState(BattleState.BattleInProgress);
+            OnBattleEvent?.Invoke(battle);
 
             var turnInfo = battle.CurrentTurn;
             
@@ -279,10 +220,7 @@ namespace Assets.Scripts
             
             var target = turnInfo.Target.UpdateHealthCurrent(damage, out int display, out int current);
 
-            UpdateBattleHero(target); // Sync health
-            
-            if (current <= 0)
-                battle.CurrentRound.DequeueHero(target);
+            UpdateBattleHero(target); // Sync health                        
 
             turnInfo = BattleTurnInfo.Create(CurrentTurn, battle.CurrentTurn.Attacker, target, damage);
             turnInfo.Critical = criticalDamage;
@@ -290,42 +228,69 @@ namespace Assets.Scripts
             turnInfo.Lethal = current <= 0;
 
             battle.SetTurnInfo(turnInfo);
-            battle.SetTurnState(TurnState.TurnInProgress);
             
-            OnTurnEvent?.Invoke(battle.CurrentTurn);
-
-            battle.CurrentRound.QueuedHeroes.RemoveAt(0);
+            battle.SetTurnState(TurnState.TurnInProgress);            
+            OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
             
             battle.SetTurnState(TurnState.TurnCompleted);
-            OnTurnEvent?.Invoke(battle.CurrentTurn);
+            OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
         }
 
         internal void SetTurnProcessed(BattleTurnInfo stage)
         {
             battle.SetTurnInfo(stage);
             battle.SetTurnState(TurnState.TurnProcessed);
-            
-            if (!battle.Auto)
-                OnTurnEvent?.Invoke(battle.CurrentTurn);
 
-            OnRoundEvent?.Invoke(battle.CurrentRound);
+            battle.CurrentRound.QueuedHeroes.RemoveAt(0);
 
-            PrepareNextTurn();
+            var winnerTeamId = CheckForWinner();
+            if (winnerTeamId < 0)
+            {
+                if (battle.CurrentRound.QueuedHeroes.Count > 0)
+                {
+                    battle.SetRoundState(RoundState.RoundInProgress);
+                    OnRoundEvent?.Invoke(battle.CurrentRound, battle);
+
+                    PrepareNextTurn();
+                }
+                else
+                {
+                    battle.SetRoundState(RoundState.RoundCompleted);
+                    OnRoundEvent?.Invoke(battle.CurrentRound, battle);
+
+                    StartCoroutine(PrepareNextRounds());
+                }                    
+            }
+            else
+            {
+                battle.SetRoundState(RoundState.RoundCompleted);
+                OnRoundEvent?.Invoke(battle.CurrentRound, battle);
+
+                battle.SetState(BattleState.Completed);
+                battle.SetWinnerTeamId(winnerTeamId);
+                OnBattleEvent?.Invoke(battle);
+            }
         }
-
+        private int CheckForWinner()
+        {
+            if (battle.PlayerHeroes.Count > 0 &&
+                battle.EnemyHeroes.Count > 0)
+                return -1;
+            else if (battle.PlayerHeroes.Count > 0)
+                return battle.PlayerTeam.Id;
+            else
+                return battle.EnemyTeam.Id;
+        }
 
         private void UpdateBattleHero(Hero target)
         {
+            battle.UpdateHero(target);
+
             libraryManager.Library.UpdateHero(target);
         }
 
         public void LoadData()
         {
-        }
-        private IEnumerator AutoRound()
-        {
-            yield return null;
-            BeginRound();
         }
         private IEnumerator AutoTurn()
         {
@@ -358,7 +323,7 @@ namespace Assets.Scripts
         internal void Autoplay()
         {
             battle.Auto = true;
-            BeginRound();
+            StartCoroutine(AutoTurn());
         }
     }
 }

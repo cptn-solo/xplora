@@ -154,9 +154,10 @@ namespace Assets.Scripts.UI.Battle
             ShowTeamInventory(libraryManager.PlayerTeam);
             ShowTeamInventory(libraryManager.EnemyTeam);
 
+            if (battleManager.CurrentBattle.CurrentRound.State == RoundState.RoundPrepared)
+                battleQueue.LayoutHeroes(
+                    battleManager.CurrentBattle.QueuedHeroes);
 
-            battleQueue.LayoutHeroes(
-                battleManager.CurrentBattle.CurrentRound.QueuedHeroes.ToArray());
 
             UpdateActionButtons();
             ResetBattlefieldPositions();
@@ -175,7 +176,6 @@ namespace Assets.Scripts.UI.Battle
         private void SlotDelegate_HeroMoved(Hero hero)
         {
             SyncHeroCardSelectionWithHero();
-            battleManager.MoveHero(hero);
         }
         
         private void ToggleInventory()

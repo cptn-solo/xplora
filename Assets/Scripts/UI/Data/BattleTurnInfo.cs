@@ -51,11 +51,6 @@
             return info;
         }
 
-        internal void Increment()
-        {
-            turn++;
-        }
-
         public BattleTurnInfo SetState(TurnState state)
         {
             this.state = state;

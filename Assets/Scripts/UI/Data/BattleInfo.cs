@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Assets.Scripts.UI.Data
 {
@@ -7,12 +9,13 @@ namespace Assets.Scripts.UI.Data
     {
         private BattleState state;
         private BattleTurnInfo currentTurn;
-        private BattleRoundInfo currentRound;
+        private List<BattleRoundInfo> roundsQueue;
         
-        private List<BattleTurnInfo> prevTurns;
-
         private Team playerTeam;
         private Team enemyTeam;
+
+        public List<Hero> PlayerHeroes { get; private set; }
+        public List<Hero> EnemyHeroes { get; private set; }
 
         private int winnerTeamId;
 
@@ -22,12 +25,21 @@ namespace Assets.Scripts.UI.Data
         public Team EnemyTeam => enemyTeam;
 
         public BattleTurnInfo CurrentTurn => currentTurn;
-        public BattleRoundInfo CurrentRound => currentRound;
+        public BattleRoundInfo CurrentRound =>
+            roundsQueue != null && roundsQueue.Count > 0 ? roundsQueue[0] : default;
+        public BattleRoundInfo NextRound => 
+            roundsQueue != null && roundsQueue.Count > 1 ? roundsQueue[1] : default;
+
+        public List<BattleRoundInfo> RoundsQueue => roundsQueue;
         public int WinnerTeamId => winnerTeamId;
 
-        public List<BattleTurnInfo> BattleLog => prevTurns;
-
         public bool Auto { get; internal set; }
+        public Hero[] QueuedHeroes { 
+            get {
+                var combined = RoundsQueue.SelectMany(x => x.QueuedHeroes);
+                return combined.ToArray();
+            }
+        }
 
         public override string ToString()
         {
@@ -53,14 +65,16 @@ namespace Assets.Scripts.UI.Data
             
             battle.state = BattleState.Created;
 
+            battle.roundsQueue = new();
             battle.currentTurn = BattleTurnInfo.Create(-1, Hero.Default, Hero.Default);
-            battle.currentRound = BattleRoundInfo.Create();
 
             battle.playerTeam = playerTeam;
+            battle.PlayerHeroes = new();
+
             battle.enemyTeam = enemyTeam;
+            battle.EnemyHeroes = new();
 
             battle.winnerTeamId = -1;
-            battle.prevTurns = new();
 
             return battle;
         }
@@ -71,25 +85,73 @@ namespace Assets.Scripts.UI.Data
         }
         internal void SetRoundState(RoundState state)
         {
-            currentRound.SetState(state);                
+            var currentRound = CurrentRound;
+            currentRound.SetState(state);
+            RoundsQueue[0] = currentRound;
         }
-        internal void SetRoundInfo(BattleRoundInfo info)
-        { 
-            currentRound = info;
-        }
+
         internal void SetTurnState(TurnState state)
         {
             currentTurn.SetState(state);
         }
         internal void SetTurnInfo(BattleTurnInfo info)
         {
-            prevTurns.Add(currentTurn);
             currentTurn = info;
         }
 
         internal void SetWinnerTeamId(int teamId)
         {
-            this.winnerTeamId = teamId;
+            winnerTeamId = teamId;
+        }
+
+        internal void EnqueueRound(BattleRoundInfo battleRoundInfo)
+        {
+            roundsQueue.Add(battleRoundInfo);
+        }
+
+        internal void SetHeroes(Hero[] playerHeroes, Hero[] enemyHeroes)
+        {
+            PlayerHeroes.Clear();
+            PlayerHeroes.AddRange(playerHeroes);
+
+            EnemyHeroes.Clear();
+            EnemyHeroes.AddRange(enemyHeroes);
+        }
+
+        internal void UpdateHero(Hero target)
+        {
+            if (target.HealthCurrent <= 0)
+            {
+                if (target.TeamId == PlayerTeam.Id)
+                    PlayerHeroes.RemoveAt(PlayerHeroes
+                        .FindIndex(x => x.Id == target.Id));
+                else
+                    EnemyHeroes.RemoveAt(EnemyHeroes
+                        .FindIndex(x => x.Id == target.Id));
+
+                for (int i = 0; i < RoundsQueue.Count; i++)
+                {
+                    var roundInfo = RoundsQueue[i];
+                    roundInfo.DequeueHero(target);
+                    RoundsQueue[i] = roundInfo;
+                }
+            }
+            else
+            {
+                if (target.TeamId == PlayerTeam.Id)
+                    PlayerHeroes[PlayerHeroes
+                        .FindIndex(x => x.Id == target.Id)] = target;
+                else
+                    EnemyHeroes[EnemyHeroes
+                        .FindIndex(x => x.Id == target.Id)] = target;
+
+                for (int i = 0; i < RoundsQueue.Count; i++)
+                {
+                    var roundInfo = RoundsQueue[i];
+                    roundInfo.UpdateHero(target);
+                    RoundsQueue[i] = roundInfo;
+                }
+            }
         }
     }
 }

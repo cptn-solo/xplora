@@ -29,6 +29,7 @@ namespace Assets.Scripts.UI.Data
             hero.IconName = iconName;
             hero.TeamId = -1;
             hero.Line = BattleLine.NA;
+            hero.Effects = new();
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();

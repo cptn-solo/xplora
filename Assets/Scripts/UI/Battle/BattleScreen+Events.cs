@@ -43,7 +43,7 @@ namespace Assets.Scripts.UI.Battle
 
         }
 
-        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo)
+        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo, BattleInfo battleInfo)
         {
             switch (roundInfo.State)
             {
@@ -52,13 +52,13 @@ namespace Assets.Scripts.UI.Battle
                 case RoundState.PrepareRound:
                     break;
                 case RoundState.RoundPrepared:
-                    battleQueue.LayoutHeroes(roundInfo.QueuedHeroes.ToArray());
+                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
                     break;
                 case RoundState.RoundInProgress:
-                    battleQueue.LayoutHeroes(roundInfo.QueuedHeroes.ToArray());
+                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
                     break;
                 case RoundState.RoundCompleted:
-                    battleQueue.LayoutHeroes(roundInfo.QueuedHeroes.ToArray());
+                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
                     break;
                 default:
                     break;
@@ -67,7 +67,7 @@ namespace Assets.Scripts.UI.Battle
             UpdateActionButtons();
         }
 
-        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo)
+        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo, BattleRoundInfo roundInfo, BattleInfo battleInfo)
         {
 
             switch (turnInfo.State)
@@ -98,12 +98,16 @@ namespace Assets.Scripts.UI.Battle
 
         private void EnqueueOrAuto(BattleTurnInfo turnInfo)
         {
-            if (battleManager.CurrentBattle.Auto &&
-                (turnInfo.State == TurnState.TurnCompleted ||
-                    turnInfo.State == TurnState.NoTargets))
-                battleManager.SetTurnProcessed(turnInfo);
+            if (battleManager.CurrentBattle.Auto)
+            {
+                if (turnInfo.State == TurnState.TurnCompleted ||
+                    turnInfo.State == TurnState.NoTargets)
+                    battleManager.SetTurnProcessed(turnInfo);
+            }
             else
+            {
                 EnqueueTurnProcessingStage(turnInfo);
+            }
         }
     }
 }

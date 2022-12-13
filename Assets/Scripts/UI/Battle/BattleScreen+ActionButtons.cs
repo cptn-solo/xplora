@@ -11,13 +11,7 @@ namespace Assets.Scripts.UI.Battle
             foreach (var button in actionButtons)
             {
                 if (button.Action == Actions.PrepareQueue)
-                    button.gameObject.SetActive(battleManager.CanPrepareRound);
-
-                if (button.Action == Actions.BeginBattle)
-                    button.gameObject.SetActive(battleManager.CanBeginBattle);
-
-                if (button.Action == Actions.BeginRound)
-                    button.gameObject.SetActive(battleManager.CanBeginRound);
+                    button.gameObject.SetActive(battleManager.CanReorderTurns);
 
                 if (button.Action == Actions.CompleteTurn)
                     button.gameObject.SetActive(battleManager.CanMakeTurn);
@@ -36,32 +30,12 @@ namespace Assets.Scripts.UI.Battle
                         ToggleInventory();
                     }
                     break;
-                case Actions.BeginBattle:
-                    {
-                        if (inventoryToggle)
-                            ToggleInventory();
-
-                        battleManager.BeginBattle();
-
-                        UpdateActionButtons();
-                    }
-                    break;
                 case Actions.PrepareQueue:
                     {
                         if (inventoryToggle)
                             ToggleInventory();
 
-                        battleManager.PrepareRound();
-
-                        UpdateActionButtons();
-                    }
-                    break;
-                case Actions.BeginRound:
-                    {
-                        if (inventoryToggle)
-                            ToggleInventory();
-
-                        battleManager.BeginRound();
+                        battleManager.ResetBattle();
 
                         UpdateActionButtons();
                     }
