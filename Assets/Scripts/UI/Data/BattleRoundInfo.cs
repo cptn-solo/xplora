@@ -3,35 +3,6 @@ using System.Linq;
 
 namespace Assets.Scripts.UI.Data
 {
-    public enum DamageEffect
-    {
-        NA = 0,
-        Stunned = 100,
-        Bleeding = 200,
-        Pierced = 300,
-        Burning = 400,
-        Frozing = 500,
-    }
-    public struct DamageEffectInfo
-    {
-        public Hero Hero { get; private set; }
-        public DamageEffect Effect { get; private set; }
-        public int RoundOn { get; private set; }
-        public int RoundOff { get; private set; }
-
-        public DamageEffectInfo Cast(Hero hero, DamageEffect effect, int roundOn, int roundOff)
-        {
-            DamageEffectInfo info = default;
-            
-            info.Hero = hero;
-            info.Effect = effect;
-            info.RoundOn = roundOn;
-            info.RoundOff = roundOff;
-
-            return info;
-        }
-    }
-
     public struct BattleRoundInfo
     {
         private List<Hero> queuedHeroes;

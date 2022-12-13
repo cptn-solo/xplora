@@ -184,6 +184,9 @@ namespace Assets.Scripts
             return battle.CurrentTurn.State;
         }
 
+        /// <summary>
+        ///     Can safely be converted into a coroutine
+        /// </summary>
         internal void CompleteTurn()
         {
             if (battle.State == BattleState.TeamsPrepared)
@@ -216,8 +219,29 @@ namespace Assets.Scripts
                 damage *= (criticalDamage ? 2 : 1);
                 damage -= (int)Mathf.Ceil(damage * shield / 100f);
                 damage = Mathf.Max(0, damage);
+
+                if (DamageEffectInfo.TryCast(
+                        turnInfo.Attacker,
+                        turnInfo.Target,
+                        battle.CurrentRound.Round,
+                        out var damageEffect)
+                    )
+                {
+                    for (int i = 0; i <= damageEffect.TurnsActive; i++)
+                    {
+                        var roundInfo = battle.RoundsQueue[i];
+                        var targetIdx = roundInfo.QueuedHeroes
+                            .FindIndex(x => x.Id == damageEffect.Hero.Id);
+
+                        var targetHero = roundInfo.QueuedHeroes[targetIdx];
+                        // consider conditional effect addition (stackable/nonstackable effects)
+                        targetHero.Effects.Add(damageEffect);
+                        roundInfo.QueuedHeroes[targetIdx] = targetHero;
+                        battle.RoundsQueue[i] = roundInfo;
+                    }
+                }
             }
-            
+
             var target = turnInfo.Target.UpdateHealthCurrent(damage, out int display, out int current);
 
             UpdateBattleHero(target); // Sync health                        

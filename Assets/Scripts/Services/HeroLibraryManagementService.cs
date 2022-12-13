@@ -210,11 +210,11 @@ namespace Assets.Scripts
                 var rawValues = rawValue.Replace(" ", "").ToLower();
                 return rawValues switch
                 {
-                    "Силовой" => DamageType.Force,
-                    "Режущий" => DamageType.Cut,
-                    "Колющий" => DamageType.Pierce,
-                    "Огненный" => DamageType.Burn,
-                    "Замораживающий" => DamageType.Frost,
+                    "силовой" => DamageType.Force,
+                    "режущий" => DamageType.Cut,
+                    "колющий" => DamageType.Pierce,
+                    "огненный" => DamageType.Burn,
+                    "замораживающий" => DamageType.Frost,
                     _ => DamageType.NA
                 };
             }
