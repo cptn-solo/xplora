@@ -199,54 +199,77 @@ namespace Assets.Scripts
             OnBattleEvent?.Invoke(battle);
 
             var turnInfo = battle.CurrentTurn;
-            
+            var attacker = turnInfo.Attacker;
+
+            if (attacker.EffectSkipTurn)
+            {
+                Debug.Log("Skipping turn");
+
+                battle.SetTurnState(TurnState.TurnInProgress);
+                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+
+                battle.SetTurnState(TurnState.TurnCompleted);
+                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+                return;
+            }
+
+
+            var target = turnInfo.Target;// will be replaced with round target below
+
             // attack:
-            var rawDamage = turnInfo.Attacker.RandomDamage;
-            var criticalDamage = turnInfo.Attacker.RandomCriticalHit;
-            var accurate = turnInfo.Attacker.RandomAccuracy;
+            var accurate = attacker.RandomAccuracy;
 
             // defence:
-            var dodged = turnInfo.Target.RandomDodge;
-            var shield = turnInfo.Target.DefenceRate;
+            var dodged = target.RandomDodge;
+            
+            var criticalDamage = false;
 
-            var damage = rawDamage;
+            var damage = 0;
             if (!accurate || dodged)
             {
                 damage = 0;
             }
             else
             {
-                damage *= (criticalDamage ? 2 : 1);
-                damage -= (int)Mathf.Ceil(damage * shield / 100f);
-                damage = Mathf.Max(0, damage);
+                var shield = target.DefenceRate;
 
                 if (DamageEffectInfo.TryCast(
-                        turnInfo.Attacker,
-                        turnInfo.Target,
+                        attacker,
+                        target,
                         battle.CurrentRound.Round,
                         out var damageEffect)
                     )
                 {
-                    for (int i = 0; i <= damageEffect.TurnsActive; i++)
-                    {
-                        var roundInfo = battle.RoundsQueue[i];
-                        var targetIdx = roundInfo.QueuedHeroes
-                            .FindIndex(x => x.Id == damageEffect.Hero.Id);
+                    if (damageEffect.Effect == DamageEffect.Pierced)
+                        shield = (int)((damageEffect.ShieldUseFactor / 100f) * shield);
 
-                        var targetHero = roundInfo.QueuedHeroes[targetIdx];
-                        // consider conditional effect addition (stackable/nonstackable effects)
-                        targetHero.Effects.Add(damageEffect);
-                        roundInfo.QueuedHeroes[targetIdx] = targetHero;
-                        battle.RoundsQueue[i] = roundInfo;
-                    }
+                    target.Effects.Add(damageEffect);
                 }
+
+                var rawDamage = attacker.RandomDamage;
+                criticalDamage = attacker.RandomCriticalHit;
+
+                damage = rawDamage;
+                damage *= (criticalDamage ? 2 : 1);
+                damage -= (int)(damage * shield / 100f);
+                damage = Mathf.Max(0, damage);
             }
 
-            var target = turnInfo.Target.UpdateHealthCurrent(damage, out int display, out int current);
+            // get target from queued round to apply effects:
+            var roundTargetIdx = battle.CurrentRound.QueuedHeroes.FindIndex(x => x.Id == target.Id);
+            
+            if (roundTargetIdx >= 0)
+                target = battle.CurrentRound.QueuedHeroes[roundTargetIdx];
+            
+            if (target.Effects != null && target.Effects.Count > 0)
+                foreach (var eff in target.Effects)
+                    damage += eff.ExtraDamage;
 
-            UpdateBattleHero(target); // Sync health                        
+            target = target.UpdateHealthCurrent(damage, out int display, out int current);
 
-            turnInfo = BattleTurnInfo.Create(CurrentTurn, battle.CurrentTurn.Attacker, target, damage);
+            UpdateBattleHero(target); // Sync health and active effects
+
+            turnInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target, damage);
             turnInfo.Critical = criticalDamage;
             turnInfo.Dodged = dodged;
             turnInfo.Lethal = current <= 0;

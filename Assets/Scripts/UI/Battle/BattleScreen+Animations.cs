@@ -76,7 +76,11 @@ namespace Assets.Scripts.UI.Battle
             var attakerRM = RaidMemberForHero(info.Attacker);
             var targetRM = RaidMemberForHero(info.Target);
 
-            if (info.State == TurnState.TurnPrepared)
+            if (attakerRM == null || targetRM == null)
+            {
+                yield return null;
+            }
+            else if (info.State == TurnState.TurnPrepared)
             {
                 var move = 1.0f;
 

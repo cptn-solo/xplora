@@ -68,7 +68,7 @@ namespace Assets.Scripts.UI.Data
             var queue = queuedHeroes;
             var idx = queue.FindIndex(x => x.Id == target.Id);
             if (idx >= 0)
-                queue[idx] = target;
+                queue[idx] = target.ClearInactiveEffects(Round);
             queuedHeroes = queue;
         }
 

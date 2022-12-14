@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Data
@@ -9,7 +10,12 @@ namespace Assets.Scripts.UI.Data
         public override string ToString()
         { 
             var current = (int)(HealthCurrent * (Health / 100f));
-            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}/{current}";
+            var ef = "";
+            if (Effects != null && Effects.Count > 0)
+                foreach(var eff in Effects)
+                    ef += $"+{eff}";
+
+            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}/{current}{ef}";
         }
 
         public static Hero Default =>

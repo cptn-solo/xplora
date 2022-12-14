@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Assets.Scripts.UI.Data
 {
@@ -22,6 +26,9 @@ namespace Assets.Scripts.UI.Data
         public bool RandomResistPierced => false;
         public bool RandomResistBurning => RatedRandomBool(ResistBurnRate);
         public bool RandomResistFrozing => RatedRandomBool(ResistFrostRate);
+
+        public bool EffectSkipTurn => Effects != null && Effects.Count > 0 &&
+            Effects.FindIndex(x => x.TurnSkipped == true) >= 0;
         
         public static bool RatedRandomBool(int rate)
         {
@@ -36,6 +43,18 @@ namespace Assets.Scripts.UI.Data
                 ret = 0 == Random.Range(0, (int)Mathf.Ceil(100 / rate));
             }
             return ret;
+        }
+
+        public Hero ClearInactiveEffects(int maxRound)
+        {
+            if (Effects != null && Effects.Count > 0)
+            {
+                List<DamageEffectInfo> effects = new();
+                effects.AddRange(Effects.Where(x => x.RoundOff >= maxRound));
+                Effects = effects;
+            }
+            return this;
+
         }
 
     }

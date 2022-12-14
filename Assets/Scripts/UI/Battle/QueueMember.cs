@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
         [SerializeField] private BarsContainer barsContainer;
+        [SerializeField] private EffectsContainer effectsContainer;
 
         private Color normalColor;
         private Image backgroundImage;
@@ -47,6 +49,7 @@ namespace Assets.Scripts.UI.Battle
                 backgroundImage.color = normalColor;
 
                 barsContainer.SetData(hero.BarsInfoBattle);
+                effectsContainer.SetEffects(hero.Effects);
             }
         }
 

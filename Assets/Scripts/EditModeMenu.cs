@@ -28,7 +28,7 @@ public class EditModeMenu : EditorWindow
         var list = libraryMetadata.GetSheetRange("'Герои'!A1:I31");
         
         var serialized = JsonConvert.SerializeObject(list);
-        File.WriteAllText(Application.dataPath + "/Heroes.json", serialized);
+        File.WriteAllText(Application.streamingAssetsPath + "/Heroes.json", serialized);
 
     }
 }

@@ -11,6 +11,11 @@
         public int RoundOn { get; private set; }
         public int RoundOff { get; private set; }
 
+        public override string ToString()
+        {
+            return $"{Effect}:{ExtraDamage}/{TurnsActive}";
+        }
+
         public static bool TryCast(Hero attacker, Hero target, int roundOn, out DamageEffectInfo info)
         {
             info = default;
