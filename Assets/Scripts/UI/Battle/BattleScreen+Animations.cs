@@ -70,18 +70,54 @@ namespace Assets.Scripts.UI.Battle
                 info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
                 playerBattleGround : enemyBattleGround;
             var targetAnimation =
+                info.State == TurnState.TurnSkipped ||
+                info.State == TurnState.TurnEffects ? null : 
                 info.Target.TeamId == libraryManager.PlayerTeam.Id ?
                 playerBattleGround : enemyBattleGround;
 
             var attakerRM = RaidMemberForHero(info.Attacker);
-            var targetRM = RaidMemberForHero(info.Target);
+            var targetRM = 
+                info.State == TurnState.TurnSkipped ||
+                info.State == TurnState.TurnEffects ? null : 
+                RaidMemberForHero(info.Target);
 
-            if (attakerRM == null || targetRM == null)
+            if (info.State == TurnState.TurnEffects)
             {
-                yield return null;
+                attakerRM.HeroAnimation.Hit(info.Attacker.HealthCurrent <= 0);
+
+                if (info.Lethal)
+                    audioService.Play(SFX.Named(info.Attacker.SndDied));
+                else if (info.Damage > 0)
+                    audioService.Play(SFX.Named(info.Attacker.SndHit));
+
+                yield return new WaitForSeconds(1f);
+
+                attakerRM.Hero = info.Attacker;
+            }
+            else if (info.State == TurnState.TurnSkipped)
+            {
+                // move only attacker card to show effects (if any)
+                var move = 1.0f;
+
+                attakerRM.HeroAnimation.Run(move);
+                // move cards to the battle ground
+                attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                var attackerMove = attackerAnimation.position - attakerRM.HeroAnimation.transform.position;
+
+                while (move > 0f)
+                {
+                    attakerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
+
+                    move -= Time.deltaTime;
+
+                    yield return null;
+                }
+
+                yield return new WaitForSeconds(.3f);
             }
             else if (info.State == TurnState.TurnPrepared)
             {
+                // move both cards
                 var move = 1.0f;
 
                 attakerRM.HeroAnimation.Run(move);
@@ -101,8 +137,6 @@ namespace Assets.Scripts.UI.Battle
                     
                     yield return null;
                 }
-                //attakerRM.HeroAnimation.transform.position = attackerAnimation.position;
-                //targetRM.HeroAnimation.transform.position = targetAnimation.position;
                 
                 yield return new WaitForSeconds(.3f);
 
@@ -134,24 +168,22 @@ namespace Assets.Scripts.UI.Battle
             }
             else if (info.State == TurnState.TurnCompleted)
             {
-                if (info.Lethal)
-                {
-                    targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                if (targetRM != null && info.Target.HealthCurrent <= 0)
                     targetRM.Hero = Hero.Default;
-                }                    
-                else
-                {
-                    targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                }
+
+                if (attakerRM != null && info.Attacker.HealthCurrent <= 0)
+                    attakerRM.Hero = Hero.Default;
 
                 // move cards back or remove dead ones from the field.
-                attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                if (attakerRM != null)
+                    attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
                 
+                if (targetRM != null)
+                    targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+
                 yield return new WaitForSeconds(.3f);
 
             }
-
-            battleQueue.UpdateHero(info.Target);
             
             turnStageProcessingActive = false;
         }

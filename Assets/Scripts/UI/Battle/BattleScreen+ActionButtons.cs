@@ -42,7 +42,10 @@ namespace Assets.Scripts.UI.Battle
                     break;
                 case Actions.CompleteTurn:
                     {
-                        battleManager.CompleteTurn();
+                        if (battleManager.CurrentBattle.State == BattleState.TeamsPrepared)
+                            battleManager.BeginBattle();
+                        else
+                            battleManager.CompleteTurn();
 
                         UpdateActionButtons();
                     }

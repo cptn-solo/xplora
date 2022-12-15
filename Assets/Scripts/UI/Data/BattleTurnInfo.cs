@@ -7,6 +7,7 @@
         private int turn;
         private int damage;
         private TurnState state;
+        private bool effect;
         public TurnState State => state;
         public Hero Attacker => attacker;
         public Hero Target => target;
@@ -29,16 +30,31 @@
                 $">>> {Target}, " +
                 $"-{Damage}, " +
                 $"[L:{Lethal} C:{Critical} D:{Dodged}]";
+            var effects = $"Ход #{Turn}: " +
+                $"{State}, " +
+                $"{Attacker}, " +
+                $"-{Damage}";
+            var skipped = $"Ход #{Turn}: " +
+                $"{State}, " +
+                $"{Attacker}";
 
             return State switch
             {
                 TurnState.TurnPrepared => prepared,             
+                TurnState.TurnEffects => effects,
+                TurnState.TurnSkipped => skipped,
                 TurnState.TurnCompleted => completed,
                 _ => $"Ход #{Turn}: {State}"
             };
         }
 
         // constructors
+        public static BattleTurnInfo Create(int currentTurn, Hero attacker, int damage = 0)
+        {
+            BattleTurnInfo info = Create(currentTurn, attacker, Hero.Default, damage);
+            info.effect = true;
+            return info;
+        }
         public static BattleTurnInfo Create(int currentTurn, Hero attacker, Hero target, int damage = 0)
         {
             BattleTurnInfo info = default;

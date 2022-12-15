@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI.Data
         private BattleState state;
         private BattleTurnInfo currentTurn;
         private List<BattleRoundInfo> roundsQueue;
-        
+
         private Team playerTeam;
         private Team enemyTeam;
 
@@ -27,14 +27,14 @@ namespace Assets.Scripts.UI.Data
         public BattleTurnInfo CurrentTurn => currentTurn;
         public BattleRoundInfo CurrentRound =>
             roundsQueue != null && roundsQueue.Count > 0 ? roundsQueue[0] : default;
-        public BattleRoundInfo NextRound => 
+        public BattleRoundInfo NextRound =>
             roundsQueue != null && roundsQueue.Count > 1 ? roundsQueue[1] : default;
 
         public List<BattleRoundInfo> RoundsQueue => roundsQueue;
         public int WinnerTeamId => winnerTeamId;
 
         public bool Auto { get; internal set; }
-        public Hero[] QueuedHeroes { 
+        public Hero[] QueuedHeroes {
             get {
                 var combined = RoundsQueue.SelectMany(x => x.QueuedHeroes);
                 return combined.ToArray();
@@ -52,7 +52,7 @@ namespace Assets.Scripts.UI.Data
                 $"{PlayerTeam} vs {EnemyTeam}, " +
                 $"победила команда: {WinnerTeamId}";
             return State switch
-            { 
+            {
                 BattleState.BattleStarted => full,
                 BattleState.Completed => completed,
                 _ => $"Битва: {State}"
@@ -62,7 +62,7 @@ namespace Assets.Scripts.UI.Data
         internal static BattleInfo Create(Team playerTeam, Team enemyTeam)
         {
             BattleInfo battle = default;
-            
+
             battle.state = BattleState.Created;
 
             battle.roundsQueue = new();
@@ -118,16 +118,31 @@ namespace Assets.Scripts.UI.Data
             EnemyHeroes.AddRange(enemyHeroes);
         }
 
+        private void RemoveHero(Hero target)
+        {
+            if (target.TeamId == PlayerTeam.Id)
+                PlayerHeroes.Remove(
+                    PlayerHeroes[PlayerHeroes.FindIndex(x => x.Id == target.Id)]);
+            else
+                EnemyHeroes.Remove(
+                    EnemyHeroes[EnemyHeroes.FindIndex(x => x.Id == target.Id)]);
+        }
+
+        private void ReplaceHero(Hero target)
+        {
+            if (target.TeamId == PlayerTeam.Id)
+                PlayerHeroes[PlayerHeroes
+                    .FindIndex(x => x.Id == target.Id)] = target;
+            else
+                EnemyHeroes[EnemyHeroes
+                    .FindIndex(x => x.Id == target.Id)] = target;
+        }
+
         internal void UpdateHero(Hero target)
         {
             if (target.HealthCurrent <= 0)
             {
-                if (target.TeamId == PlayerTeam.Id)
-                    PlayerHeroes.RemoveAt(PlayerHeroes
-                        .FindIndex(x => x.Id == target.Id));
-                else
-                    EnemyHeroes.RemoveAt(EnemyHeroes
-                        .FindIndex(x => x.Id == target.Id));
+                RemoveHero(target);
 
                 for (int i = 0; i < RoundsQueue.Count; i++)
                 {
@@ -138,12 +153,7 @@ namespace Assets.Scripts.UI.Data
             }
             else
             {
-                if (target.TeamId == PlayerTeam.Id)
-                    PlayerHeroes[PlayerHeroes
-                        .FindIndex(x => x.Id == target.Id)] = target;
-                else
-                    EnemyHeroes[EnemyHeroes
-                        .FindIndex(x => x.Id == target.Id)] = target;
+                ReplaceHero(target);
 
                 for (int i = 0; i < RoundsQueue.Count; i++)
                 {

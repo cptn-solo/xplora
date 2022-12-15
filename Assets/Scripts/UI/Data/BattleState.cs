@@ -26,6 +26,8 @@
         PrepareTurn = 600,   // define attacker and target
         TurnPrepared = 700,  // ready for attack
         TurnInProgress = 800, // performing attack (waiting in manual battle mode)
+        TurnEffects = 825, // visualize effects casted to the attacker from the past turn
+        TurnSkipped = 850, // skipping turn due to effect
         TurnCompleted = 900,  // aftermath, next possible states are either 600 or 1000+
         NoTargets = 1100,      // OR no targets
         TurnProcessed = 1200, // waiting for being processed by UI

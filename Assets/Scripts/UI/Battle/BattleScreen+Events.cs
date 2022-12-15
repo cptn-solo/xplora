@@ -80,6 +80,8 @@ namespace Assets.Scripts.UI.Battle
                     break;
                 case TurnState.TurnPrepared:
                 case TurnState.TurnInProgress:
+                case TurnState.TurnSkipped:
+                case TurnState.TurnEffects:
                 case TurnState.TurnCompleted:
                 case TurnState.NoTargets:
                     {
@@ -100,8 +102,13 @@ namespace Assets.Scripts.UI.Battle
         {
             if (battleManager.CurrentBattle.Auto)
             {
-                if (turnInfo.State == TurnState.TurnCompleted ||
-                    turnInfo.State == TurnState.NoTargets)
+                if (turnInfo.State switch
+                {
+                    TurnState.TurnCompleted => true,
+                    TurnState.TurnSkipped => true,
+                    TurnState.NoTargets => true,
+                    _ => false
+                })
                     battleManager.SetTurnProcessed(turnInfo);
             }
             else

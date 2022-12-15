@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.SceneManagement;
 
 namespace Assets.Scripts.UI.Data
 {
@@ -59,7 +61,7 @@ namespace Assets.Scripts.UI.Data
             var queue = queuedHeroes;
             var idx = queue.FindIndex(x => x.Id == target.Id);
             if (idx >= 0)
-                queue.RemoveAt(idx);
+                queue.Remove(queue[idx]);
             queuedHeroes = queue;
         }
 
@@ -74,14 +76,22 @@ namespace Assets.Scripts.UI.Data
 
         internal void EnqueueHero(Hero hero)
         {
-            var queue = this.queuedHeroes;
+            var queue = queuedHeroes;
             queue.Add(hero);
-            this.queuedHeroes = queue;
+            queuedHeroes = queue;
         }
 
         internal void ResetQueue()
         {
-            QueuedHeroes.Clear();
+            queuedHeroes.Clear();
+        }
+
+        internal void FinalizeTurn()
+        {
+            var queue = queuedHeroes;
+            if (queue.Count > 0)
+                queue.Remove(queue[0]);            
+            queuedHeroes = queue;
         }
     }
 }

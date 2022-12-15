@@ -33,6 +33,7 @@ namespace Assets.Scripts
         public bool CanMakeTurn => battle.CurrentTurn.State switch
         {
             TurnState.TurnPrepared => true,
+            TurnState.TurnSkipped => true,
             _ => false
         }; //queuedHeroes.Count > 0;        
 
@@ -66,6 +67,29 @@ namespace Assets.Scripts
                 StartCoroutine(PrepareNextRounds());
             }
 
+        }
+
+        internal void BeginBattle()
+        {
+            battle.SetState(BattleState.BattleStarted);
+            OnBattleEvent?.Invoke(battle);
+
+            CompleteTurn();
+        }
+        internal void Autoplay()
+        {
+            battle.Auto = true;
+            StartCoroutine(AutoPlayCoroutine());
+        }
+        private IEnumerator AutoPlayCoroutine()
+        {
+            while (battle.Auto && battle.State != BattleState.Completed)
+            {
+                yield return null;
+
+                if (CanMakeTurn)
+                    CompleteTurn();
+            }
         }
 
         private IEnumerator PrepareNextRounds()
@@ -136,16 +160,24 @@ namespace Assets.Scripts
             OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
 
             var turnState = PrepareTurn();
-            if (turnState == TurnState.TurnPrepared)
+            if (turnState == TurnState.TurnPrepared ||
+                turnState == TurnState.TurnSkipped)
                 OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
-
-            if (battle.Auto && CanMakeTurn)
-                StartCoroutine(AutoTurn());
         }
 
         internal TurnState PrepareTurn()
         {
             var attaker = battle.CurrentRound.QueuedHeroes[0];
+
+            if (attaker.EffectSkipTurn)
+            {
+                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker);
+                battle.SetTurnInfo(skippedInfo);
+                battle.SetTurnState(TurnState.TurnSkipped);
+
+                return battle.CurrentTurn.State;
+            }
+
             var attackTeam = attaker.TeamId;
             var targets = attackTeam == battle.PlayerTeam.Id ?
                 battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
@@ -189,11 +221,6 @@ namespace Assets.Scripts
         /// </summary>
         internal void CompleteTurn()
         {
-            if (battle.State == BattleState.TeamsPrepared)
-            {
-                battle.SetState(BattleState.BattleStarted);
-                OnBattleEvent?.Invoke(battle);
-            }
 
             battle.SetState(BattleState.BattleInProgress);
             OnBattleEvent?.Invoke(battle);
@@ -201,12 +228,38 @@ namespace Assets.Scripts
             var turnInfo = battle.CurrentTurn;
             var attacker = turnInfo.Attacker;
 
-            if (attacker.EffectSkipTurn)
+            //capture value just in case
+            var skipTurn = turnInfo.State == TurnState.TurnSkipped;
+
+            if (attacker.Effects.Count > 0)
+            {
+                var effectDamage = 0;
+                foreach (var eff in attacker.Effects)
+                    effectDamage += eff.ExtraDamage;
+
+                attacker = attacker.UpdateHealthCurrent(effectDamage, out int aDisplay, out int aCurrent);
+                Debug.Log($"Attacker after effects: {attacker}");
+
+                UpdateBattleHero(attacker); // Sync health and active effects
+
+                // intermediate turn info, no round turn override to preserve pre-calculated target:
+                var effectsInfo = BattleTurnInfo.Create(CurrentTurn, attacker, effectDamage);
+                effectsInfo = effectsInfo.SetState(TurnState.TurnEffects);
+                OnTurnEvent?.Invoke(effectsInfo, battle.CurrentRound, battle);
+
+                // effect killed hero, complete turn
+                if (aCurrent <= 0)
+                {
+                    battle.SetTurnState(TurnState.TurnCompleted);
+                    OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+
+                    return;
+                }
+            }
+
+            if (skipTurn)
             {
                 Debug.Log("Skipping turn");
-
-                battle.SetTurnState(TurnState.TurnInProgress);
-                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
 
                 battle.SetTurnState(TurnState.TurnCompleted);
                 OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
@@ -224,7 +277,7 @@ namespace Assets.Scripts
             
             var criticalDamage = false;
 
-            var damage = 0;
+            int damage;
             if (!accurate || dodged)
             {
                 damage = 0;
@@ -255,16 +308,6 @@ namespace Assets.Scripts
                 damage = Mathf.Max(0, damage);
             }
 
-            // get target from queued round to apply effects:
-            var roundTargetIdx = battle.CurrentRound.QueuedHeroes.FindIndex(x => x.Id == target.Id);
-            
-            if (roundTargetIdx >= 0)
-                target = battle.CurrentRound.QueuedHeroes[roundTargetIdx];
-            
-            if (target.Effects != null && target.Effects.Count > 0)
-                foreach (var eff in target.Effects)
-                    damage += eff.ExtraDamage;
-
             target = target.UpdateHealthCurrent(damage, out int display, out int current);
 
             UpdateBattleHero(target); // Sync health and active effects
@@ -288,7 +331,7 @@ namespace Assets.Scripts
             battle.SetTurnInfo(stage);
             battle.SetTurnState(TurnState.TurnProcessed);
 
-            battle.CurrentRound.QueuedHeroes.RemoveAt(0);
+            battle.CurrentRound.FinalizeTurn();
 
             var winnerTeamId = CheckForWinner();
             if (winnerTeamId < 0)
@@ -333,16 +376,12 @@ namespace Assets.Scripts
         {
             battle.UpdateHero(target);
 
-            libraryManager.Library.UpdateHero(target);
+            var libHero = target.ClearAllEffects();
+            libraryManager.Library.UpdateHero(libHero);
         }
 
         public void LoadData()
         {
-        }
-        private IEnumerator AutoTurn()
-        {
-            yield return null;
-            CompleteTurn();
         }
 
         private void GiveAssetsToTeams()
@@ -365,12 +404,6 @@ namespace Assets.Scripts
             shuriken.GiveAsset(battle.EnemyTeam, 5);
             power.GiveAsset(battle.EnemyTeam, 5);
 
-        }
-
-        internal void Autoplay()
-        {
-            battle.Auto = true;
-            StartCoroutine(AutoTurn());
         }
     }
 }

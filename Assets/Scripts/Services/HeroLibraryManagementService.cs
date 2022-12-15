@@ -38,6 +38,7 @@ namespace Assets.Scripts
         public bool PrepareTeamsForBattle(out Hero[] playerHeroes, out Hero[] enemyHeroes)
         {
             ResetHealthCurrent();
+
             playerHeroes = library.TeamHeroes(PlayerTeam.Id, true);
             enemyHeroes = library.TeamHeroes(EnemyTeam.Id, true);
             
@@ -301,7 +302,6 @@ namespace Assets.Scripts
 
         internal void ResetHealthCurrent() =>
             library.ResetHealthCurrent();
-
         internal void ResetTeams()
         {
             library = Library.ResetTeamAssets();
