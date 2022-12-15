@@ -18,6 +18,8 @@ namespace Assets.Scripts.UI
         [SerializeField] private Slider musicSlider;
         [SerializeField] private Toggle sfxToggle;
         [SerializeField] private Slider sfxSlider;
+        [SerializeField] private Toggle disableRngToggle;
+
 
         public event UnityAction OnCloseButtonPressed;
 
@@ -28,6 +30,8 @@ namespace Assets.Scripts.UI
 
             sfxToggle.isOn = audioPlaybackService.SfxToggle;
             sfxSlider.value = audioPlaybackService.SfxVolume;
+
+            disableRngToggle.isOn = playerPrefsService.DisableRNGToggle;
         }
 
         public void Close() => OnCloseButtonPressed?.Invoke();
@@ -40,6 +44,8 @@ namespace Assets.Scripts.UI
             sfxToggle.onValueChanged.AddListener(OnSfxToggleChange);
             sfxSlider.onValueChanged.AddListener(OnSfxSliderChange);
 
+            disableRngToggle.onValueChanged.AddListener(OnDisableRngToggleChange);
+
             closeButton.onClick.AddListener(Close);
         }
 
@@ -50,6 +56,8 @@ namespace Assets.Scripts.UI
 
             sfxToggle.onValueChanged.RemoveListener(OnSfxToggleChange);
             sfxSlider.onValueChanged.RemoveListener(OnSfxSliderChange);
+            
+            disableRngToggle.onValueChanged.RemoveListener(OnDisableRngToggleChange);
 
             closeButton.onClick.RemoveListener(Close);
         }
@@ -84,6 +92,13 @@ namespace Assets.Scripts.UI
                 return;
 
             audioPlaybackService.SfxToggle = sfxToggle.isOn;
+        }
+        public void OnDisableRngToggleChange(bool value)
+        {
+            if (playerPrefsService == null)
+                return;
+
+            playerPrefsService.DisableRNGToggle = disableRngToggle.isOn;
         }
     }
 }

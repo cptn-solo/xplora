@@ -12,6 +12,7 @@ namespace Assets.Scripts
     public class BattleManagementService : MonoBehaviour
     {
         [Inject] private readonly HeroLibraryManagementService libraryManager;
+        [Inject] private readonly PlayerPreferencesService prefs;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
@@ -128,7 +129,7 @@ namespace Assets.Scripts
             foreach (var hero in orderedHeroes)
             {
                 if (speedSlots.TryGetValue(hero.Speed, out var slots))
-                    slots.Add(hero);
+                    slots.Add(hero.ClearAllEffects());
                 else
                     speedSlots[hero.Speed] = new List<Hero>() { hero };
             }
@@ -270,10 +271,10 @@ namespace Assets.Scripts
             var target = turnInfo.Target;// will be replaced with round target below
 
             // attack:
-            var accurate = attacker.RandomAccuracy;
+            var accurate = prefs.DisableRNGToggle || attacker.RandomAccuracy;
 
             // defence:
-            var dodged = target.RandomDodge;
+            var dodged = !prefs.DisableRNGToggle && target.RandomDodge;
             
             var criticalDamage = false;
 
@@ -292,7 +293,8 @@ namespace Assets.Scripts
                         attacker,
                         target,
                         battle.CurrentRound.Round,
-                        out var damageEffect)
+                        out var damageEffect,
+                        prefs.DisableRNGToggle)
                     )
                 {
                     if (damageEffect.Effect == DamageEffect.Pierced)
@@ -306,8 +308,8 @@ namespace Assets.Scripts
                     }
                 }
 
-                var rawDamage = attacker.RandomDamage;
-                criticalDamage = attacker.RandomCriticalHit;
+                var rawDamage = prefs.DisableRNGToggle ? attacker.DamageMax : attacker.RandomDamage;
+                criticalDamage = !prefs.DisableRNGToggle && attacker.RandomCriticalHit;
 
                 damage = rawDamage;
                 damage *= (criticalDamage ? 2 : 1);
@@ -383,9 +385,7 @@ namespace Assets.Scripts
         private void UpdateBattleHero(Hero target)
         {
             battle.UpdateHero(target);
-
-            var libHero = target.ClearAllEffects();
-            libraryManager.Library.UpdateHero(libHero);
+            libraryManager.Library.UpdateHero(target);
         }
 
         public void LoadData()

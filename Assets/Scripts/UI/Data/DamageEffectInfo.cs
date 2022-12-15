@@ -1,5 +1,14 @@
 ﻿namespace Assets.Scripts.UI.Data
 {
+    public struct DamageTypeInfo
+    {
+        public bool RandomEffectStun => 20.RatedRandomBool();
+        public bool RandomEffectBleed => 10.RatedRandomBool();
+        public bool RandomEffectPierce => 15.RatedRandomBool();
+        public bool RandomEffectBurn => 10.RatedRandomBool();
+        public bool RandomEffectFrost => 10.RatedRandomBool();
+    }
+
     public struct DamageEffectInfo
     {
         public Hero Hero { get; private set; }
@@ -16,7 +25,8 @@
             return $"{Effect}:{ExtraDamage}/{TurnsActive}";
         }
 
-        public static bool TryCast(Hero attacker, Hero target, int roundOn, out DamageEffectInfo info)
+        public static bool TryCast(Hero attacker, Hero target, int roundOn, out DamageEffectInfo info, 
+            bool disableRNGToggle)
         {
             info = default;
             info.Effect = DamageEffect.NA;
@@ -30,35 +40,40 @@
                 DamageType.Frost => DamageEffect.Frozing,
                 _ => DamageEffect.NA
             };
-
-            switch (effect)
-            {
-                case DamageEffect.NA:
-                    return false;
-                case DamageEffect.Stunned:
-                    if (!attacker.RandomEffectStun ||
-                        target.RandomResistStun) return false;
-                    break;
-                case DamageEffect.Bleeding:
-                    if (!attacker.RandomEffectBleed ||
-                        target.RandomResistBleeding) return false;
-                    break;
-                case DamageEffect.Pierced:
-                    if (!attacker.RandomEffectPierce ||
-                        target.RandomResistPierced) return false;
-                    break;
-                case DamageEffect.Burning:
-                    if (!attacker.RandomEffectBurn ||
-                        target.RandomResistBurning) return false;
-                    break;
-                case DamageEffect.Frozing:
-                    if (!attacker.RandomEffectFrost ||
-                        target.RandomResistFrozing) return false;
-                    break;
-                default:
-                    break;
-            }
             
+            if (effect == DamageEffect.NA)
+                return false;
+
+            if (!disableRNGToggle)
+            {
+                var damageTypeInfo = new DamageTypeInfo();
+                switch (effect)
+                {
+                    case DamageEffect.Stunned:
+                        if (!damageTypeInfo.RandomEffectStun ||
+                            target.RandomResistStun) return false;
+                        break;
+                    case DamageEffect.Bleeding:
+                        if (!damageTypeInfo.RandomEffectBleed ||
+                            target.RandomResistBleeding) return false;
+                        break;
+                    case DamageEffect.Pierced:
+                        if (!damageTypeInfo.RandomEffectPierce ||
+                            target.RandomResistPierced) return false;
+                        break;
+                    case DamageEffect.Burning:
+                        if (!damageTypeInfo.RandomEffectBurn ||
+                            target.RandomResistBurning) return false;
+                        break;
+                    case DamageEffect.Frozing:
+                        if (!damageTypeInfo.RandomEffectFrost ||
+                            target.RandomResistFrozing) return false;
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
             info.Hero = target;
             info.Effect = effect;
             info.RoundOn = roundOn;

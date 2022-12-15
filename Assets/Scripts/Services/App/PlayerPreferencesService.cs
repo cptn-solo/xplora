@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts
 {
@@ -13,6 +12,12 @@ namespace Assets.Scripts
         public const string SfxVolumeKey = "SfxVolume";
         public const int SfxVolumeDefault = 0;
 
+        public const string DisableRNGForSpecs = "DisableRNGForSpecs";
+
+        public bool DisableRNGToggle {
+            get => PlayerPrefs.GetInt(DisableRNGForSpecs) != 0;
+            set => PlayerPrefs.SetInt(DisableRNGForSpecs, value ? 1 : 0);
+        }
 
         private void Awake()
         {
@@ -24,6 +29,9 @@ namespace Assets.Scripts
 
         public void InitPlayerPreferences()
         {
+            if (!PlayerPrefs.HasKey(DisableRNGForSpecs))
+                PlayerPrefs.SetInt(DisableRNGForSpecs, 0);
+
             if (!PlayerPrefs.HasKey(MusicToggleKey))
                 PlayerPrefs.SetInt(MusicToggleKey, 1);
             
