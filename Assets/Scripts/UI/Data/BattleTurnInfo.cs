@@ -18,6 +18,7 @@
         public bool Lethal { get; set; }
         public bool Critical { get; set; }
         public bool Dodged { get; set; }
+        public bool Pierced { get; set; }
         public override string ToString()
         {
             var prepared = $"Ход #{Turn}: " +
@@ -28,8 +29,13 @@
                 $"{State}, " +
                 $"{Attacker}, " +
                 $">>> {Target}, " +
-                $"-{Damage}, " +
-                $"[L:{Lethal} C:{Critical} D:{Dodged}]";
+                $"-{Damage}" +
+                $"[ " +
+                (Lethal ? $"Lethal " : $"") + 
+                (Critical ? $"Crit " : $"") +
+                (Dodged ? $"Dodged " : $"") +
+                (Pierced ? $"Pierced " : $"") +
+                $"]";
             var effects = $"Ход #{Turn}: " +
                 $"{State}, " +
                 $"{Attacker}, " +

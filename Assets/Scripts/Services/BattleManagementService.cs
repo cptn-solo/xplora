@@ -277,6 +277,8 @@ namespace Assets.Scripts
             
             var criticalDamage = false;
 
+            var pierced = false;
+
             int damage;
             if (!accurate || dodged)
             {
@@ -294,9 +296,14 @@ namespace Assets.Scripts
                     )
                 {
                     if (damageEffect.Effect == DamageEffect.Pierced)
+                    {
+                        pierced = true;
                         shield = (int)((damageEffect.ShieldUseFactor / 100f) * shield);
-
-                    target.Effects.Add(damageEffect);
+                    }
+                    else
+                    {
+                        target.Effects.Add(damageEffect);
+                    }
                 }
 
                 var rawDamage = attacker.RandomDamage;
@@ -315,6 +322,7 @@ namespace Assets.Scripts
             turnInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target, damage);
             turnInfo.Critical = criticalDamage;
             turnInfo.Dodged = dodged;
+            turnInfo.Pierced = pierced;
             turnInfo.Lethal = current <= 0;
 
             battle.SetTurnInfo(turnInfo);

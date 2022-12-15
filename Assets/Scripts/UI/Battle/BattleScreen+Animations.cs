@@ -83,14 +83,39 @@ namespace Assets.Scripts.UI.Battle
 
             if (info.State == TurnState.TurnEffects)
             {
-                attakerRM.HeroAnimation.Hit(info.Attacker.HealthCurrent <= 0);
+                var lethal = info.Attacker.HealthCurrent <= 0;
 
-                if (info.Lethal)
-                    audioService.Play(SFX.Named(info.Attacker.SndDied));
-                else if (info.Damage > 0)
+                if (info.Attacker.Effects.Count > 0)
+                {
+                    foreach (var effect in info.Attacker.Effects)
+                    {
+                        attakerRM.HeroAnimation.Hit(false);
+                        var sfxName = effect.Effect switch
+                        {
+                            DamageEffect.Bleeding => info.Attacker.SndBleeding,
+                            DamageEffect.Burning => info.Attacker.SndBurning,
+                            DamageEffect.Frozing => info.Attacker.SndFreezed,
+                            DamageEffect.Stunned => info.Attacker.SndStunned,
+                            _ => ""
+                        };
+                        
+                        if (sfxName != "")
+                            audioService.Play(SFX.Named(sfxName));
+                        
+                        yield return new WaitForSeconds(1f);
+                    }
+                } else if (info.Damage > 0)
+                {
+                    attakerRM.HeroAnimation.Hit(false);
                     audioService.Play(SFX.Named(info.Attacker.SndHit));
-
-                yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(1f);
+                }
+                if (lethal)
+                {
+                    attakerRM.HeroAnimation.Hit(true);
+                    audioService.Play(SFX.Named(info.Attacker.SndDied));
+                    yield return new WaitForSeconds(1f);
+                }
 
                 attakerRM.Hero = info.Attacker;
             }
@@ -150,16 +175,39 @@ namespace Assets.Scripts.UI.Battle
 
                 yield return new WaitForSeconds(.8f);
 
-                targetRM.HeroAnimation.Hit(info.Lethal);
+
 
                 if (info.Dodged)
+                {
                     audioService.Play(SFX.Named(info.Target.SndDodged));
-                else if (info.Critical)
-                    audioService.Play(SFX.Named(info.Target.SndCritHit));
-                else if (info.Lethal)
-                    audioService.Play(SFX.Named(info.Target.SndDied));
-                else if (info.Damage > 0)
-                    audioService.Play(SFX.Named(info.Target.SndHit));
+                    yield return new WaitForSeconds(1f);
+                }
+                else
+                {
+                    targetRM.HeroAnimation.Hit(false);
+                    if (info.Pierced)
+                    {
+                        audioService.Play(SFX.Named(info.Target.SndPierced));
+                        yield return new WaitForSeconds(1f);
+                    }
+                    if (info.Damage > 0)
+                    {
+                        audioService.Play(SFX.Named(info.Target.SndHit));
+                        yield return new WaitForSeconds(1f);
+                    }
+                    if (info.Critical)
+                    {
+                        audioService.Play(SFX.Named(info.Target.SndCritHit));
+                        yield return new WaitForSeconds(1f);
+                    }
+
+                    if (info.Lethal)
+                    {
+                        targetRM.HeroAnimation.Hit(true);
+                        audioService.Play(SFX.Named(info.Target.SndDied));
+                        yield return new WaitForSeconds(1f);
+                    }
+                }
 
                 yield return new WaitForSeconds(1f);
 
