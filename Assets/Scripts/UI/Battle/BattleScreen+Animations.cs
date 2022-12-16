@@ -85,12 +85,12 @@ namespace Assets.Scripts.UI.Battle
             {
                 var lethal = info.Attacker.HealthCurrent <= 0;
 
-                if (info.Attacker.Effects.Count > 0)
+                if (info.AttackerEffects.Length > 0)
                 {
-                    foreach (var effect in info.Attacker.Effects)
+                    foreach (var effect in info.AttackerEffects)
                     {
                         attakerRM.HeroAnimation.Hit(false);
-                        var sfxName = effect.Effect switch
+                        var sfxName = effect switch
                         {
                             DamageEffect.Bleeding => info.Attacker.SndBleeding,
                             DamageEffect.Burning => info.Attacker.SndBurning,

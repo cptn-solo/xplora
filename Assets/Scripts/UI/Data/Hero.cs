@@ -9,12 +9,8 @@ namespace Assets.Scripts.UI.Data
         public override string ToString()
         { 
             var current = (int)(HealthCurrent * (Health / 100f));
-            var ef = "";
-            if (Effects != null && Effects.Count > 0)
-                foreach(var eff in Effects)
-                    ef += $"+{eff}";
 
-            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}/{current}{ef}";
+            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}/{current}";
         }
 
         public static Hero Default =>
@@ -34,7 +30,6 @@ namespace Assets.Scripts.UI.Data
             hero.IconName = iconName;
             hero.TeamId = -1;
             hero.Line = BattleLine.NA;
-            hero.Effects = new();
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();

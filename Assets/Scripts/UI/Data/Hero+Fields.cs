@@ -19,8 +19,7 @@ namespace Assets.Scripts.UI.Data
         public BattleLine Line { get; set; }
         public int Position { get; set; }
         public int HealthCurrent { get; internal set; }
-        public List<DamageEffectInfo> Effects { get; private set; }
-
+        
         #endregion
 
         public bool Ranged => AttackType == AttackType.Ranged;

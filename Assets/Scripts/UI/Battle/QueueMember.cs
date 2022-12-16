@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,9 +48,12 @@ namespace Assets.Scripts.UI.Battle
                 backgroundImage.color = normalColor;
 
                 barsContainer.SetData(hero.BarsInfoBattle);
-                effectsContainer.SetEffects(hero.Effects);
             }
         }
+        public void SetEffects(DamageEffect[] effects) {
+            effectsContainer.SetEffects(effects);
+        }
+
 
         private bool selected;
         public bool Selected
@@ -63,6 +65,7 @@ namespace Assets.Scripts.UI.Battle
                 backgroundImage.color = value ? selectedColor : normalColor;
             }
         }
+
         private void ResolveIcons()
         {
             ResolveIcon(priAttackImage, Hero.Attack[0]);

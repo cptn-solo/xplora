@@ -34,7 +34,7 @@ namespace Assets.Scripts.UI.Data
         public int WinnerTeamId => winnerTeamId;
 
         public bool Auto { get; internal set; }
-        public Hero[] QueuedHeroes {
+        public RoundSlotInfo[] QueuedHeroes {
             get {
                 var combined = RoundsQueue.SelectMany(x => x.QueuedHeroes);
                 return combined.ToArray();
@@ -154,13 +154,6 @@ namespace Assets.Scripts.UI.Data
             else
             {
                 ReplaceHero(target);
-
-                for (int i = 0; i < RoundsQueue.Count; i++)
-                {
-                    var roundInfo = RoundsQueue[i];
-                    roundInfo.UpdateHero(target);
-                    RoundsQueue[i] = roundInfo;
-                }
             }
         }
     }

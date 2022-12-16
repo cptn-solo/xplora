@@ -1,4 +1,5 @@
 using Assets.Scripts.UI.Data;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
@@ -13,10 +14,11 @@ namespace Assets.Scripts.UI.Battle
 
         public int QueueIndex => queueIndex;
         
-        public void InitQueueMember()
+        public void InitQueueMember(Hero hero, DamageEffect[] effects)
         {
             queueMember = GetComponentInChildren<QueueMember>();
-            queueMember.Hero = Hero.Default;
+            queueMember.Hero = hero;
+            queueMember.SetEffects(effects);
         }
     }
 }

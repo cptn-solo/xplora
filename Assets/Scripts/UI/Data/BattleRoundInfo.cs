@@ -5,24 +5,24 @@ namespace Assets.Scripts.UI.Data
 {
     public struct BattleRoundInfo
     {
-        private List<Hero> queuedHeroes;
+        private List<RoundSlotInfo> queuedHeroes;
         private RoundState state;
 
         private int round;
-        public Hero CurrentAttacker
+        public RoundSlotInfo CurrentAttacker
         {
             get
             {
                 if (queuedHeroes != null && queuedHeroes.Count > 0)
                     return queuedHeroes.First();
 
-                return Hero.Default;
+                return default;
             }
         }
 
         public RoundState State => state;
         public int Round => round;
-        public List<Hero> QueuedHeroes => queuedHeroes;
+        public List<RoundSlotInfo> QueuedHeroes => queuedHeroes;
 
         public static BattleRoundInfo Create(int round)
         {
@@ -43,7 +43,7 @@ namespace Assets.Scripts.UI.Data
             var full = $"Раунд #{Round}: " +
                 $"{State}, " +
                 $"очередь: {QueuedHeroes?.Count}, " +
-                $"{CurrentAttacker.Name}, " +
+                $"{CurrentAttacker.HeroName}, " +
                 $"К{CurrentAttacker.TeamId}";
             
             return State switch
@@ -57,25 +57,16 @@ namespace Assets.Scripts.UI.Data
         internal void DequeueHero(Hero target)
         {
             var queue = queuedHeroes;
-            var idx = queue.FindIndex(x => x.Id == target.Id);
+            var idx = queue.FindIndex(x => x.HeroId == target.Id);
             if (idx >= 0)
                 queue.Remove(queue[idx]);
-            queuedHeroes = queue;
-        }
-
-        internal void UpdateHero(Hero target)
-        {
-            var queue = queuedHeroes;
-            var idx = queue.FindIndex(x => x.Id == target.Id);
-            if (idx >= 0)
-                queue[idx] = target.ClearInactiveEffects(Round);
             queuedHeroes = queue;
         }
 
         internal void EnqueueHero(Hero hero)
         {
             var queue = queuedHeroes;
-            queue.Add(hero);
+            queue.Add(RoundSlotInfo.Create(hero));
             queuedHeroes = queue;
         }
 

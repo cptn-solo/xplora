@@ -129,7 +129,7 @@ namespace Assets.Scripts
             foreach (var hero in orderedHeroes)
             {
                 if (speedSlots.TryGetValue(hero.Speed, out var slots))
-                    slots.Add(hero.ClearAllEffects());
+                    slots.Add(hero);
                 else
                     speedSlots[hero.Speed] = new List<Hero>() { hero };
             }
@@ -168,18 +168,20 @@ namespace Assets.Scripts
 
         internal TurnState PrepareTurn()
         {
-            var attaker = battle.CurrentRound.QueuedHeroes[0];
+            var roundSlot = battle.CurrentRound.QueuedHeroes[0];
+            var attaker = libraryManager.Library.HeroById(roundSlot.HeroId);
 
-            if (attaker.EffectSkipTurn)
+            if (roundSlot.Skipped)
             {
-                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker);
+                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, 
+                    0, roundSlot.Effects.ToArray());
                 battle.SetTurnInfo(skippedInfo);
                 battle.SetTurnState(TurnState.TurnSkipped);
 
                 return battle.CurrentTurn.State;
             }
 
-            var attackTeam = attaker.TeamId;
+            var attackTeam = roundSlot.TeamId;
             var targets = attackTeam == battle.PlayerTeam.Id ?
                 battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
             
@@ -200,7 +202,8 @@ namespace Assets.Scripts
                     Hero.Default;
             }
 
-            var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target);
+            var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target,
+                0, roundSlot.Effects.ToArray());
             battle.SetTurnInfo(turnInfo);
 
             if (target.HeroType == HeroType.NA)
@@ -232,11 +235,11 @@ namespace Assets.Scripts
             //capture value just in case
             var skipTurn = turnInfo.State == TurnState.TurnSkipped;
 
-            if (attacker.Effects.Count > 0)
+            if (turnInfo.AttackerEffects.Length > 0)
             {
                 var effectDamage = 0;
-                foreach (var eff in attacker.Effects)
-                    effectDamage += eff.ExtraDamage;
+                foreach (var eff in turnInfo.AttackerEffects)
+                    effectDamage += DamageEffectInfo.Draft(eff).ExtraDamage;
 
                 attacker = attacker.UpdateHealthCurrent(effectDamage, out int aDisplay, out int aCurrent);
                 Debug.Log($"Attacker after effects: {attacker}");
@@ -279,6 +282,7 @@ namespace Assets.Scripts
             var criticalDamage = false;
 
             var pierced = false;
+            var targetEffects = new DamageEffect[] { };
 
             int damage;
             if (!accurate || dodged)
@@ -304,7 +308,9 @@ namespace Assets.Scripts
                     }
                     else
                     {
-                        target.Effects.Add(damageEffect);
+                        targetEffects = targetEffects.Concat(new DamageEffect[]{ 
+                            damageEffect.Effect }).ToArray();
+                        CastEffectToRounds(damageEffect, target);
                     }
                 }
 
@@ -318,10 +324,10 @@ namespace Assets.Scripts
             }
 
             target = target.UpdateHealthCurrent(damage, out int display, out int current);
-
+            
             UpdateBattleHero(target); // Sync health and active effects
 
-            turnInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target, damage);
+            turnInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target, damage, targetEffects);
             turnInfo.Critical = criticalDamage;
             turnInfo.Dodged = dodged;
             turnInfo.Pierced = pierced;
@@ -334,6 +340,20 @@ namespace Assets.Scripts
             
             battle.SetTurnState(TurnState.TurnCompleted);
             OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+        }
+
+        private void CastEffectToRounds(DamageEffectInfo damageEffect, Hero target)
+        {
+            var combined = battle.RoundsQueue
+                .Where(x =>
+                    x.Round <= damageEffect.RoundOff &&
+                    x.Round > damageEffect.RoundOn)
+                .SelectMany(x => x.QueuedHeroes)
+                .Where(x => x.HeroId == target.Id);
+
+            if (combined.Count() > 0)
+                foreach (var slot in combined)
+                    slot.Effects.Add(damageEffect.Effect);
         }
 
         internal void SetTurnProcessed(BattleTurnInfo stage)
