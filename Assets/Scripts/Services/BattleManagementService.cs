@@ -7,9 +7,9 @@ using UnityEngine.Events;
 using Zenject;
 using Random = UnityEngine.Random;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Services
 {
-    public class BattleManagementService : MonoBehaviour
+    public partial class BattleManagementService : MonoBehaviour
     {
         [Inject] private readonly HeroLibraryManagementService libraryManager;
         [Inject] private readonly PlayerPreferencesService prefs;
@@ -19,7 +19,9 @@ namespace Assets.Scripts
         public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;
 
         private BattleInfo battle;
-        private readonly int minRoundsQueue = 3;
+        private bool turnCoroutineRunning;
+        private bool autoplayCoroutineRunning;
+        private readonly int minRoundsQueue = 4;
 
         public BattleInfo CurrentBattle => battle;
 
@@ -31,14 +33,14 @@ namespace Assets.Scripts
             _ => false
         }; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
 
-        public bool CanMakeTurn => battle.CurrentTurn.State switch
+        public bool CanMakeTurn => !turnCoroutineRunning && battle.CurrentTurn.State switch
         {
             TurnState.TurnPrepared => true,
             TurnState.TurnSkipped => true,
             _ => false
         }; //queuedHeroes.Count > 0;        
 
-        public bool CanAutoPlayBattle => !battle.Auto && battle.State switch
+        public bool CanAutoPlayBattle => !autoplayCoroutineRunning && !battle.Auto && battle.State switch
         {
             BattleState.TeamsPrepared => true,
             BattleState.BattleInProgress => true,
@@ -50,7 +52,7 @@ namespace Assets.Scripts
         /// </summary>
         public void ResetBattle()
         {
-            libraryManager.ResetTeams();            
+            libraryManager.ResetTeams();
             battle = BattleInfo.Create(libraryManager.PlayerTeam, libraryManager.EnemyTeam);
             battle.Auto = false;
 
@@ -75,22 +77,33 @@ namespace Assets.Scripts
             battle.SetState(BattleState.BattleStarted);
             OnBattleEvent?.Invoke(battle);
 
-            CompleteTurn();
+            StartCoroutine(CompleteTurn());
         }
         internal void Autoplay()
         {
             battle.Auto = true;
-            StartCoroutine(AutoPlayCoroutine());
+            if (!autoplayCoroutineRunning)
+                StartCoroutine(AutoPlayCoroutine());
         }
+        internal void MakeTurn()
+        {
+            if (!turnCoroutineRunning)
+                StartCoroutine(CompleteTurn());
+        }
+
         private IEnumerator AutoPlayCoroutine()
         {
+            autoplayCoroutineRunning = true;
+
             while (battle.Auto && battle.State != BattleState.Completed)
             {
                 yield return null;
 
                 if (CanMakeTurn)
-                    CompleteTurn();
+                    MakeTurn();
             }
+
+            autoplayCoroutineRunning = false;
         }
 
         private IEnumerator PrepareNextRounds()
@@ -106,7 +119,7 @@ namespace Assets.Scripts
                 battle.EnqueueRound(preparedRound);
                 yield return null;
             }
-            
+
             OnRoundEvent?.Invoke(battle.CurrentRound, battle);
 
             PrepareNextTurn();
@@ -142,7 +155,7 @@ namespace Assets.Scripts
                 while (slots.Count() > 0)
                 {
                     var choosenIdx = slots.Count() == 1 ? 0 : Random.Range(0, slots.Count());
-                    info.EnqueueHero(slots[choosenIdx]);                                            
+                    info.EnqueueHero(slots[choosenIdx]);
                     slots.RemoveAt(choosenIdx);
                 }
             }
@@ -154,7 +167,6 @@ namespace Assets.Scripts
 
         private void PrepareNextTurn()
         {
-
             var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn + 1, Hero.Default, Hero.Default);
             battle.SetTurnInfo(turnInfo);
             battle.SetTurnState(TurnState.PrepareTurn);
@@ -173,7 +185,7 @@ namespace Assets.Scripts
 
             if (roundSlot.Skipped)
             {
-                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, 
+                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker,
                     0, roundSlot.Effects.ToArray());
                 battle.SetTurnInfo(skippedInfo);
                 battle.SetTurnState(TurnState.TurnSkipped);
@@ -184,7 +196,7 @@ namespace Assets.Scripts
             var attackTeam = roundSlot.TeamId;
             var targets = attackTeam == battle.PlayerTeam.Id ?
                 battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
-            
+
             Hero target = default;
             if (attaker.Ranged)
             {
@@ -203,7 +215,7 @@ namespace Assets.Scripts
             }
 
             var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target,
-                0, roundSlot.Effects.ToArray());
+                0, roundSlot.Effects.ToArray(), null);
             battle.SetTurnInfo(turnInfo);
 
             if (target.HeroType == HeroType.NA)
@@ -220,140 +232,54 @@ namespace Assets.Scripts
             return battle.CurrentTurn.State;
         }
 
-        /// <summary>
-        ///     Can safely be converted into a coroutine
-        /// </summary>
-        internal void CompleteTurn()
+        internal IEnumerator CompleteTurn()
         {
+            turnCoroutineRunning = true;
 
             battle.SetState(BattleState.BattleInProgress);
             OnBattleEvent?.Invoke(battle);
 
             var turnInfo = battle.CurrentTurn;
-            var attacker = turnInfo.Attacker;
-
+            
             //capture value just in case
             var skipTurn = turnInfo.State == TurnState.TurnSkipped;
 
-            if (turnInfo.AttackerEffects.Length > 0)
+            ApplyQueuedEffects(turnInfo, out var attacker, out var effectsInfo);
+
+            yield return null;
+
+            if (effectsInfo != null)
             {
-                var effectDamage = 0;
-                foreach (var eff in turnInfo.AttackerEffects)
-                    effectDamage += DamageEffectInfo.Draft(eff).ExtraDamage;
-
-                attacker = attacker.UpdateHealthCurrent(effectDamage, out int aDisplay, out int aCurrent);
-                Debug.Log($"Attacker after effects: {attacker}");
-
-                UpdateBattleHero(attacker); // Sync health and active effects
-
-                // intermediate turn info, no round turn override to preserve pre-calculated target:
-                var effectsInfo = BattleTurnInfo.Create(CurrentTurn, attacker, effectDamage);
-                effectsInfo = effectsInfo.SetState(TurnState.TurnEffects);
-                OnTurnEvent?.Invoke(effectsInfo, battle.CurrentRound, battle);
-
-                // effect killed hero, complete turn
-                if (aCurrent <= 0)
-                {
-                    battle.SetTurnState(TurnState.TurnCompleted);
-                    OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
-
-                    return;
-                }
+                UpdateBattleHero(attacker); // Sync health
+                OnTurnEvent?.Invoke((BattleTurnInfo)effectsInfo, battle.CurrentRound, battle);
             }
 
-            if (skipTurn)
+            if (attacker.HealthCurrent <=0 || skipTurn)
             {
-                Debug.Log("Skipping turn");
-
                 battle.SetTurnState(TurnState.TurnCompleted);
                 OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
-                return;
-            }
-
-
-            var target = turnInfo.Target;// will be replaced with round target below
-
-            // attack:
-            var accurate = prefs.DisableRNGToggle || attacker.RandomAccuracy;
-
-            // defence:
-            var dodged = !prefs.DisableRNGToggle && target.RandomDodge;
-            
-            var criticalDamage = false;
-
-            var pierced = false;
-            var targetEffects = new DamageEffect[] { };
-
-            int damage;
-            if (!accurate || dodged)
-            {
-                damage = 0;
+                
+                yield return null;
             }
             else
             {
-                var shield = target.DefenceRate;
+                ProcessAttack(turnInfo, attacker, out var target, out var resultInfo);
 
-                if (DamageEffectInfo.TryCast(
-                        attacker,
-                        target,
-                        battle.CurrentRound.Round,
-                        out var damageEffect,
-                        prefs.DisableRNGToggle)
-                    )
-                {
-                    if (damageEffect.Effect == DamageEffect.Pierced)
-                    {
-                        pierced = true;
-                        shield = (int)((damageEffect.ShieldUseFactor / 100f) * shield);
-                    }
-                    else
-                    {
-                        targetEffects = targetEffects.Concat(new DamageEffect[]{ 
-                            damageEffect.Effect }).ToArray();
-                        CastEffectToRounds(damageEffect, target);
-                    }
-                }
+                UpdateBattleHero(target); // Sync health
 
-                var rawDamage = prefs.DisableRNGToggle ? attacker.DamageMax : attacker.RandomDamage;
-                criticalDamage = !prefs.DisableRNGToggle && attacker.RandomCriticalHit;
-
-                damage = rawDamage;
-                damage *= (criticalDamage ? 2 : 1);
-                damage -= (int)(damage * shield / 100f);
-                damage = Mathf.Max(0, damage);
+                battle.SetTurnInfo(resultInfo);
+                battle.SetTurnState(TurnState.TurnInProgress);
+                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+                
+                yield return null;
+                
+                battle.SetTurnState(TurnState.TurnCompleted);
+                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
             }
-
-            target = target.UpdateHealthCurrent(damage, out int display, out int current);
             
-            UpdateBattleHero(target); // Sync health and active effects
+            yield return null;
 
-            turnInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target, damage, targetEffects);
-            turnInfo.Critical = criticalDamage;
-            turnInfo.Dodged = dodged;
-            turnInfo.Pierced = pierced;
-            turnInfo.Lethal = current <= 0;
-
-            battle.SetTurnInfo(turnInfo);
-            
-            battle.SetTurnState(TurnState.TurnInProgress);            
-            OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
-            
-            battle.SetTurnState(TurnState.TurnCompleted);
-            OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
-        }
-
-        private void CastEffectToRounds(DamageEffectInfo damageEffect, Hero target)
-        {
-            var combined = battle.RoundsQueue
-                .Where(x =>
-                    x.Round <= damageEffect.RoundOff &&
-                    x.Round > damageEffect.RoundOn)
-                .SelectMany(x => x.QueuedHeroes)
-                .Where(x => x.HeroId == target.Id);
-
-            if (combined.Count() > 0)
-                foreach (var slot in combined)
-                    slot.Effects.Add(damageEffect.Effect);
+            turnCoroutineRunning = false;
         }
 
         internal void SetTurnProcessed(BattleTurnInfo stage)
@@ -379,7 +305,7 @@ namespace Assets.Scripts
                     OnRoundEvent?.Invoke(battle.CurrentRound, battle);
 
                     StartCoroutine(PrepareNextRounds());
-                }                    
+                }
             }
             else
             {

@@ -1,4 +1,5 @@
 using Assets.Scripts.UI.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace Assets.Scripts.UI.Battle
         private bool turnStageProcessingActive = false;
         private Coroutine turnProcessingCoroutine = null;
         private Coroutine turnStageProcessingCoroutine = null;
+        private bool effectsProcessingRunning;
+
         private void ResetTurnProcessingQueue()
         {
             turnProcessingQueue.Clear();
@@ -51,8 +54,10 @@ namespace Assets.Scripts.UI.Battle
 
                     turnStageProcessingActive = true;
                     turnStageProcessingCoroutine = StartCoroutine(TurnStageAnimation(stage));
+                    
                     while (turnStageProcessingActive)
                         yield return null;
+                    
                     if (stage.State == TurnState.TurnCompleted ||
                         stage.State == TurnState.NoTargets)
                     {
@@ -75,7 +80,7 @@ namespace Assets.Scripts.UI.Battle
                 info.Target.TeamId == libraryManager.PlayerTeam.Id ?
                 playerBattleGround : enemyBattleGround;
 
-            var attakerRM = RaidMemberForHero(info.Attacker);
+            var attackerRM = RaidMemberForHero(info.Attacker);
             var targetRM = 
                 info.State == TurnState.TurnSkipped ||
                 info.State == TurnState.TurnEffects ? null : 
@@ -87,51 +92,38 @@ namespace Assets.Scripts.UI.Battle
 
                 if (info.AttackerEffects.Length > 0)
                 {
-                    foreach (var effect in info.AttackerEffects)
-                    {
-                        attakerRM.HeroAnimation.Hit(false);
-                        var sfxName = effect switch
-                        {
-                            DamageEffect.Bleeding => info.Attacker.SndBleeding,
-                            DamageEffect.Burning => info.Attacker.SndBurning,
-                            DamageEffect.Frozing => info.Attacker.SndFreezed,
-                            DamageEffect.Stunned => info.Attacker.SndStunned,
-                            _ => ""
-                        };
-                        
-                        if (sfxName != "")
-                            audioService.Play(SFX.Named(sfxName));
-                        
-                        yield return new WaitForSeconds(1f);
-                    }
-                } else if (info.Damage > 0)
+                    StartCoroutine(ProcessEffects(info.AttackerEffects, attackerRM));
+                    while (effectsProcessingRunning)
+                        yield return null;
+                } 
+                else if (info.Damage > 0)
                 {
-                    attakerRM.HeroAnimation.Hit(false);
+                    attackerRM.HeroAnimation.Hit(false);
                     audioService.Play(SFX.Named(info.Attacker.SndHit));
                     yield return new WaitForSeconds(1f);
                 }
                 if (lethal)
                 {
-                    attakerRM.HeroAnimation.Hit(true);
+                    attackerRM.HeroAnimation.Hit(true);
                     audioService.Play(SFX.Named(info.Attacker.SndDied));
                     yield return new WaitForSeconds(1f);
                 }
 
-                attakerRM.Hero = info.Attacker;
+                attackerRM.Hero = info.Attacker;
             }
             else if (info.State == TurnState.TurnSkipped)
             {
                 // move only attacker card to show effects (if any)
                 var move = 1.0f;
 
-                attakerRM.HeroAnimation.Run(move);
+                attackerRM.HeroAnimation.Run(move);
                 // move cards to the battle ground
-                attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                var attackerMove = attackerAnimation.position - attakerRM.HeroAnimation.transform.position;
+                attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                var attackerMove = attackerAnimation.position - attackerRM.HeroAnimation.transform.position;
 
                 while (move > 0f)
                 {
-                    attakerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
+                    attackerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
 
                     move -= Time.deltaTime;
 
@@ -145,17 +137,17 @@ namespace Assets.Scripts.UI.Battle
                 // move both cards
                 var move = 1.0f;
 
-                attakerRM.HeroAnimation.Run(move);
+                attackerRM.HeroAnimation.Run(move);
                 targetRM.HeroAnimation.Run(move);
                 // move cards to the battle ground
-                attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
                 targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                var attackerMove = attackerAnimation.position - attakerRM.HeroAnimation.transform.position;
+                var attackerMove = attackerAnimation.position - attackerRM.HeroAnimation.transform.position;
                 var targetMove = targetAnimation.position - targetRM.HeroAnimation.transform.position;
 
                 while (move > 0f)
                 {
-                    attakerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
+                    attackerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
                     targetRM.HeroAnimation.transform.position += targetMove * Time.deltaTime;
                     
                     move -= Time.deltaTime;
@@ -170,12 +162,10 @@ namespace Assets.Scripts.UI.Battle
             {
                 // animate attack and hit
                 //Debug.Break();
-                attakerRM.HeroAnimation.Attack(info.Attacker.Ranged);
+                attackerRM.HeroAnimation.Attack(info.Attacker.Ranged);
                 audioService.Play(SFX.Named(info.Attacker.SndAttack));
 
                 yield return new WaitForSeconds(.8f);
-
-
 
                 if (info.Dodged)
                 {
@@ -184,6 +174,13 @@ namespace Assets.Scripts.UI.Battle
                 }
                 else
                 {
+                    if (info.TargetEffects.Length > 0)
+                    {
+                        StartCoroutine(ProcessEffects(info.TargetEffects, targetRM));
+                        while (effectsProcessingRunning)
+                            yield return null;
+                    }
+
                     targetRM.HeroAnimation.Hit(false);
                     if (info.Pierced)
                     {
@@ -219,12 +216,12 @@ namespace Assets.Scripts.UI.Battle
                 if (targetRM != null && info.Target.HealthCurrent <= 0)
                     targetRM.Hero = Hero.Default;
 
-                if (attakerRM != null && info.Attacker.HealthCurrent <= 0)
-                    attakerRM.Hero = Hero.Default;
+                if (attackerRM != null && info.Attacker.HealthCurrent <= 0)
+                    attackerRM.Hero = Hero.Default;
 
                 // move cards back or remove dead ones from the field.
-                if (attakerRM != null)
-                    attakerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                if (attackerRM != null)
+                    attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
                 
                 if (targetRM != null)
                     targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
@@ -234,6 +231,32 @@ namespace Assets.Scripts.UI.Battle
             }
             
             turnStageProcessingActive = false;
+        }
+
+        private IEnumerator ProcessEffects(DamageEffect[] effects, RaidMember rm)
+        {
+            effectsProcessingRunning = true;
+
+            foreach (var effect in effects)
+            {
+                rm.HeroAnimation.Hit(false);
+                var sfxName = effect switch
+                {
+                    DamageEffect.Bleeding => rm.Hero.SndBleeding,
+                    DamageEffect.Burning => rm.Hero.SndBurning,
+                    DamageEffect.Frozing => rm.Hero.SndFreezed,
+                    DamageEffect.Stunned => rm.Hero.SndStunned,
+                    _ => ""
+                };
+
+                if (sfxName != "")
+                    audioService.Play(SFX.Named(sfxName));
+
+                yield return new WaitForSeconds(1f);
+            }
+
+            effectsProcessingRunning = false;
+
         }
     }
 }

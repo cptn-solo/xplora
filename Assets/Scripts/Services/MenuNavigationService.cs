@@ -2,7 +2,7 @@
 using Assets.Scripts.UI.Data;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Services
 {
     public class MenuNavigationService : MonoBehaviour
     {

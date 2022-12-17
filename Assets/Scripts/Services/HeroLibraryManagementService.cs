@@ -1,14 +1,13 @@
 ﻿using Assets.Scripts.UI.Data;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Services
 {
     public class HeroLibraryManagementService : MonoBehaviour
     {
@@ -21,7 +20,7 @@ namespace Assets.Scripts
 
         private const int heroesNumber = 8;
         private const string heroesIconsPath = "Heroes/Icons";
-       
+
         [SerializeField] private List<List<object>> heroesRawData;
 
         public event UnityAction<string> OnDataLoaded;
@@ -41,7 +40,7 @@ namespace Assets.Scripts
 
             playerHeroes = library.TeamHeroes(PlayerTeam.Id, true);
             enemyHeroes = library.TeamHeroes(EnemyTeam.Id, true);
-            
+
             if (playerHeroes.Length > 0 && enemyHeroes.Length > 0)
                 return true;
 
@@ -154,12 +153,12 @@ namespace Assets.Scripts
                 {
                     UpdateHero(hero, cellNumber);
                 }
-                else if(library.GiveHero(Hero.EmptyHero(id, heroName, iconName)))
-                { 
+                else if (library.GiveHero(Hero.EmptyHero(id, heroName, iconName)))
+                {
                     UpdateHero(library.HeroById(id), cellNumber);
                 }
             }
-            
+
             dataAvailable = true;
             OnDataAvailable?.Invoke();
 

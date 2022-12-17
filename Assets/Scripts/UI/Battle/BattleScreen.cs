@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Services.App;
+﻿using Assets.Scripts.Services;
+using Assets.Scripts.Services.App;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;

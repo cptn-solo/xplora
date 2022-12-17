@@ -45,7 +45,7 @@ namespace Assets.Scripts.UI.Battle
                         if (battleManager.CurrentBattle.State == BattleState.TeamsPrepared)
                             battleManager.BeginBattle();
                         else
-                            battleManager.CompleteTurn();
+                            battleManager.MakeTurn();
 
                         UpdateActionButtons();
                     }

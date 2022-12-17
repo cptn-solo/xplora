@@ -1,3 +1,4 @@
+using Assets.Scripts.Services;
 using Assets.Scripts.Services.App;
 using UnityEngine;
 using Zenject;

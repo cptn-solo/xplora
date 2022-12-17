@@ -7,46 +7,49 @@ using Google.Apis.Sheets.v4.Data;
 
 using UnityEngine;
 
-public class GoogleSheetReader
+namespace Assets.Scripts.Services
 {
-    private static readonly string spreadsheetId = "12acMQ8UTlDRHP0NvzSGVLYKb9QMhw2AjD9EKXTQug3U";
-    private static readonly string jsonPath = "Credentials/key";
-    private static readonly string serviceAccountId = "xplora-metadata-reader@xplora-368713.iam.gserviceaccount.com";
-
-
-    private static readonly SheetsService service;
-
-    static GoogleSheetReader()
+    public class GoogleSheetReader
     {
-        string key = Resources.Load<TextAsset>(jsonPath).ToString();
-        ServiceAccountCredential.Initializer initializer = new(
-            serviceAccountId);
-        ServiceAccountCredential credential = new(
-            initializer.FromPrivateKey(key));
+        private static readonly string spreadsheetId = "12acMQ8UTlDRHP0NvzSGVLYKb9QMhw2AjD9EKXTQug3U";
+        private static readonly string jsonPath = "Credentials/key";
+        private static readonly string serviceAccountId = "xplora-metadata-reader@xplora-368713.iam.gserviceaccount.com";
 
-        service = new SheetsService(
-            new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-            }
-        );
-    }
 
-    public IList<IList<object>> GetSheetRange(string sheetNameAndRange)
-    {
-        SpreadsheetsResource.ValuesResource.GetRequest request =
-            service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
+        private static readonly SheetsService service;
 
-        ValueRange response = request.Execute();
-        IList<IList<object>> values = response.Values;
-        if (values != null && values.Count > 0)
+        static GoogleSheetReader()
         {
-            return values;
+            string key = Resources.Load<TextAsset>(jsonPath).ToString();
+            ServiceAccountCredential.Initializer initializer = new(
+                serviceAccountId);
+            ServiceAccountCredential credential = new(
+                initializer.FromPrivateKey(key));
+
+            service = new SheetsService(
+                new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = credential,
+                }
+            );
         }
-        else
+
+        public IList<IList<object>> GetSheetRange(string sheetNameAndRange)
         {
-            Debug.Log("No data found.");
-            return null;
+            SpreadsheetsResource.ValuesResource.GetRequest request =
+                service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
+
+            ValueRange response = request.Execute();
+            IList<IList<object>> values = response.Values;
+            if (values != null && values.Count > 0)
+            {
+                return values;
+            }
+            else
+            {
+                Debug.Log("No data found.");
+                return null;
+            }
         }
     }
 }

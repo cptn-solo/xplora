@@ -28,21 +28,34 @@
                 $"{State}, " +
                 $"{Attacker} " +
                 $">>> {Target}";
+
+            var attackerEff = "";
+            foreach (var ef in attackerEffects)
+                attackerEff += $"+{ef}";
+
+            var targetEff = "";
+            foreach (var ef in targetEffects)
+                targetEff += $"+{ef}";
+
             var completed = $"Ход #{Turn}: " +
                 $"{State}, " +
                 $"{Attacker}, " +
                 $">>> {Target}, " +
                 $"-{Damage}" +
+                $"[{targetEff}]" +
                 $"[ " +
                 (Lethal ? $"Lethal " : $"") + 
                 (Critical ? $"Crit " : $"") +
                 (Dodged ? $"Dodged " : $"") +
                 (Pierced ? $"Pierced " : $"") +
                 $"]";
+            
             var effects = $"Ход #{Turn}: " +
                 $"{State}, " +
                 $"{Attacker}, " +
-                $"-{Damage}";
+                $"-{Damage}" +
+                $"[{attackerEff}]";
+            
             var skipped = $"Ход #{Turn}: " +
                 $"{State}, " +
                 $"{Attacker}";
@@ -66,7 +79,7 @@
             return info;
         }
         public static BattleTurnInfo Create(int currentTurn, Hero attacker, Hero target, 
-            int damage = 0, DamageEffect[] targetEffects = null)
+            int damage = 0, DamageEffect[] attackerEffects = null, DamageEffect[] targetEffects = null)
         {
             BattleTurnInfo info = default;
             info.attacker = attacker;
@@ -74,7 +87,7 @@
             info.turn = currentTurn;
             info.damage = damage;
             info.state = TurnState.NA;
-            info.attackerEffects = new DamageEffect[] { };
+            info.attackerEffects = attackerEffects ?? (new DamageEffect[] { });
             info.targetEffects = targetEffects ?? (new DamageEffect[] { });
 
             return info;
