@@ -1,8 +1,5 @@
 ﻿using Assets.Scripts.UI.Data;
-using System.Collections;
 using System.Linq;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
@@ -10,16 +7,23 @@ namespace Assets.Scripts.Services
     {
         private void EnqueueEffectToRounds(DamageEffectInfo damageEffect, Hero target)
         {
-            var combined = battle.RoundsQueue
+            var affected = battle.RoundsQueue
                 .Where(x =>
                     x.Round <= damageEffect.RoundOff &&
-                    x.Round > damageEffect.RoundOn)
-                .SelectMany(x => x.QueuedHeroes)
-                .Where(x => x.HeroId == target.Id);
+                    x.Round > damageEffect.RoundOn);
 
-            if (combined.Count() > 0)
-                foreach (var slot in combined)
-                    slot.Effects.Add(damageEffect.Effect);
+            foreach (var round in affected)
+            {
+                for (int i = 0; i < round.QueuedHeroes.Count; i++)
+                {
+                    var slot = round.QueuedHeroes[i];
+                    if (slot.HeroId == target.Id)
+                    {
+                        slot = slot.AddEffect(damageEffect);
+                        round.QueuedHeroes[i] = slot;
+                    }
+                }
+            }            
         }
 
         private void ApplyQueuedEffects(BattleTurnInfo turnInfo, out Hero attacker, out BattleTurnInfo? effectsInfo)

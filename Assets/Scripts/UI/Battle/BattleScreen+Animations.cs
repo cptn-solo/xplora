@@ -174,13 +174,6 @@ namespace Assets.Scripts.UI.Battle
                 }
                 else
                 {
-                    if (info.TargetEffects.Length > 0)
-                    {
-                        StartCoroutine(ProcessEffects(info.TargetEffects, targetRM));
-                        while (effectsProcessingRunning)
-                            yield return null;
-                    }
-
                     targetRM.HeroAnimation.Hit(false);
                     if (info.Pierced)
                     {
@@ -196,6 +189,13 @@ namespace Assets.Scripts.UI.Battle
                     {
                         audioService.Play(SFX.Named(info.Target.SndCritHit));
                         yield return new WaitForSeconds(1f);
+                    }
+
+                    if (info.TargetEffects.Length > 0)
+                    {
+                        StartCoroutine(ProcessEffects(info.TargetEffects, targetRM));
+                        while (effectsProcessingRunning)
+                            yield return null;
                     }
 
                     if (info.Lethal)
