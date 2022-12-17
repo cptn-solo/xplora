@@ -1,3 +1,4 @@
+using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
 using System.Collections;
 using UnityEngine;
@@ -15,10 +16,12 @@ namespace Assets.Scripts.UI.Battle
         private Animator animator;
         private bool initialized;
         private readonly WaitForSeconds defaultWait = new(.2f);
+        private EffectsContainer effectsContainer;
 
         private void Awake()
         {
             animator = GetComponent<Animator>();
+            effectsContainer = GetComponentInChildren<EffectsContainer>();
         }
 
         private void OnEnable()
@@ -41,6 +44,10 @@ namespace Assets.Scripts.UI.Battle
             animator.SetBool(AnimBoolHit, false);
             animator.SetBool(AnimBoolAttack, false);
             animator.Play("Idle");
+        }
+        public void SetEffects(DamageEffect[] effects)
+        {
+            effectsContainer.SetEffects(effects);
         }
 
         public void Attack(bool range = false)

@@ -239,6 +239,8 @@ namespace Assets.Scripts.UI.Battle
 
             foreach (var effect in effects)
             {
+                rm.HeroAnimation.SetEffects(new DamageEffect[] { effect });
+
                 rm.HeroAnimation.Hit(false);
                 var sfxName = effect switch
                 {
@@ -253,6 +255,9 @@ namespace Assets.Scripts.UI.Battle
                     audioService.Play(SFX.Named(sfxName));
 
                 yield return new WaitForSeconds(1f);
+
+                rm.HeroAnimation.SetEffects(new DamageEffect[] { });
+
             }
 
             effectsProcessingRunning = false;
