@@ -17,10 +17,12 @@ namespace Assets.Scripts.UI.Data
             EmptyHero();
 
         public static Hero EmptyHero() =>
-            EmptyHero(-1, "", null, HeroType.NA);
+            EmptyHero(-1, "", null, null, HeroType.NA);
 
         public static Hero EmptyHero(int id, string name,
-            string iconName = "hero1", HeroType heroType = HeroType.Human)
+            string iconName = "hero1", 
+            string idleSpriteName = "hero2",
+            HeroType heroType = HeroType.Human)
         {
             Hero hero = default;
             hero.Name = name;
@@ -28,6 +30,7 @@ namespace Assets.Scripts.UI.Data
             hero.Inventory = DefaultInventory();
             hero.HeroType = heroType;
             hero.IconName = iconName;
+            hero.IdleSpriteName = idleSpriteName;
             hero.TeamId = -1;
             hero.Line = BattleLine.NA;
 

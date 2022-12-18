@@ -13,6 +13,7 @@ namespace Assets.Scripts.UI.Data
 
         public HeroType HeroType;
         public string IconName;
+        public string IdleSpriteName;
 
         #region Dynamic
         public int TeamId { get; set; }

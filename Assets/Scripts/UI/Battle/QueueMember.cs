@@ -8,21 +8,16 @@ using Asset = Assets.Scripts.UI.Data.Asset;
 namespace Assets.Scripts.UI.Battle
 {
     public class QueueMember : MonoBehaviour
-    {
-        [SerializeField] private Image priAttackImage;
-        [SerializeField] private Image secAttackImage;
-        [SerializeField] private Image priDefenceImage;
-        [SerializeField] private Image secDefenceImage;
-
+    {       
         [SerializeField] private Image heroIconImage;
+        [SerializeField] private Image heroIdleImage;
+
         [SerializeField] private TextMeshProUGUI heroNameText;
-        [SerializeField] private BarsContainer barsContainer;
         [SerializeField] private EffectsContainer effectsContainer;
 
         private Color normalColor;
         private Image backgroundImage;
 
-        [SerializeField] private Color selectedColor;
         [SerializeField] private Color playerColor;
         [SerializeField] private Color enemyColor;
 
@@ -46,56 +41,32 @@ namespace Assets.Scripts.UI.Battle
 
                 normalColor = hero.TeamId == 0 ? playerColor : enemyColor;
                 backgroundImage.color = normalColor;
-
-                barsContainer.SetData(hero.BarsInfoBattle);
             }
         }
         public void SetEffects(DamageEffect[] effects) {
             effectsContainer.SetEffects(effects);
         }
 
-
-        private bool selected;
-        public bool Selected
-        {
-            get => selected;
-            set
-            {
-                selected = value;
-                backgroundImage.color = value ? selectedColor : normalColor;
-            }
-        }
-
         private void ResolveIcons()
         {
-            ResolveIcon(priAttackImage, Hero.Attack[0]);
-            ResolveIcon(secAttackImage, Hero.Attack[1]);
-            ResolveIcon(priDefenceImage, Hero.Defence[0]);
-            ResolveIcon(secDefenceImage, Hero.Defence[1]);
-
-            ResolveIcon(heroIconImage, Hero);
-
+            ResolveIcons(heroIconImage, heroIdleImage, Hero);
         }
 
-        private void ResolveIcon(Image image, Hero hero)
+        private void ResolveIcons(Image image, Image idle, Hero hero)
         {
             image.sprite = null;
+            idle.sprite = null;
             image.enabled = false;
+            idle.enabled = false;
             if (hero.IconName != null)
             {
                 image.sprite = SpriteForResourceName(hero.IconName);
                 image.enabled = true;
             }
-        }
-
-        private void ResolveIcon(Image image, Asset asset)
-        {
-            image.sprite = null;
-            image.enabled = false;
-            if (asset.AssetType != AssetType.NA && asset.IconName != null)
+            if (hero.IdleSpriteName != null)
             {
-                image.sprite = SpriteForResourceName(asset.IconName);
-                image.enabled = true;
+                idle.sprite = SpriteForResourceName(hero.IdleSpriteName);
+                idle.enabled = true;
             }
         }
 

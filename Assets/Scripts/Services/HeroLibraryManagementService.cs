@@ -20,6 +20,7 @@ namespace Assets.Scripts.Services
 
         private const int heroesNumber = 8;
         private const string heroesIconsPath = "Heroes/Icons";
+        private const string heroesIdleSpritesPath = "Heroes/IdleSprites";
 
         [SerializeField] private List<List<object>> heroesRawData;
 
@@ -148,12 +149,13 @@ namespace Assets.Scripts.Services
                 var typeName = (string)heroTypes[cellNumber];
 
                 var iconName = $"{heroesIconsPath}/{typeName}";
+                var idleSpriteName = $"{heroesIdleSpritesPath}/{typeName}";
 
                 if (library.HeroById(id) is Hero hero && hero.HeroType != HeroType.NA)
                 {
                     UpdateHero(hero, cellNumber);
                 }
-                else if (library.GiveHero(Hero.EmptyHero(id, heroName, iconName)))
+                else if (library.GiveHero(Hero.EmptyHero(id, heroName, iconName, idleSpriteName)))
                 {
                     UpdateHero(library.HeroById(id), cellNumber);
                 }
