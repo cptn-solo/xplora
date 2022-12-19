@@ -18,8 +18,8 @@ namespace Assets.Scripts.Services
             {
                 if (winnerTeamId >= 0)
                 {
+                    playMode = BattleMode.NA;
                     battle.SetState(BattleState.Completed);
-                    OnBattleEvent?.Invoke(battle);
                     break;
                 }
 
@@ -30,7 +30,6 @@ namespace Assets.Scripts.Services
                     yield return null;
 
                 battle.SetRoundState(RoundState.RoundInProgress);
-                OnRoundEvent?.Invoke(battle.CurrentRound, battle);
 
                 while (battle.State == BattleState.BattleInProgress && 
                     battle.CurrentRound.State == RoundState.RoundInProgress)
@@ -38,24 +37,24 @@ namespace Assets.Scripts.Services
                     winnerTeamId = CheckForWinner();
                     if (winnerTeamId >= 0)
                     {
-                        playMode = BattleMode.NA;
                         battle.SetWinnerTeamId(winnerTeamId);
                         battle.SetRoundState(RoundState.RoundCompleted);
-                        OnRoundEvent?.Invoke(battle.CurrentRound, battle);
                         break;
                     }
 
                     if (battle.CurrentRound.QueuedHeroes.Count == 0)
                     {
                         battle.SetRoundState(RoundState.RoundCompleted);
-                        OnRoundEvent?.Invoke(battle.CurrentRound, battle);
                         break;
                     }
+
+                    OnRoundEvent?.Invoke(battle.CurrentRound, battle);
 
                     PrepareNextTurn();
 
                     while (battle.State == BattleState.BattleInProgress &&
-                        battle.CurrentTurn.State != TurnState.TurnPrepared)
+                        battle.CurrentTurn.State != TurnState.TurnPrepared &&
+                        battle.CurrentTurn.State != TurnState.TurnSkipped)
                         yield return null;
 
                     OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
@@ -86,6 +85,8 @@ namespace Assets.Scripts.Services
 
                 OnRoundEvent?.Invoke(battle.CurrentRound, battle);
             }
+
+            OnBattleEvent?.Invoke(battle);
 
             battleRouterCoroutineRunning = false;
         }
