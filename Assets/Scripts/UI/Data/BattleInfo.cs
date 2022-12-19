@@ -33,7 +33,6 @@ namespace Assets.Scripts.UI.Data
         public List<BattleRoundInfo> RoundsQueue => roundsQueue;
         public int WinnerTeamId => winnerTeamId;
 
-        public bool Auto { get; internal set; }
         public RoundSlotInfo[] QueuedHeroes {
             get {
                 var combined = RoundsQueue.SelectMany(x => x.QueuedHeroes);

@@ -163,6 +163,7 @@ namespace Assets.Scripts.UI.Battle
             UpdateActionButtons();
             ResetBattlefieldPositions();
         }
+
         private void ResetBattlefieldPositions()
         {
             var allSlots = playerFrontSlots.Concat(playerBackSlots).Concat(enemyFrontSlots).Concat(enemyBackSlots);
@@ -177,8 +178,10 @@ namespace Assets.Scripts.UI.Battle
         private void SlotDelegate_HeroMoved(Hero hero)
         {
             SyncHeroCardSelectionWithHero();
+            if (battleManager.CanReorderTurns)
+                battleManager.ResetBattle();
         }
-        
+
         private void ToggleInventory()
         {
             inventoryToggle = !inventoryToggle;

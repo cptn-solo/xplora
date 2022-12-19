@@ -3,7 +3,6 @@ using Assets.Scripts.UI.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Asset = Assets.Scripts.UI.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {

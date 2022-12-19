@@ -47,16 +47,7 @@ namespace Assets.Scripts.UI.Battle
         {
             switch (roundInfo.State)
             {
-                case RoundState.NA:
-                    break;
-                case RoundState.PrepareRound:
-                    break;
                 case RoundState.RoundPrepared:
-                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
-                    break;
-                case RoundState.RoundInProgress:
-                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
-                    break;
                 case RoundState.RoundCompleted:
                     battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
                     break;
@@ -89,6 +80,7 @@ namespace Assets.Scripts.UI.Battle
                     }
                     break;
                 case TurnState.TurnProcessed:
+                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
                     break;
                 default:
                     break;
@@ -100,21 +92,9 @@ namespace Assets.Scripts.UI.Battle
 
         private void EnqueueOrAuto(BattleTurnInfo turnInfo)
         {
-            if (battleManager.CurrentBattle.Auto)
-            {
-                if (turnInfo.State switch
-                {
-                    TurnState.TurnCompleted => true,
-                    TurnState.TurnSkipped => true,
-                    TurnState.NoTargets => true,
-                    _ => false
-                })
-                    battleManager.SetTurnProcessed(turnInfo);
-            }
-            else
-            {
+            if (battleManager.PlayMode == BattleMode.Autoplay ||
+                battleManager.PlayMode == BattleMode.StepMode)
                 EnqueueTurnProcessingStage(turnInfo);
-            }
         }
     }
 }

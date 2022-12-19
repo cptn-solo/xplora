@@ -10,14 +10,19 @@ namespace Assets.Scripts.UI.Battle
         {
             foreach (var button in actionButtons)
             {
-                if (button.Action == Actions.PrepareQueue)
-                    button.gameObject.SetActive(battleManager.CanReorderTurns);
+                if (button.Action == Actions.CompleteTurn) // and start button too
+                    button.gameObject.SetActive(
+                        battleManager.CanStartBattle ||
+                        battleManager.CanMakeTurn);
 
-                if (button.Action == Actions.CompleteTurn)
-                    button.gameObject.SetActive(battleManager.CanMakeTurn);
+                if (button.Action == Actions.StepBattle)
+                    button.gameObject.SetActive(
+                        battleManager.CanStepPlayBattle);
 
                 if (button.Action == Actions.AutoBattle)
-                    button.gameObject.SetActive(battleManager.CanAutoPlayBattle);
+                    button.gameObject.SetActive(
+                        battleManager.CanAutoPlayBattle);
+
             }
         }
 
@@ -30,22 +35,12 @@ namespace Assets.Scripts.UI.Battle
                         ToggleInventory();
                     }
                     break;
-                case Actions.PrepareQueue:
-                    {
-                        if (inventoryToggle)
-                            ToggleInventory();
-
-                        battleManager.ResetBattle();
-
-                        UpdateActionButtons();
-                    }
-                    break;
                 case Actions.CompleteTurn:
                     {
                         if (battleManager.CurrentBattle.State == BattleState.TeamsPrepared)
                             battleManager.BeginBattle();
                         else
-                            battleManager.MakeTurn();
+                            battleManager.AutoPlay();
 
                         UpdateActionButtons();
                     }
@@ -55,14 +50,23 @@ namespace Assets.Scripts.UI.Battle
                     {
                         ResetTurnProcessingQueue();
 
-                        battleManager.Autoplay();
+                        battleManager.FastForwardPlay();
+
+                        UpdateActionButtons();
+                    }
+                    break;
+                case Actions.StepBattle:
+                    {
+                        battleManager.StepPlayBattle();
 
                         UpdateActionButtons();
                     }
                     break;
                 case Actions.RetreatBattle:
                     {
-                        navService.NavigateToScreen(Screens.HeroesLibrary);
+                        battleManager.RetreatBattle();
+
+                        UpdateActionButtons();
                     }
                     break;
                 default:

@@ -10,6 +10,7 @@
         BeginRound = 150,
         RetreatBattle = 200,
         AutoBattle = 300,
+        StepBattle = 350, // when autoplaying can stop and let the user make a turn
         ReloadMetadata = 400,
         SaveTeamForBattle = 500,
         ToggleInventoryPanel = 600,

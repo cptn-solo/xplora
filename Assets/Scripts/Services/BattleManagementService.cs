@@ -13,39 +13,85 @@ namespace Assets.Scripts.Services
     {
         [Inject] private readonly HeroLibraryManagementService libraryManager;
         [Inject] private readonly PlayerPreferencesService prefs;
+        [Inject] private readonly MenuNavigationService nav;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
         public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;
 
         private BattleInfo battle;
+
+        private bool battleRouterCoroutineRunning;
+
+        private BattleMode playMode = BattleMode.NA;
+
+        public BattleMode PlayMode => playMode;
+
         private bool turnCoroutineRunning;
-        private bool autoplayCoroutineRunning;
+        
+        private bool retreatBattleRunning;
         private readonly int minRoundsQueue = 4;
 
         public BattleInfo CurrentBattle => battle;
 
         public int CurrentTurn => battle.CurrentTurn.Turn;
-        public bool CanReorderTurns => battle.State switch
-        {
-            BattleState.Created => true,
-            BattleState.TeamsPrepared => true,
-            _ => false
-        }; //  queuedHeroes.Count == 0 && AllBattleHeroes.Count() > 0;
 
-        public bool CanMakeTurn => !turnCoroutineRunning && battle.CurrentTurn.State switch
-        {
-            TurnState.TurnPrepared => true,
-            TurnState.TurnSkipped => true,
-            _ => false
-        }; //queuedHeroes.Count > 0;        
+        public bool CanReorderTurns =>
+            !retreatBattleRunning &&
+            battle.State switch
+            {
+                BattleState.Created => true,
+                BattleState.TeamsPrepared => true,
+                _ => false
+            };
 
-        public bool CanAutoPlayBattle => !autoplayCoroutineRunning && !battle.Auto && battle.State switch
-        {
-            BattleState.TeamsPrepared => true,
-            BattleState.BattleInProgress => true,
-            _ => false,
-        };
+        public bool CanStartBattle =>
+            !retreatBattleRunning &&
+            battle.State switch
+            {
+                BattleState.TeamsPrepared => 
+                battle.CurrentRound.State switch
+                {
+                    RoundState.RoundPrepared => true,
+                    _ => false
+                },
+                _ => false
+            };
+
+        public bool CanMakeTurn =>
+            !retreatBattleRunning &&
+            !turnCoroutineRunning &&
+            PlayMode switch
+            {
+                BattleMode.StepMode => true,
+                _ => false
+            };
+
+        public bool CanAutoPlayBattle =>
+            !retreatBattleRunning &&
+            PlayMode switch
+            {
+                BattleMode.Autoplay => true,
+                BattleMode.StepMode => true,
+                _ => false
+            };
+
+        public bool CanStepPlayBattle =>
+            !retreatBattleRunning &&
+            PlayMode switch
+            {
+                BattleMode.Autoplay => true,
+                BattleMode.Fastforward => true,
+                _ => false
+            };
+
+        public bool CanCompleteTurn =>
+            battle.CurrentTurn.State switch
+            {
+                TurnState.TurnPrepared => true,
+                TurnState.TurnSkipped => true,
+                _ => false
+            };
 
         /// <summary>
         ///     Flag to let the battle screen know if it should reset the battle/queue
@@ -54,7 +100,8 @@ namespace Assets.Scripts.Services
         {
             libraryManager.ResetTeams();
             battle = BattleInfo.Create(libraryManager.PlayerTeam, libraryManager.EnemyTeam);
-            battle.Auto = false;
+            
+            playMode = BattleMode.NA;
 
             GiveAssetsToTeams();
 
@@ -67,9 +114,38 @@ namespace Assets.Scripts.Services
                 battle.SetState(BattleState.TeamsPrepared);
                 OnBattleEvent?.Invoke(battle);
 
-                StartCoroutine(PrepareNextRounds());
+                StartCoroutine(PrepareNextRoundsCoroutines());
+            }
+        }
+        internal void RetreatBattle()
+        {
+            if (!retreatBattleRunning)
+                StartCoroutine(RetreatBattleCoroutine());
+        }
+
+        private IEnumerator RetreatBattleCoroutine()
+        {
+            retreatBattleRunning = true;
+
+            playMode = BattleMode.NA;
+
+            while (turnCoroutineRunning)
+                yield return null;
+
+            if (battle.State == BattleState.BattleStarted ||
+                battle.State == BattleState.BattleInProgress)
+            {
+                battle.SetWinnerTeamId(battle.EnemyTeam.Id);
+                battle.SetState(BattleState.Completed);
+
+                OnBattleEvent?.Invoke(battle);
+
+                yield return new WaitForSeconds(2.0f);
             }
 
+            nav.NavigateToScreen(Screens.HeroesLibrary);
+            
+            retreatBattleRunning = false;
         }
 
         internal void BeginBattle()
@@ -77,36 +153,37 @@ namespace Assets.Scripts.Services
             battle.SetState(BattleState.BattleStarted);
             OnBattleEvent?.Invoke(battle);
 
-            StartCoroutine(CompleteTurn());
+            playMode = BattleMode.Autoplay;
+
+            if (!battleRouterCoroutineRunning)
+                StartCoroutine(BattleRouterCoroutine());
         }
-        internal void Autoplay()
+
+        internal void AutoPlay()
         {
-            battle.Auto = true;
-            if (!autoplayCoroutineRunning)
-                StartCoroutine(AutoPlayCoroutine());
+            if (CanMakeTurn)
+                playMode = BattleMode.Autoplay;
         }
+        
+        internal void StepPlayBattle()
+        {
+            if (CanStepPlayBattle)
+                playMode = BattleMode.StepMode;
+        }
+
+        internal void FastForwardPlay()
+        {
+            if (CanAutoPlayBattle)
+                playMode = BattleMode.Fastforward;
+        }
+
         internal void MakeTurn()
         {
             if (!turnCoroutineRunning)
                 StartCoroutine(CompleteTurn());
         }
 
-        private IEnumerator AutoPlayCoroutine()
-        {
-            autoplayCoroutineRunning = true;
-
-            while (battle.Auto && battle.State != BattleState.Completed)
-            {
-                yield return null;
-
-                if (CanMakeTurn)
-                    MakeTurn();
-            }
-
-            autoplayCoroutineRunning = false;
-        }
-
-        private IEnumerator PrepareNextRounds()
+        private IEnumerator PrepareNextRoundsCoroutines()
         {
             if (battle.CurrentRound.State == RoundState.RoundCompleted)
                 battle.RoundsQueue.RemoveAt(0);
@@ -120,9 +197,7 @@ namespace Assets.Scripts.Services
                 yield return null;
             }
 
-            OnRoundEvent?.Invoke(battle.CurrentRound, battle);
-
-            PrepareNextTurn();
+            OnRoundEvent?.Invoke(battle.CurrentRound, battle); // to update queued members in UI/log
         }
 
         /// <summary>
@@ -172,13 +247,10 @@ namespace Assets.Scripts.Services
             battle.SetTurnState(TurnState.PrepareTurn);
             OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
 
-            var turnState = PrepareTurn();
-            if (turnState == TurnState.TurnPrepared ||
-                turnState == TurnState.TurnSkipped)
-                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+            PrepareTurn();
         }
 
-        internal TurnState PrepareTurn()
+        internal void PrepareTurn()
         {
             var roundSlot = battle.CurrentRound.QueuedHeroes[0];
             var attaker = libraryManager.Library.HeroById(roundSlot.HeroId);
@@ -189,55 +261,50 @@ namespace Assets.Scripts.Services
                     0, roundSlot.Effects.ToArray());
                 battle.SetTurnInfo(skippedInfo);
                 battle.SetTurnState(TurnState.TurnSkipped);
-
-                return battle.CurrentTurn.State;
-            }
-
-            var attackTeam = roundSlot.TeamId;
-            var targets = attackTeam == battle.PlayerTeam.Id ?
-                battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
-
-            Hero target = default;
-            if (attaker.Ranged)
-            {
-                target = targets[Random.Range(0, targets.Length)];
             }
             else
             {
-                var frontTargets = targets.Where(x => x.Line == BattleLine.Front).ToArray();
-                var backTargets = targets.Where(x => x.Line == BattleLine.Back).ToArray();
-                // TODO: consider range (not yet imported/parsed)
-                target = frontTargets.Length > 0 ?
-                    frontTargets[Random.Range(0, frontTargets.Length)] :
-                    backTargets.Length > 0 ?
-                    backTargets[Random.Range(0, backTargets.Length)] :
-                    Hero.Default;
-            }
+                var attackTeam = roundSlot.TeamId;
+                var targets = attackTeam == battle.PlayerTeam.Id ?
+                    battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
 
-            var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target,
-                0, roundSlot.Effects.ToArray(), null);
-            battle.SetTurnInfo(turnInfo);
+                Hero target = default;
+                if (attaker.Ranged)
+                {
+                    target = targets[Random.Range(0, targets.Length)];
+                }
+                else
+                {
+                    var frontTargets = targets.Where(x => x.Line == BattleLine.Front).ToArray();
+                    var backTargets = targets.Where(x => x.Line == BattleLine.Back).ToArray();
+                    // TODO: consider range (not yet imported/parsed)
+                    target = frontTargets.Length > 0 ?
+                        frontTargets[Random.Range(0, frontTargets.Length)] :
+                        backTargets.Length > 0 ?
+                        backTargets[Random.Range(0, backTargets.Length)] :
+                        Hero.Default;
+                }
 
-            if (target.HeroType == HeroType.NA)
-            {
-                // battle won, complete
-                Debug.Log($"Battle won, complete");
-                battle.SetTurnState(TurnState.NoTargets);
-            }
-            else
-            {
-                battle.SetTurnState(TurnState.TurnPrepared);
-            }
+                var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target,
+                    0, roundSlot.Effects.ToArray(), null);
+                battle.SetTurnInfo(turnInfo);
 
-            return battle.CurrentTurn.State;
+                if (target.HeroType == HeroType.NA)
+                {
+                    // battle won, complete
+                    Debug.Log($"Battle won, complete");
+                    battle.SetTurnState(TurnState.NoTargets);
+                }
+                else
+                {
+                    battle.SetTurnState(TurnState.TurnPrepared);
+                }
+            }
         }
 
         internal IEnumerator CompleteTurn()
         {
             turnCoroutineRunning = true;
-
-            battle.SetState(BattleState.BattleInProgress);
-            OnBattleEvent?.Invoke(battle);
 
             var turnInfo = battle.CurrentTurn;
             
@@ -257,7 +324,6 @@ namespace Assets.Scripts.Services
             if (attacker.HealthCurrent <=0 || skipTurn)
             {
                 battle.SetTurnState(TurnState.TurnCompleted);
-                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
                 
                 yield return null;
             }
@@ -274,7 +340,6 @@ namespace Assets.Scripts.Services
                 yield return null;
                 
                 battle.SetTurnState(TurnState.TurnCompleted);
-                OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
             }
             
             yield return null;
@@ -284,38 +349,10 @@ namespace Assets.Scripts.Services
 
         internal void SetTurnProcessed(BattleTurnInfo stage)
         {
-            battle.SetTurnInfo(stage);
-            battle.SetTurnState(TurnState.TurnProcessed);
-
             battle.CurrentRound.FinalizeTurn();
 
-            var winnerTeamId = CheckForWinner();
-            if (winnerTeamId < 0)
-            {
-                if (battle.CurrentRound.QueuedHeroes.Count > 0)
-                {
-                    battle.SetRoundState(RoundState.RoundInProgress);
-                    OnRoundEvent?.Invoke(battle.CurrentRound, battle);
-
-                    PrepareNextTurn();
-                }
-                else
-                {
-                    battle.SetRoundState(RoundState.RoundCompleted);
-                    OnRoundEvent?.Invoke(battle.CurrentRound, battle);
-
-                    StartCoroutine(PrepareNextRounds());
-                }
-            }
-            else
-            {
-                battle.SetRoundState(RoundState.RoundCompleted);
-                OnRoundEvent?.Invoke(battle.CurrentRound, battle);
-
-                battle.SetState(BattleState.Completed);
-                battle.SetWinnerTeamId(winnerTeamId);
-                OnBattleEvent?.Invoke(battle);
-            }
+            battle.SetTurnInfo(stage);
+            battle.SetTurnState(TurnState.TurnProcessed);
         }
         private int CheckForWinner()
         {

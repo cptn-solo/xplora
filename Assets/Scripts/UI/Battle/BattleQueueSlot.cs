@@ -1,5 +1,4 @@
 using Assets.Scripts.UI.Data;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
