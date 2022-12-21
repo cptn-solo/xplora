@@ -92,14 +92,14 @@ namespace Assets.Scripts.UI.Battle
         }
         private void ScheduleTurnStageAnimations(BattleTurnInfo info)
         {
-            var attackerAnimation =
+            var attackerPos =
                 info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
-                playerBattleGround : enemyBattleGround;
-            var targetAnimation =
+                playerBattleGround.position : enemyBattleGround.position;
+            var targetPos =
                 info.State == TurnState.TurnSkipped ||
-                info.State == TurnState.TurnEffects ? null : 
+                info.State == TurnState.TurnEffects ? default : 
                 info.Target.TeamId == libraryManager.PlayerTeam.Id ?
-                playerBattleGround : enemyBattleGround;
+                playerBattleGround.position : enemyBattleGround.position;
 
             var attackerRM = RaidMemberForHero(info.Attacker);
             var targetRM = 
@@ -114,8 +114,8 @@ namespace Assets.Scripts.UI.Battle
                     EnqueueTurnAnimation(() => {
                         // move both cards
                         var move = 1.0f;
-                        attackerRM.HeroAnimation.Run(move, attackerAnimation.position);
-                        targetRM.HeroAnimation.Run(move, targetAnimation.position);
+                        attackerRM.HeroAnimation.Run(move, attackerPos);
+                        targetRM.HeroAnimation.Run(move, targetPos);
                     }, 1.3f);
                     
                     break;
@@ -130,6 +130,7 @@ namespace Assets.Scripts.UI.Battle
                     if (info.Dodged)
                     {
                         EnqueueTurnAnimation(() => {
+                            targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.Dodged);
                             audioService.Play(SFX.Named(info.Target.SndDodged));
                         }, 1f);
                     }
@@ -141,21 +142,26 @@ namespace Assets.Scripts.UI.Battle
 
                         if (info.Pierced)
                             EnqueueTurnAnimation(() => {
+                                targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.Pierced(info.Damage));
                                 audioService.Play(SFX.Named(info.Target.SndPierced));
                             }, 1f);
 
                         if (info.Damage > 0)
                             EnqueueTurnAnimation(() => {
-                                audioService.Play(SFX.Named(info.Target.SndHit));
-                            }, 1f);
-
-                        if (info.Critical)
-                            EnqueueTurnAnimation(() => {
-                                audioService.Play(SFX.Named(info.Target.SndCritHit));
+                                if (info.Critical)
+                                {
+                                    targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.Critical(info.Damage));
+                                    audioService.Play(SFX.Named(info.Target.SndCritHit));
+                                }
+                                else
+                                {
+                                    targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.JustDamage(info.Damage));
+                                    audioService.Play(SFX.Named(info.Target.SndHit));
+                                }
                             }, 1f);
 
                         if (info.TargetEffects.Length > 0)
-                            EnqueueEffects(info.TargetEffects, targetRM);
+                            EnqueueEffects(info.TargetEffects, targetRM, info.ExtraDamage);
 
                         if (info.Lethal)
                             EnqueueTurnAnimation(() => {
@@ -174,7 +180,7 @@ namespace Assets.Scripts.UI.Battle
                     var lethal = info.Attacker.HealthCurrent <= 0;
 
                     if (info.AttackerEffects.Length > 0)
-                        EnqueueEffects(info.AttackerEffects, attackerRM);
+                        EnqueueEffects(info.AttackerEffects, attackerRM, info.Damage);
                     else if (info.Damage > 0)
                         EnqueueTurnAnimation(() => {
                             attackerRM.HeroAnimation.Hit(false);
@@ -196,7 +202,7 @@ namespace Assets.Scripts.UI.Battle
                     EnqueueTurnAnimation(() => {
                         // move only attacker card to show effects (if any)
                         var move = 1.0f;
-                        attackerRM.HeroAnimation.Run(move, attackerAnimation.position);
+                        attackerRM.HeroAnimation.Run(move, attackerPos);
                     }, .3f);
                     
                     break;
@@ -212,10 +218,10 @@ namespace Assets.Scripts.UI.Battle
 
                         // move cards back or remove dead ones from the field.
                         if (attackerRM != null)
-                            attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                            attackerRM.HeroAnimation.MoveSpriteBack();
 
                         if (targetRM != null)
-                            targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                            targetRM.HeroAnimation.MoveSpriteBack();
                     }, .3f);
 
                     EnqueueTurnAnimation(() => {
@@ -239,13 +245,13 @@ namespace Assets.Scripts.UI.Battle
             }            
         }
 
-        private void EnqueueEffects(DamageEffect[] effects, RaidMember rm)
+        private void EnqueueEffects(DamageEffect[] effects, RaidMember rm, int extraDamage = 0)
         {
             foreach (var effect in effects)
             {
                 EnqueueTurnAnimation (() => {
                     rm.HeroAnimation.SetEffects(new DamageEffect[] { effect });
-
+                    rm.HeroAnimation.SetOverlayInfo(TurnStageInfo.EffectDamage(effect, extraDamage));
                     rm.HeroAnimation.Hit(false);
                     var sfxName = effect switch
                     {

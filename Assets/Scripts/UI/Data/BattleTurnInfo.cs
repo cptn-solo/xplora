@@ -22,6 +22,8 @@
         public bool Critical { get; set; }
         public bool Dodged { get; set; }
         public bool Pierced { get; set; }
+
+        public int ExtraDamage { get; set; } // from effect applied by an attacker in current turn
         public override string ToString()
         {
             var prepared = $"Ход #{Turn}: " +
@@ -36,6 +38,9 @@
             var targetEff = "";
             foreach (var ef in targetEffects)
                 targetEff += $"+{ef}";
+
+            if (targetEff.Length > 0 && ExtraDamage > 0)
+                targetEff += $"{-ExtraDamage}";
 
             var completed = $"Ход #{Turn}: " +
                 $"{State}, " +

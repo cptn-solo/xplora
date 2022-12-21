@@ -1,11 +1,14 @@
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
+using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public class HeroAnimation : MonoBehaviour, IHeroAnimation
+    public partial class HeroAnimation : MonoBehaviour, IHeroAnimation
     {
         private const string AnimBoolAttack = "attack";
         private const string AnimBoolRangeAttack = "range";
@@ -16,15 +19,19 @@ namespace Assets.Scripts.UI.Battle
         private const string AnimStageIdle = "Idle";
 
         private Animator animator;
+
         private bool initialized;
         private readonly WaitForSeconds defaultWait = new(.2f);
         private readonly WaitForSeconds waitOneSec = new(1f);
-        private EffectsContainer effectsContainer;
+        
+        [SerializeField] private EffectsContainer effectsContainer;
+        [SerializeField] private Image piercedImage;
+        [SerializeField] private TextMeshProUGUI damageText;
+        [SerializeField] private TextMeshProUGUI effectText;               
 
         private void Awake()
         {
             animator = GetComponent<Animator>();
-            effectsContainer = GetComponentInChildren<EffectsContainer>();
         }
 
         private void OnEnable()
@@ -39,6 +46,7 @@ namespace Assets.Scripts.UI.Battle
         public void Initialize()
         {
             ResetAnimations();
+            ResetOverlayInfo();
             initialized = true;
         }
 
@@ -48,7 +56,6 @@ namespace Assets.Scripts.UI.Battle
                 animator.runtimeAnimatorController = null;
             else
             {
-
                 if (hero.TeamId == 1)
                 {
                     var ls = transform.localScale;
@@ -75,6 +82,25 @@ namespace Assets.Scripts.UI.Battle
             animator.SetBool(AnimBoolAttack, false);
 
             animator.Play(AnimStageIdle);
+        }
+
+        private void ResetEffects()
+        {
+            effectsContainer.SetEffects(new DamageEffect[] { });
+        }
+
+        private void ResetOverlayInfo()
+        {
+            piercedImage.gameObject.SetActive(false);
+            damageText.text = "";
+            effectText.text = "";
+
+            effectsContainer.SetEffects(new DamageEffect[] { });
+        }
+
+        public void SetOverlayInfo(TurnStageInfo info)
+        {
+            StartCoroutine(OverlayInfoCoroutine(info));
         }
 
         public void SetEffects(DamageEffect[] effects)
@@ -110,7 +136,21 @@ namespace Assets.Scripts.UI.Battle
         {
             effectsContainer.SetEffects(effects);
             yield return waitOneSec;
-            effectsContainer.SetEffects(new DamageEffect[] { });
+            ResetEffects();
+        }
+        private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
+        {
+            piercedImage.gameObject.SetActive(info.IsPierced);
+            damageText.text = info.Damage > 0 ? $"{info.Damage}" : "";
+            effectText.text = info.EffectText;
+
+            effectsContainer.SetEffects(info.Effect != DamageEffect.NA ?
+                new DamageEffect[] { info.Effect } :
+                new DamageEffect[] { });
+
+            yield return waitOneSec;
+
+            ResetOverlayInfo();
         }
 
         private IEnumerator TimedAnimationCorotine(
@@ -133,18 +173,24 @@ namespace Assets.Scripts.UI.Battle
 
         private IEnumerator MoveSpriteCoroutine(Vector3 position = default, float sec = -1f)
         {
+            var mt = transform.parent.transform;
             var delta = sec;
-            transform.localPosition = Vector3.zero;
+            mt.localPosition = Vector3.zero;
             var move = position - transform.position;
 
             while (delta > 0f)
             {
-                transform.position += move * Time.deltaTime;
+                mt.position += move * Time.deltaTime;
 
                 delta -= Time.deltaTime;
 
                 yield return null;
             }
+        }
+
+        internal void MoveSpriteBack()
+        {
+            transform.parent.transform.localPosition = Vector3.zero;
         }
     }
 }

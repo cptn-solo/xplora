@@ -23,7 +23,8 @@ namespace Assets.Scripts.Services
             var pierced = false;
             var targetEffects = new DamageEffect[] { };
 
-            int damage;
+            int damage = 0;
+            int extraDamage = 0;
             if (!accurate || dodged)
             {
                 damage = 0;
@@ -49,6 +50,7 @@ namespace Assets.Scripts.Services
                     {
                         targetEffects = targetEffects.Concat(new DamageEffect[]{
                             damageEffect.Effect }).ToArray();
+                        extraDamage = damageEffect.ExtraDamage;
                         EnqueueEffectToRounds(damageEffect, target);
                     }
                 }
@@ -62,7 +64,7 @@ namespace Assets.Scripts.Services
                 damage = Mathf.Max(0, damage);
             }
 
-            target = target.UpdateHealthCurrent(damage, out int display, out int current);
+            target = target.UpdateHealthCurrent(damage+extraDamage, out int display, out int current);
 
             resultInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target,
                 damage, null, targetEffects);
@@ -70,6 +72,7 @@ namespace Assets.Scripts.Services
             resultInfo.Dodged = dodged;
             resultInfo.Pierced = pierced;
             resultInfo.Lethal = current <= 0;
+            resultInfo.ExtraDamage = extraDamage;
         }
     }
 }
