@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 namespace AndroidUltimatePlugin.Helpers.Editor
@@ -128,3 +129,4 @@ namespace AndroidUltimatePlugin.Helpers.Editor
         }
     }
 }
+#endif
