@@ -8,22 +8,14 @@ namespace Assets.Scripts.UI.Battle
         {
             switch (battleInfo.State)
             {
-                case BattleState.NA:
-                    break;
                 case BattleState.Created:
                     {
                         ShowTeamInventory(libraryManager.PlayerTeam);
                         ShowTeamInventory(libraryManager.EnemyTeam);
                     }
                     break;
-                case BattleState.PrepareTeams:
-                    break;
-                case BattleState.TeamsPrepared:
-                    break;
                 case BattleState.BattleStarted:
                     audioService.Play(SFX.MainTheme);
-                    break;
-                case BattleState.BattleInProgress:
                     break;
                 case BattleState.Completed:
                     audioService.Stop();

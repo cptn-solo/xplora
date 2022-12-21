@@ -2,6 +2,7 @@ using Assets.Scripts.UI.Data;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
@@ -9,24 +10,27 @@ namespace Assets.Scripts.UI.Battle
     public partial class BattleScreen // Animations
     {
         private readonly List<BattleTurnInfo> turnProcessingQueue = new();
+        private readonly List<VisualDelegate> turnStageVisuals = new();
 
         private bool turnProcessingQueueActive = false;
-        private bool turnStageProcessingActive = false;
+        private bool turnVisualsProcessingActive = false;
+
         private Coroutine turnProcessingCoroutine = null;
-        private Coroutine turnStageProcessingCoroutine = null;
-        private bool effectsProcessingRunning;
+        private Coroutine turnVisualsProcessingCoroutine = null;
+
 
         private void ResetTurnProcessingQueue()
         {
             turnProcessingQueue.Clear();
-            
+            turnStageVisuals.Clear();
+
             turnProcessingQueueActive = false;
             if (turnProcessingCoroutine != null)
                 StopCoroutine(turnProcessingCoroutine);
-            
-            turnStageProcessingActive = false;
-            if (turnStageProcessingCoroutine != null)
-                StopCoroutine(turnStageProcessingCoroutine);
+
+            turnVisualsProcessingActive = false;
+            if (turnVisualsProcessingCoroutine != null)
+                StopCoroutine(turnVisualsProcessingCoroutine);
 
             ResetBattlefieldPositions();
         }
@@ -42,6 +46,37 @@ namespace Assets.Scripts.UI.Battle
             }
         }
 
+        private void EnqueueTurnAnimation(DoStage dlg, float? sec = null)
+        {
+            turnStageVisuals.Add(new(dlg, sec));
+
+            if (!turnVisualsProcessingActive)
+            {
+                turnVisualsProcessingActive = true;
+                turnVisualsProcessingCoroutine = StartCoroutine(ProcessTurnAnimationsQueue());
+            }
+        }
+        private IEnumerator ProcessTurnAnimationsQueue()
+        {
+            while (turnVisualsProcessingActive)
+            {
+                if (turnStageVisuals.Count > 0)
+                {
+                    var visual = turnStageVisuals.First();
+                    turnStageVisuals.RemoveAt(0);
+
+                    while (battleManager.PlayMode == BattleMode.StepMode)
+                        yield return null;
+
+                    visual.Callback();
+                    
+                    yield return visual.Waiter;
+                }
+                
+                yield return null;
+            }
+        }
+
         private IEnumerator ProcessTurnStageQueue()
         {
             while (turnProcessingQueueActive)
@@ -51,24 +86,12 @@ namespace Assets.Scripts.UI.Battle
                     var stage = turnProcessingQueue.First();
                     turnProcessingQueue.RemoveAt(0);
 
-                    turnStageProcessingActive = true;
-                    turnStageProcessingCoroutine = StartCoroutine(TurnStageAnimation(stage));
-                    
-                    while (turnStageProcessingActive)
-                        yield return null;
-                    
-                    if (stage.State == TurnState.TurnCompleted ||
-                        stage.State == TurnState.NoTargets)
-                    {
-                        turnProcessingQueueActive = false;
-                        battleManager.SetTurnProcessed(stage);
-                    }
+                    ScheduleTurnStageAnimations(stage);
                 }
                 yield return null;
-
             }
         }
-        private IEnumerator TurnStageAnimation(BattleTurnInfo info)
+        private void ScheduleTurnStageAnimations(BattleTurnInfo info)
         {
             var attackerAnimation =
                 info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
@@ -85,182 +108,159 @@ namespace Assets.Scripts.UI.Battle
                 info.State == TurnState.TurnEffects ? null : 
                 RaidMemberForHero(info.Target);
 
-            if (info.State == TurnState.TurnEffects)
+            switch (info.State)
             {
-                var lethal = info.Attacker.HealthCurrent <= 0;
+                case TurnState.TurnPrepared:
 
-                if (info.AttackerEffects.Length > 0)
-                {
-                    StartCoroutine(ProcessEffects(info.AttackerEffects, attackerRM));
-                    while (effectsProcessingRunning)
-                        yield return null;
-                } 
-                else if (info.Damage > 0)
-                {
-                    attackerRM.HeroAnimation.Hit(false);
-                    audioService.Play(SFX.Named(info.Attacker.SndHit));
-                    yield return new WaitForSeconds(1f);
-                }
-                if (lethal)
-                {
-                    attackerRM.HeroAnimation.Hit(true);
-                    audioService.Play(SFX.Named(info.Attacker.SndDied));
-                    yield return new WaitForSeconds(1f);
-                }
-
-                attackerRM.Hero = info.Attacker;
-            }
-            else if (info.State == TurnState.TurnSkipped)
-            {
-                // move only attacker card to show effects (if any)
-                var move = 1.0f;
-
-                attackerRM.HeroAnimation.Run(move);
-                // move cards to the battle ground
-                attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                var attackerMove = attackerAnimation.position - attackerRM.HeroAnimation.transform.position;
-
-                while (move > 0f)
-                {
-                    attackerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
-
-                    move -= Time.deltaTime;
-
-                    yield return null;
-                }
-
-                yield return new WaitForSeconds(.3f);
-            }
-            else if (info.State == TurnState.TurnPrepared)
-            {
-                // move both cards
-                var move = 1.0f;
-
-                attackerRM.HeroAnimation.Run(move);
-                targetRM.HeroAnimation.Run(move);
-                // move cards to the battle ground
-                attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                var attackerMove = attackerAnimation.position - attackerRM.HeroAnimation.transform.position;
-                var targetMove = targetAnimation.position - targetRM.HeroAnimation.transform.position;
-
-                while (move > 0f)
-                {
-                    attackerRM.HeroAnimation.transform.position += attackerMove * Time.deltaTime;
-                    targetRM.HeroAnimation.transform.position += targetMove * Time.deltaTime;
+                    EnqueueTurnAnimation(() => {
+                        // move both cards
+                        var move = 1.0f;
+                        attackerRM.HeroAnimation.Run(move, attackerAnimation.position);
+                        targetRM.HeroAnimation.Run(move, targetAnimation.position);
+                    }, 1.3f);
                     
-                    move -= Time.deltaTime;
+                    break;
+
+                case TurnState.TurnInProgress:
                     
-                    yield return null;
-                }
+                    EnqueueTurnAnimation(() => {
+                        attackerRM.HeroAnimation.Attack(info.Attacker.Ranged);
+                        audioService.Play(SFX.Named(info.Attacker.SndAttack));
+                    }, 1f);
+
+                    if (info.Dodged)
+                    {
+                        EnqueueTurnAnimation(() => {
+                            audioService.Play(SFX.Named(info.Target.SndDodged));
+                        }, 1f);
+                    }
+                    else
+                    {
+                        EnqueueTurnAnimation(() => {
+                            targetRM.HeroAnimation.Hit(false);
+                        });
+
+                        if (info.Pierced)
+                            EnqueueTurnAnimation(() => {
+                                audioService.Play(SFX.Named(info.Target.SndPierced));
+                            }, 1f);
+
+                        if (info.Damage > 0)
+                            EnqueueTurnAnimation(() => {
+                                audioService.Play(SFX.Named(info.Target.SndHit));
+                            }, 1f);
+
+                        if (info.Critical)
+                            EnqueueTurnAnimation(() => {
+                                audioService.Play(SFX.Named(info.Target.SndCritHit));
+                            }, 1f);
+
+                        if (info.TargetEffects.Length > 0)
+                            EnqueueEffects(info.TargetEffects, targetRM);
+
+                        if (info.Lethal)
+                            EnqueueTurnAnimation(() => {
+                                targetRM.HeroAnimation.Hit(true);
+                                audioService.Play(SFX.Named(info.Target.SndDied));
+                            }, 1f);
+                    }
+
+                    EnqueueTurnAnimation(() => { }, 1f);
+                    EnqueueTurnAnimation(() => targetRM.Hero = info.Target);
+
+                    break;
+
+                case TurnState.TurnEffects:
+                    
+                    var lethal = info.Attacker.HealthCurrent <= 0;
+
+                    if (info.AttackerEffects.Length > 0)
+                        EnqueueEffects(info.AttackerEffects, attackerRM);
+                    else if (info.Damage > 0)
+                        EnqueueTurnAnimation(() => {
+                            attackerRM.HeroAnimation.Hit(false);
+                            audioService.Play(SFX.Named(info.Attacker.SndHit));
+                        }, 1f);
+
+                    if (lethal)
+                        EnqueueTurnAnimation(() => {
+                            attackerRM.HeroAnimation.Hit(true);
+                            audioService.Play(SFX.Named(info.Attacker.SndDied));
+                        }, 1f);
+
+                    EnqueueTurnAnimation(() => attackerRM.Hero = info.Attacker);
+                    
+                    break;
+
+                case TurnState.TurnSkipped:
+                    
+                    EnqueueTurnAnimation(() => {
+                        // move only attacker card to show effects (if any)
+                        var move = 1.0f;
+                        attackerRM.HeroAnimation.Run(move, attackerAnimation.position);
+                    }, .3f);
+                    
+                    break;
+
+                case TurnState.TurnCompleted:
+
+                    EnqueueTurnAnimation(() => {
+                        if (targetRM != null && info.Target.HealthCurrent <= 0)
+                            targetRM.Hero = Hero.Default;
+
+                        if (attackerRM != null && info.Attacker.HealthCurrent <= 0)
+                            attackerRM.Hero = Hero.Default;
+
+                        // move cards back or remove dead ones from the field.
+                        if (attackerRM != null)
+                            attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
+
+                        if (targetRM != null)
+                            targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
+                    }, .3f);
+
+                    EnqueueTurnAnimation(() => {
+                        turnProcessingQueueActive = false;
+                        battleManager.SetTurnProcessed(info);
+                    });
+                    
+                    break;
                 
-                yield return new WaitForSeconds(.3f);
+                case TurnState.NoTargets:
 
-            }
-            else if (info.State == TurnState.TurnInProgress)
-            {
-                // animate attack and hit
-                //Debug.Break();
-                attackerRM.HeroAnimation.Attack(info.Attacker.Ranged);
-                audioService.Play(SFX.Named(info.Attacker.SndAttack));
+                    EnqueueTurnAnimation(() => {
+                        turnProcessingQueueActive = false;
+                        battleManager.SetTurnProcessed(info);
+                    });
 
-                yield return new WaitForSeconds(.8f);
+                    break;
 
-                if (info.Dodged)
-                {
-                    audioService.Play(SFX.Named(info.Target.SndDodged));
-                    yield return new WaitForSeconds(1f);
-                }
-                else
-                {
-                    targetRM.HeroAnimation.Hit(false);
-                    if (info.Pierced)
-                    {
-                        audioService.Play(SFX.Named(info.Target.SndPierced));
-                        yield return new WaitForSeconds(1f);
-                    }
-                    if (info.Damage > 0)
-                    {
-                        audioService.Play(SFX.Named(info.Target.SndHit));
-                        yield return new WaitForSeconds(1f);
-                    }
-                    if (info.Critical)
-                    {
-                        audioService.Play(SFX.Named(info.Target.SndCritHit));
-                        yield return new WaitForSeconds(1f);
-                    }
-
-                    if (info.TargetEffects.Length > 0)
-                    {
-                        StartCoroutine(ProcessEffects(info.TargetEffects, targetRM));
-                        while (effectsProcessingRunning)
-                            yield return null;
-                    }
-
-                    if (info.Lethal)
-                    {
-                        targetRM.HeroAnimation.Hit(true);
-                        audioService.Play(SFX.Named(info.Target.SndDied));
-                        yield return new WaitForSeconds(1f);
-                    }
-                }
-
-                yield return new WaitForSeconds(1f);
-
-                // ??
-                targetRM.Hero = info.Target;
-            }
-            else if (info.State == TurnState.TurnCompleted)
-            {
-                if (targetRM != null && info.Target.HealthCurrent <= 0)
-                    targetRM.Hero = Hero.Default;
-
-                if (attackerRM != null && info.Attacker.HealthCurrent <= 0)
-                    attackerRM.Hero = Hero.Default;
-
-                // move cards back or remove dead ones from the field.
-                if (attackerRM != null)
-                    attackerRM.HeroAnimation.transform.localPosition = Vector3.zero;
-                
-                if (targetRM != null)
-                    targetRM.HeroAnimation.transform.localPosition = Vector3.zero;
-
-                yield return new WaitForSeconds(.3f);
-
-            }
-            
-            turnStageProcessingActive = false;
+                default:
+                    break;
+            }            
         }
 
-        private IEnumerator ProcessEffects(DamageEffect[] effects, RaidMember rm)
+        private void EnqueueEffects(DamageEffect[] effects, RaidMember rm)
         {
-            effectsProcessingRunning = true;
-
             foreach (var effect in effects)
             {
-                rm.HeroAnimation.SetEffects(new DamageEffect[] { effect });
+                EnqueueTurnAnimation (() => {
+                    rm.HeroAnimation.SetEffects(new DamageEffect[] { effect });
 
-                rm.HeroAnimation.Hit(false);
-                var sfxName = effect switch
-                {
-                    DamageEffect.Bleeding => rm.Hero.SndBleeding,
-                    DamageEffect.Burning => rm.Hero.SndBurning,
-                    DamageEffect.Frozing => rm.Hero.SndFreezed,
-                    DamageEffect.Stunned => rm.Hero.SndStunned,
-                    _ => ""
-                };
+                    rm.HeroAnimation.Hit(false);
+                    var sfxName = effect switch
+                    {
+                        DamageEffect.Bleeding => rm.Hero.SndBleeding,
+                        DamageEffect.Burning => rm.Hero.SndBurning,
+                        DamageEffect.Frozing => rm.Hero.SndFreezed,
+                        DamageEffect.Stunned => rm.Hero.SndStunned,
+                        _ => ""
+                    };
 
-                if (sfxName != "")
-                    audioService.Play(SFX.Named(sfxName));
-
-                yield return new WaitForSeconds(1f);
-
-                rm.HeroAnimation.SetEffects(new DamageEffect[] { });
-
+                    if (sfxName != "")
+                        audioService.Play(SFX.Named(sfxName));
+                }, 1f);
             }
-
-            effectsProcessingRunning = false;
-
         }
     }
 }

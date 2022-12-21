@@ -114,38 +114,13 @@ namespace Assets.Scripts.Services
                 battle.SetState(BattleState.TeamsPrepared);
                 OnBattleEvent?.Invoke(battle);
 
-                StartCoroutine(PrepareNextRoundsCoroutines());
+                StartCoroutine(PrepareNextRoundsCoroutine());
             }
         }
         internal void RetreatBattle()
         {
             if (!retreatBattleRunning)
                 StartCoroutine(RetreatBattleCoroutine());
-        }
-
-        private IEnumerator RetreatBattleCoroutine()
-        {
-            retreatBattleRunning = true;
-
-            playMode = BattleMode.NA;
-
-            while (turnCoroutineRunning)
-                yield return null;
-
-            if (battle.State == BattleState.BattleStarted ||
-                battle.State == BattleState.BattleInProgress)
-            {
-                battle.SetWinnerTeamId(battle.EnemyTeam.Id);
-                battle.SetState(BattleState.Completed);
-
-                OnBattleEvent?.Invoke(battle);
-
-                yield return new WaitForSeconds(2.0f);
-            }
-
-            nav.NavigateToScreen(Screens.HeroesLibrary);
-            
-            retreatBattleRunning = false;
         }
 
         internal void BeginBattle()
@@ -182,8 +157,33 @@ namespace Assets.Scripts.Services
             if (!turnCoroutineRunning)
                 StartCoroutine(CompleteTurn());
         }
+        private IEnumerator RetreatBattleCoroutine()
+        {
+            retreatBattleRunning = true;
 
-        private IEnumerator PrepareNextRoundsCoroutines()
+            playMode = BattleMode.NA;
+
+            while (turnCoroutineRunning)
+                yield return null;
+
+            if (battle.State == BattleState.BattleStarted ||
+                battle.State == BattleState.BattleInProgress)
+            {
+                battle.SetWinnerTeamId(battle.EnemyTeam.Id);
+                battle.SetState(BattleState.Completed);
+
+                OnBattleEvent?.Invoke(battle);
+
+                yield return new WaitForSeconds(2.0f);
+            }
+
+            nav.NavigateToScreen(Screens.HeroesLibrary);
+
+            retreatBattleRunning = false;
+        }
+
+
+        private IEnumerator PrepareNextRoundsCoroutine()
         {
             if (battle.CurrentRound.State == RoundState.RoundCompleted)
                 battle.RoundsQueue.RemoveAt(0);

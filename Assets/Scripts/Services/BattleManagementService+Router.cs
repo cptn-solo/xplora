@@ -23,7 +23,7 @@ namespace Assets.Scripts.Services
                     break;
                 }
 
-                StartCoroutine(PrepareNextRoundsCoroutines());
+                StartCoroutine(PrepareNextRoundsCoroutine());
 
                 while (battle.State == BattleState.BattleInProgress && 
                     battle.CurrentRound.State != RoundState.RoundPrepared)
