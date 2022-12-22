@@ -9,12 +9,21 @@ namespace Assets.Scripts.UI.Common
         public Color Color { get; set; }
         public float Value { get; set; } // 0 - 1
 
-        public static BarInfo EmptyBarInfo(int id, string text, Color color, float value)
+        public static BarInfo EmptyBarInfo(int id, string text, Color? color, float value)
         {
             BarInfo barInfo = default;
             barInfo.Id = id;
             barInfo.Title = text;
-            barInfo.Color = color;
+            if (color == null)
+            {
+                var c = new Color
+                {
+                    a = 0f
+                };
+
+                color = c;
+            }
+            barInfo.Color = (Color)color;
             barInfo.Value = value;
             return barInfo;
         }

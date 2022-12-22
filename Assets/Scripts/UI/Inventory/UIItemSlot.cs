@@ -39,6 +39,8 @@ namespace Assets.Scripts.UI.Inventory
 
         public bool IsEmpty => transform.childCount == 0 || !transform.GetChild(0).gameObject.activeSelf;
 
+        public virtual void OnAwake() { }
+
         private void Awake()
         {
             backgroundImage = GetComponent<Image>();
@@ -46,6 +48,7 @@ namespace Assets.Scripts.UI.Inventory
             Color.RGBToHSV(normalColor, out var h, out var s, out var v);
             acceptingColor = Color.HSVToRGB(h, s, v * .7f);
             acceptingColor.a = normalColor.a;
+            OnAwake();
         }
 
         public virtual void Put(Transform itemTransform)

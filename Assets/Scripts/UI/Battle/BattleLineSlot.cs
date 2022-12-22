@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Assets.Scripts.UI.Battle
 {
     using HeroPosition = Tuple<int, BattleLine, int>;
-
     public class BattleLineSlot : UIItemSlot
     {
         private Hero hero;        

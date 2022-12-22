@@ -22,7 +22,6 @@ namespace Assets.Scripts.UI.Battle
         
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
-        [SerializeField] private BarsContainer barsContainer;
 
         [SerializeField] private HeroAnimation heroAnimation;
 
@@ -73,8 +72,6 @@ namespace Assets.Scripts.UI.Battle
                 
                 normalColor = hero.TeamId == 0 ? playerColor : enemyColor;
                 backgroundImage.color = normalColor;
-
-                barsContainer.SetData(hero.BarsInfoBattle);
                 
                 if (heroAnimation != null)
                 {

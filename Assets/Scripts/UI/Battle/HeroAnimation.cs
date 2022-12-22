@@ -21,13 +21,16 @@ namespace Assets.Scripts.UI.Battle
         private Animator animator;
 
         private bool initialized;
-        private readonly WaitForSeconds defaultWait = new(.2f);
+        private readonly WaitForSeconds defaultWait = new(.35f);
         private readonly WaitForSeconds waitOneSec = new(1f);
         
-        [SerializeField] private EffectsContainer effectsContainer;
-        [SerializeField] private Image piercedImage;
-        [SerializeField] private TextMeshProUGUI damageText;
-        [SerializeField] private TextMeshProUGUI effectText;               
+        private Overlay overlay;
+        
+        public void SetOverlay(Overlay overlay)
+        {
+            this.overlay = overlay;
+            overlay.Attach(transform);
+        }
 
         private void Awake()
         {
@@ -46,14 +49,17 @@ namespace Assets.Scripts.UI.Battle
         public void Initialize()
         {
             ResetAnimations();
-            ResetOverlayInfo();
+            overlay.ResetOverlayInfo();
             initialized = true;
         }
 
         internal void SetHero(Hero hero)
         {
             if (hero.HeroType == HeroType.NA)
+            {    
                 animator.runtimeAnimatorController = null;
+                overlay.ResetOverlayInfo();
+            }
             else
             {
                 if (hero.TeamId == 1)
@@ -69,6 +75,8 @@ namespace Assets.Scripts.UI.Battle
                         Instantiate(res) as RuntimeAnimatorController;
                 else
                     animator.runtimeAnimatorController = null;
+
+                overlay.SetBarsInfo(hero.BarsInfoBattle);
             }
 
         }
@@ -86,16 +94,7 @@ namespace Assets.Scripts.UI.Battle
 
         private void ResetEffects()
         {
-            effectsContainer.SetEffects(new DamageEffect[] { });
-        }
-
-        private void ResetOverlayInfo()
-        {
-            piercedImage.gameObject.SetActive(false);
-            damageText.text = "";
-            effectText.text = "";
-
-            effectsContainer.SetEffects(new DamageEffect[] { });
+            overlay.SetEffects(new DamageEffect[] { });
         }
 
         public void SetOverlayInfo(TurnStageInfo info)
@@ -134,23 +133,17 @@ namespace Assets.Scripts.UI.Battle
 
         private IEnumerator EffectsCoroutine(DamageEffect[] effects)
         {
-            effectsContainer.SetEffects(effects);
+            overlay.SetEffects(effects);
             yield return waitOneSec;
             ResetEffects();
         }
         private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
         {
-            piercedImage.gameObject.SetActive(info.IsPierced);
-            damageText.text = info.Damage > 0 ? $"{info.Damage}" : "";
-            effectText.text = info.EffectText;
-
-            effectsContainer.SetEffects(info.Effect != DamageEffect.NA ?
-                new DamageEffect[] { info.Effect } :
-                new DamageEffect[] { });
+            overlay.SetOverlayInfo(info);
 
             yield return waitOneSec;
 
-            ResetOverlayInfo();
+            overlay.ResetOverlayInfo();
         }
 
         private IEnumerator TimedAnimationCorotine(

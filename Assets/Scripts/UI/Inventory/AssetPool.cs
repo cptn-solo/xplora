@@ -11,6 +11,8 @@ namespace Assets.Scripts.UI.Inventory
     {
         [SerializeField] private GameObject itemPrefab;
         [SerializeField] private GameObject heroPrefab;
+        [SerializeField] private GameObject overlayPrefab;
+        [SerializeField] private Transform overlayParent;
 
         private readonly Dictionary<string, List<InventoryItem>> assetPool = new();
         private readonly Dictionary<int, List<RaidMember>> heroPool = new();
@@ -21,9 +23,17 @@ namespace Assets.Scripts.UI.Inventory
             RaidMember heroCard = Instantiate(heroPrefab).GetComponent<RaidMember>();
             heroCard.transform.localScale = scale;
             heroCard.transform.SetParent(transform);
+
+            Overlay overlay = Instantiate(overlayPrefab).GetComponent<Overlay>();
+            overlay.transform.localScale = scale;
+            overlay.transform.SetParent(overlayParent);
+            var ha = heroCard.GetComponentInChildren<HeroAnimation>();
+            ha.SetOverlay(overlay);
+
             heroCard.Hero = hero;
             heroCard.gameObject.SetActive(false);
             cachedItems.Add(heroCard);
+
             return heroCard;
         }
         private InventoryItem CreateCachedAssetCard(Asset asset, List<InventoryItem> cachedItems, Vector3 scale)

@@ -85,7 +85,7 @@ namespace Assets.Scripts.UI.Data
         public List<BarInfo> BarsInfoShort => BarsInfo.GetRange(0, 2);
         public List<BarInfo> BarsInfoBattle => new() {
             BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, HealthCurrent / 100f),
-            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / 10f),
+            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / 10f),
         };
 
         #endregion

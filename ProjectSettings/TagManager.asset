@@ -11,8 +11,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Sprite
+  - Overlay
   - 
   - 
   - 
@@ -40,4 +40,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Sprite
+    uniqueID: 1732741529
+    locked: 0
+  - name: Overlay
+    uniqueID: 692041559
     locked: 0
