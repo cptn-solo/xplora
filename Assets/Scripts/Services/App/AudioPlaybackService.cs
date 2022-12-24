@@ -24,11 +24,6 @@ namespace Assets.Scripts.Services.App
         private const string fxGroupKey = "FXVolume";
         private const string musicGroupKey = "MusicVolume";
 
-        private void Start()
-        {
-            InitAudioPlayback();            
-        }
-
         public void Play(SFX sfx)
         {
             if (sfx.IsMusic)
@@ -43,7 +38,8 @@ namespace Assets.Scripts.Services.App
         }
         public void Stop()
         {
-            music.Stop();
+            if (music != null)
+                music.Stop();
         }
 
         private void SetMixerValue(string key, float normalized)

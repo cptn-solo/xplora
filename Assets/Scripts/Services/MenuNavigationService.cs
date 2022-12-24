@@ -13,6 +13,11 @@ namespace Assets.Scripts.Services
         public event UnityAction<Screens> OnBeforeNavigateToScreen;
         public event UnityAction<Screens> OnNavigationToScreenComplete;
 
+        private void Start()
+        {
+            NavigateToScreen(Screens.HeroesLibrary);
+        }
+
         public void NavigateToScreen(Screens screen)
         {
             Debug.Log(screen);

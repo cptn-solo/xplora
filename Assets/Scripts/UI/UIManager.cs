@@ -27,12 +27,10 @@ namespace Assets.Scripts.UI
             
             appSettingsScreen = GetComponentInChildren<ApplicationSettingsScreen>(true);
             appSettingsScreen.OnCloseButtonPressed += AppSettingsScreen_OnCloseButtonPressed;
-
+            
             //ToggleScreen(Screens.Hub);
             //ToggleScreen(Screens.Battle);
             //ToggleScreen(Screens.HeroesLibrary);
-
-            StartCoroutine(LoadLobbyScene());
         }
 
         private void AppSettingsScreen_OnCloseButtonPressed()
