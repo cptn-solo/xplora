@@ -53,12 +53,18 @@ namespace Assets.Scripts.UI.Battle
             initialized = true;
         }
 
+        public void HideOverlay()
+        {
+            overlay.ResetOverlayInfo();
+            overlay.ResetBars();
+        }
+
         internal void SetHero(Hero hero)
         {
             if (hero.HeroType == HeroType.NA)
             {    
                 animator.runtimeAnimatorController = null;
-                overlay.ResetOverlayInfo();
+                HideOverlay();
             }
             else
             {

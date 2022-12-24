@@ -150,6 +150,11 @@ namespace Assets.Scripts.UI.Battle
             animator = GetComponent<Animator>();
         }
 
+        private void OnDisable()
+        {
+            if (heroAnimation != null)
+                heroAnimation.HideOverlay();
+        }
 
         public void OnPointerEnter(PointerEventData eventData)
         {

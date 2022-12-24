@@ -65,6 +65,12 @@ public class Overlay : MonoBehaviour
 
     internal void SetBarsInfo(List<BarInfo> barsInfoBattle)
     {
+        barsContainer.gameObject.SetActive(true);
         barsContainer.SetData(barsInfoBattle);
+    }
+
+    internal void ResetBars()
+    {
+        barsContainer.gameObject.SetActive(false);
     }
 }
