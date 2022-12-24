@@ -94,8 +94,6 @@ namespace Assets.Scripts.UI.Battle
             battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
             battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
             battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
-
-            audioService.Stop();
         }
 
         protected override void OnBeforeUpdate()

@@ -1,17 +1,12 @@
-using Assets.Scripts.Services.App;
 using Assets.Scripts.UI.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Zenject;
 
 namespace Assets.Scripts
 {
     public class IngameMusic : MonoBehaviour
     {
-
-        [Inject] private readonly AudioPlaybackService audioService;
-
         [SerializeField] private AudioClip[] sounds;
         
         private AudioSource audioSource;
@@ -24,24 +19,14 @@ namespace Assets.Scripts
                 soundsDict.Add(clip.name, clip);
         }
 
-        private void Start()
+        public void Play(SFX sfx)
         {
-            audioService.AttachMusic(this);
-        }
+            Debug.Log($"Play: sfx {sfx}");
+            var clip = soundsDict[sfx.FileName];
+            
+            Debug.Log($"Play: clip {clip.name}");
 
-        public void Play(SFX sfx) =>
-            StartCoroutine(ChangeTheme(soundsDict[sfx.FileName]));
-
-        public void Pause()
-        {
-            if (audioSource.isPlaying)
-                audioSource.Pause();
-        }
-
-        public void Resume()
-        {
-            if (audioSource.clip != null)
-                audioSource.Play();
+            StartCoroutine(nameof(ChangeTheme), clip);
         }
 
         public void Stop()
@@ -52,6 +37,7 @@ namespace Assets.Scripts
 
         private IEnumerator ChangeTheme(AudioClip theme)
         {
+            Debug.Log($"ChangeTheme {theme.name}");
             audioSource.Stop();
 
             while (audioSource.isPlaying)
@@ -59,16 +45,12 @@ namespace Assets.Scripts
 
             if (theme != null)
             {
+                Debug.Log("ChangeTheme: PLAY");
+
                 audioSource.clip = theme;
                 audioSource.Play();
             }
+            yield return null;
         }
-
-        private void OnDisable()
-        {
-            if (audioSource.isPlaying)
-                audioSource.Stop();
-        }
-
     }
 }

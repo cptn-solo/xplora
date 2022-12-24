@@ -142,6 +142,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a219b81adea1a4e94f7fc454bd9078, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  musicEventsSource: {fileID: 0}
-  mainTheme: {fileID: 8300000, guid: a78a52a828c23704d883e953148a9730, type: 3}
-  sadTheme: {fileID: 8300000, guid: 7fe3188a17d36a54baf15eb824520b83, type: 3}
+  sounds:
+  - {fileID: 8300000, guid: 6aca5da3beac0154dbeb9c117fbbc413, type: 3}
+  - {fileID: 8300000, guid: 3d852f082a680324e8afa3e6dd0e6711, type: 3}

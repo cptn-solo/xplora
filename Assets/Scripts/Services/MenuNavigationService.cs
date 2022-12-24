@@ -1,12 +1,17 @@
 ﻿using Assets.Scripts.UI;
 using Assets.Scripts.UI.Data;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.Services
 {
+    public delegate void NavigationCallback(Screens screen);
+
     public class MenuNavigationService : MonoBehaviour
     {
         public UIManager UIManager { get; set; }
+        public event UnityAction<Screens> OnBeforeNavigateToScreen;
+        public event UnityAction<Screens> OnNavigationToScreenComplete;
 
         public void NavigateToScreen(Screens screen)
         {
@@ -15,7 +20,10 @@ namespace Assets.Scripts.Services
             if (UIManager == null)
                 return;
 
-            UIManager.ToggleScreen(screen);
+            OnBeforeNavigateToScreen?.Invoke(screen);
+
+            UIManager.ToggleScreen(screen, (screen) =>
+                OnNavigationToScreenComplete?.Invoke(screen));
 
             switch (screen)
             {

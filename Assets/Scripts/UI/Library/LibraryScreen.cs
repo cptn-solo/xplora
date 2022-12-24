@@ -16,7 +16,6 @@ namespace Assets.Scripts.UI.Library
         [Inject] private readonly HeroLibraryManagementService libManager;
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly MenuNavigationService nav;
-        [Inject] private readonly AudioPlaybackService audioService;
 
 
         [SerializeField] private Transform libraryContainer;
@@ -87,7 +86,6 @@ namespace Assets.Scripts.UI.Library
         }
         protected override void OnBeforeDisable()
         {
-            audioService.Stop();
         }
 
         private void LibManager_OnDataAvailable()
@@ -95,8 +93,6 @@ namespace Assets.Scripts.UI.Library
             ShowHeroesLibraryCards();
             ShowPlayerCards();
             ShowEnemyCards();
-
-            audioService.Play(SFX.LibraryTheme);
         }
 
         private void ShowHeroesLibraryCards()

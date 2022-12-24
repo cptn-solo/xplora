@@ -1,26 +1,24 @@
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
-using System.Linq;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 namespace Assets.Scripts.UI
 {
     public class UIManager : MonoBehaviour
-    {
-        
-        private GameObject activeScreen;
-        private MenuScreen[] screens;
-
+    {        
         private HUD HUD;
         private ApplicationSettingsScreen appSettingsScreen;
+        private bool pauseBetweenScenes;
 
         [Inject]
         public void Construct(MenuNavigationService nav) =>
             nav.UIManager = this;
 
         private void Awake() =>
-            DontDestroyOnLoad(this.gameObject);
+            DontDestroyOnLoad(gameObject);
 
         private void Start()
         {
@@ -30,15 +28,11 @@ namespace Assets.Scripts.UI
             appSettingsScreen = GetComponentInChildren<ApplicationSettingsScreen>(true);
             appSettingsScreen.OnCloseButtonPressed += AppSettingsScreen_OnCloseButtonPressed;
 
-            screens = GetComponentsInChildren<MenuScreen>(true);
-
-            foreach (var screen in screens)
-                screen.gameObject.SetActive(false);
-
             //ToggleScreen(Screens.Hub);
             //ToggleScreen(Screens.Battle);
-            ToggleScreen(Screens.HeroesLibrary);
+            //ToggleScreen(Screens.HeroesLibrary);
 
+            StartCoroutine(LoadLobbyScene());
         }
 
         private void AppSettingsScreen_OnCloseButtonPressed()
@@ -53,20 +47,39 @@ namespace Assets.Scripts.UI
             HUD.gameObject.SetActive(false);
         }
 
-        public void ToggleScreen(Screens screen)
+        public void ToggleScreen(Screens screen, NavigationCallback callback)
         {
-            var obj = screens.Where(x => x.Screen == screen).FirstOrDefault();
-            
-            if (obj == default)
-                return;
+            var sceneName = screen switch
+            {
+                Screens.HeroesLibrary => "Library",
+                Screens.Battle => "Battle",
+                _ => "Lobby"
+            };
 
-            if (activeScreen != null)
-                activeScreen.SetActive(false);
-
-            obj.gameObject.SetActive(true);
-            this.activeScreen = obj.gameObject;
-
+            SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single)
+                .completed += (op) => {
+                    Debug.Log($"Loaded scene: {sceneName}");
+                    callback(screen);
+                };
         }
 
+        private IEnumerator LoadLobbyScene()
+        {
+            var op = SceneManager.LoadSceneAsync("Lobby", LoadSceneMode.Single);
+            op.allowSceneActivation = false;
+
+            while (op.progress < .9f)
+                yield return null;
+
+            if (pauseBetweenScenes)
+                yield return new WaitForSecondsRealtime(3.0f);
+
+            op.allowSceneActivation = true;
+
+            while (!op.isDone)
+                yield return null;
+
+            Debug.Log("Lobby scene loaded");
+        }
     }
 }

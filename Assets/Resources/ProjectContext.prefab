@@ -136,7 +136,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPreferencesService: {fileID: 193555391534217768}
   mixer: {fileID: 24100000, guid: 78ea5aabf4efed3488b5d341ad776e27, type: 2}
-  meleeAttack: {fileID: 8300000, guid: 9d514d63ba2f62241b02156819679330, type: 3}
+  musicPrefab: {fileID: 7495926522565007370, guid: 2f268aa77372396439c1833f2c189a5e,
+    type: 3}
+  soundsPrefab: {fileID: 8340243710106309456, guid: f791c3785e35b6748875bf1dabcab29a,
+    type: 3}
 --- !u!114 &193555391534217768
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
 ﻿using Assets.Scripts.UI.Data;
+using System;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.Services.App
 {
@@ -9,8 +11,12 @@ namespace Assets.Scripts.Services.App
         [SerializeField] private PlayerPreferencesService playerPreferencesService;
         [SerializeField] private AudioMixer mixer;
 
-        private IngameSounds sounds;
+        [SerializeField] private GameObject musicPrefab;
+        [SerializeField] private GameObject soundsPrefab;
+
         private IngameMusic music;
+        private IngameSounds sounds;
+
         private SFX currentTheme;
 
         public SFX CurrentTheme => currentTheme;
@@ -23,7 +29,7 @@ namespace Assets.Scripts.Services.App
             InitAudioPlayback();            
         }
 
-        public void Play(SFX sfx, bool mix = false)
+        public void Play(SFX sfx)
         {
             if (sfx.IsMusic)
             {
@@ -38,22 +44,6 @@ namespace Assets.Scripts.Services.App
         public void Stop()
         {
             music.Stop();
-        }
-
-        public void Resume()
-        {
-            music.Resume();
-        }
-
-
-        public void AttachSounds(IngameSounds sounds)
-        {
-            this.sounds = sounds;
-        }
-
-        public void AttachMusic(IngameMusic music)
-        {
-            this.music = music;
         }
 
         private void SetMixerValue(string key, float normalized)
@@ -103,9 +93,55 @@ namespace Assets.Scripts.Services.App
 
         public void InitAudioPlayback()
         {
+            music = Instantiate(musicPrefab).GetComponent<IngameMusic>();
+            DontDestroyOnLoad(music);
+
+            sounds = Instantiate(soundsPrefab).GetComponent<IngameSounds>();
+            DontDestroyOnLoad(sounds);
+
             //AudioListener.volume = MusicVolume;
             SetMixerValue(musicGroupKey, MusicVolume);
             SetMixerValue(fxGroupKey, SfxVolume);
+        }
+
+        internal void AttachToNavigation(MenuNavigationService menuNavigationService)
+        {
+            menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
+            menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
+        }
+
+        private void MenuNavigationService_OnNavigationToScreenComplete(Screens arg0)
+        {
+            switch (arg0)
+            {
+                case Screens.NA:
+                    break;
+                case Screens.Hub:
+                    break;
+                case Screens.Raid:
+                    break;
+                case Screens.Missions:
+                    break;
+                case Screens.Resources:
+                    break;
+                case Screens.Heroes:
+                    break;
+                case Screens.Buildings:
+                    break;
+                case Screens.Battle:
+                    break;
+                case Screens.HeroesLibrary:
+                    Play(SFX.LibraryTheme);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        private void MenuNavigationService_OnBeforeNavigateToScreen(Screens arg0)
+        {
+            Stop();
         }
     }
 }

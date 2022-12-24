@@ -42,6 +42,7 @@ namespace Assets.Scripts
         {
             libManagementService.LoadData();
             battleManagementService.LoadData();
+            audioPlaybackService.AttachToNavigation(menuNavigationService);
         }
 
         private void BindInstallerInterfaces()
