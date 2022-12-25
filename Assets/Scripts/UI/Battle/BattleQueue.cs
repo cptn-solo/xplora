@@ -18,12 +18,10 @@ namespace Assets.Scripts.UI.Battle
 
         internal void ResetQueue()
         {
-            var emptyEffects = new DamageEffect[] { };
             var emptyHero = Hero.Default;
             foreach (var slot in combinedSlots)
             {
                 slot.QueueMember.Hero = emptyHero;
-                slot.QueueMember.SetEffects(emptyEffects);
             }
         }
 
@@ -36,8 +34,6 @@ namespace Assets.Scripts.UI.Battle
                 var queueMember = combinedSlots[idx].QueueMember;
                 var slotInfo = heroes[idx];
                 queueMember.Hero = libraryService.Library.HeroById(slotInfo.HeroId);
-                queueMember.SetEffects(slotInfo.Effects.ToArray());
-
             }
         }
 
@@ -52,9 +48,8 @@ namespace Assets.Scripts.UI.Battle
         {
             var slots = battleQueuePanel.GetComponentsInChildren<BattleQueueSlot>(true);
             var emptyHero = Hero.Default;
-            var emptyEffects = new DamageEffect[] { };
             foreach (var slot in slots)
-                slot.InitQueueMember(emptyHero, emptyEffects);
+                slot.InitQueueMember(emptyHero);
 
             combinedSlots = slots
                 .OrderBy(x => x.QueueIndex)

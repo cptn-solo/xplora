@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.UI.Common;
-using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.UI.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +11,6 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Image heroIdleImage;
 
         [SerializeField] private TextMeshProUGUI heroNameText;
-        [SerializeField] private EffectsContainer effectsContainer;
 
         private Color normalColor;
         private Image backgroundImage;
@@ -41,9 +39,6 @@ namespace Assets.Scripts.UI.Battle
                 normalColor = hero.TeamId == 0 ? playerColor : enemyColor;
                 backgroundImage.color = normalColor;
             }
-        }
-        public void SetEffects(DamageEffect[] effects) {
-            effectsContainer.SetEffects(effects);
         }
 
         private void ResolveIcons()

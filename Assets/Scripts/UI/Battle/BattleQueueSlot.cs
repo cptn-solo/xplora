@@ -13,11 +13,10 @@ namespace Assets.Scripts.UI.Battle
 
         public int QueueIndex => queueIndex;
         
-        public void InitQueueMember(Hero hero, DamageEffect[] effects)
+        public void InitQueueMember(Hero hero)
         {
             queueMember = GetComponentInChildren<QueueMember>();
             queueMember.Hero = hero;
-            queueMember.SetEffects(effects);
         }
     }
 }
