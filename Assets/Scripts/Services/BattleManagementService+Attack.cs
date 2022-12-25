@@ -51,7 +51,7 @@ namespace Assets.Scripts.Services
                         targetEffects = targetEffects.Concat(new DamageEffect[]{
                             damageEffect.Effect }).ToArray();
                         extraDamage = damageEffect.ExtraDamage;
-                        EnqueueEffectToRounds(damageEffect, target);
+                        target = target.EnqueEffect(damageEffect);
                     }
                 }
 

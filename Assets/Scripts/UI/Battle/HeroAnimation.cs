@@ -56,7 +56,7 @@ namespace Assets.Scripts.UI.Battle
         public void HideOverlay()
         {
             overlay.ResetOverlayInfo();
-            overlay.ResetBars();
+            overlay.ResetBarsAndEffects();
         }
 
         internal void SetHero(Hero hero)
@@ -82,7 +82,9 @@ namespace Assets.Scripts.UI.Battle
                 else
                     animator.runtimeAnimatorController = null;
 
-                overlay.SetBarsInfo(hero.BarsInfoBattle);
+                overlay.SetBarsEndEffectsInfo(
+                    hero.BarsInfoBattle,
+                    hero.ActiveEffects);
             }
 
         }
@@ -98,19 +100,14 @@ namespace Assets.Scripts.UI.Battle
             animator.Play(AnimStageIdle);
         }
 
-        private void ResetEffects()
-        {
-            overlay.SetEffects(new DamageEffect[] { });
-        }
-
         public void SetOverlayInfo(TurnStageInfo info)
         {
             StartCoroutine(OverlayInfoCoroutine(info));
         }
 
-        public void SetEffects(DamageEffect[] effects)
+        public void FlashEffect(DamageEffect effect)
         {
-            StartCoroutine(EffectsCoroutine(effects));
+            overlay.FlashEffect(effect);
         }
         internal void Run(float sec = -1f, Vector3 position = default)
         {
@@ -137,12 +134,6 @@ namespace Assets.Scripts.UI.Battle
             StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
         }
 
-        private IEnumerator EffectsCoroutine(DamageEffect[] effects)
-        {
-            overlay.SetEffects(effects);
-            yield return waitOneSec;
-            ResetEffects();
-        }
         private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
         {
             overlay.SetOverlayInfo(info);

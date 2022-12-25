@@ -88,6 +88,8 @@ namespace Assets.Scripts.UI.Data
             BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / 10f),
         };
 
+        public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }
+
         #endregion
 
         #region Visual/Inventory

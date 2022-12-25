@@ -14,6 +14,41 @@ namespace Assets.Scripts.UI.Data
         public bool RandomResistBleeding => ResistBleedRate.RatedRandomBool();
         public bool RandomResistPierced => false;
         public bool RandomResistBurning => ResistBurnRate.RatedRandomBool();
-        public bool RandomResistFrozing => ResistFrostRate.RatedRandomBool();        
+        public bool RandomResistFrozing => ResistFrostRate.RatedRandomBool();
+
+        internal Hero EnqueEffect(DamageEffectInfo damageEffect)
+        {
+            var existing = ActiveEffects;
+            
+            var count = damageEffect.RoundOff - damageEffect.RoundOn;
+            if (existing.TryGetValue(damageEffect.Effect, out var effect))
+                existing[damageEffect.Effect] = count;
+            else
+                existing.Add(damageEffect.Effect, count);
+
+            ActiveEffects = existing;
+
+            return this;
+        }
+
+        internal Hero UseEffect(DamageEffect effect, out bool used)
+        {
+            var existing = ActiveEffects;
+
+            used = false;
+
+            if (existing.TryGetValue(effect, out var count))
+            {
+                if (count > 1)
+                    existing[effect] = count - 1;
+                else existing.Remove(effect);
+
+                used = true;
+            }
+
+            ActiveEffects = existing;
+
+            return this;
+        }
     }
 }

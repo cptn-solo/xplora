@@ -250,7 +250,7 @@ namespace Assets.Scripts.UI.Battle
             foreach (var effect in effects)
             {
                 EnqueueTurnAnimation (() => {
-                    rm.HeroAnimation.SetEffects(new DamageEffect[] { effect });
+                    rm.HeroAnimation.FlashEffect(effect);
                     rm.HeroAnimation.SetOverlayInfo(TurnStageInfo.EffectDamage(effect, extraDamage));
                     rm.HeroAnimation.Hit(false);
                     var sfxName = effect switch

@@ -253,12 +253,12 @@ namespace Assets.Scripts.Services
         internal void PrepareTurn()
         {
             var roundSlot = battle.CurrentRound.QueuedHeroes[0];
-            var attaker = libraryManager.Library.HeroById(roundSlot.HeroId);
+            var attacker = libraryManager.Library.HeroById(roundSlot.HeroId);
 
             if (roundSlot.Skipped)
             {
-                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker,
-                    0, roundSlot.Effects.ToArray());
+                var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attacker,
+                    0, attacker.ActiveEffects.Keys.ToArray());
                 battle.SetTurnInfo(skippedInfo);
                 battle.SetTurnState(TurnState.TurnSkipped);
             }
@@ -269,7 +269,7 @@ namespace Assets.Scripts.Services
                     battle.EnemyHeroes.ToArray() : battle.PlayerHeroes.ToArray();
 
                 Hero target = default;
-                if (attaker.Ranged)
+                if (attacker.Ranged)
                 {
                     target = targets[Random.Range(0, targets.Length)];
                 }
@@ -285,8 +285,8 @@ namespace Assets.Scripts.Services
                         Hero.Default;
                 }
 
-                var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attaker, target,
-                    0, roundSlot.Effects.ToArray(), null);
+                var turnInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attacker, target,
+                    0, attacker.ActiveEffects.Keys.ToArray(), null);
                 battle.SetTurnInfo(turnInfo);
 
                 if (target.HeroType == HeroType.NA)

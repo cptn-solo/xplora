@@ -33,6 +33,7 @@ namespace Assets.Scripts.UI.Data
             hero.IdleSpriteName = idleSpriteName;
             hero.TeamId = -1;
             hero.Line = BattleLine.NA;
+            hero.ActiveEffects = new();
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();

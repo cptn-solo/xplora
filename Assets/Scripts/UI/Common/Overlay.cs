@@ -1,7 +1,5 @@
-using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -19,31 +17,14 @@ public class Overlay : MonoBehaviour
     public void Attach(Transform anchor) =>
         this.anchor = anchor;
 
-    public void Detach()
-    {
-        this.anchor = null;
-        Destroy(this.gameObject);
-    }
-
-    internal void SetEffects(DamageEffect[] damageEffects)
-    {
-        effectsContainer.SetEffects(new DamageEffect[] { });
-    }
+    internal void FlashEffect(DamageEffect damageEffect) =>
+        effectsContainer.FlashEffect(damageEffect);
 
     internal void ResetOverlayInfo()
     {
         piercedImage.gameObject.SetActive(false);
         damageText.text = "";
         effectText.text = "";
-
-        effectsContainer.SetEffects(new DamageEffect[] { });
-    }
-
-
-    private void Awake()
-    {
-        //var r = GetComponent<Renderer>();
-        //r.sortingLayerName = "Overlay";
     }
 
     private void Update()
@@ -58,19 +39,24 @@ public class Overlay : MonoBehaviour
         damageText.text = info.Damage > 0 ? $"{info.Damage}" : "";
         effectText.text = info.EffectText;
 
-        effectsContainer.SetEffects(info.Effect != DamageEffect.NA ?
-            new DamageEffect[] { info.Effect } :
-            new DamageEffect[] { });
+        if (info.Effect != DamageEffect.NA)
+            effectsContainer.FlashEffect(info.Effect);
     }
 
-    internal void SetBarsInfo(List<BarInfo> barsInfoBattle)
+    internal void SetBarsEndEffectsInfo(
+        List<BarInfo> barsInfoBattle,
+        Dictionary<DamageEffect, int> effects)
     {
         barsContainer.gameObject.SetActive(true);
         barsContainer.SetData(barsInfoBattle);
+
+        effectsContainer.gameObject.SetActive(true);
+        effectsContainer.SetEffects(effects);
     }
 
-    internal void ResetBars()
+    internal void ResetBarsAndEffects()
     {
         barsContainer.gameObject.SetActive(false);
+        effectsContainer.gameObject.SetActive(false);
     }
 }
