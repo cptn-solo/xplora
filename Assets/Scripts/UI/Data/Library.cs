@@ -118,13 +118,14 @@ namespace Assets.Scripts.UI.Data
             return true;
         }
 
-        public void ResetHealthCurrent()
+        public void ResetHealthAndEffects()
         {
             var keys = heroById.Select(x => x.Key).ToArray();
             foreach (var item in keys)
             {
                 var hero = heroById[item];
                 hero.HealthCurrent = 100;
+                hero = hero.ResetEffects();
                 heroById[item] = hero;
             }    
         }

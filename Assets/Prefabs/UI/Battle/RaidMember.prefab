@@ -738,7 +738,6 @@ MonoBehaviour:
   secDefenceImage: {fileID: 8393220847439387458}
   heroIconImage: {fileID: 948249745611959330}
   heroNameText: {fileID: 948249746073738884}
-  barsContainer: {fileID: 0}
   heroAnimation: {fileID: 1529456606315441028}
   acceptingColor: {r: 0.18222119, g: 0.735849, b: 0.14346735, a: 0.9137255}
   selectedColor: {r: 0.048059728, g: 0.08813983, b: 0.764151, a: 0.95686275}
@@ -1227,7 +1226,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8477129558095615965}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 58.600006, y: 33.399994, z: 0}
+  m_LocalPosition: {x: 28, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1329,7 +1328,7 @@ RectTransform:
   m_GameObject: {fileID: 8570503682362849826}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5765479755007962460}

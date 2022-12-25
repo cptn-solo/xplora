@@ -302,11 +302,11 @@ namespace Assets.Scripts.Services
         }
 
         internal void ResetHealthCurrent() =>
-            library.ResetHealthCurrent();
+            library.ResetHealthAndEffects();
         internal void ResetTeams()
         {
             library = Library.ResetTeamAssets();
-            Library.ResetHealthCurrent();
+            Library.ResetHealthAndEffects();
 
         }
     }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 namespace Assets.Scripts.UI.Data
 {
@@ -45,6 +46,16 @@ namespace Assets.Scripts.UI.Data
 
                 used = true;
             }
+
+            ActiveEffects = existing;
+
+            return this;
+        }
+
+        internal Hero ResetEffects()
+        {
+            var existing = ActiveEffects;
+            existing.Clear();
 
             ActiveEffects = existing;
 

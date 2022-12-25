@@ -25,7 +25,9 @@ namespace Assets.Scripts.UI.Battle
         private readonly WaitForSeconds waitOneSec = new(1f);
         
         private Overlay overlay;
-        
+        private Vector3 scaleBeforeMove = Vector3.zero;
+        private Vector3 overlayScaleBeforeMove = Vector3.zero;
+
         public void SetOverlay(Overlay overlay)
         {
             this.overlay = overlay;
@@ -70,9 +72,9 @@ namespace Assets.Scripts.UI.Battle
             {
                 if (hero.TeamId == 1)
                 {
-                    var ls = transform.localScale;
-                    ls.x = -1;
-                    transform.localScale = ls;
+                    var lr = transform.localRotation;
+                    lr.y = 180f;
+                    transform.localRotation = lr;
                 }
 
                 var res = Resources.Load($"Hero_{hero.Id}");
@@ -164,15 +166,26 @@ namespace Assets.Scripts.UI.Battle
         private IEnumerator MoveSpriteCoroutine(Vector3 position = default, float sec = -1f)
         {
             var mt = transform.parent.transform;
-            var delta = sec;
+            var delta = 0f;
             mt.localPosition = Vector3.zero;
             var move = position - transform.position;
+            
+            scaleBeforeMove = transform.localScale;
+            overlayScaleBeforeMove = overlay.transform.localScale;
 
-            while (delta > 0f)
+            while (delta <= sec)
             {
                 mt.position += move * Time.deltaTime;
+                
+                var targetScale = scaleBeforeMove * (1 + 2 * delta / sec);
+                targetScale.z = 1;
+                transform.localScale = targetScale;
+                
+                var orevlayTargetScale = overlayScaleBeforeMove * (1 + 2 * delta / sec);
+                orevlayTargetScale.z = 1;
+                overlay.transform.localScale = orevlayTargetScale;
 
-                delta -= Time.deltaTime;
+                delta += Time.deltaTime;
 
                 yield return null;
             }
@@ -181,6 +194,12 @@ namespace Assets.Scripts.UI.Battle
         internal void MoveSpriteBack()
         {
             transform.parent.transform.localPosition = Vector3.zero;
+            
+            if (scaleBeforeMove != Vector3.zero)
+                transform.localScale = scaleBeforeMove;
+
+            if (overlayScaleBeforeMove != Vector3.zero)
+                overlay.transform.localScale = overlayScaleBeforeMove;
         }
     }
 }
