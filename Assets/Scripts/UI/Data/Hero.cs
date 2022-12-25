@@ -8,9 +8,7 @@ namespace Assets.Scripts.UI.Data
     {
         public override string ToString()
         { 
-            var current = (int)(HealthCurrent * (Health / 100f));
-
-            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}/{current}";
+            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}";
         }
 
         public static Hero Default =>
@@ -43,11 +41,10 @@ namespace Assets.Scripts.UI.Data
 
         public Hero UpdateHealthCurrent(int damage, out int displayVal, out int currentVal)
         {
-            var unit = Health / 100f;
-            var result = Mathf.Max(0, HealthCurrent - (int)(damage / unit));
-            
-            displayVal = result;
-            currentVal = (int)(result * unit);
+            var result = Mathf.Max(0, HealthCurrent - damage);
+            var ratio = (float)(result / Health);
+            displayVal = (int)(100f * ratio);
+            currentVal = result;
             HealthCurrent = result;
 
             return this;
