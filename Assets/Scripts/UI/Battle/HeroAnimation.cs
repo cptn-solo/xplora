@@ -26,7 +26,6 @@ namespace Assets.Scripts.UI.Battle
         
         private Overlay overlay;
         private Vector3 scaleBeforeMove = Vector3.zero;
-        private Vector3 overlayScaleBeforeMove = Vector3.zero;
 
         public void SetOverlay(Overlay overlay)
         {
@@ -171,7 +170,6 @@ namespace Assets.Scripts.UI.Battle
             var move = position - transform.position;
             
             scaleBeforeMove = transform.localScale;
-            overlayScaleBeforeMove = overlay.transform.localScale;
 
             while (delta <= sec)
             {
@@ -181,10 +179,6 @@ namespace Assets.Scripts.UI.Battle
                 targetScale.z = 1;
                 transform.localScale = targetScale;
                 
-                var orevlayTargetScale = overlayScaleBeforeMove * (1 + 2 * delta / sec);
-                orevlayTargetScale.z = 1;
-                overlay.transform.localScale = orevlayTargetScale;
-
                 delta += Time.deltaTime;
 
                 yield return null;
@@ -197,9 +191,6 @@ namespace Assets.Scripts.UI.Battle
             
             if (scaleBeforeMove != Vector3.zero)
                 transform.localScale = scaleBeforeMove;
-
-            if (overlayScaleBeforeMove != Vector3.zero)
-                overlay.transform.localScale = overlayScaleBeforeMove;
         }
     }
 }

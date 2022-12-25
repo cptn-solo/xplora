@@ -14,6 +14,8 @@ public class Overlay : MonoBehaviour
     [SerializeField] private BarsContainer barsContainer;
 
     private Transform anchor;
+    private Vector3 prevAnchorScale;
+
     public void Attach(Transform anchor) =>
         this.anchor = anchor;
 
@@ -29,8 +31,17 @@ public class Overlay : MonoBehaviour
 
     private void Update()
     {
-        if (anchor != null)
-            transform.position = anchor.transform.position;
+        if (anchor == null)
+            return;
+
+        transform.position = anchor.transform.position;
+
+        if (prevAnchorScale != Vector3.zero &&
+            prevAnchorScale.x != anchor.transform.localScale.x)
+            transform.localScale *= anchor.transform.localScale.x / prevAnchorScale.x;
+
+        prevAnchorScale = anchor.localScale;
+
     }
 
     internal void SetOverlayInfo(TurnStageInfo info)

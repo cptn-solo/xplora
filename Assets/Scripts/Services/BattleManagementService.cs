@@ -255,7 +255,7 @@ namespace Assets.Scripts.Services
             var roundSlot = battle.CurrentRound.QueuedHeroes[0];
             var attacker = libraryManager.Library.HeroById(roundSlot.HeroId);
 
-            if (roundSlot.Skipped)
+            if (attacker.SkipTurnActive)
             {
                 var skippedInfo = BattleTurnInfo.Create(battle.CurrentTurn.Turn, attacker,
                     0, attacker.ActiveEffects.Keys.ToArray());

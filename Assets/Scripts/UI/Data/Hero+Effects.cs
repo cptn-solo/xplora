@@ -17,6 +17,10 @@ namespace Assets.Scripts.UI.Data
         public bool RandomResistBurning => ResistBurnRate.RatedRandomBool();
         public bool RandomResistFrozing => ResistFrostRate.RatedRandomBool();
 
+        public bool SkipTurnActive =>
+            ActiveEffects.ContainsKey(DamageEffect.Frozing) ||
+            ActiveEffects.ContainsKey(DamageEffect.Stunned);
+
         internal Hero EnqueEffect(DamageEffectInfo damageEffect)
         {
             var existing = ActiveEffects;

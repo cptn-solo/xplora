@@ -5,7 +5,6 @@
         public int HeroId { get; private set; }
         public string HeroName { get; private set; }
         public int TeamId { get; private set; }
-        public bool Skipped { get; private set; }
 
         public static RoundSlotInfo Create(Hero hero)
         {
