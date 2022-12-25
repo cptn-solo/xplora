@@ -137,7 +137,7 @@ namespace Assets.Scripts.UI.Battle
                     else
                     {
                         EnqueueTurnAnimation(() => {
-                            targetRM.HeroAnimation.Hit(false);
+                            targetRM.HeroAnimation.Hit();
                         });
 
                         if (info.Pierced)
@@ -165,13 +165,14 @@ namespace Assets.Scripts.UI.Battle
 
                         if (info.Lethal)
                             EnqueueTurnAnimation(() => {
-                                targetRM.HeroAnimation.Hit(true);
+                                targetRM.HeroAnimation.Death();
                                 audioService.Play(SFX.Named(info.Target.SndDied));
                             }, 1f);
                     }
 
-                    EnqueueTurnAnimation(() => { }, 1f);
+                    EnqueueTurnAnimation(() => { }, .1f);
                     EnqueueTurnAnimation(() => targetRM.Hero = info.Target);
+                    EnqueueTurnAnimation(() => { }, 1f);
 
                     break;
 
@@ -183,17 +184,18 @@ namespace Assets.Scripts.UI.Battle
                         EnqueueEffects(info.AttackerEffects, attackerRM, info.Damage);
                     else if (info.Damage > 0)
                         EnqueueTurnAnimation(() => {
-                            attackerRM.HeroAnimation.Hit(false);
+                            attackerRM.HeroAnimation.Hit();
                             audioService.Play(SFX.Named(info.Attacker.SndHit));
                         }, 1f);
 
                     if (lethal)
                         EnqueueTurnAnimation(() => {
-                            attackerRM.HeroAnimation.Hit(true);
+                            attackerRM.HeroAnimation.Death();
                             audioService.Play(SFX.Named(info.Attacker.SndDied));
                         }, 1f);
-
-                    EnqueueTurnAnimation(() => attackerRM.Hero = info.Attacker);
+                    
+                    if (!lethal)
+                        EnqueueTurnAnimation(() => attackerRM.Hero = info.Attacker);
                     
                     break;
 
@@ -252,7 +254,7 @@ namespace Assets.Scripts.UI.Battle
                 EnqueueTurnAnimation (() => {
                     rm.HeroAnimation.FlashEffect(effect);
                     rm.HeroAnimation.SetOverlayInfo(TurnStageInfo.EffectDamage(effect, extraDamage));
-                    rm.HeroAnimation.Hit(false);
+                    rm.HeroAnimation.Hit();
                     var sfxName = effect switch
                     {
                         DamageEffect.Bleeding => rm.Hero.SndBleeding,

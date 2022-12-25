@@ -123,16 +123,13 @@ namespace Assets.Scripts.UI.Battle
                 StartCoroutine(TimedAnimationCorotine(AnimBoolRangeAttack, .5f, .6f));
 
         }
-        public void Hit(bool lethal)
+        public void Hit()
         {
-            if (lethal)
-                StartCoroutine(TimedAnimationCorotine(AnimBoolDeath));
-            else
-                StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
+            StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
         }
         public void Death()
         {
-            StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
+            StartCoroutine(DeathAnimationCorotine());
         }
 
         private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
@@ -160,7 +157,17 @@ namespace Assets.Scripts.UI.Battle
             animator.SetBool(animationCode, true);
             yield return stopAfter;
             animator.SetBool(animationCode, false);
-        }        
+        }
+        private IEnumerator DeathAnimationCorotine()
+        {
+            animator.SetBool(AnimBoolDeath, true);
+            yield return defaultWait;
+
+            var spriteR = GetComponent<SpriteRenderer>();
+            spriteR.enabled = false;
+
+            animator.SetBool(AnimBoolDeath, true);
+        }
 
         private IEnumerator MoveSpriteCoroutine(Vector3 position = default, float sec = -1f)
         {

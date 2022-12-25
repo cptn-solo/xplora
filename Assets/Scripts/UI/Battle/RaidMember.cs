@@ -1,8 +1,5 @@
-using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,8 +10,6 @@ namespace Assets.Scripts.UI.Battle
 {
     public class RaidMember : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        private const string AnimatorBuzz = "buzz";
-
         [SerializeField] private Image priAttackImage;
         [SerializeField] private Image secAttackImage;
         [SerializeField] private Image priDefenceImage;
@@ -24,8 +19,6 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private TextMeshProUGUI heroNameText;
 
         [SerializeField] private HeroAnimation heroAnimation;
-
-        private Animator animator;
 
         public HeroAnimation HeroAnimation => heroAnimation;
 
@@ -49,11 +42,6 @@ namespace Assets.Scripts.UI.Battle
             get => hero;
             set
             {
-                if (hero.HeroType != HeroType.NA && 
-                    value.HeroType != HeroType.NA &&
-                    hero.HealthCurrent > value.HealthCurrent)
-                    StartCoroutine(AnimateDamage());
-
                 hero = value;
                 if (hero.HeroType == HeroType.NA)
                 {
@@ -79,13 +67,6 @@ namespace Assets.Scripts.UI.Battle
                     heroAnimation.Initialize();
                 }
             }
-        }
-
-        private IEnumerator AnimateDamage()
-        {
-            animator.SetBool(AnimatorBuzz, true);
-            yield return new WaitForSeconds(.6f);
-            animator.SetBool(AnimatorBuzz, false);
         }
 
         private bool selected;
@@ -147,7 +128,6 @@ namespace Assets.Scripts.UI.Battle
         {
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
-            animator = GetComponent<Animator>();
         }
 
         private void OnDisable()
