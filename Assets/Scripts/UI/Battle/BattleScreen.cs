@@ -33,6 +33,7 @@ namespace Assets.Scripts.UI.Battle
 
         [SerializeField] private Transform playerBattleGround;        
         [SerializeField] private Transform enemyBattleGround;
+        [SerializeField] private Transform attackerBattleGround;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];

@@ -92,20 +92,16 @@ namespace Assets.Scripts.UI.Battle
         }
         private void ScheduleTurnStageAnimations(BattleTurnInfo info)
         {
-            var attackerPos =
-                info.Attacker.TeamId == libraryManager.PlayerTeam.Id ?
-                playerBattleGround.position : enemyBattleGround.position;
-            var targetPos =
-                info.State == TurnState.TurnSkipped ||
-                info.State == TurnState.TurnEffects ? default : 
-                info.Target.TeamId == libraryManager.PlayerTeam.Id ?
-                playerBattleGround.position : enemyBattleGround.position;
+            var attackerPos = attackerBattleGround.position;
 
             var attackerRM = RaidMemberForHero(info.Attacker);
             var targetRM = 
                 info.State == TurnState.TurnSkipped ||
                 info.State == TurnState.TurnEffects ? null : 
                 RaidMemberForHero(info.Target);
+
+            if (targetRM != null)
+                attackerPos.y = targetRM.transform.position.y;
 
             switch (info.State)
             {
@@ -114,8 +110,11 @@ namespace Assets.Scripts.UI.Battle
                     EnqueueTurnAnimation(() => {
                         // move both cards
                         var move = 1.0f;
-                        attackerRM.HeroAnimation.Run(move, attackerPos);
-                        targetRM.HeroAnimation.Run(move, targetPos);
+                        
+                        attackerRM.HeroAnimation.Run(move, attackerPos);                        
+                        attackerRM.HeroAnimation.Zoom(move);
+                        
+                        targetRM.HeroAnimation.Zoom(move);
                     }, 1.3f);
                     
                     break;
@@ -202,10 +201,9 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnSkipped:
                     
                     EnqueueTurnAnimation(() => {
-                        // move only attacker card to show effects (if any)
                         var move = 1.0f;
-                        attackerRM.HeroAnimation.Run(move, attackerPos);
-                    }, .3f);
+                        attackerRM.HeroAnimation.Zoom(move);
+                    }, 1f);
                     
                     break;
 
