@@ -110,10 +110,12 @@ namespace Assets.Scripts.UI.Battle
                     EnqueueTurnAnimation(() => {
                         // move both cards
                         var move = 1.0f;
-                        
+
+                        attackerRM.HeroAnimation.Highlight(true);
                         attackerRM.HeroAnimation.Run(move, attackerPos);                        
                         attackerRM.HeroAnimation.Zoom(move);
-                        
+
+                        targetRM.HeroAnimation.Highlight(true);
                         targetRM.HeroAnimation.Zoom(move);
                     }, 1.3f);
                     
@@ -202,6 +204,7 @@ namespace Assets.Scripts.UI.Battle
                     
                     EnqueueTurnAnimation(() => {
                         var move = 1.0f;
+                        attackerRM.HeroAnimation.Highlight(true);
                         attackerRM.HeroAnimation.Zoom(move);
                     }, 1f);
                     
@@ -218,10 +221,16 @@ namespace Assets.Scripts.UI.Battle
 
                         // move cards back or remove dead ones from the field.
                         if (attackerRM != null)
+                        {
                             attackerRM.HeroAnimation.MoveSpriteBack();
+                            attackerRM.HeroAnimation.Highlight(false);
+                        }
 
                         if (targetRM != null)
+                        {
                             targetRM.HeroAnimation.MoveSpriteBack();
+                            targetRM.HeroAnimation.Highlight(false);
+                        }
                     }, .3f);
 
                     EnqueueTurnAnimation(() => {

@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.UI.Data
+﻿using System;
+
+namespace Assets.Scripts.UI.Data
 {
     public struct BattleTurnInfo
     {
@@ -101,6 +103,12 @@
         public BattleTurnInfo SetState(TurnState state)
         {
             this.state = state;
+            return this;
+        }
+
+        public BattleTurnInfo UpdateAttacker(Hero attacker)
+        {
+            this.attacker = attacker;
             return this;
         }
     }

@@ -19,6 +19,7 @@ namespace Assets.Scripts.UI.Battle
         private const string AnimStageIdle = "Idle";
 
         private Animator animator;
+        private ParticleSystem particles;
 
         private bool initialized;
         private readonly WaitForSeconds defaultWait = new(.35f);
@@ -36,6 +37,7 @@ namespace Assets.Scripts.UI.Battle
         private void Awake()
         {
             animator = GetComponent<Animator>();
+            particles = GetComponent<ParticleSystem>();
         }
 
         private void OnEnable()
@@ -136,6 +138,14 @@ namespace Assets.Scripts.UI.Battle
             StartCoroutine(DeathAnimationCorotine());
         }
 
+        public void Highlight(bool on)
+        {
+            if (on)
+                particles.Play();
+            else
+                particles.Stop();
+        }
+
         private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
         {
             overlay.SetOverlayInfo(info);
@@ -198,7 +208,7 @@ namespace Assets.Scripts.UI.Battle
 
             while (delta <= sec)
             {
-                var targetScale = scaleBeforeMove * (1 + 2 * delta / sec);
+                var targetScale = scaleBeforeMove * (1 + 1 * delta / sec);
                 targetScale.z = 1;
                 transform.localScale = targetScale;
 

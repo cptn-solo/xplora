@@ -323,6 +323,8 @@ namespace Assets.Scripts.Services
 
             if (attacker.HealthCurrent <=0 || skipTurn)
             {
+                turnInfo = turnInfo.UpdateAttacker(attacker);
+                battle.SetTurnInfo(turnInfo);
                 battle.SetTurnState(TurnState.TurnCompleted);
                 
                 yield return null;
