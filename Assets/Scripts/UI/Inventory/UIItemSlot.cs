@@ -74,6 +74,11 @@ namespace Assets.Scripts.UI.Inventory
 
         }
 
+        public void ToggleVisual(bool toggle)
+        { 
+            backgroundImage.enabled = toggle;
+        }
+
         public void OnPointerExit(PointerEventData eventData) =>
             SetNormalStyle();
 

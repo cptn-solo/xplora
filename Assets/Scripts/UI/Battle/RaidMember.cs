@@ -20,6 +20,8 @@ namespace Assets.Scripts.UI.Battle
 
         [SerializeField] private HeroAnimation heroAnimation;
 
+        [SerializeField] private Transform cardInfoVisual;
+
         public HeroAnimation HeroAnimation => heroAnimation;
 
         public HeroDelegateProvider DelegateProvider { 
@@ -28,7 +30,7 @@ namespace Assets.Scripts.UI.Battle
         }
 
         private Color normalColor;
-        private Image backgroundImage;
+        [SerializeField] private Image backgroundImage;
         [SerializeField] private Color acceptingColor;
         [SerializeField] private Color selectedColor;
         [SerializeField] private Color playerColor;
@@ -87,7 +89,11 @@ namespace Assets.Scripts.UI.Battle
             ResolveIcon(secDefenceImage, Hero.Defence[1]);
 
             ResolveIcon(heroIconImage, Hero);
+        }
 
+        public void ToggleInfoDisplay(bool toggle)
+        {
+            cardInfoVisual.gameObject.SetActive(toggle);
         }
 
         private void ResolveIcon(Image image, Hero hero)
@@ -126,7 +132,6 @@ namespace Assets.Scripts.UI.Battle
 
         private void Awake()
         {
-            backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
         }
 
