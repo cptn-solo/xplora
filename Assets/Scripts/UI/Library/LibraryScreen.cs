@@ -1,5 +1,5 @@
 using Assets.Scripts.Services;
-using Assets.Scripts.Services.App;
+using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
@@ -91,8 +91,8 @@ namespace Assets.Scripts.UI.Library
         private void LibManager_OnDataAvailable()
         {            
             ShowHeroesLibraryCards();
-            ShowPlayerCards();
-            ShowEnemyCards();
+            ShowTeamCards(library.PlayerTeam.Id);
+            ShowTeamCards(library.EnemyTeam.Id);
         }
 
         private void ShowHeroesLibraryCards()
@@ -100,15 +100,17 @@ namespace Assets.Scripts.UI.Library
             foreach (var slot in librarySlots)
                 slot.Hero = library.HeroAtPosition(slot.Position);
         }
-        private void ShowPlayerCards()
+
+        private void ShowTeamCards(int teamId)
         {
-            foreach (var slot in playerSlots)
-                slot.Hero = library.HeroAtPosition(slot.Position);
-        }
-        private void ShowEnemyCards()
-        {
-            foreach (var slot in enemySlots)
-                slot.Hero = library.HeroAtPosition(slot.Position);
+            var heroes = library.TeamHeroes(teamId);
+            TeamMemberSlot[] slots = teamId == library.PlayerTeam.Id ? playerSlots : enemySlots;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                var hero = i < heroes.Count() ? heroes[i] : Hero.Default;
+                slot.Hero = hero;
+            }
         }
 
         private void InitSlots<T>(Transform container, T[] outSlots, int teamId) where T: LibrarySlot
