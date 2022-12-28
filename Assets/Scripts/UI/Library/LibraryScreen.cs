@@ -63,29 +63,35 @@ namespace Assets.Scripts.UI.Library
                 button.OnActionButtonClick += OnActionButtonPressed;
             }
 
+            libManager.OnDataAvailable += LibManager_OnDataAvailable;
+            
             library = libManager.Library;
 
             InitSlots(libraryContainer, librarySlots, -1);
             InitSlots(playerTeamContainer, playerSlots, library.PlayerTeam.Id);
             InitSlots(enemyTeamContainer, enemySlots, library.EnemyTeam.Id);
 
-            libManager.OnDataAvailable += LibManager_OnDataAvailable;
 
             initialized = true;
-
+            
             if (libManager.DataAvailable)
                 LibManager_OnDataAvailable();
         }
 
         protected override void OnBeforeEnable()
         {
-            if (initialized && libManager.DataAvailable)
+            if (initialized)
             {
-                LibManager_OnDataAvailable();
+                libManager.OnDataAvailable += LibManager_OnDataAvailable;
+
+                if (libManager.DataAvailable)
+                    LibManager_OnDataAvailable();
             }
         }
+
         protected override void OnBeforeDisable()
         {
+            libManager.OnDataAvailable -= LibManager_OnDataAvailable;
         }
 
         private void LibManager_OnDataAvailable()

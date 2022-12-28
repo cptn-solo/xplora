@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using Assets.Scripts.Services;
+using Assets.Scripts.Services.ConfigDataManagement.Parsers;
+using Assets.Scripts.UI.Data;
 using Newtonsoft.Json;
 using System.IO;
 using UnityEditor;
@@ -20,17 +22,27 @@ public class EditModeMenu : EditorWindow
         {
             LoadHeroesFromGoogleSheet();
         }
+        else if (GUILayout.Button("Load Damage Types (Google)"))
+        {
+            LoadDamageTypesFromGoogleSheet();
+        }
     }
 
     private void LoadHeroesFromGoogleSheet()
     {
-        Debug.Log("The function ran.");
-        var libraryMetadata = new GoogleSheetReader();
-        var list = libraryMetadata.GetSheetRange("'Герои'!A1:I31");
+        Debug.Log("The function LoadHeroesFromGoogleSheet ran.");
         
-        var serialized = JsonConvert.SerializeObject(list);
-        File.WriteAllText(Application.streamingAssetsPath + "/Heroes.json", serialized);
-
+        var loader = new HeroesConfigLoader(HeroesLibrary.EmptyLibrary(), () => { });
+        loader.LoadGoogleData();        
     }
+
+    private void LoadDamageTypesFromGoogleSheet()
+    {
+        Debug.Log("The function LoadDamageTypesFromGoogleSheet ran.");
+
+        var loader = new DamageTypesConfigLoader(DamageTypesLibrary.EmptyLibrary(), () => { });
+        loader.LoadGoogleData();
+    }
+
 }
 #endif

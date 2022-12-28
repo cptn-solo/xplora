@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 184332160464120156}
   - component: {fileID: 1491712776932695904}
   - component: {fileID: 193555391534217768}
+  - component: {fileID: -1947592001887274201}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -83,6 +84,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefsService: {fileID: 193555391534217768}
   audioPlaybackService: {fileID: 1491712776932695904}
+  saLoaderService: {fileID: -1947592001887274201}
   menuNavigationService: {fileID: 5435959546544172477}
   libManagementService: {fileID: 4632796165003161585}
   battleManagementService: {fileID: 184332160464120156}
@@ -150,5 +152,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55c82bce6def19b4289fe994d4bbb625, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-1947592001887274201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6756126832898079682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8640a10aecacb8d4898cb6197dcd181d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

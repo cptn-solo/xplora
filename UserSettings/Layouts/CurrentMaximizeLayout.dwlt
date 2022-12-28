@@ -23,7 +23,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 1
-  controlID: 1552
+  controlID: 6572
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -142,7 +142,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 1553
+  controlID: 6573
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 200}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 1512
+  controlID: 6583
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -226,9 +226,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 502d0000
+      m_SelectedIDs: 2cea0000
       m_LastClickedID: 0
-      m_ExpandedIDs: 5a7cffff1afbffff1a7200007872000000730000f2740000027500002e970000cc9700008a980000649b0000749b0000
+      m_ExpandedIDs: d0d0fcff8c13fdff5a7cffff1afbfffff4ffffff1a7200007872000000730000f2740000027500002e970000cc9700008a980000649b0000749b0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -320,7 +320,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/StreamingAssets
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 0
@@ -334,7 +334,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 1c430000
     m_LastClickedID: 17180
-    m_ExpandedIDs: ffffffff00000000067000004675000048750000a4760000b0760000de7600000e7800004e7800008278000000790000527900000e7a00005c7a0000827a0000707c0000727c0000747c0000767c0000787c00007a7c00007c7c00007e7c0000807c0000827c0000847c0000867c0000887c00008a7c00008c7c00008e7c0000907c0000927c0000947c0000967c0000987c00009a7c00009c7c00009e7c0000a07c0000a27c0000a47c0000a67c0000a87c0000aa7c0000ac7c0000ae7c0000b07c0000b27c0000
+    m_ExpandedIDs: ffffffff00000000067000004675000048750000a4760000b0760000de7600000e7800004e7800008278000000790000527900000e7a00005c7a0000827a0000707c0000727c0000747c0000767c0000787c00007a7c00007c7c00007e7c0000807c0000827c0000847c0000867c0000887c00008a7c00008c7c00008e7c0000907c0000927c0000947c0000967c0000987c00009a7c00009c7c00009e7c0000a07c0000a27c0000a47c0000aa7c0000ac7c0000ae7c0000b07c00005e7d0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -359,10 +359,10 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_AssetTreeState:
-    scrollPos: {x: 0, y: 120}
-    m_SelectedIDs: 502d0000
-    m_LastClickedID: 11600
-    m_ExpandedIDs: ffffffff00000000067000004675000048750000a4760000b0760000de7600000e7800004e7800008278000000790000527900000e7a00005c7a0000827a0000707c0000727c0000747c0000767c0000787c00007a7c00007c7c00007e7c0000807c0000827c0000847c0000867c0000887c00008a7c00008c7c00008e7c0000907c0000927c0000947c0000967c0000987c00009a7c00009c7c00009e7c0000a07c0000a27c0000a47c0000a67c0000aa7c0000ac7c0000ae7c0000b27c0000567d0000
+    scrollPos: {x: 0, y: 600}
+    m_SelectedIDs: 2cea0000
+    m_LastClickedID: 59948
+    m_ExpandedIDs: ffffffff00000000067000004675000048750000a4760000b0760000de7600000e7800004e7800008278000000790000527900000e7a00005c7a0000827a0000707c0000727c0000747c0000767c0000787c00007a7c00007c7c00007e7c0000807c0000827c0000847c0000867c0000887c00008a7c00008c7c00008e7c0000907c0000927c0000947c0000967c0000987c00009a7c00009c7c00009e7c0000a07c0000a27c0000a47c0000aa7c0000ac7c0000ae7c0000b07c00005e7d0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -387,8 +387,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 502d0000
-    m_LastClickedInstanceID: 11600
+    m_SelectedInstanceIDs: 2cea0000
+    m_LastClickedInstanceID: 59948
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
@@ -524,7 +524,7 @@ MonoBehaviour:
       floating: 0
       collapsed: 0
       displayed: 1
-      snapOffset: {x: 0, y: 0}
+      snapOffset: {x: 0, y: 24.666666}
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: unity-transform-toolbar
