@@ -19,6 +19,7 @@ namespace Assets.Scripts.UI.Battle
         private const string AnimStageIdle = "Idle";
 
         private Animator animator;
+        private ParticleSystem particles;
 
         private bool initialized;
         private readonly WaitForSeconds defaultWait = new(.35f);
@@ -36,6 +37,7 @@ namespace Assets.Scripts.UI.Battle
         private void Awake()
         {
             animator = GetComponent<Animator>();
+            particles = GetComponent<ParticleSystem>();
         }
 
         private void OnEnable()
@@ -115,6 +117,10 @@ namespace Assets.Scripts.UI.Battle
             StartCoroutine(TimedAnimationCorotine(AnimBoolRun, sec));
             StartCoroutine(MoveSpriteCoroutine(position, sec));
         }
+        internal void Zoom(float sec = -1f)
+        {
+            StartCoroutine(ZoomSpriteCoroutine(sec));
+        }
 
         public void Attack(bool range = false)
         {
@@ -130,6 +136,14 @@ namespace Assets.Scripts.UI.Battle
         public void Death()
         {
             StartCoroutine(DeathAnimationCorotine());
+        }
+
+        public void Highlight(bool on)
+        {
+            if (on)
+                particles.Play();
+            else
+                particles.Stop();
         }
 
         private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
@@ -176,16 +190,28 @@ namespace Assets.Scripts.UI.Battle
             mt.localPosition = Vector3.zero;
             var move = position - transform.position;
             
-            scaleBeforeMove = transform.localScale;
-
             while (delta <= sec)
             {
                 mt.position += move * Time.deltaTime;
                 
-                var targetScale = scaleBeforeMove * (1 + 2 * delta / sec);
+                delta += Time.deltaTime;
+
+                yield return null;
+            }
+        }
+
+        private IEnumerator ZoomSpriteCoroutine(float sec = -1f)
+        {
+            var delta = 0f;
+
+            scaleBeforeMove = transform.localScale;
+
+            while (delta <= sec)
+            {
+                var targetScale = scaleBeforeMove * (1 + 1 * delta / sec);
                 targetScale.z = 1;
                 transform.localScale = targetScale;
-                
+
                 delta += Time.deltaTime;
 
                 yield return null;
@@ -197,7 +223,10 @@ namespace Assets.Scripts.UI.Battle
             transform.parent.transform.localPosition = Vector3.zero;
             
             if (scaleBeforeMove != Vector3.zero)
+            {
                 transform.localScale = scaleBeforeMove;
+                scaleBeforeMove = Vector3.zero;
+            }
         }
     }
 }

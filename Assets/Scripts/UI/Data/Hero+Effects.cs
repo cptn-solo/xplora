@@ -26,10 +26,11 @@ namespace Assets.Scripts.UI.Data
             var existing = ActiveEffects;
             
             var count = damageEffect.RoundOff - damageEffect.RoundOn;
-            if (existing.TryGetValue(damageEffect.Effect, out var effect))
-                existing[damageEffect.Effect] = count;
+            var config = damageEffect.Config;
+            if (existing.TryGetValue(config.Effect, out _))
+                existing[config.Effect] = count;
             else
-                existing.Add(damageEffect.Effect, count);
+                existing.Add(config.Effect, count);
 
             ActiveEffects = existing;
 

@@ -69,13 +69,13 @@ namespace Assets.Scripts.UI.Data
                 {
                     var list = new List<BarInfo>
                     {
-                        BarInfo.EmptyBarInfo(0, $"HP: {Health}", Color.red, Health / 100f),
-                        BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / 10f),
-                        BarInfo.EmptyBarInfo(2, $"Max Damage: {DamageMax}", Color.yellow, DamageMax / 20f),
-                        BarInfo.EmptyBarInfo(3, $"Defence: {DefenceRate} %", Color.gray, DefenceRate / 50f),
-                        BarInfo.EmptyBarInfo(4, $"Accuracy: {AccuracyRate}%", Color.cyan, AccuracyRate / 100f),
-                        BarInfo.EmptyBarInfo(5, $"Dodge: {DodgeRate}%", Color.white, DodgeRate / 50f),
-                        BarInfo.EmptyBarInfo(6, $"Critical Hit: {CriticalHitRate}%", Color.black, CriticalHitRate / 10f),
+                        BarInfo.EmptyBarInfo(0, $"HP: {Health}", Color.red, Health / Mathf.Max(Health, 100f)),
+                        BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / Mathf.Max(Speed, 10f)),
+                        BarInfo.EmptyBarInfo(2, $"Max Damage: {DamageMax}", Color.yellow, DamageMax / Mathf.Max(DamageMax, 20f)),
+                        BarInfo.EmptyBarInfo(3, $"Defence: {DefenceRate} %", Color.gray, DefenceRate / Mathf.Max(DefenceRate, 50f)),
+                        BarInfo.EmptyBarInfo(4, $"Accuracy: {AccuracyRate}%", Color.cyan, AccuracyRate / Mathf.Max(AccuracyRate, 100f)),
+                        BarInfo.EmptyBarInfo(5, $"Dodge: {DodgeRate}%", Color.white, DodgeRate / Mathf.Max(DodgeRate, 50f)),
+                        BarInfo.EmptyBarInfo(6, $"Critical Hit: {CriticalHitRate}%", Color.black, CriticalHitRate / Mathf.Max(CriticalHitRate, 10f)),
                     };
                     barsInfo = list;
                 }
@@ -85,7 +85,7 @@ namespace Assets.Scripts.UI.Data
         public List<BarInfo> BarsInfoShort => BarsInfo.GetRange(0, 2);
         public List<BarInfo> BarsInfoBattle => new() {
             BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, (float)HealthCurrent / Health),
-            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / 10f),
+            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / Mathf.Max(Speed, 10f)),
         };
 
         public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }

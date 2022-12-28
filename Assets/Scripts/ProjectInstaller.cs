@@ -9,6 +9,7 @@ namespace Assets.Scripts
     {
         [SerializeField] private PlayerPreferencesService playerPrefsService;
         [SerializeField] private AudioPlaybackService audioPlaybackService;
+        [SerializeField] private StreamingAssetsLoaderService saLoaderService;
         [SerializeField] private MenuNavigationService menuNavigationService;
         [SerializeField] private HeroLibraryManagementService libManagementService;
         [SerializeField] private BattleManagementService battleManagementService;
@@ -22,6 +23,10 @@ namespace Assets.Scripts
             Container
                 .Bind<AudioPlaybackService>()
                 .FromInstance(audioPlaybackService).AsSingle();
+
+            Container
+                .Bind<StreamingAssetsLoaderService>()
+                .FromInstance(saLoaderService).AsSingle();
 
             Container
                 .Bind<MenuNavigationService>()

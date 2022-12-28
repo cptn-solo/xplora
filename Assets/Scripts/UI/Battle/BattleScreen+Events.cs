@@ -1,4 +1,6 @@
 using Assets.Scripts.UI.Data;
+using System;
+using System.Linq;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -9,16 +11,26 @@ namespace Assets.Scripts.UI.Battle
             switch (battleInfo.State)
             {
                 case BattleState.Created:
-                    {
-                        ShowTeamInventory(libraryManager.PlayerTeam);
-                        ShowTeamInventory(libraryManager.EnemyTeam);
-                    }
+
+                    ShowTeamInventory(libraryManager.PlayerTeam);
+                    ShowTeamInventory(libraryManager.EnemyTeam);
+
+                    ToggleHeroCards(true);
+
                     break;
+
                 case BattleState.BattleStarted:
+                    
                     audioService.Play(SFX.MainTheme);
+                    ToggleHeroCards(false);
+                    
                     break;
+
                 case BattleState.Completed:
+                    
                     audioService.Stop();
+                    
+                    ToggleHeroCards(true);
                     
                     if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.PlayerTeam.Id)
                         audioService.Play(SFX.Enumed(CommonSoundEvent.BattleWon));
@@ -26,13 +38,26 @@ namespace Assets.Scripts.UI.Battle
                         audioService.Play(SFX.Enumed(CommonSoundEvent.BattleLost));                    
 
                     UpdateView();
+
                     break;
+
                 default:
+                    
                     break;
             }
 
             UpdateActionButtons();
 
+        }
+
+        private void ToggleHeroCards(bool toggle)
+        {
+            var allSlots = playerFrontSlots.Concat(playerBackSlots).Concat(enemyFrontSlots).Concat(enemyBackSlots);
+            foreach (BattleLineSlot slot in allSlots)
+            {
+                slot.ToggleVisual(toggle);
+                slot.RaidMember.ToggleInfoDisplay(toggle);
+            }
         }
 
         private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo, BattleInfo battleInfo)

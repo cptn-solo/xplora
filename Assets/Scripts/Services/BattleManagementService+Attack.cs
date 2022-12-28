@@ -22,9 +22,9 @@ namespace Assets.Scripts.Services
 
             var pierced = false;
             var targetEffects = new DamageEffect[] { };
-
-            int damage = 0;
             int extraDamage = 0;
+
+            int damage;
             if (!accurate || dodged)
             {
                 damage = 0;
@@ -33,24 +33,19 @@ namespace Assets.Scripts.Services
             {
                 var shield = target.DefenceRate;
 
-                if (DamageEffectInfo.TryCast(
-                        attacker,
-                        target,
-                        battle.CurrentRound.Round,
-                        out var damageEffect,
-                        prefs.DisableRNGToggle)
-                    )
+                if (TryCast(attacker, target, battle.CurrentRound.Round, out var damageEffect,
+                    prefs.DisableRNGToggle))
                 {
-                    if (damageEffect.Effect == DamageEffect.Pierced)
+                    if (damageEffect.Config.Effect == DamageEffect.Pierced)
                     {
                         pierced = true;
-                        shield = (int)(damageEffect.ShieldUseFactor / 100f * shield);
+                        shield = (int)(damageEffect.Config.ShieldUseFactor / 100f * shield);
                     }
                     else
                     {
                         targetEffects = targetEffects.Concat(new DamageEffect[]{
-                            damageEffect.Effect }).ToArray();
-                        extraDamage = damageEffect.ExtraDamage;
+                            damageEffect.Config.Effect }).ToArray();
+                        extraDamage = damageEffect.Config.ExtraDamage;
                         target = target.EnqueEffect(damageEffect);
                     }
                 }
@@ -74,5 +69,6 @@ namespace Assets.Scripts.Services
             resultInfo.Lethal = current <= 0;
             resultInfo.ExtraDamage = extraDamage;
         }
+
     }
 }
