@@ -33,7 +33,7 @@ namespace Assets.Scripts.UI
 
             OnBeforeStart();
             
-            menuButtons = GetComponentsInChildren<UIMenuButton>();
+            menuButtons = GetComponentsInChildren<UIMenuButton>(true);
             foreach (var button in menuButtons)
                 button.OnMenuButtonClick += Button_OnMenuButtonClick;
             

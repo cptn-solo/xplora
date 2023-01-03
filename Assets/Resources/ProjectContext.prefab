@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 1491712776932695904}
   - component: {fileID: 193555391534217768}
   - component: {fileID: -1947592001887274201}
+  - component: {fileID: 3186004670629614496}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -88,6 +89,7 @@ MonoBehaviour:
   menuNavigationService: {fileID: 5435959546544172477}
   libManagementService: {fileID: 4632796165003161585}
   battleManagementService: {fileID: 184332160464120156}
+  worldService: {fileID: 3186004670629614496}
 --- !u!114 &5435959546544172477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,5 +166,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8640a10aecacb8d4898cb6197dcd181d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3186004670629614496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6756126832898079682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 599238557231d4b4d8b6db61c55b2e79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

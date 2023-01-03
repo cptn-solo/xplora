@@ -16,7 +16,7 @@ namespace Assets.Scripts.UI.Library
         [Inject] private readonly HeroLibraryManagementService libManager;
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly MenuNavigationService nav;
-
+        [Inject] private readonly WorldService worldService;
 
         [SerializeField] private Transform libraryContainer;
         [SerializeField] private Transform playerTeamContainer;
@@ -25,6 +25,8 @@ namespace Assets.Scripts.UI.Library
         [SerializeField] private HeroDetailsHover heroDetails;
 
         [SerializeField] private HeroCardPool cardPool;
+
+        [SerializeField] private UIMenuButton raidButton;
 
         private Hero selectedHero = Hero.Default;
 
@@ -46,7 +48,7 @@ namespace Assets.Scripts.UI.Library
         {
             InitSlotDelegates();
 
-            var actionButtons = GetComponentsInChildren<UIActionButton>();
+            var actionButtons = GetComponentsInChildren<UIActionButton>(true);
 
 #if !PLATFORM_STANDALONE_WIN && !UNITY_EDITOR
             googleHeroesAvailable = false;
@@ -99,6 +101,8 @@ namespace Assets.Scripts.UI.Library
             ShowHeroesLibraryCards();
             ShowTeamCards(library.PlayerTeam.Id);
             ShowTeamCards(library.EnemyTeam.Id);
+
+            SyncWorldAndButton();
         }
 
         private void ShowHeroesLibraryCards()
@@ -139,6 +143,17 @@ namespace Assets.Scripts.UI.Library
             foreach (var slots in new[] { librarySlots, playerSlots, enemySlots })
                 foreach (var card in slots.Select(x => x.HeroCard).ToArray())
                     card.Selected = card.Hero.Id == selectedHero.Id;
+        }
+        private void SyncWorldAndButton()
+        {
+            var playerHeroes = library.TeamHeroes(library.PlayerTeam.Id, true);
+            
+            var playerAvatar = playerHeroes.Length > 0 ? playerHeroes[0] : Hero.Default; //TODO: pick appropriate hero, see specs
+
+            worldService.SetPlayerHero(playerAvatar); //TODO: pick appropriate hero, see specs
+
+            raidButton.gameObject.SetActive(playerHeroes.Length > 0);
+
         }
 
         private void BindHeroCard(HeroCard heroCard)

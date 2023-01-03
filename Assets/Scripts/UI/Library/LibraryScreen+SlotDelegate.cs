@@ -106,8 +106,11 @@ namespace Assets.Scripts.UI.Library
             }
         }
 
-        private void SlotDelegate_HeroMoved(Hero hero) =>
+        private void SlotDelegate_HeroMoved(Hero hero)
+        {
             SyncHeroCardSelectionWithHero();
+            SyncWorldAndButton();
+        }
 
         private void SlotDelegate_HeroUpdated(Hero hero) =>
             CardForHero(hero).Hero = hero;

@@ -12,10 +12,14 @@ namespace Assets.Scripts.UI
         private HUD HUD;
         private ApplicationSettingsScreen appSettingsScreen;
         private bool pauseBetweenScenes;
+        
+        [Inject] private readonly MenuNavigationService nav;
 
         [Inject]
-        public void Construct(MenuNavigationService nav) =>
+        public void Construct(MenuNavigationService nav)
+        {
             nav.UIManager = this;
+        }
 
         private void Awake() =>
             DontDestroyOnLoad(gameObject);
@@ -24,6 +28,7 @@ namespace Assets.Scripts.UI
         {
             HUD = GetComponentInChildren<HUD>(true);
             HUD.OnSettingsButtonPressed += HUD_OnSettingsButtonPressed;
+            HUD.OnMenuButtonPressed += HUD_OnMenuButtonPressed;
             
             appSettingsScreen = GetComponentInChildren<ApplicationSettingsScreen>(true);
             appSettingsScreen.OnCloseButtonPressed += AppSettingsScreen_OnCloseButtonPressed;
@@ -43,6 +48,10 @@ namespace Assets.Scripts.UI
         {
             appSettingsScreen.gameObject.SetActive(true);
             HUD.gameObject.SetActive(false);
+        }
+        private void HUD_OnMenuButtonPressed()
+        {
+            nav.NavigateToScreen(Screens.Hub);
         }
 
         public void ToggleScreen(Screens screen, NavigationCallback callback)

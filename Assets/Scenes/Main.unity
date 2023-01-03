@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.13402969, g: 0.07623579, b: 0.091663994, a: 1}
+  m_IndirectSpecularColor: {r: 0.13169944, g: 0.07555949, b: 0.09088605, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -469,7 +469,7 @@ PrefabInstance:
     - target: {fileID: 8004468250864972350, guid: a6f140b3d262fa94199b23e4afaca094,
         type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8004468250864972350, guid: a6f140b3d262fa94199b23e4afaca094,
         type: 3}
@@ -631,11 +631,27 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1614290749}
     m_Modifications:
-    - target: {fileID: 8387124494141967332, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
         type: 3}
-      propertyPath: m_Camera
-      value: 
+      propertyPath: m_AnchoredPosition.y
+      value: -182
       objectReference: {fileID: 0}
+    - target: {fileID: 7141485357889704800, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: de381fa167700d844a9d97e5575819b2,
+        type: 3}
+    - target: {fileID: 7141485357889704800, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2100000, guid: 91344f4d9d45ea2488557cd631b3b215, type: 2}
+    - target: {fileID: 8387124494141967333, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: menuButton
+      value: 
+      objectReference: {fileID: 8387124494300482829}
     - target: {fileID: 8387124494141967336, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
         type: 3}
       propertyPath: m_Name
@@ -748,3 +764,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ea333b7ab1d8404bba1183ac9cb16cf, type: 3}
+--- !u!114 &8387124494300482829 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5667784706327141094, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+    type: 3}
+  m_PrefabInstance: {fileID: 8387124494300482828}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

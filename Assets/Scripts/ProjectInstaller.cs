@@ -13,6 +13,7 @@ namespace Assets.Scripts
         [SerializeField] private MenuNavigationService menuNavigationService;
         [SerializeField] private HeroLibraryManagementService libManagementService;
         [SerializeField] private BattleManagementService battleManagementService;
+        [SerializeField] private WorldService worldService;
 
         public override void InstallBindings()
         {
@@ -39,6 +40,10 @@ namespace Assets.Scripts
             Container
                 .Bind<BattleManagementService>()
                 .FromInstance(battleManagementService).AsSingle();
+
+            Container
+                .Bind<WorldService>()
+                .FromInstance(worldService).AsSingle();
 
             BindInstallerInterfaces();
         }

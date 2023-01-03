@@ -84,6 +84,8 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             hero.SndCritHit = val(29, cell).ParseSoundFileValue();
             hero.SndDied = val(30, cell).ParseSoundFileValue();
 
+            hero.HealthCurrent = hero.Health;
+
             library.UpdateHero(hero);
 
             return true;
