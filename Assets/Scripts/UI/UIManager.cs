@@ -51,6 +51,7 @@ namespace Assets.Scripts.UI
             {
                 Screens.HeroesLibrary => "Library",
                 Screens.Battle => "Battle",
+                Screens.Raid => "World",
                 _ => "Lobby"
             };
 
