@@ -21,14 +21,15 @@ namespace Assets.Scripts.World
         {
             worldService.SetUnitSpawner(UnitSpawner);
 
-            var playerTransform = worldService.SpawnPlayer();
-            cameraFollow.Attach(playerTransform);
+            var playerUnit = worldService.SpawnPlayer();
+            if (playerUnit != null)
+                cameraFollow.Attach(playerUnit.transform);
         }
 
-        private Transform UnitSpawner(Vector2 pos, Hero hero) {
+        private Unit UnitSpawner(Vector2 pos, Hero hero) {
             var unit = Instantiate(unitPrefab, pos, Quaternion.identity, transform).GetComponent<Unit>();
             unit.SetHero(hero);
-            return unit.transform;
+            return unit;
         }
 
     }

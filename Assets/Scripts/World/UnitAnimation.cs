@@ -1,4 +1,5 @@
 using Assets.Scripts.UI.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -97,10 +98,11 @@ namespace Assets.Scripts.World
             StartCoroutine(OverlayInfoCoroutine(info));
         }
 
-        internal void Run(float sec = -1f)
+        internal void Run(bool toggle)
         {
-            StartCoroutine(TimedAnimationCorotine(AnimBoolRun, sec));
+            StartCoroutine(ToggleAnimationCorotine(AnimBoolRun, toggle));
         }
+
         internal void Zoom(float sec = -1f)
         {
             StartCoroutine(ZoomSpriteCoroutine(sec));
@@ -131,6 +133,18 @@ namespace Assets.Scripts.World
             animator.SetBool(animationCode, true);
             yield return stopAfter;
             animator.SetBool(animationCode, false);
+        }
+
+        private IEnumerator ToggleAnimationCorotine(
+            string animationCode,
+            bool toggle = true,
+            float delaySec = -1f)
+        {
+
+            if (delaySec > 0f)
+                yield return new WaitForSeconds(delaySec);
+
+            animator.SetBool(animationCode, toggle);
         }
 
 
