@@ -542,7 +542,7 @@ RectTransform:
   m_GameObject: {fileID: 918467829}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.0051875506, y: 0.0051875506, z: 0.0051875506}
+  m_LocalScale: {x: 0.0052, y: 0.0052, z: 0.0052}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -578,7 +578,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 1208350593}
-  distance: 12
+  distance: 20
   angle: 30
 --- !u!114 &918467837
 MonoBehaviour:
@@ -642,7 +642,7 @@ Transform:
   m_GameObject: {fileID: 1001729393}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 170460369}
@@ -752,10 +752,10 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 40
+  far clip plane: 100
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

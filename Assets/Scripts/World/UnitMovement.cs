@@ -1,6 +1,5 @@
 using Assets.Scripts.Services;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using Zenject;
 
@@ -14,7 +13,7 @@ namespace Assets.Scripts.World
         private Vector3 direction = Vector3.zero;
         private bool isListening;
 
-        private readonly WaitForSeconds keyboardWait = new WaitForSeconds(.2f);
+        private readonly WaitForSeconds keyboardWait = new(.2f);
 
         private void Awake()
         {

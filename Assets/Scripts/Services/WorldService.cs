@@ -32,10 +32,10 @@ namespace Assets.Scripts.Services
             return playerUnit;
         }
 
-        public void ProcessMoveInput(Vector3 move)
+        public void ProcessMoveInput(Vector3 direction)
         {
             // TODO: decide on move rules etc.
-            var targetPos = playerUnit.transform.position + move;
+            var targetPos = playerUnit.transform.position + direction;
             
             playerUnit.MoveTo(targetPos);
         }
