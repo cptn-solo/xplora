@@ -69,7 +69,6 @@ namespace Assets.Scripts.World.HexMap
             int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
             HexCell cell = cells[index];
             cell.color = touchedColor;
-            cells[index] = cell;
             hexMesh.Triangulate(cells);
 
             return coordinates;
