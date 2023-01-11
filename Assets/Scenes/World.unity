@@ -618,6 +618,8 @@ GameObject:
   - component: {fileID: 1001729397}
   - component: {fileID: 1001729396}
   - component: {fileID: 1001729398}
+  - component: {fileID: 1001729399}
+  - component: {fileID: 1001729400}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -668,6 +670,33 @@ MonoBehaviour:
     type: 3}
   cellLabelPrefab: {fileID: 5883077625311513938, guid: f2edc7d02dedd364993e2676c1e42a54,
     type: 3}
+  defaultColor: {r: 0.18746287, g: 0.6698113, b: 0.27403355, a: 1}
+  touchedColor: {r: 0.15880494, g: 0.9528302, b: 0.5716712, a: 1}
+--- !u!114 &1001729399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1001729393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 280da69f3302a734b8d35677dd0c4571, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1001729400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1001729393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _containerSource: 1
 --- !u!1 &1208350589
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,7 +881,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0f6a769ae7428451a8f341022ee88bf2, type: 2}
+  - {fileID: 2100000, guid: 871935c8249b0b2438d32c7c3debe379, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

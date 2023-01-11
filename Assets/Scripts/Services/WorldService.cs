@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
+using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
 namespace Assets.Scripts.Services
@@ -31,7 +32,12 @@ namespace Assets.Scripts.Services
 
             return playerUnit;
         }
-
+        public void ProcessMoveToHexCoordinates(HexCoordinates coordinates)
+        {
+            var targetPos = coordinates.ToPosition();
+            
+            playerUnit.MoveTo(targetPos);
+        }
         public void ProcessMoveInput(Vector3 direction)
         {
             // TODO: decide on move rules etc.

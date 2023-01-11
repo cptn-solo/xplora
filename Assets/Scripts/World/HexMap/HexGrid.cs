@@ -1,17 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 namespace Assets.Scripts.World.HexMap
 {
-    public class HexGrid : MonoBehaviour
+    public class HexGrid : MonoBehaviour, IHexCellGrid
     {
         [SerializeField] private int width = 6;
         [SerializeField] private int height = 6;
         [SerializeField] private HexCell cellPrefab;
         [SerializeField] private TextMeshProUGUI cellLabelPrefab;
 
+        [SerializeField] private Color defaultColor = Color.white;
+        [SerializeField] private Color touchedColor = Color.magenta;
+        
         private Canvas gridCanvas;
         private HexMesh hexMesh;
 
@@ -50,6 +51,7 @@ namespace Assets.Scripts.World.HexMap
             cell.transform.SetParent(transform, false);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
+            cell.color = defaultColor;
 
             TextMeshProUGUI label = Instantiate<TextMeshProUGUI>(cellLabelPrefab);
             label.rectTransform.SetParent(gridCanvas.transform, false);
@@ -57,5 +59,21 @@ namespace Assets.Scripts.World.HexMap
                 new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
         }
+
+        public HexCoordinates TouchCell(Vector3 position)
+        {
+            position = transform.InverseTransformPoint(position);
+
+            HexCoordinates coordinates = HexCoordinates.FromPosition(position);
+            Debug.Log("touched at " + coordinates.ToString());
+            int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+            HexCell cell = cells[index];
+            cell.color = touchedColor;
+            cells[index] = cell;
+            hexMesh.Triangulate(cells);
+
+            return coordinates;
+        }
+
     }
 }

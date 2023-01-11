@@ -6,5 +6,6 @@ namespace Assets.Scripts.World.HexMap
     public class HexCell : MonoBehaviour
     {
         public HexCoordinates coordinates;
+        public Color color;
     }
 }

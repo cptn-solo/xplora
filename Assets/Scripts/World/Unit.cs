@@ -41,6 +41,8 @@ namespace Assets.Scripts.World
 
         private IEnumerator MoveCoroutine(Vector3 targetPos)
         {
+            Debug.Log($"MoveCoroutine {targetPos}");
+
             isMoving = true;
             var dir = (targetPos - transform.position).normalized;
 

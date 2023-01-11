@@ -37,6 +37,15 @@ namespace Assets.Scripts
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Pointer"",
+                    ""type"": ""Value"",
+                    ""id"": ""244f975c-69c4-4111-ad5c-8881cf304760"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -138,6 +147,17 @@ namespace Assets.Scripts
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""06dba36f-7705-4861-91ca-683878e81894"",
+                    ""path"": ""*/{Point}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Default"",
+                    ""action"": ""Pointer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -153,6 +173,7 @@ namespace Assets.Scripts
             // World
             m_World = asset.FindActionMap("World", throwIfNotFound: true);
             m_World_Move = m_World.FindAction("Move", throwIfNotFound: true);
+            m_World_Pointer = m_World.FindAction("Pointer", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -213,11 +234,13 @@ namespace Assets.Scripts
         private readonly InputActionMap m_World;
         private IWorldActions m_WorldActionsCallbackInterface;
         private readonly InputAction m_World_Move;
+        private readonly InputAction m_World_Pointer;
         public struct WorldActions
         {
             private @PlayerInputActions m_Wrapper;
             public WorldActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
             public InputAction @Move => m_Wrapper.m_World_Move;
+            public InputAction @Pointer => m_Wrapper.m_World_Pointer;
             public InputActionMap Get() { return m_Wrapper.m_World; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -230,6 +253,9 @@ namespace Assets.Scripts
                     @Move.started -= m_Wrapper.m_WorldActionsCallbackInterface.OnMove;
                     @Move.performed -= m_Wrapper.m_WorldActionsCallbackInterface.OnMove;
                     @Move.canceled -= m_Wrapper.m_WorldActionsCallbackInterface.OnMove;
+                    @Pointer.started -= m_Wrapper.m_WorldActionsCallbackInterface.OnPointer;
+                    @Pointer.performed -= m_Wrapper.m_WorldActionsCallbackInterface.OnPointer;
+                    @Pointer.canceled -= m_Wrapper.m_WorldActionsCallbackInterface.OnPointer;
                 }
                 m_Wrapper.m_WorldActionsCallbackInterface = instance;
                 if (instance != null)
@@ -237,6 +263,9 @@ namespace Assets.Scripts
                     @Move.started += instance.OnMove;
                     @Move.performed += instance.OnMove;
                     @Move.canceled += instance.OnMove;
+                    @Pointer.started += instance.OnPointer;
+                    @Pointer.performed += instance.OnPointer;
+                    @Pointer.canceled += instance.OnPointer;
                 }
             }
         }
@@ -253,6 +282,7 @@ namespace Assets.Scripts
         public interface IWorldActions
         {
             void OnMove(InputAction.CallbackContext context);
+            void OnPointer(InputAction.CallbackContext context);
         }
     }
 }
