@@ -16,7 +16,7 @@ namespace Assets.Scripts.World
         private void Awake()
         {
             input = new();
-             grid = GetComponent<IHexCellGrid>();
+            grid = GetComponent<IHexCellGrid>();
         }
 
         private void OnEnable()

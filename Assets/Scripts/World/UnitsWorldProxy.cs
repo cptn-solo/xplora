@@ -1,11 +1,12 @@
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
+using Assets.Scripts.World.HexMap;
 using UnityEngine;
 using Zenject;
 
 namespace Assets.Scripts.World
 {
-    public class WorldProxy : MonoBehaviour
+    public class UnitsWorldProxy : MonoBehaviour
     {
         [Inject] private readonly WorldService worldService;
 

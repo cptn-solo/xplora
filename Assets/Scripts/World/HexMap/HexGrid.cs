@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -17,6 +19,7 @@ namespace Assets.Scripts.World.HexMap
         private HexMesh hexMesh;
 
         private HexCell[] cells;
+        private Dictionary<Vector3, HexCell> cellMap = new();
 
         private void Awake()
         {
@@ -53,6 +56,32 @@ namespace Assets.Scripts.World.HexMap
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.color = defaultColor;
 
+            cellMap.Add(cell.coordinates.ToVector3(), cell);
+
+            if (x > 0)
+            {
+                cell.SetNeighbor(HexDirection.W, cells[i - 1]);
+            }
+            if (z > 0)
+            {
+                if ((z & 1) == 0)
+                {
+                    cell.SetNeighbor(HexDirection.SE, cells[i - width]);
+                    if (x > 0)
+                    {
+                        cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
+                    }
+                }
+                else
+                {
+                    cell.SetNeighbor(HexDirection.SW, cells[i - width]);
+                    if (x < width - 1)
+                    {
+                        cell.SetNeighbor(HexDirection.SE, cells[i - width + 1]);
+                    }
+                }
+            }
+
             TextMeshProUGUI label = Instantiate<TextMeshProUGUI>(cellLabelPrefab);
             label.rectTransform.SetParent(gridCanvas.transform, false);
             label.rectTransform.anchoredPosition =
@@ -74,5 +103,12 @@ namespace Assets.Scripts.World.HexMap
             return coordinates;
         }
 
+        internal HexCell CellForCoordinates(HexCoordinates coord)
+        {
+            if (cellMap.TryGetValue(coord.ToVector3(), out var cell))
+                return cell;
+
+            return null;
+        }
     }
 }

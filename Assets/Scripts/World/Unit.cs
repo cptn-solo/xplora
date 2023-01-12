@@ -1,5 +1,5 @@
 using Assets.Scripts.UI.Data;
-using System;
+using Assets.Scripts.World.HexMap;
 using System.Collections;
 using UnityEngine;
 
@@ -7,14 +7,19 @@ namespace Assets.Scripts.World
 {
     public class Unit : MonoBehaviour
     {
-        private const float speedFactor = .5f; // adjustment for hero speed to move around the world
         private UnitAnimation unitAnimation;
         private Hero hero;
+        private HexCoordinates coordinates;
+        private HexCoordinates targetCoord;
         private bool isMoving;
 
         public Hero Hero => hero;
+        public HexCoordinates CurrentCoord => coordinates;
 
         [SerializeField] private Transform visual;
+        [SerializeField] private float speedFactor = 5f; // adjustment for hero speed to move around the world
+        
+        private Coroutine activeMove = null;
 
         private void Awake()
         {
@@ -27,11 +32,17 @@ namespace Assets.Scripts.World
             unitAnimation.SetHero(hero);
         }
 
-        internal void MoveTo(Vector3 targetPos)
+        internal void MoveTo(HexCoordinates targetCoord)
         {
-            if (!isMoving)
-                StartCoroutine(MoveCoroutine(targetPos));
+            this.targetCoord = targetCoord;
+            if (isMoving || activeMove != null)
+            {
+                isMoving = false;
+                StopCoroutine(activeMove);
+            }
+            activeMove = StartCoroutine(MoveCoroutine());
         }
+
         internal void Flip(bool flip)
         {
             var r = visual.transform.rotation;
@@ -39,19 +50,28 @@ namespace Assets.Scripts.World
             visual.transform.rotation = r;
         }
 
-        private IEnumerator MoveCoroutine(Vector3 targetPos)
+        private IEnumerator MoveCoroutine()
         {
+            var targetPos = targetCoord.ToPosition();
+            
             Debug.Log($"MoveCoroutine {targetPos}");
 
             isMoving = true;
+            
             var dir = (targetPos - transform.position).normalized;
 
             Flip(dir.x < 0);
 
             unitAnimation.Run(true);
-            while (Vector3.SqrMagnitude(targetPos - transform.position) > .01f)
+            while (isMoving)
             {
                 transform.position += Hero.Speed * speedFactor * Time.deltaTime * dir;
+
+                if (Vector3.SqrMagnitude(targetPos - transform.position) <= .01f)
+                {
+                    coordinates = targetCoord;
+                    break;
+                }
 
                 yield return null;
             }
