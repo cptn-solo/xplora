@@ -2,6 +2,7 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.World.HexMap;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.World
 {
@@ -15,6 +16,10 @@ namespace Assets.Scripts.World
 
         public Hero Hero => hero;
         public HexCoordinates CurrentCoord => coordinates;
+
+        public event UnityAction<HexCoordinates, Unit> OnArrivedToCoordinates;
+        public event UnityAction<HexCoordinates, HexCoordinates, Unit> OnDepartedFromCoordinates;
+        public event UnityAction<HexCoordinates, Unit> OnMoveTargetSetToCoordinates;
 
         [SerializeField] private Transform visual;
         [SerializeField] private float speedFactor = 5f; // adjustment for hero speed to move around the world
@@ -31,16 +36,20 @@ namespace Assets.Scripts.World
             this.hero = hero;
             unitAnimation.SetHero(hero);
         }
-
-        internal void MoveTo(HexCoordinates targetCoord)
+        internal void SetMoveTargetCoordinates(HexCoordinates targetCoord)
         {
             this.targetCoord = targetCoord;
+            OnMoveTargetSetToCoordinates?.Invoke(targetCoord, this);
+        }
+        internal void MoveToTargetCoordinates()
+        {            
             if (isMoving || activeMove != null)
             {
                 isMoving = false;
                 StopCoroutine(activeMove);
             }
             activeMove = StartCoroutine(MoveCoroutine());
+            OnDepartedFromCoordinates?.Invoke(coordinates, targetCoord, this);
         }
 
         internal void Flip(bool flip)
@@ -70,6 +79,7 @@ namespace Assets.Scripts.World
                 if (Vector3.SqrMagnitude(targetPos - transform.position) <= .01f)
                 {
                     coordinates = targetCoord;
+                    OnArrivedToCoordinates?.Invoke(coordinates, this);
                     break;
                 }
 

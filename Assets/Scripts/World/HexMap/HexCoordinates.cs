@@ -92,15 +92,5 @@ namespace Assets.Scripts.World.HexMap
         {
             return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
         }
-
-        internal Vector3 ToVector3()
-        {
-            Vector3 vector = default;
-            vector.x = X;
-            vector.y = Y;
-            vector.z = Z;
-
-            return vector;
-        }
     }
 }

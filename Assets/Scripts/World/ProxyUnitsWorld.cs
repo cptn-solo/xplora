@@ -1,12 +1,11 @@
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
-using Assets.Scripts.World.HexMap;
 using UnityEngine;
 using Zenject;
 
 namespace Assets.Scripts.World
 {
-    public class UnitsWorldProxy : MonoBehaviour
+    public class ProxyUnitsWorld : MonoBehaviour
     {
         [Inject] private readonly WorldService worldService;
 
@@ -20,16 +19,28 @@ namespace Assets.Scripts.World
         }
         private void Start()
         {
-            worldService.SetUnitSpawner(UnitSpawner);
-
-            var playerUnit = worldService.SpawnPlayer();
-            if (playerUnit != null)
-                cameraFollow.Attach(playerUnit.transform);
+            worldService.UnitSpawner = UnitSpawner;
+            worldService.OnUnitSpawned += WorldService_OnUnitSpawned;
         }
 
-        private Unit UnitSpawner(Vector2 pos, Hero hero) {
+        private void OnDestroy()
+        {
+            worldService.OnUnitSpawned -= WorldService_OnUnitSpawned;
+        }
+
+        private void WorldService_OnUnitSpawned(Unit unit, bool isPlayer)
+        {
+            if (unit != null && isPlayer)
+                cameraFollow.Attach(unit.transform);
+        }
+
+        private Unit UnitSpawner(Vector3 pos, Hero hero, UnitSpawnerCallback onSpawned) {
             var unit = Instantiate(unitPrefab, pos, Quaternion.identity, transform).GetComponent<Unit>();
+            
             unit.SetHero(hero);
+
+            onSpawned?.Invoke();
+
             return unit;
         }
 

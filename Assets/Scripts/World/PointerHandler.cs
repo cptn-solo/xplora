@@ -6,11 +6,15 @@ using Zenject;
 
 namespace Assets.Scripts.World
 {
-    public class PlayerInput : MonoBehaviour
+    /// <summary>
+    /// Keyboard/gamepad input capture and pass to the wold service for processing
+    /// </summary>
+    public class PointerHandler : MonoBehaviour
     {
         [Inject] private readonly WorldService worldService;
 
         private PlayerInputActions input;
+        
         private IHexCellGrid grid;
 
         private void Awake()
@@ -52,11 +56,11 @@ namespace Assets.Scripts.World
             var lmb = Mouse.current.leftButton.wasPressedThisFrame;
             if (lmb)
             {
-                HandleInput();
+                HandlePointer();
             }
         }
 
-        private void HandleInput()
+        private void HandlePointer()
         {
             Vector3 mousePos = Mouse.current.position.ReadValue();
 
@@ -64,11 +68,9 @@ namespace Assets.Scripts.World
             if (Physics.Raycast(inputRay, out RaycastHit hit))
             {
                 HexCoordinates coordinates = grid.TouchCell(hit.point);
-                worldService.ProcessMoveToHexCoordinates(coordinates);
-
+                worldService.ProcessTargetCoordinatesSelection(coordinates);
             }
         }
-
 
         #endregion
 

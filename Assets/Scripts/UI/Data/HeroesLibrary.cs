@@ -153,6 +153,18 @@ namespace Assets.Scripts.UI.Data
 
             heroById[hero.Id] = hero;
         }
+
+        internal Hero[] NonPlayerTeamHeroes()
+        {
+            List <Hero> heroes = new();
+            foreach (var hero in heroById)
+            {
+                if (hero.Value.TeamId == -1 ||
+                    hero.Value.TeamId > 0)
+                    heroes.Add(hero.Value);
+            }
+            return heroes.ToArray();
+        }
     }
 
 

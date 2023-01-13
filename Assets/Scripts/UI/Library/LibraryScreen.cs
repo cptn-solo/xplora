@@ -148,9 +148,7 @@ namespace Assets.Scripts.UI.Library
         {
             var playerHeroes = library.TeamHeroes(library.PlayerTeam.Id, true);
             
-            var playerAvatar = playerHeroes.Length > 0 ? playerHeroes[0] : Hero.Default; //TODO: pick appropriate hero, see specs
-
-            worldService.SetPlayerHero(playerAvatar); //TODO: pick appropriate hero, see specs
+            worldService.AssignPlayerAndEnemies(playerHeroes);
 
             raidButton.gameObject.SetActive(playerHeroes.Length > 0);
 

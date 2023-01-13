@@ -1,13 +1,11 @@
 using Assets.Scripts.Services;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Windows;
 using Zenject;
-using static UnityEditor.PlayerSettings;
 
 namespace Assets.Scripts.World
 {
-    public class UnitMovement : MonoBehaviour
+    public class KeyPressHandler : MonoBehaviour
     {
         [Inject] private readonly WorldService worldService;
 
@@ -38,7 +36,7 @@ namespace Assets.Scripts.World
             input.World.Move.canceled -= Move_canceled;
             
             isListening = false;
-            StopCoroutine(DelayedMoveCoroutine());
+            StopCoroutine(DelayedDirectionSelectionCoroutine());
         }
 
         private void Move_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -47,7 +45,7 @@ namespace Assets.Scripts.World
             direction = Vector3.forward * move.y + Vector3.right * move.x;
 
             if (!isListening)
-                StartCoroutine(DelayedMoveCoroutine());
+                StartCoroutine(DelayedDirectionSelectionCoroutine());
             
             Debug.Log($"Move_performed {move}");
         }
@@ -59,7 +57,7 @@ namespace Assets.Scripts.World
             Debug.Log($"Move_canceled");
         }
 
-        private IEnumerator DelayedMoveCoroutine()
+        private IEnumerator DelayedDirectionSelectionCoroutine()
         {
             isListening = true;
 
@@ -67,7 +65,7 @@ namespace Assets.Scripts.World
             {
                 yield return keyboardWait;
 
-                worldService.ProcessMoveInput(direction);
+                worldService.ProcessDirectionSelection(direction);
             }
 
             isListening = false;

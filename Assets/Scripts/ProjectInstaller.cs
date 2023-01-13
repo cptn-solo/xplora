@@ -54,6 +54,10 @@ namespace Assets.Scripts
             battleManagementService.LoadData();
             audioPlaybackService.InitAudioPlayback();
             audioPlaybackService.AttachToNavigation(menuNavigationService);
+
+            worldService.AttachToLibraryService(libManagementService);
+            
+            worldService.StartWorldStateLoop();
         }
 
         private void BindInstallerInterfaces()

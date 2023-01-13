@@ -1,5 +1,5 @@
+using Assets.Scripts.Services;
 using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -7,8 +7,9 @@ namespace Assets.Scripts.World.HexMap
 {
     public class HexGrid : MonoBehaviour, IHexCellGrid
     {
-        [SerializeField] private int width = 6;
-        [SerializeField] private int height = 6;
+        private int width = 6;
+        private int height = 6;
+        
         [SerializeField] private HexCell cellPrefab;
         [SerializeField] private TextMeshProUGUI cellLabelPrefab;
 
@@ -19,12 +20,22 @@ namespace Assets.Scripts.World.HexMap
         private HexMesh hexMesh;
 
         private HexCell[] cells;
-        private Dictionary<Vector3, HexCell> cellMap = new();
 
         private void Awake()
         {
             gridCanvas = GetComponentInChildren<Canvas>();
-            hexMesh = GetComponentInChildren<HexMesh>();
+            hexMesh = GetComponentInChildren<HexMesh>();            
+        }
+
+        /// <summary>
+        /// Please call not earlier then from Start()
+        /// </summary>
+        /// <param name="height"></param>
+        /// <param name="width"></param>
+        public void ProduceCells(int height, int width, TerrainProducerCallback callback)
+        {
+            this.height = height;
+            this.width = width;
 
             cells = new HexCell[height * width];
 
@@ -35,12 +46,10 @@ namespace Assets.Scripts.World.HexMap
                     CreateCell(x, z, i++);
                 }
             }
-        }
-        void Start()
-        {
             hexMesh.Triangulate(cells);
-        }
 
+            callback?.Invoke();
+        }
 
         private void CreateCell(int x, int z, int i)
         {
@@ -55,8 +64,6 @@ namespace Assets.Scripts.World.HexMap
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.color = defaultColor;
-
-            cellMap.Add(cell.coordinates.ToVector3(), cell);
 
             if (x > 0)
             {
@@ -95,20 +102,31 @@ namespace Assets.Scripts.World.HexMap
 
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
             Debug.Log("touched at " + coordinates.ToString());
-            int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-            HexCell cell = cells[index];
-            cell.color = touchedColor;
-            hexMesh.Triangulate(cells);
 
             return coordinates;
         }
 
-        internal HexCell CellForCoordinates(HexCoordinates coord)
+        public void HighlightTargetedCell(HexCoordinates coordinates)
         {
-            if (cellMap.TryGetValue(coord.ToVector3(), out var cell))
-                return cell;
-
-            return null;
+            HexCell cell = CellForCoordinates(coordinates);
+            cell.color = touchedColor;
+            hexMesh.Triangulate(cells);
+        }
+        public HexCoordinates CellCoordinatesForIndex(int index)
+        {
+            HexCell cell = cells[index];
+            return cell.coordinates;
+        }
+        public int CellIndexForCoordinates(HexCoordinates coordinates)
+        {
+            int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+            return index;
+        }
+        public HexCell CellForCoordinates(HexCoordinates coordinates)
+        {
+            int index = CellIndexForCoordinates(coordinates);
+            HexCell cell = cells[index];
+            return cell;
         }
     }
 }
