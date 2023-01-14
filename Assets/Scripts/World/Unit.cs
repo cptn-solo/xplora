@@ -77,9 +77,7 @@ namespace Assets.Scripts.World
                 transform.position += Hero.Speed * speedFactor * Time.deltaTime * dir;
                 var dif = Vector3.SqrMagnitude(targetPos - transform.position);
                 
-                Debug.Log($"MoveCoroutine dif {dif}");
-
-                if (dif <= .1f)
+                if (dif <= 1f)
                 {
                     coordinates = targetCoord;
                     OnArrivedToCoordinates?.Invoke(coordinates, this);
