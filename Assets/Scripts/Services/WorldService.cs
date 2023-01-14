@@ -71,6 +71,8 @@ namespace Assets.Scripts.Services
 
             while (isWorldStateLoopActive)
             {
+                if (TerrainProducer == null && UnitSpawner == null)
+                    worldState = WorldState.NA;
 
 
                 yield return TickTimer;

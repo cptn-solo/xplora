@@ -26,6 +26,7 @@ namespace Assets.Scripts.World
         private void OnDestroy()
         {
             worldService.OnUnitSpawned -= WorldService_OnUnitSpawned;
+            worldService.UnitSpawner = null;
         }
 
         private void WorldService_OnUnitSpawned(Unit unit, bool isPlayer)

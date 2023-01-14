@@ -26,6 +26,17 @@ namespace Assets.Scripts.World
             worldService.CellCoordinatesResolver = grid.CellCoordinatesForIndex;
         }
 
+        private void OnDestroy()
+        {
+            worldService.CoordResolver = null;
+            worldService.WorldPositionResolver = null;
+
+            worldService.CoordHighlighter = null;
+            worldService.TerrainProducer = null;
+            worldService.CellIndexResolver = null;
+            worldService.CellCoordinatesResolver = null;
+        }
+
         private HexCoordinates ResolveHexCoordinates(HexCoordinates coord, HexDirection dir)
         {
             var cell = grid.CellForCoordinates(coord);
