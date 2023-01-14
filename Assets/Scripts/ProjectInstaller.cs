@@ -51,11 +51,24 @@ namespace Assets.Scripts
         public void Initialize()
         {
             libManagementService.LoadData();
-            battleManagementService.LoadData();
-            audioPlaybackService.InitAudioPlayback();
-            audioPlaybackService.AttachToNavigation(menuNavigationService);
 
-            worldService.AttachToLibraryService(libManagementService);
+            battleManagementService.AttachServices(
+                playerPrefsService,
+                libManagementService,
+                menuNavigationService,
+                worldService);
+
+            battleManagementService.LoadData();
+            
+            audioPlaybackService.AttachServices(
+                menuNavigationService);
+            
+            audioPlaybackService.InitAudioPlayback();
+
+            worldService.AttachServices(
+                libManagementService,
+                battleManagementService,
+                menuNavigationService);
             
             worldService.StartWorldStateLoop();
         }

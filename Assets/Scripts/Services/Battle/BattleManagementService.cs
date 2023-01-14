@@ -11,9 +11,10 @@ namespace Assets.Scripts.Services
 {
     public partial class BattleManagementService : MonoBehaviour
     {
-        [Inject] private readonly HeroLibraryManagementService libraryManager;
-        [Inject] private readonly PlayerPreferencesService prefs;
-        [Inject] private readonly MenuNavigationService nav;
+        private HeroLibraryManagementService libraryManager;
+        private PlayerPreferencesService prefs;
+        private MenuNavigationService nav;
+        private WorldService worldService;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
@@ -177,7 +178,11 @@ namespace Assets.Scripts.Services
                 yield return new WaitForSeconds(2.0f);
             }
 
-            nav.NavigateToScreen(Screens.HeroesLibrary);
+            if (worldService.WorldState == WorldState.InBattle)
+                worldService.ProcessAftermath(battle);
+            else
+                nav.NavigateToScreen(Screens.HeroesLibrary);
+
 
             retreatBattleRunning = false;
         }
@@ -398,5 +403,19 @@ namespace Assets.Scripts.Services
             power.GiveAsset(battle.EnemyTeam, 5);
 
         }
+
+        internal void AttachServices(
+            PlayerPreferencesService playerPreferencesService,
+            HeroLibraryManagementService libManagementService,
+            MenuNavigationService menuNavigationService,
+            WorldService worldService)
+        {
+            this.libraryManager = libManagementService;
+            this.nav = menuNavigationService;
+            this.worldService = worldService;
+            this.prefs = playerPreferencesService;
+
+        }
+
     }
 }

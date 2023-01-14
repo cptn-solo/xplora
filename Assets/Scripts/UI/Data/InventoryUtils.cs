@@ -12,15 +12,17 @@ namespace Assets.Scripts.UI.Data
             this Dictionary<Tuple<int, BattleLine, int>, T> heroes, 
             ItemComparer<T> comparer)
         {
-            var sorted = heroes.OrderBy(x => x.Key).ToArray();
+            var sorted = heroes
+                .Where(x => x.Key.Item1 == -1)
+                .OrderBy(x => x.Key.Item3).ToArray();
             for (int i = 0; i < sorted.Length; i++)
             {
                 var slot = sorted[i];
-                if (comparer(slot.Value))
-                    return sorted[i].Key;
+                if (slot.Key.Item3 > i)
+                    return new Tuple<int, BattleLine, int>(-1, BattleLine.NA, i);
             }
 
-            return new(-1, BattleLine.NA, -1);
+            return new(-1, BattleLine.NA, sorted.Count());
         }        
 
         public static int FirstFreeSlotIndex<T>(

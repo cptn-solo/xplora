@@ -100,7 +100,7 @@ namespace Assets.Scripts.Services.App
             SetMixerValue(fxGroupKey, SfxVolume);
         }
 
-        internal void AttachToNavigation(MenuNavigationService menuNavigationService)
+        internal void AttachServices(MenuNavigationService menuNavigationService)
         {
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;

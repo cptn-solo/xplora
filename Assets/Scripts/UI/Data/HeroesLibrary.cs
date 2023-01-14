@@ -107,6 +107,14 @@ namespace Assets.Scripts.UI.Data
 
             return true;
         }
+        public bool RetireHero(Hero hero)
+        {
+            var pos = heroes.FirstFreeSlotIndex(x => x == -1);
+
+            SyncHeroPosition(hero, pos);
+
+            return true;
+        }
 
         public bool UpdateHero(Hero hero)
         {

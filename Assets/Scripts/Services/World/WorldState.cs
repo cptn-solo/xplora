@@ -8,5 +8,8 @@
         SceneReady = 300, // Terrain and Units panel are initialized, cells generated
         UnitsBeingSpawned = 400, // Player and Enemies are being spawned right now
         UnitsSpawned = 500, // Player and Enemies spawned
+        PrepareBattle = 600,
+        InBattle = 700,
+        Aftermath = 800,
     }
 }
