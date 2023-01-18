@@ -621,6 +621,7 @@ GameObject:
   - component: {fileID: 1001729401}
   - component: {fileID: 1001729399}
   - component: {fileID: 1001729400}
+  - component: {fileID: 1001729402}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -665,8 +666,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a7dd58ecbd7374458840d95148b6710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 6
-  height: 6
   cellPrefab: {fileID: 588424164883693814, guid: 88f756c0b5645b84aa0b46b9a63ae0e4,
     type: 3}
   cellLabelPrefab: {fileID: 5883077625311513938, guid: f2edc7d02dedd364993e2676c1e42a54,
@@ -708,6 +707,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4f09a5be4bfac2468183ec87b8a89d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1001729402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1001729393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a5c500cd6a2b42229b51d313e509e3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1208350589

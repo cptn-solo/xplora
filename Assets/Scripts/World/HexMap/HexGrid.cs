@@ -9,7 +9,17 @@ namespace Assets.Scripts.World.HexMap
     {
         private int width = 6;
         private int height = 6;
-        
+
+        /// <summary>
+        /// Amount of cells in the X dimension.
+        /// </summary>
+        public int CellCountX => width;
+
+        /// <summary>
+        /// Amount of cells in the Z dimension.
+        /// </summary>
+        public int CellCountZ => height;
+
         [SerializeField] private HexCell cellPrefab;
         [SerializeField] private TextMeshProUGUI cellLabelPrefab;
 
@@ -127,6 +137,53 @@ namespace Assets.Scripts.World.HexMap
             int index = CellIndexForCoordinates(coordinates);
             HexCell cell = cells[index];
             return cell;
+        }
+
+        /// <summary>
+        /// Get a cell given a <see cref="Ray"/>.
+        /// </summary>
+        /// <param name="ray"><see cref="Ray"/> used to perform a raycast.</param>
+        /// <returns>The hit cell, if any.</returns>
+        public HexCell GetCell(Ray ray)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                return GetCell(hit.point);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get the cell that contains a position.
+        /// </summary>
+        /// <param name="position">Position to check.</param>
+        /// <returns>The cell containing the position, if it exists.</returns>
+        public HexCell GetCell(Vector3 position)
+        {
+            position = transform.InverseTransformPoint(position);
+            HexCoordinates coordinates = HexCoordinates.FromPosition(position);
+            return GetCell(coordinates);
+        }
+
+        /// <summary>
+        /// Get the cell with specific <see cref="HexCoordinates"/>.
+        /// </summary>
+        /// <param name="coordinates"><see cref="HexCoordinates"/> of the cell.</param>
+        /// <returns>The cell with the given coordinates, if it exists.</returns>
+        public HexCell GetCell(HexCoordinates coordinates)
+        {
+            int z = coordinates.Z;
+            if (z < 0 || z >= CellCountZ)
+            {
+                return null;
+            }
+            int x = coordinates.X + z / 2;
+            if (x < 0 || x >= CellCountX)
+            {
+                return null;
+            }
+            return cells[x + z * CellCountX];
         }
     }
 }

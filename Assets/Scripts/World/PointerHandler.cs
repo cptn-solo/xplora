@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Services;
 using Assets.Scripts.World.HexMap;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -17,11 +18,15 @@ namespace Assets.Scripts.World
         private PlayerInputActions input;
         
         private IHexCellGrid grid;
+        private CellHighlighter cellHighlighter;
+        private Vector2 pos;
+        private HexCell previousCell;
 
         private void Awake()
         {
             input = new();
             grid = GetComponent<IHexCellGrid>();
+            cellHighlighter = GetComponent<CellHighlighter>();
         }
 
         private void OnEnable()
@@ -48,28 +53,52 @@ namespace Assets.Scripts.World
 
         private void Pointer_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
-            var pos = obj.ReadValue<Vector2>();
+            pos = obj.ReadValue<Vector2>();
         }
-        #region Touch Cell
+
+        private HexCell GetCellUnderCursor() =>
+            grid.GetCell(Camera.main.ScreenPointToRay(pos));
+        
 
         private void Update()
         {
+            var overUI = EventSystem.current.IsPointerOverGameObject();
+            if (overUI)
+                return;
+
             var lmb = Mouse.current.leftButton.wasPressedThisFrame;
-            if (lmb && !EventSystem.current.IsPointerOverGameObject())
+            if (lmb)
             {
-                HandlePointer();
+                HandleTouch();
+            }
+            else
+            {
+                HandleHover();
             }
         }
 
-        private void HandlePointer()
-        {
-            Vector3 mousePos = Mouse.current.position.ReadValue();
+        #region Touch Cell       
 
-            Ray inputRay = Camera.main.ScreenPointToRay(mousePos);
-            if (Physics.Raycast(inputRay, out RaycastHit hit))
+        private void HandleHover()
+        {
+            HexCell currentCell = GetCellUnderCursor();
+            if (currentCell)
             {
-                HexCoordinates coordinates = grid.TouchCell(hit.point);
-                worldService.ProcessTargetCoordinatesSelection(coordinates);
+                previousCell = currentCell;
+            }
+            else
+            {
+                previousCell = null;
+            }
+            cellHighlighter.UpdateCellHighlightData(currentCell);
+        }
+
+        private void HandleTouch()
+        {
+            HexCell currentCell = GetCellUnderCursor();
+            if (currentCell)
+            {
+                worldService.ProcessTargetCoordinatesSelection(currentCell.coordinates);
             }
         }
 
