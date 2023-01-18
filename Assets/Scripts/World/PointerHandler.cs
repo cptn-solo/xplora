@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Services;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using Zenject;
 
@@ -54,7 +55,7 @@ namespace Assets.Scripts.World
         private void Update()
         {
             var lmb = Mouse.current.leftButton.wasPressedThisFrame;
-            if (lmb)
+            if (lmb && !EventSystem.current.IsPointerOverGameObject())
             {
                 HandlePointer();
             }
