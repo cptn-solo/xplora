@@ -1,39 +1,35 @@
-// Cell highlighting data, in hex space.
-// x: Highlight center X position.
-// y: Highlight center Z position.
-// z: Highlight radius, squared with bias. Is negative if there is no highlight.
-// w: Hex grid wrap size, to support X wrapping. Is zero if there is no wrapping.
-float4 _CellHighlighting;
+#include "HexCellData.hlsl"
 
-// Hex grid data derived from world-space XZ position.
-struct HexGridData {
-	// Cell center in hex space.
-	float2 cellCenter;
+// Apply an 70% darkening grid outline at hex center distance 0.965-1.
+float3 ApplyGrid (float3 baseColor, HexGridData h) {
+	return baseColor * (1 + 0.5 * h.Smoothstep10(0.965));
+}
 
-	// Hex grid data derived from world-space XZ position.
-	bool IsHighlighted () {
-		float2 cellToHighlight = abs(_CellHighlighting.xy - cellCenter);
+// Apply a white outline at hex center distance 0.68-0.8.
+float3 ApplyHighlight (float3 baseColor, float3 hlColor, HexGridData h) {
+	//return saturate(h.SmoothstepRange(0.9, 0.95) + hlColor.rgb);
+	//return baseColor + (hlColor * h.Smoothstep01(0.7));
+	//return baseColor * h.Smoothstep10(0.85);
 
-		// Adjust for world X wrapping if needed.
-		if (cellToHighlight.x > _CellHighlighting.w * 0.5) {
-			cellToHighlight.x -= _CellHighlighting.w;
-		}
+	//return saturate(hlColor);
 
-		return dot(cellToHighlight, cellToHighlight) < _CellHighlighting.z;
-	}
-};
+	return (baseColor * h.Smoothstep10(0.9)) + (hlColor * h.Smoothstep01(0.9));
+}
 
 void GetFragmentData_float (
 	float3 WorldPosition,
-	UnityTexture2D GridTexture,
+	float4 InColor,
+	float4 HighlightColor,
 	out float3 BaseColor
 ) {
+	
+	BaseColor = InColor.rgb;
 
-	float4 grid = 1;
-	float2 gridUV = WorldPosition.xz;
-	gridUV.x *= 1 / (4 * 8.66025404);
-	gridUV.y *= 1 / (2 * 15.0);
-	grid = GridTexture.Sample(GridTexture.samplerstate, gridUV);
+	HexGridData hgd = GetHexGridData(WorldPosition.xz);
 
-	BaseColor = grid.rgb;
+	BaseColor = ApplyGrid(BaseColor, hgd);
+
+	if (hgd.IsHighlighted()) {
+		BaseColor = ApplyHighlight(BaseColor, HighlightColor.rgb, hgd);
+	}
 }

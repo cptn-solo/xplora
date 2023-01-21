@@ -23,8 +23,8 @@ namespace Assets.Scripts.World.HexMap
         [SerializeField] private HexCell cellPrefab;
         [SerializeField] private TextMeshProUGUI cellLabelPrefab;
 
-        [SerializeField] private Color defaultColor = Color.white;
-        [SerializeField] private Color touchedColor = Color.magenta;
+        [SerializeField] private Color defaultColor;
+        [SerializeField] private Color touchedColor;
         
         private Canvas gridCanvas;
         private HexMesh hexMesh;

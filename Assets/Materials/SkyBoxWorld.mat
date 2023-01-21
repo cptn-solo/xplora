@@ -91,7 +91,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _Exposure: 1
+    - _Exposure: 0.64
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -106,7 +106,7 @@ Material:
     - _SrcBlend: 1
     - _SunDisk: 2
     - _SunSize: 0.145
-    - _SunSizeConvergence: 6.08
+    - _SunSizeConvergence: 5.16
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
