@@ -7,12 +7,6 @@ float3 ApplyGrid (float3 baseColor, HexGridData h) {
 
 // Apply a white outline at hex center distance 0.68-0.8.
 float3 ApplyHighlight (float3 baseColor, float3 hlColor, HexGridData h) {
-	//return saturate(h.SmoothstepRange(0.9, 0.95) + hlColor.rgb);
-	//return baseColor + (hlColor * h.Smoothstep01(0.7));
-	//return baseColor * h.Smoothstep10(0.85);
-
-	//return saturate(hlColor);
-
 	return (baseColor * h.Smoothstep10(0.9)) + (hlColor * h.Smoothstep01(0.9));
 }
 

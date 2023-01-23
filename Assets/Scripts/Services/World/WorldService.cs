@@ -175,71 +175,7 @@ namespace Assets.Scripts.Services
             }
 
             callback?.Invoke();
-        }
-        private void PlayerUnit_OnArrivedToCoordinates(HexCoordinates coordinates, Unit unit)
-        {
-            var cellId = CellIndexResolver(coordinates);
-            if (worldObjects.FirstOrDefault(x => x.CellIndex == cellId) is WorldObject obj &&
-                obj.ObjectType == WorldObjectType.Unit &&
-                obj.Unit != null &&
-                obj.Hero.HeroType != HeroType.NA)
-            {
-                InitiateBattle(obj);
-            }
-            else
-            {
-                worldObjects.Remove(player);
-                
-                player.CellIndex = cellId;
-                
-                worldObjects.Add(player);
-            }
-        }
-
-        public void ProcessTargetCoordinatesSelection(HexCoordinates coordinates)
-        {
-            CoordHighlighter?.Invoke(coordinates);
-
-            //TODO: add a decision button or such
-            ProcessMoveToHexCoordinates(coordinates);
-        }
-
-        public void ProcessMoveToHexCoordinates(HexCoordinates coordinates)
-        {
-            player.Unit.SetMoveTargetCoordinates(coordinates);
-            player.Unit.MoveToTargetCoordinates();
-        }
-
-        public void ProcessDirectionSelection(Vector3 direction)
-        {
-            HexDirection hexDir;
-            if (direction.x > 0 && direction.z > 0)
-                hexDir = HexDirection.NE;
-            else if (direction.x > 0 && direction.z < 0)
-                hexDir = HexDirection.SE;
-            else if (direction.x > 0)
-                hexDir = HexDirection.E;
-            else if (direction.x < 0 && direction.z > 0)
-                hexDir = HexDirection.NW;
-            else if (direction.x < 0 && direction.z < 0)
-                hexDir = HexDirection.SW;
-            else if (direction.x < 0)
-                hexDir = HexDirection.W;
-            else if (direction.z > 0)
-                hexDir = HexDirection.W;
-            else
-                hexDir = HexDirection.NA; // can't move to south or north or default should be set
-
-            if (hexDir != HexDirection.NA)
-            {
-                // TODO: decide on move rules etc.
-                var targetCoord = CoordResolver(player.Unit.CurrentCoord, hexDir);
-                ProcessTargetCoordinatesSelection(targetCoord);
-            }
-
-            // var targetPos = playerUnit.transform.position + direction;            
-            //playerUnit.MoveTo(targetPos);
-        }
+        }        
 
         internal void GenerateTerrain()
         {

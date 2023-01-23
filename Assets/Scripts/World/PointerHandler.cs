@@ -18,7 +18,6 @@ namespace Assets.Scripts.World
         private PlayerInputActions input;
         
         private IHexCellGrid grid;
-        private CellHighlighter cellHighlighter;
         private Vector2 pos;
         private HexCell previousCell;
 
@@ -26,7 +25,6 @@ namespace Assets.Scripts.World
         {
             input = new();
             grid = GetComponent<IHexCellGrid>();
-            cellHighlighter = GetComponent<CellHighlighter>();
         }
 
         private void OnEnable()
@@ -82,15 +80,31 @@ namespace Assets.Scripts.World
         private void HandleHover()
         {
             HexCell currentCell = GetCellUnderCursor();
+
+            bool needUpdateHighlight = false;
+
             if (currentCell)
             {
+                if (!previousCell || currentCell != previousCell)
+                    needUpdateHighlight = true;
+
                 previousCell = currentCell;
+
+                needUpdateHighlight = needUpdateHighlight && worldService.CheckIfReachable(currentCell.coordinates);
             }
             else
             {
+                if (previousCell)
+                    needUpdateHighlight = true;
+
                 previousCell = null;
             }
-            cellHighlighter.UpdateCellHighlightData(currentCell);
+
+            if (needUpdateHighlight)
+            {
+                worldService.SetAimToCoordinates(currentCell ?
+                    currentCell.coordinates : null);
+            }
         }
 
         private void HandleTouch()

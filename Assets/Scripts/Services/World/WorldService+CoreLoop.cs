@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using Assets.Scripts.World.HexMap;
 
 namespace Assets.Scripts.Services
 {
 
     public partial class WorldService
-    {        
+    {
         private IEnumerator WorldStateLoopCoroutine()
         {
             isWorldStateLoopActive = true;

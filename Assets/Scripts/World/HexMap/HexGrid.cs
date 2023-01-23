@@ -116,9 +116,12 @@ namespace Assets.Scripts.World.HexMap
             return coordinates;
         }
 
-        public void HighlightTargetedCell(HexCoordinates coordinates)
+        public void MarkCellVisited(HexCoordinates? coordinates)
         {
-            HexCell cell = CellForCoordinates(coordinates);
+            if (coordinates == null)
+                return;
+
+            HexCell cell = CellForCoordinates((HexCoordinates)coordinates);
             cell.color = touchedColor;
             hexMesh.Triangulate(cells);
         }

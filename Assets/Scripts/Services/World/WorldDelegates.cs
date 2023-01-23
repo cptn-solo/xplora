@@ -53,12 +53,12 @@ namespace Assets.Scripts.Services
         int index);
 
     /// <summary>
-    /// Temp. To Highlight selected coordinates (instead of using event)
+    /// To Highlight selected coordinates (instead of using event)
     /// </summary>
     /// <param name="coordinates"></param>
-    public delegate void HexCoordHighlighter(
-        HexCoordinates coordinates);
-
+    public delegate void HexCoordAccessor(
+        HexCoordinates? coordinates);
+    
     /// <summary>
     /// Produces the terrain for given dimensions
     /// </summary>

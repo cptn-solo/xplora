@@ -10,17 +10,21 @@ namespace Assets.Scripts.World
         [Inject] private readonly WorldService worldService;
         
         private HexGrid grid;
+        private CellHighlighter cellHighlighter;
 
         private void Awake()
         {
             grid = GetComponent<HexGrid>();
+            cellHighlighter = GetComponent<CellHighlighter>();
         }
         private void Start()
         {
             worldService.CoordResolver = ResolveHexCoordinates;
             worldService.WorldPositionResolver = ResolveWorldPosition;
-            
-            worldService.CoordHighlighter = grid.HighlightTargetedCell;            
+
+            worldService.CoordHoverer = cellHighlighter.HighlightCellAtCoordinates;
+            worldService.CoordSelector = grid.MarkCellVisited;
+
             worldService.TerrainProducer = grid.ProduceCells;
             worldService.CellIndexResolver = grid.CellIndexForCoordinates;
             worldService.CellCoordinatesResolver = grid.CellCoordinatesForIndex;
@@ -31,7 +35,9 @@ namespace Assets.Scripts.World
             worldService.CoordResolver = null;
             worldService.WorldPositionResolver = null;
 
-            worldService.CoordHighlighter = null;
+            worldService.CoordHoverer = null;
+            worldService.CoordSelector = null;
+
             worldService.TerrainProducer = null;
             worldService.CellIndexResolver = null;
             worldService.CellCoordinatesResolver = null;
