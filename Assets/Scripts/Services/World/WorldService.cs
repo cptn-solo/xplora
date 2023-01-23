@@ -115,6 +115,8 @@ namespace Assets.Scripts.Services
             var pos = WorldPositionResolver(coord);
 
             var playerUnit = UnitSpawner?.Invoke(pos, playerHero, null);
+            playerUnit.SetInitialCoordinates(coord);
+
             OnUnitSpawned?.Invoke(playerUnit, true);
 
             playerUnit.OnArrivedToCoordinates += PlayerUnit_OnArrivedToCoordinates;

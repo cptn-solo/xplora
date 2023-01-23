@@ -12,7 +12,9 @@ using Random = UnityEngine.Random;
 namespace Assets.Scripts.Services
 {
     public partial class WorldService
-    {        
+    {
+        private HexCoordinates? currentAim;
+
         private void PlayerUnit_OnArrivedToCoordinates(HexCoordinates coordinates, Unit unit)
         {
             var cellId = CellIndexResolver(coordinates);
@@ -33,13 +35,24 @@ namespace Assets.Scripts.Services
             }
         }
 
+        /// <summary>
+        /// Checks if a cell for the specified coordinates is nearby the
+        /// cell where player is located rn
+        /// </summary>
+        /// <param name="coordinates"></param>
+        /// <returns></returns>
         public bool CheckIfReachable(HexCoordinates coordinates)
         {
-            return true;
+            var coord = CellCoordinatesResolver(player.CellIndex);
+            if (coord.DistanceTo(coordinates) <= player.Unit.WorldRange)
+                return true;
+
+            return false;
         }
 
         public void SetAimToCoordinates(HexCoordinates? coordinates)
         {
+            currentAim = coordinates;
             CoordHoverer?.Invoke(coordinates);
         }
 
@@ -80,8 +93,13 @@ namespace Assets.Scripts.Services
             if (hexDir != HexDirection.NA)
             {
                 // TODO: decide on move rules etc.
-                var targetCoord = CoordResolver(player.Unit.CurrentCoord, hexDir);
-                ProcessTargetCoordinatesSelection(targetCoord);
+                var startPoint = currentAim ?? player.Unit.CurrentCoord;
+                var targetCoord = CoordResolver(startPoint, hexDir);
+
+                if (CheckIfReachable(targetCoord))
+                    SetAimToCoordinates(targetCoord);
+
+                //ProcessTargetCoordinatesSelection(targetCoord);
             }
 
             // var targetPos = playerUnit.transform.position + direction;            

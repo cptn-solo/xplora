@@ -60,6 +60,9 @@ namespace Assets.Scripts.World
 
         private void Update()
         {
+            if (worldService.WorldState < WorldState.UnitsSpawned)
+                return;
+
             var overUI = EventSystem.current.IsPointerOverGameObject();
             if (overUI)
                 return;

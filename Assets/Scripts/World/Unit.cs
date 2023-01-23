@@ -17,6 +17,11 @@ namespace Assets.Scripts.World
         public Hero Hero => hero;
         public HexCoordinates CurrentCoord => coordinates;
 
+        /// <summary>
+        /// Assume we can move only 1 cell per turn
+        /// </summary>
+        public int WorldRange => 1;
+
         public event UnityAction<HexCoordinates, Unit> OnArrivedToCoordinates;
         public event UnityAction<HexCoordinates, HexCoordinates, Unit> OnDepartedFromCoordinates;
         public event UnityAction<HexCoordinates, Unit> OnMoveTargetSetToCoordinates;
@@ -31,16 +36,23 @@ namespace Assets.Scripts.World
             unitAnimation = GetComponentInChildren<UnitAnimation>();
         }
 
+        public void SetInitialCoordinates(HexCoordinates initialCoordinates)
+        {
+            coordinates = initialCoordinates;
+        }
+
         public void SetHero(Hero hero)
         {
             this.hero = hero;
             unitAnimation.SetHero(hero);
         }
+
         internal void SetMoveTargetCoordinates(HexCoordinates targetCoord)
         {
             this.targetCoord = targetCoord;
             OnMoveTargetSetToCoordinates?.Invoke(targetCoord, this);
         }
+
         internal void MoveToTargetCoordinates()
         {            
             if (isMoving || activeMove != null)
