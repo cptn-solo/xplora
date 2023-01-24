@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Gamepad",
+                    "type": "PassThrough",
+                    "id": "153792e6-89ec-4163-bb49-9daecf4a481d",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -134,6 +143,17 @@
                     "action": "Pointer",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eade2eed-0d06-409f-8f37-c24de169e948",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "xbox;Default",
+                    "action": "Gamepad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
@@ -143,6 +163,17 @@
             "name": "Default",
             "bindingGroup": "Default",
             "devices": []
+        },
+        {
+            "name": "xbox",
+            "bindingGroup": "xbox",
+            "devices": [
+                {
+                    "devicePath": "<XInputController>",
+                    "isOptional": true,
+                    "isOR": false
+                }
+            ]
         }
     ]
 }

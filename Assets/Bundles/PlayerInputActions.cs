@@ -46,6 +46,15 @@ namespace Assets.Scripts
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Gamepad"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""153792e6-89ec-4163-bb49-9daecf4a481d"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -158,6 +167,17 @@ namespace Assets.Scripts
                     ""action"": ""Pointer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eade2eed-0d06-409f-8f37-c24de169e948"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""xbox;Default"",
+                    ""action"": ""Gamepad"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -167,6 +187,17 @@ namespace Assets.Scripts
             ""name"": ""Default"",
             ""bindingGroup"": ""Default"",
             ""devices"": []
+        },
+        {
+            ""name"": ""xbox"",
+            ""bindingGroup"": ""xbox"",
+            ""devices"": [
+                {
+                    ""devicePath"": ""<XInputController>"",
+                    ""isOptional"": true,
+                    ""isOR"": false
+                }
+            ]
         }
     ]
 }");
@@ -174,6 +205,7 @@ namespace Assets.Scripts
             m_World = asset.FindActionMap("World", throwIfNotFound: true);
             m_World_Move = m_World.FindAction("Move", throwIfNotFound: true);
             m_World_Pointer = m_World.FindAction("Pointer", throwIfNotFound: true);
+            m_World_Gamepad = m_World.FindAction("Gamepad", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -235,12 +267,14 @@ namespace Assets.Scripts
         private IWorldActions m_WorldActionsCallbackInterface;
         private readonly InputAction m_World_Move;
         private readonly InputAction m_World_Pointer;
+        private readonly InputAction m_World_Gamepad;
         public struct WorldActions
         {
             private @PlayerInputActions m_Wrapper;
             public WorldActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
             public InputAction @Move => m_Wrapper.m_World_Move;
             public InputAction @Pointer => m_Wrapper.m_World_Pointer;
+            public InputAction @Gamepad => m_Wrapper.m_World_Gamepad;
             public InputActionMap Get() { return m_Wrapper.m_World; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -256,6 +290,9 @@ namespace Assets.Scripts
                     @Pointer.started -= m_Wrapper.m_WorldActionsCallbackInterface.OnPointer;
                     @Pointer.performed -= m_Wrapper.m_WorldActionsCallbackInterface.OnPointer;
                     @Pointer.canceled -= m_Wrapper.m_WorldActionsCallbackInterface.OnPointer;
+                    @Gamepad.started -= m_Wrapper.m_WorldActionsCallbackInterface.OnGamepad;
+                    @Gamepad.performed -= m_Wrapper.m_WorldActionsCallbackInterface.OnGamepad;
+                    @Gamepad.canceled -= m_Wrapper.m_WorldActionsCallbackInterface.OnGamepad;
                 }
                 m_Wrapper.m_WorldActionsCallbackInterface = instance;
                 if (instance != null)
@@ -266,6 +303,9 @@ namespace Assets.Scripts
                     @Pointer.started += instance.OnPointer;
                     @Pointer.performed += instance.OnPointer;
                     @Pointer.canceled += instance.OnPointer;
+                    @Gamepad.started += instance.OnGamepad;
+                    @Gamepad.performed += instance.OnGamepad;
+                    @Gamepad.canceled += instance.OnGamepad;
                 }
             }
         }
@@ -279,10 +319,20 @@ namespace Assets.Scripts
                 return asset.controlSchemes[m_DefaultSchemeIndex];
             }
         }
+        private int m_xboxSchemeIndex = -1;
+        public InputControlScheme xboxScheme
+        {
+            get
+            {
+                if (m_xboxSchemeIndex == -1) m_xboxSchemeIndex = asset.FindControlSchemeIndex("xbox");
+                return asset.controlSchemes[m_xboxSchemeIndex];
+            }
+        }
         public interface IWorldActions
         {
             void OnMove(InputAction.CallbackContext context);
             void OnPointer(InputAction.CallbackContext context);
+            void OnGamepad(InputAction.CallbackContext context);
         }
     }
 }

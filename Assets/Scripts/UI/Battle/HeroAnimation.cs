@@ -27,6 +27,7 @@ namespace Assets.Scripts.UI.Battle
         
         private Overlay overlay;
         private Vector3 scaleBeforeMove = Vector3.zero;
+        private Vector3 initialPosition;
 
         public void SetOverlay(Overlay overlay)
         {
@@ -77,6 +78,8 @@ namespace Assets.Scripts.UI.Battle
                     lr.y = 180f;
                     transform.localRotation = lr;
                 }
+
+                initialPosition = transform.parent.transform.localPosition;
 
                 var res = Resources.Load($"Hero_{hero.Id}");
                 if (res != null)
@@ -220,7 +223,7 @@ namespace Assets.Scripts.UI.Battle
 
         internal void MoveSpriteBack()
         {
-            transform.parent.transform.localPosition = Vector3.zero;
+            transform.parent.transform.localPosition = initialPosition;
             
             if (scaleBeforeMove != Vector3.zero)
             {
