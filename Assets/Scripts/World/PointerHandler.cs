@@ -115,7 +115,8 @@ namespace Assets.Scripts.World
             HexCell currentCell = GetCellUnderCursor();
             if (currentCell)
             {
-                worldService.ProcessTargetCoordinatesSelection(currentCell.coordinates);
+                worldService.ResetHexDir(); //to prevent next cell selection - pointer doesn't need it
+                worldService.ProcessTargetCoordinatesSelection(currentCell.coordinates);                
             }
         }
 

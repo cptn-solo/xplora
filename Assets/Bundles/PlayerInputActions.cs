@@ -55,6 +55,15 @@ namespace Assets.Scripts
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ActionsGo"",
+                    ""type"": ""Button"",
+                    ""id"": ""1192f91e-cf89-48f5-b9f7-1eb9141e16f6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -178,6 +187,28 @@ namespace Assets.Scripts
                     ""action"": ""Gamepad"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cf55adf1-a7bc-42f0-ba94-da693e559b14"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Default"",
+                    ""action"": ""ActionsGo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""648bd88f-1d5b-4e42-afc8-2c1d16e143f4"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Default"",
+                    ""action"": ""ActionsGo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -206,6 +237,7 @@ namespace Assets.Scripts
             m_World_Move = m_World.FindAction("Move", throwIfNotFound: true);
             m_World_Pointer = m_World.FindAction("Pointer", throwIfNotFound: true);
             m_World_Gamepad = m_World.FindAction("Gamepad", throwIfNotFound: true);
+            m_World_ActionsGo = m_World.FindAction("ActionsGo", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -268,6 +300,7 @@ namespace Assets.Scripts
         private readonly InputAction m_World_Move;
         private readonly InputAction m_World_Pointer;
         private readonly InputAction m_World_Gamepad;
+        private readonly InputAction m_World_ActionsGo;
         public struct WorldActions
         {
             private @PlayerInputActions m_Wrapper;
@@ -275,6 +308,7 @@ namespace Assets.Scripts
             public InputAction @Move => m_Wrapper.m_World_Move;
             public InputAction @Pointer => m_Wrapper.m_World_Pointer;
             public InputAction @Gamepad => m_Wrapper.m_World_Gamepad;
+            public InputAction @ActionsGo => m_Wrapper.m_World_ActionsGo;
             public InputActionMap Get() { return m_Wrapper.m_World; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -293,6 +327,9 @@ namespace Assets.Scripts
                     @Gamepad.started -= m_Wrapper.m_WorldActionsCallbackInterface.OnGamepad;
                     @Gamepad.performed -= m_Wrapper.m_WorldActionsCallbackInterface.OnGamepad;
                     @Gamepad.canceled -= m_Wrapper.m_WorldActionsCallbackInterface.OnGamepad;
+                    @ActionsGo.started -= m_Wrapper.m_WorldActionsCallbackInterface.OnActionsGo;
+                    @ActionsGo.performed -= m_Wrapper.m_WorldActionsCallbackInterface.OnActionsGo;
+                    @ActionsGo.canceled -= m_Wrapper.m_WorldActionsCallbackInterface.OnActionsGo;
                 }
                 m_Wrapper.m_WorldActionsCallbackInterface = instance;
                 if (instance != null)
@@ -306,6 +343,9 @@ namespace Assets.Scripts
                     @Gamepad.started += instance.OnGamepad;
                     @Gamepad.performed += instance.OnGamepad;
                     @Gamepad.canceled += instance.OnGamepad;
+                    @ActionsGo.started += instance.OnActionsGo;
+                    @ActionsGo.performed += instance.OnActionsGo;
+                    @ActionsGo.canceled += instance.OnActionsGo;
                 }
             }
         }
@@ -333,6 +373,7 @@ namespace Assets.Scripts
             void OnMove(InputAction.CallbackContext context);
             void OnPointer(InputAction.CallbackContext context);
             void OnGamepad(InputAction.CallbackContext context);
+            void OnActionsGo(InputAction.CallbackContext context);
         }
     }
 }

@@ -14,10 +14,17 @@ namespace Assets.Scripts.Services
     public partial class WorldService
     {
         private HexCoordinates? currentAim;
+        private HexDirection hexDir;
 
         private void PlayerUnit_OnArrivedToCoordinates(HexCoordinates coordinates, Unit unit)
         {
             var cellId = CellIndexResolver(coordinates);
+
+            if (currentAim.HasValue && currentAim.Value.Equals(coordinates))
+            {
+                SetAimToCoordinates(null);
+            }
+
             if (worldObjects.FirstOrDefault(x => x.CellIndex == cellId) is WorldObject obj &&
                 obj.ObjectType == WorldObjectType.Unit &&
                 obj.Unit != null &&
@@ -32,6 +39,9 @@ namespace Assets.Scripts.Services
                 player.CellIndex = cellId;
                 
                 worldObjects.Add(player);
+
+                SetAimByHexDir(); // will try to continue move to direction set earlier
+
             }
         }
 
@@ -57,12 +67,21 @@ namespace Assets.Scripts.Services
             CoordHoverer?.Invoke(coordinates);
         }
 
-        public void ProcessTargetCoordinatesSelection(HexCoordinates coordinates)
+        public void ProcessTargetCoordinatesSelection(HexCoordinates? coordinates = null)
         {
+            if (coordinates == null || !CheckIfReachable(coordinates.Value))
+                coordinates = currentAim;
+
+            if (coordinates == null)
+                return;
+
+            if (!CheckIfReachable(coordinates.Value))
+                return;
+
             CoordSelector?.Invoke(coordinates);
 
             //TODO: add a decision button or such
-            ProcessMoveToHexCoordinates(coordinates);
+            ProcessMoveToHexCoordinates(coordinates.Value);
         }
 
         public void ProcessMoveToHexCoordinates(HexCoordinates coordinates)
@@ -73,7 +92,7 @@ namespace Assets.Scripts.Services
 
         public void ProcessDirectionSelection(Vector3 direction)
         {
-            HexDirection hexDir = HexDirection.NA;
+            hexDir = HexDirection.NA;
 
             if (currentAim != null)
             {
@@ -176,10 +195,19 @@ namespace Assets.Scripts.Services
                     hexDir = HexDirection.SE; // change to SW if player positioned leftside
             }
 
-
-
             Debug.Log($"ProcessDirectionSelection {hexDir}");
 
+            SetAimByHexDir();
+
+        }
+
+        public void ResetHexDir()
+        {
+            hexDir = HexDirection.NA;
+        }
+
+        public void SetAimByHexDir()
+        {
             if (hexDir != HexDirection.NA)
             {
                 // TODO: decide on move rules etc.
@@ -188,12 +216,8 @@ namespace Assets.Scripts.Services
 
                 if (CheckIfReachable(targetCoord))
                     SetAimToCoordinates(targetCoord);
-
-                //ProcessTargetCoordinatesSelection(targetCoord);
             }
 
-            // var targetPos = playerUnit.transform.position + direction;            
-            //playerUnit.MoveTo(targetPos);
         }
 
     }

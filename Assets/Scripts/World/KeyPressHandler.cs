@@ -28,6 +28,8 @@ namespace Assets.Scripts.World
             input.World.Gamepad.performed += Gamepad_performed;
             input.World.Gamepad.canceled += Gamepad_canceled;
 
+            input.World.ActionsGo.performed += ActionsGo_performed;
+
             input.Enable();
         }
 
@@ -40,6 +42,8 @@ namespace Assets.Scripts.World
 
             input.World.Gamepad.performed -= Gamepad_performed;
             input.World.Gamepad.canceled -= Gamepad_canceled;
+
+            input.World.ActionsGo.performed -= ActionsGo_performed;
 
             isListening = false;
             StopCoroutine(DelayedDirectionSelectionCoroutine());
@@ -79,6 +83,11 @@ namespace Assets.Scripts.World
             //            direction = Vector3.forward * move.y + Vector3.right * move.x;
 
             Debug.Log($"Gamepad_performed {move}");
+        }
+
+        private void ActionsGo_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+        {
+            worldService.ProcessTargetCoordinatesSelection();
         }
 
         private IEnumerator DelayedDirectionSelectionCoroutine()

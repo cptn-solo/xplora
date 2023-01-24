@@ -117,5 +117,12 @@ namespace Assets.Scripts.World.HexMap
         {
             return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is HexCoordinates coord)
+                return X == coord.X && Z == coord.Z && Y == coord.Y;
+            else return false;
+        }
     }
 }
