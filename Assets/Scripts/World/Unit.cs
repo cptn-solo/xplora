@@ -1,6 +1,7 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World.HexMap;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -28,6 +29,8 @@ namespace Assets.Scripts.World
 
         [SerializeField] private Transform visual;
         [SerializeField] private float speedFactor = 5f; // adjustment for hero speed to move around the world
+
+        private const float approachThreshold = 1f;
         
         private Coroutine activeMove = null;
 
@@ -75,7 +78,7 @@ namespace Assets.Scripts.World
         {
             var targetPos = targetCoord.ToPosition();
             
-            Debug.Log($"MoveCoroutine {targetPos}");
+            Debug.Log($"MoveCoroutine {targetPos} {Vector3.SqrMagnitude(targetPos - transform.position)}");
 
             isMoving = true;
             
@@ -86,11 +89,12 @@ namespace Assets.Scripts.World
             unitAnimation.Run(true);
             while (isMoving)
             {
-                transform.position += Hero.Speed * speedFactor * Time.deltaTime * dir;
+                var maxDistance = Hero.Speed * speedFactor * Time.deltaTime;
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, maxDistance);
                 var dif = Vector3.SqrMagnitude(targetPos - transform.position);
-                
-                if (dif <= 1f)
+                if (dif <= approachThreshold)
                 {
+                    Debug.Log($"Approaching {dif}");
                     coordinates = targetCoord;
                     OnArrivedToCoordinates?.Invoke(coordinates, this);
                     break;

@@ -21,6 +21,8 @@ namespace Assets.Scripts.World
         private Vector2 pos;
         private HexCell previousCell;
 
+        private bool pointerMoved;
+
         private void Awake()
         {
             input = new();
@@ -51,6 +53,7 @@ namespace Assets.Scripts.World
 
         private void Pointer_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
+            pointerMoved = true;
             pos = obj.ReadValue<Vector2>();
         }
 
@@ -60,6 +63,10 @@ namespace Assets.Scripts.World
 
         private void Update()
         {
+            var needHoverProcess = pointerMoved;
+
+            pointerMoved = false;
+
             if (worldService.WorldState < WorldState.UnitsSpawned)
                 return;
 
@@ -74,7 +81,8 @@ namespace Assets.Scripts.World
             }
             else
             {
-                HandleHover();
+                if (needHoverProcess)
+                    HandleHover();
             }
         }
 
