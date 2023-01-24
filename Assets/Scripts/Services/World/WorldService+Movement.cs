@@ -44,7 +44,8 @@ namespace Assets.Scripts.Services
         public bool CheckIfReachable(HexCoordinates coordinates)
         {
             var coord = CellCoordinatesResolver(player.CellIndex);
-            if (coord.DistanceTo(coordinates) <= player.Unit.WorldRange)
+            var distance = coord.DistanceTo(coordinates);
+            if (distance > 0 && distance <= player.Unit.WorldRange)
                 return true;
 
             return false;
@@ -72,28 +73,117 @@ namespace Assets.Scripts.Services
 
         public void ProcessDirectionSelection(Vector3 direction)
         {
-            HexDirection hexDir;
-            if (direction.x > 0 && direction.z > 0)
-                hexDir = HexDirection.NE;
-            else if (direction.x > 0 && direction.z < 0)
-                hexDir = HexDirection.SE;
-            else if (direction.x > 0)
-                hexDir = HexDirection.E;
-            else if (direction.x < 0 && direction.z > 0)
-                hexDir = HexDirection.NW;
-            else if (direction.x < 0 && direction.z < 0)
-                hexDir = HexDirection.SW;
-            else if (direction.x < 0)
-                hexDir = HexDirection.W;
-            else if (direction.z > 0)
-                hexDir = HexDirection.W;
+            HexDirection hexDir = HexDirection.NA;
+
+            if (currentAim != null)
+            {
+                //NB: valid moves in comments below are
+                //relative to currently aimed (w yellow border) cell,
+                //but hexDir assigned with already converted direction
+                //related to the player's position
+                if (currentAim.Value.X == player.Unit.CurrentCoord.X)
+                {
+                    if (currentAim.Value.Z > player.Unit.CurrentCoord.Z)
+                    {
+                        //from NE valid moves are left (W) and down (SE)
+                        if (direction.x < 0)
+                            hexDir = HexDirection.NW;
+                        else if (direction.x > 0 || direction.z < 0)
+                            hexDir = HexDirection.E;
+                    }
+                    else if (currentAim.Value.Z < player.Unit.CurrentCoord.Z)
+                    {
+                        //from SW valid moves are right (E) and up (NW)
+                        if (direction.x > 0)
+                            hexDir = HexDirection.SE;
+                        else if (direction.x < 0 || direction.z > 0)
+                            hexDir = HexDirection.W;
+                    }
+                    else
+                    {
+                        //error, aimed active position
+                    }
+                }
+                else if (currentAim.Value.Y == player.Unit.CurrentCoord.Y)
+                {
+                    if (currentAim.Value.Z > player.Unit.CurrentCoord.Z)
+                    {
+                        //from NW valid moves are right (E) and down (SW)
+                        if (direction.x > 0)
+                            hexDir = HexDirection.NE;
+                        else if (direction.x < 0 || direction.z < 0)
+                            hexDir = HexDirection.W;
+                    }
+                    else if (currentAim.Value.Z < player.Unit.CurrentCoord.Z)
+                    {
+                        //from SE valid moves are left (W) and up (NE)
+                        if (direction.x < 0)
+                            hexDir = HexDirection.SW;
+                        else if (direction.x > 0 || direction.z > 0)
+                            hexDir = HexDirection.E;
+                    }
+                    else
+                    {
+                        //error, aimed active position
+                    }
+                }
+                else if (currentAim.Value.Z == player.Unit.CurrentCoord.Z)
+                {
+                    if (currentAim.Value.X > player.Unit.CurrentCoord.X)
+                    {
+                        //from E valid moves are up (NW), down (SW) or left (W)
+                        if (direction.x < 0)
+                            hexDir = HexDirection.W;
+                        else if (direction.z > 0)
+                            hexDir = HexDirection.NE;
+                        else if (direction.z < 0)
+                            hexDir = HexDirection.SE;
+                    }
+                    else if (currentAim.Value.X < player.Unit.CurrentCoord.X)
+                    {
+                        //from W valid moves are up (NE), down (SE) or right (E)
+                        if (direction.x > 0)
+                            hexDir = HexDirection.E;
+                        else if (direction.z > 0)
+                            hexDir = HexDirection.NW;
+                        else if (direction.z < 0)
+                            hexDir = HexDirection.SW;
+                    }
+                    else
+                    {
+                        //error, aimed active position
+                    }
+                }
+            }
             else
-                hexDir = HexDirection.NA; // can't move to south or north or default should be set
+            {
+                //relative to player coordinate
+                if (direction.x > 0 && direction.z > 0)
+                    hexDir = HexDirection.NE;
+                else if (direction.x > 0 && direction.z < 0)
+                    hexDir = HexDirection.SE;
+                else if (direction.x > 0)
+                    hexDir = HexDirection.E;
+                else if (direction.x < 0 && direction.z > 0)
+                    hexDir = HexDirection.NW;
+                else if (direction.x < 0 && direction.z < 0)
+                    hexDir = HexDirection.SW;
+                else if (direction.x < 0)
+                    hexDir = HexDirection.W;
+                else if (direction.z > 0)
+                    hexDir = HexDirection.NE; // change to NW if player positioned leftside
+                else if (direction.z < 0)
+                    hexDir = HexDirection.SE; // change to SW if player positioned leftside
+            }
+
+
+
+            Debug.Log($"ProcessDirectionSelection {hexDir}");
 
             if (hexDir != HexDirection.NA)
             {
                 // TODO: decide on move rules etc.
-                var startPoint = currentAim ?? player.Unit.CurrentCoord;
+                var startPoint = player.Unit.CurrentCoord;
                 var targetCoord = CoordResolver(startPoint, hexDir);
 
                 if (CheckIfReachable(targetCoord))

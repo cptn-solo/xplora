@@ -13,7 +13,7 @@ namespace Assets.Scripts.World
         private Vector3 direction = Vector3.zero;
         private bool isListening;
 
-        private readonly WaitForSeconds keyboardWait = new(.2f);
+        private readonly WaitForSeconds keyboardWait = new(.1f);
 
         private void Awake()
         {
@@ -49,7 +49,12 @@ namespace Assets.Scripts.World
         {
             var move = obj.ReadValue<Vector2>();
             direction = Vector3.forward * move.y + Vector3.right * move.x;
+            // 0. flag move processing
+            // 1. decide on target based on current position
+            // 2. move focus to target
+            // 3. unflag move processing
 
+            //worldService.ProcessDirectionSelection(direction);
             if (!isListening)
                 StartCoroutine(DelayedDirectionSelectionCoroutine());
             
@@ -82,9 +87,11 @@ namespace Assets.Scripts.World
 
             while (isListening && direction != Vector3.zero)
             {
+                worldService.ProcessDirectionSelection(direction);
+
                 yield return keyboardWait;
 
-                worldService.ProcessDirectionSelection(direction);
+                direction = Vector3.zero;
             }
 
             isListening = false;
