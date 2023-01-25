@@ -6,13 +6,14 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
     public class HeroesConfigLoader : BaseConfigLoader
     {
 
-        private const int heroesNumber = 8;
+        protected override string RangeString => "'Герои'!A1:Q32";
+        protected override string ConfigName => "Heroes";
+        private const int heroesNumber = 16;
+
         private const string heroesIconsPath = "Heroes/Icons";
         private const string heroesIdleSpritesPath = "Heroes/IdleSprites";
 
         private readonly HeroesLibrary library;
-        protected override string RangeString => "'Герои'!A1:I31";
-        protected override string ConfigName => "Heroes";
 
         public HeroesConfigLoader(HeroesLibrary library, DataDelegate onDataAvailable) : 
             base(onDataAvailable) {
@@ -51,38 +52,43 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
         private bool UpdateHero(Hero oldHero, ValueGetter val, int cell)
         {
             var hero = oldHero;
+            var rowIndex = 0;
+            hero.Domain = val(++rowIndex, cell).ParseHeroDomain();
+            hero.Name = (string)val(++rowIndex, cell);
 
-            hero.Name = (string)val(1, cell);
+            rowIndex = 4;
 
-            val(4, cell).ParseAbsoluteRangeValue(out int minVal, out int maxVal);
+            val(++rowIndex, cell).ParseAbsoluteRangeValue(out int minVal, out int maxVal);
             hero.DamageMin = minVal;
             hero.DamageMax = maxVal;
 
-            hero.DefenceRate = val(5, cell).ParseRateValue();
-            hero.AccuracyRate = val(6, cell).ParseRateValue();
-            hero.DodgeRate = val(7, cell).ParseRateValue();
-            hero.Health = val(8, cell).ParseAbsoluteValue();
-            hero.Speed = val(9, cell).ParseAbsoluteValue();
-            hero.CriticalHitRate = val(10, cell).ParseRateValue();
-            hero.AttackType = val(11, cell).ParseAttackType();
-            hero.DamageType = val(12, cell).ParseDamageType();
-            hero.ResistBleedRate = val(13, cell).ParseAbsoluteValue();
-            hero.ResistPoisonRate = val(14, cell).ParseAbsoluteValue();
-            hero.ResistStunRate = val(15, cell).ParseAbsoluteValue();
-            hero.ResistBurnRate = val(16, cell).ParseAbsoluteValue();
-            hero.ResistFrostRate = val(17, cell).ParseAbsoluteValue();
-            hero.ResistFlushRate = val(18, cell).ParseAbsoluteValue();
+            hero.DefenceRate = val(++rowIndex, cell).ParseRateValue();
+            hero.AccuracyRate = val(++rowIndex, cell).ParseRateValue();
+            hero.DodgeRate = val(++rowIndex, cell).ParseRateValue();
+            hero.Health = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.Speed = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.CriticalHitRate = val(++rowIndex, cell).ParseRateValue();
+            hero.AttackType = val(++rowIndex, cell).ParseAttackType();
+            hero.DamageType = val(++rowIndex, cell).ParseDamageType();
+            hero.ResistBleedRate = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.ResistPoisonRate = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.ResistStunRate = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.ResistBurnRate = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.ResistFrostRate = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.ResistFlushRate = val(++rowIndex, cell).ParseAbsoluteValue();
 
-            hero.SndAttack = val(21, cell).ParseSoundFileValue();
-            hero.SndDodged = val(22, cell).ParseSoundFileValue();
-            hero.SndHit = val(23, cell).ParseSoundFileValue();
-            hero.SndStunned = val(24, cell).ParseSoundFileValue();
-            hero.SndBleeding = val(25, cell).ParseSoundFileValue();
-            hero.SndPierced = val(26, cell).ParseSoundFileValue();
-            hero.SndBurning = val(27, cell).ParseSoundFileValue();
-            hero.SndFreezed = val(28, cell).ParseSoundFileValue();
-            hero.SndCritHit = val(29, cell).ParseSoundFileValue();
-            hero.SndDied = val(30, cell).ParseSoundFileValue();
+            rowIndex = 21;
+
+            hero.SndAttack = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndDodged = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndHit = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndStunned = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndBleeding = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndPierced = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndBurning = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndFreezed = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndCritHit = val(++rowIndex, cell).ParseSoundFileValue();
+            hero.SndDied = val(++rowIndex, cell).ParseSoundFileValue();
 
             hero.HealthCurrent = hero.Health;
 

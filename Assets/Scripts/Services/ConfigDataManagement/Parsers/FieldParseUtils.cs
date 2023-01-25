@@ -7,7 +7,27 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 {
     public static class FieldParserUtils
     {
+        public static HeroDomain ParseHeroDomain(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
 
+            try
+            {
+                var rawValues = rawValue.Replace(" ", "").ToLower();
+                return rawValues switch
+                {
+                    "h" => HeroDomain.Hero,
+                    "e" => HeroDomain.Enemy,
+                    _ => HeroDomain.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseHeroDomain [{rawValue}] Exception: {ex.Message}");
+                return HeroDomain.NA;
+            }
+
+        }
         public static DamageType ParseDamageType(this object rawValueObj)
         {
             string rawValue = (string)rawValueObj;

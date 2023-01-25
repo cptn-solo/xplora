@@ -10,6 +10,7 @@ namespace Assets.Scripts.UI.Data
     {
         public int Id { get; private set; }
         public string Name { get; internal set; }
+        public HeroDomain Domain { get; internal set; }
 
         public HeroType HeroType;
         public string IconName;

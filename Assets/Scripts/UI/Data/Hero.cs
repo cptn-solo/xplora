@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.UI.Data
 {
     using AssetDict = Dictionary<int, Asset>;
+
     public partial struct Hero : IEntity
     {
         public override string ToString()
