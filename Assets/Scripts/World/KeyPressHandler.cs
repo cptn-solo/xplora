@@ -53,12 +53,7 @@ namespace Assets.Scripts.World
         {
             var move = obj.ReadValue<Vector2>();
             direction = Vector3.forward * move.y + Vector3.right * move.x;
-            // 0. flag move processing
-            // 1. decide on target based on current position
-            // 2. move focus to target
-            // 3. unflag move processing
 
-            //worldService.ProcessDirectionSelection(direction);
             if (!isListening)
                 StartCoroutine(DelayedDirectionSelectionCoroutine());
             
@@ -80,7 +75,11 @@ namespace Assets.Scripts.World
         private void Gamepad_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
             var move = obj.ReadValue<Vector2>();
-            //            direction = Vector3.forward * move.y + Vector3.right * move.x;
+
+            direction = Vector3.forward * move.y + Vector3.right * move.x;
+
+            if (!isListening)
+                StartCoroutine(DelayedDirectionSelectionCoroutine());
 
             Debug.Log($"Gamepad_performed {move}");
         }

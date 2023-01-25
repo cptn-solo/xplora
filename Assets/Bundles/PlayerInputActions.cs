@@ -182,7 +182,7 @@ namespace Assets.Scripts
                     ""id"": ""eade2eed-0d06-409f-8f37-c24de169e948"",
                     ""path"": ""<Gamepad>/leftStick"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""StickDeadzone,NormalizeVector2"",
                     ""groups"": ""xbox;Default"",
                     ""action"": ""Gamepad"",
                     ""isComposite"": false,
@@ -206,6 +206,17 @@ namespace Assets.Scripts
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Default"",
+                    ""action"": ""ActionsGo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""39cc56f0-71c5-475f-afcb-a36ad62e7269"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
                     ""action"": ""ActionsGo"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
