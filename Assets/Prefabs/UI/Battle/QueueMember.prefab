@@ -419,7 +419,6 @@ MonoBehaviour:
   heroIconImage: {fileID: 948249745611959330}
   heroIdleImage: {fileID: 91306870788664496}
   heroNameText: {fileID: 948249746073738884}
-  effectsContainer: {fileID: 0}
   playerColor: {r: 0.1254902, g: 0.13725491, b: 0.20392159, a: 0.9254902}
   enemyColor: {r: 0.3679245, g: 0.09603059, b: 0.09603059, a: 0.95686275}
 --- !u!225 &-8504297149246846156
@@ -471,7 +470,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -34.8, y: -78.2}
-  m_SizeDelta: {x: 250, y: 250}
+  m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &255594896501673111
 CanvasRenderer:
@@ -501,9 +500,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -15599122, guid: cd463b5ebbc01594d8ce63e09f8a54b3, type: 3}
+  m_Sprite: {fileID: 1423521370, guid: 7cc2e79ce902742b1a5de8049fac135a, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
