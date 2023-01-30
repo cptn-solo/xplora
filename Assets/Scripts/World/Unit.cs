@@ -1,7 +1,6 @@
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World.HexMap;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 

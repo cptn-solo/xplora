@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections;
-using Assets.Scripts.World.HexMap;
+﻿using System.Collections;
+using Assets.Scripts.Services.Data;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Services
 {
@@ -20,6 +20,8 @@ namespace Assets.Scripts.Services
                     if (TerrainProducer == null && UnitSpawner == null)
                         worldState = WorldState.NA;
                 }
+
+                ecsSystems.Run();
 
                 yield return TickTimer;
 

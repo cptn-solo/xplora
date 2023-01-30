@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Services.Data;
+using Assets.Scripts.UI.Data;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

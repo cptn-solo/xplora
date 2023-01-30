@@ -1,51 +1,26 @@
-﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.World;
-using Assets.Scripts.World.HexMap;
-using System;
-using System.Linq;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Assets.Scripts.ECS.Data;
+using Assets.Scripts.ECS.Systems;
+using Assets.Scripts.Services.Data;
+using Assets.Scripts.UI.Data;
+using Assets.Scripts.World;
+using Leopotam.EcsLite;
+using Leopotam.EcsLite.Di;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Services
 {
-    public enum WorldObjectType
-    {
-        NA = 0,
-        Unit = 100,
-    }
-    public struct WorldObject
-    {
-        public WorldObjectType ObjectType { get; private set; }
-        public int CellIndex { get; set; }
-        public Hero Hero { get; set; }
-        public Unit Unit { get; set; }
-
-        internal static WorldObject Default { get; } = 
-            new WorldObject {
-                ObjectType = WorldObjectType.NA,
-                CellIndex = -1,
-                Hero = default,
-                Unit = null,
-            };
-
-        internal static WorldObject Create(int cellIndex, Hero hero, Unit unit)
-        {
-            WorldObject obj = default;
-
-            obj.ObjectType = WorldObjectType.Unit;
-            obj.CellIndex = cellIndex;
-            obj.Hero = hero;
-            obj.Unit = unit;
-            
-            return obj;
-        }
-    }
     public partial class WorldService : MonoBehaviour
     {
         public event UnityAction<Unit, bool> OnUnitSpawned;
+
+        public EcsPackedEntity PlayerEntity { get; set; }
+        public EcsPackedEntity WorldEntity { get; set; }
+        public EcsPackedEntity RaidEntity { get; set; }
 
         [SerializeField] private int width = 6;
         [SerializeField] private int height = 6;
@@ -58,37 +33,63 @@ namespace Assets.Scripts.Services
         private BattleManagementService battleManagementService;
         private MenuNavigationService menuNavigationService;
 
-        private Hero playerHero;
-        private List<Hero> enemyHeroes;
-        
-        /// <summary>
-        /// Cell index used as an id
-        /// </summary>
-        private readonly List<WorldObject> worldObjects = new();
+
+        private EcsWorld ecsWorld;
+        private IEcsSystems ecsSystems;
 
         private bool isWorldStateLoopActive;
         
-        private WorldObject enemy = WorldObject.Default;
-        private WorldObject player = WorldObject.Default;
-        private int playerObjIndex;
 
         public void AssignPlayerAndEnemies(Hero[] playerHeroes)
         {
             var playerAvatar = playerHeroes.Length > 0 ? playerHeroes[0] : Hero.Default;
-            playerHero = playerAvatar;
 
             Hero[] freeHeroes = libManagementService.Library.NonPlayerTeamHeroes();
-            SetEnemies(freeHeroes);
-            
-        }
 
-        public void SetEnemies(Hero[] enemies)
-        {
-            enemyHeroes = new(enemies);
+            // reassign avatar hero to player entity
+            if (PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+            {
+                var playerPool = ecsWorld.GetPool<PlayerComp>();
+                ref var playerComp = ref playerPool.Get(playerEntity);
+                playerComp.Hero = playerAvatar;
+                playerComp.CellIndex = -1;
+            }
+
+            // clear opponents' entities
+            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            foreach (var opponentEntity in opponentFilter)
+            {
+                ecsWorld.DelEntity(opponentEntity);
+            }
+
+            // create new ones marked with enemies' avatars
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+            foreach (var opponentHero in freeHeroes)
+            {
+                var opponentEntity = ecsWorld.NewEntity();
+                ref var opponentComp = ref opponentPool.Add(opponentEntity);
+                opponentComp.Hero = opponentHero;
+                opponentComp.CellIndex = -1;
+            }
+
         }
 
         public void StartWorldStateLoop()
         {
+            ecsWorld = new EcsWorld();
+            ecsSystems = new EcsSystems(ecsWorld);
+
+            ecsSystems
+                .Add(new WorldSystem())
+                .Add(new RaidSystem())
+                .Add(new PlayerSystem())
+                .Add(new VisitSystem())
+                .Add(new LeaveSystem())
+                .Add(new RefillSystem())
+                .Add(new DrainSystem())
+                .Inject(this)
+                .Init();
+
             if (!isWorldStateLoopActive)
                 StartCoroutine(WorldStateLoopCoroutine());
         }
@@ -98,66 +99,73 @@ namespace Assets.Scripts.Services
             worldState = WorldState.UnitsBeingSpawned;
 
             SpawnPlayer();
-            
-            StartCoroutine(SpawnEnemiesCoroutine(() => { 
+            SpawnEnemies(() => { 
                 worldState = WorldState.UnitsSpawned;
-            }));
+            });
         }
 
         private Unit SpawnPlayer()
-        {            
-            if (playerHero.HeroType == HeroType.NA)
+        {
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
                 return null;
 
-            var cellIndex = player.ObjectType == WorldObjectType.Unit ?
-                player.CellIndex : Random.Range(0, width * height);
-            var coord = CellCoordinatesResolver(cellIndex);
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+            ref var playerComp = ref playerPool.Get(playerEntity);
+
+            if (playerComp.Hero.HeroType == HeroType.NA)
+                return null;
+
+            if (playerComp.CellIndex < 0)
+                playerComp.CellIndex = Random.Range(0, width * height);
+
+            var coord = CellCoordinatesResolver(playerComp.CellIndex);
             var pos = WorldPositionResolver(coord);
 
-            var playerUnit = UnitSpawner?.Invoke(pos, playerHero, null);
+            var playerUnit = UnitSpawner?.Invoke(pos, playerComp.Hero, null);
             playerUnit.SetInitialCoordinates(coord);
-
+            
             OnUnitSpawned?.Invoke(playerUnit, true);
 
             playerUnit.OnArrivedToCoordinates += PlayerUnit_OnArrivedToCoordinates;
 
-            if (worldObjects.Contains(player))
-                worldObjects.Remove(player);
-
-            player = WorldObject.Create(cellIndex, playerHero, playerUnit);
-            
-            worldObjects.Add(player);
+            var unitPool = ecsWorld.GetPool<UnitComp>();
+            ref var unitComp = ref unitPool.Add(playerEntity);
+            unitComp.Unit = playerUnit;
 
             return playerUnit;
         }
 
-        private IEnumerator SpawnEnemiesCoroutine(UnitSpawnerCallback callback)
+        private void SpawnEnemies(UnitSpawnerCallback callback)
         {
-            for (int i = 0; i < enemyHeroes.Count; i++)
+            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+                return;
+
+            ref var playerComp = ref playerPool.Get(playerEntity);
+            var usedCells = new List<int>();
+            usedCells.Add(playerComp.CellIndex);
+
+            foreach (var opponentEntity in opponentFilter)
             {
-                var enemyHero = enemyHeroes[i];
-                var enemy = worldObjects.FirstOrDefault(x => 
-                    x.ObjectType == WorldObjectType.Unit &&
-                    x.Hero.HeroType != HeroType.NA &&
-                    x.Hero.Id == enemyHero.Id);
-                var cellIndex = -1;
-                if (enemy.ObjectType == WorldObjectType.Unit)
+                ref var opponentComp = ref opponentPool.Get(opponentEntity);
+
+                var enemyHero = opponentComp.Hero;
+
+                if (opponentComp.CellIndex < 0)
                 {
-                    cellIndex = enemy.CellIndex;
-                }
-                else {
-                    cellIndex = Random.Range(0, width * height);
-                    while (worldObjects.Exists(x =>
-                        x.ObjectType == WorldObjectType.Unit &&
-                        x.CellIndex == cellIndex
-                    ))
+                    var cellIndex = Random.Range(0, width * height);
+                    while (usedCells.Contains(cellIndex))
                     {
                         cellIndex = Random.Range(0, width * height);
-                        yield return null;
                     }
+                    opponentComp.CellIndex = cellIndex;
+                    usedCells.Add(cellIndex);
                 }
 
-                var coord = CellCoordinatesResolver(cellIndex);
+                var coord = CellCoordinatesResolver(opponentComp.CellIndex);
                 var pos = WorldPositionResolver(coord);
 
                 Unit enemyUnit = null;
@@ -165,15 +173,13 @@ namespace Assets.Scripts.Services
                 {
                     enemyUnit = UnitSpawner?.Invoke(pos, enemyHero, null);
 
-                    if (enemy.ObjectType != WorldObjectType.NA)
-                        worldObjects.Remove(enemy);
-
-                    worldObjects.Add(WorldObject.Create(cellIndex, enemyHero, enemyUnit));
-
                     OnUnitSpawned?.Invoke(enemyUnit, false);
+
+                    var unitPool = ecsWorld.GetPool<UnitComp>();
+                    ref var unitComp = ref unitPool.Add(opponentEntity);
+                    unitComp.Unit = enemyUnit;
                 }
 
-                yield return null;
             }
 
             callback?.Invoke();
@@ -271,5 +277,14 @@ namespace Assets.Scripts.Services
         }
         #endregion
 
+        private void OnDestroy()
+        {
+            ecsSystems?.Destroy();
+            ecsSystems = null;
+
+            ecsWorld?.Destroy();
+            ecsWorld = null;
+
+        }
     }
 }

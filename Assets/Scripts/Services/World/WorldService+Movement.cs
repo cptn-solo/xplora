@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
+using Assets.Scripts.Services.Data;
 
 namespace Assets.Scripts.Services
 {
