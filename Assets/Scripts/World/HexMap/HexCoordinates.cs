@@ -124,5 +124,10 @@ namespace Assets.Scripts.World.HexMap
                 return X == coord.X && Z == coord.Z && Y == coord.Y;
             else return false;
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Z, Y);
+        }
     }
 }

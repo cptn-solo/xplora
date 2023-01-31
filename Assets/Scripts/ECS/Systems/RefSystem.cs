@@ -1,15 +1,9 @@
-﻿using Assets.Scripts.ECS.Data;
-using Assets.Scripts.Services;
-using Leopotam.EcsLite;
-using Leopotam.EcsLite.Di;
+﻿using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Systems
 {
     public class WorldSystem : IEcsRunSystem, IEcsInitSystem, IEcsDestroySystem
     {
-        private readonly EcsFilterInject<Inc<UnitComp>> unitsFilter = default;
-        private readonly EcsFilterInject<Inc<POIComp>> poiFilter = default;
-
         public void Init(IEcsSystems systems)
         {
         }
@@ -22,35 +16,8 @@ namespace Assets.Scripts.ECS.Systems
     }
     public class RaidSystem : IEcsRunSystem, IEcsInitSystem, IEcsDestroySystem
     {
-        private readonly EcsPoolInject<UnitComp> unitsPool = default;
-
         public void Init(IEcsSystems systems)
         {
-        }
-        public void Run(IEcsSystems systems)
-        {
-        }
-        public void Destroy(IEcsSystems systems)
-        {
-        }
-    }
-
-    public class PlayerSystem : IEcsRunSystem, IEcsInitSystem, IEcsDestroySystem
-    {
-        private readonly EcsWorldInject ecsWorld = default;
-        private readonly EcsPoolInject<PlayerComp> playerPool = default;
-        private readonly EcsPoolInject<TeamComp> teamPool = default;
-
-        private readonly EcsCustomInject<WorldService> worldService = default;
-
-        public void Init(IEcsSystems systems)
-        {
-            var playerEntity = ecsWorld.Value.NewEntity();
-            worldService.Value.PlayerEntity = ecsWorld.Value.PackEntity(playerEntity);
-
-            ref var playerComp = ref playerPool.Value.Add(playerEntity);
-
-            ref var teamComp = ref teamPool.Value.Add(playerEntity);
         }
         public void Run(IEcsSystems systems)
         {

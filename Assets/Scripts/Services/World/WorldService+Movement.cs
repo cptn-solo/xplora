@@ -9,6 +9,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using Assets.Scripts.Services.Data;
+using Assets.Scripts.ECS.Data;
+using Leopotam.EcsLite.Di;
+using Leopotam.EcsLite;
+using UnityEngine.LowLevel;
 
 namespace Assets.Scripts.Services
 {
@@ -26,23 +30,34 @@ namespace Assets.Scripts.Services
                 SetAimToCoordinates(null);
             }
 
-            if (worldObjects.FirstOrDefault(x => x.CellIndex == cellId) is WorldObject obj &&
-                obj.ObjectType == WorldObjectType.Unit &&
-                obj.Unit != null &&
-                obj.Hero.HeroType != HeroType.NA)
+            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+
+            Hero enemyHero = default;
+            int enemyEntity = default;
+            foreach (var opponentEntity in opponentFilter)
             {
-                InitiateBattle(obj);
+                ref var opponentComp = ref opponentPool.Get(opponentEntity);
+                if (opponentComp.CellIndex == cellId)
+                {
+                    enemyHero = opponentComp.Hero;
+                    enemyEntity = opponentEntity;
+                    break;
+                }
             }
-            else
+
+
+            if (enemyHero.HeroType != HeroType.NA)
             {
-                worldObjects.Remove(player);
-                
-                player.CellIndex = cellId;
-                
-                worldObjects.Add(player);
+                InitiateBattle(enemyEntity);
+            }
+            else if (PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+            {
+                ref var playerComp = ref playerPool.Get(playerEntity);
+                playerComp.CellIndex = cellId;
 
                 SetAimByHexDir(); // will try to continue move to direction set earlier
-
             }
         }
 
@@ -54,9 +69,13 @@ namespace Assets.Scripts.Services
         /// <returns></returns>
         public bool CheckIfReachable(HexCoordinates coordinates)
         {
-            var coord = CellCoordinatesResolver(player.CellIndex);
+            if (!TryGetPlayerUnit(out var unit, out var cellId))
+                return false;
+
+            var coord = CellCoordinatesResolver(cellId);
             var distance = coord.DistanceTo(coordinates);
-            if (distance > 0 && distance <= player.Unit.WorldRange)
+
+            if (distance > 0 && distance <= unit.WorldRange)
                 return true;
 
             return false;
@@ -83,17 +102,23 @@ namespace Assets.Scripts.Services
 
             //TODO: add a decision button or such
             ProcessMoveToHexCoordinates(coordinates.Value);
-        }
+        }        
 
         public void ProcessMoveToHexCoordinates(HexCoordinates coordinates)
         {
-            player.Unit.SetMoveTargetCoordinates(coordinates);
-            player.Unit.MoveToTargetCoordinates();
+            if (!TryGetPlayerUnit(out var unit, out var cellId))
+                return;
+
+            unit.SetMoveTargetCoordinates(coordinates);
+            unit.MoveToTargetCoordinates();
         }
 
         public void ProcessDirectionSelection(Vector3 direction)
         {
             hexDir = HexDirection.NA;
+
+            if (!TryGetPlayerUnit(out var unit, out var _))
+
 
             if (currentAim != null)
             {
@@ -101,9 +126,9 @@ namespace Assets.Scripts.Services
                 //relative to currently aimed (w yellow border) cell,
                 //but hexDir assigned with already converted direction
                 //related to the player's position
-                if (currentAim.Value.X == player.Unit.CurrentCoord.X)
+                if (currentAim.Value.X == unit.CurrentCoord.X)
                 {
-                    if (currentAim.Value.Z > player.Unit.CurrentCoord.Z)
+                    if (currentAim.Value.Z > unit.CurrentCoord.Z)
                     {
                         //from NE valid moves are left (W) and down (SE)
                         if (direction.x < 0)
@@ -111,7 +136,7 @@ namespace Assets.Scripts.Services
                         else if (direction.x > 0 || direction.z < 0)
                             hexDir = HexDirection.E;
                     }
-                    else if (currentAim.Value.Z < player.Unit.CurrentCoord.Z)
+                    else if (currentAim.Value.Z < unit.CurrentCoord.Z)
                     {
                         //from SW valid moves are right (E) and up (NW)
                         if (direction.x > 0)
@@ -124,9 +149,9 @@ namespace Assets.Scripts.Services
                         //error, aimed active position
                     }
                 }
-                else if (currentAim.Value.Y == player.Unit.CurrentCoord.Y)
+                else if (currentAim.Value.Y == unit.CurrentCoord.Y)
                 {
-                    if (currentAim.Value.Z > player.Unit.CurrentCoord.Z)
+                    if (currentAim.Value.Z > unit.CurrentCoord.Z)
                     {
                         //from NW valid moves are right (E) and down (SW)
                         if (direction.x > 0)
@@ -134,7 +159,7 @@ namespace Assets.Scripts.Services
                         else if (direction.x < 0 || direction.z < 0)
                             hexDir = HexDirection.W;
                     }
-                    else if (currentAim.Value.Z < player.Unit.CurrentCoord.Z)
+                    else if (currentAim.Value.Z < unit.CurrentCoord.Z)
                     {
                         //from SE valid moves are left (W) and up (NE)
                         if (direction.x < 0)
@@ -147,9 +172,9 @@ namespace Assets.Scripts.Services
                         //error, aimed active position
                     }
                 }
-                else if (currentAim.Value.Z == player.Unit.CurrentCoord.Z)
+                else if (currentAim.Value.Z == unit.CurrentCoord.Z)
                 {
-                    if (currentAim.Value.X > player.Unit.CurrentCoord.X)
+                    if (currentAim.Value.X > unit.CurrentCoord.X)
                     {
                         //from E valid moves are up (NW), down (SW) or left (W)
                         if (direction.x < 0)
@@ -159,7 +184,7 @@ namespace Assets.Scripts.Services
                         else if (direction.z < 0)
                             hexDir = HexDirection.SE;
                     }
-                    else if (currentAim.Value.X < player.Unit.CurrentCoord.X)
+                    else if (currentAim.Value.X < unit.CurrentCoord.X)
                     {
                         //from W valid moves are up (NE), down (SE) or right (E)
                         if (direction.x > 0)
@@ -209,10 +234,10 @@ namespace Assets.Scripts.Services
 
         public void SetAimByHexDir()
         {
-            if (hexDir != HexDirection.NA)
+            if (hexDir != HexDirection.NA && TryGetPlayerUnit(out var unit, out var _))
             {
                 // TODO: decide on move rules etc.
-                var startPoint = player.Unit.CurrentCoord;
+                var startPoint = unit.CurrentCoord;
                 var targetCoord = CoordResolver(startPoint, hexDir);
 
                 if (CheckIfReachable(targetCoord))

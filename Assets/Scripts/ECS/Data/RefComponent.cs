@@ -1,6 +1,7 @@
 ﻿using System;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -34,6 +35,14 @@ namespace Assets.Scripts.ECS.Data
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi
+
+    /// <summary>
+    /// Marks battling entities
+    /// </summary>
+    public struct BattleComp
+    {
+        public EcsPackedEntity EnemyPackedEntity { get; internal set; }
+    }
 
     public struct RefComponent
     {

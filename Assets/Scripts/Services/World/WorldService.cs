@@ -21,6 +21,7 @@ namespace Assets.Scripts.Services
         public EcsPackedEntity PlayerEntity { get; set; }
         public EcsPackedEntity WorldEntity { get; set; }
         public EcsPackedEntity RaidEntity { get; set; }
+        public EcsPackedEntity BattleEntity { get; set; }
 
         [SerializeField] private int width = 6;
         [SerializeField] private int height = 6;
@@ -206,22 +207,23 @@ namespace Assets.Scripts.Services
 
         #region Battle
 
-        private void InitiateBattle(WorldObject enemy)
+        private void InitiateBattle(int enemyEntity)
         {
             worldState = WorldState.PrepareBattle;
 
-            for (int i = 0; i < worldObjects.Count; i++)
-            {
-                var val = worldObjects[i];
-                val.Unit = null;
-                worldObjects[i] = val;
-            }
+            var battlePool = ecsWorld.GetPool<BattleComp>();
+            var battleEntity = ecsWorld.NewEntity();
 
-            enemy.Unit = null;
-            this.enemy = enemy;
+            ref var battleComp = ref battlePool.Add(battleEntity);
+            battleComp.EnemyPackedEntity = ecsWorld.PackEntity(enemyEntity);
+
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+            ref var opponentComp = ref opponentPool.Get(enemyEntity);
+
+            BattleEntity = ecsWorld.PackEntity(battleEntity);
 
             libManagementService.Library.MoveHero(
-                enemy.Hero,
+                opponentComp.Hero,
                 new(
                     libManagementService.EnemyTeam.Id,
                     BattleLine.Front,
@@ -243,35 +245,80 @@ namespace Assets.Scripts.Services
                 ProcessBattleWinned();
             else
                 ProcessBattleLost();
+
+            if (!BattleEntity.Unpack(ecsWorld, out var battleEntity))
+                return;
+
+            var battlePool = ecsWorld.GetPool<BattleComp>();
+            battlePool.Del(battleEntity);
         }
 
         private void ProcessBattleLost()
         {
-            //TODO: remove player unit, return to the library
-            libManagementService.Library.RetireHero(player.Hero);
-            
-            worldObjects.Remove(player);
+            if (!TryGetPlayerHero(out var hero))
+                return;
 
-            player = WorldObject.Default;
+            CleanupEcsRaid();
 
             menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
         }
 
+        private void CleanupEcsRaid()
+        {
+            var unitPool = ecsWorld.GetPool<UnitComp>();
+
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+            if (PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+            {
+                ref var playerComp = ref playerPool.Get(playerEntity);
+
+                libManagementService.Library.RetireHero(playerComp.Hero);
+
+                playerComp.CellIndex = -1;
+                playerComp.Hero = default;
+
+                unitPool.Del(playerEntity);
+            }
+
+            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+
+            foreach (var opponentEntity in opponentFilter)
+            {
+                ref var opponentComp = ref opponentPool.Get(opponentEntity);
+                libManagementService.Library.RetireHero(opponentComp.Hero);
+
+                opponentPool.Del(opponentEntity);
+                unitPool.Del(opponentEntity);
+            }
+        }
+
         private void ProcessBattleWinned()
         {
-            if (enemy.ObjectType == WorldObjectType.NA)
+            if (!BattleEntity.Unpack(ecsWorld, out var battleEntity))
                 return;
 
+            var battlePool = ecsWorld.GetPool<BattleComp>();
+            ref var battleComp = ref battlePool.Get(battleEntity);
+
+            if (!battleComp.EnemyPackedEntity.Unpack(ecsWorld, out var enemyEntity))
+                return;
+
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+            ref var opponentComp = ref opponentPool.Get(enemyEntity);
+
             //TODO: remove enemy unit, show aftermath
-            libManagementService.Library.RetireHero(enemy.Hero);
+            libManagementService.Library.RetireHero(opponentComp.Hero);
 
-            worldObjects.Remove(player);
-            player.CellIndex = enemy.CellIndex;
-            worldObjects.Add(player);
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+                return;
 
-            enemyHeroes.Remove(enemy.Hero);
-            worldObjects.Remove(enemy);            
-            enemy = WorldObject.Default;
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+            ref var playerComp = ref playerPool.Get(playerEntity);
+
+            playerComp.CellIndex = opponentComp.CellIndex;
+
+            opponentPool.Del(enemyEntity);
 
             menuNavigationService.NavigateToScreen(Screens.Raid);
         }
@@ -285,6 +332,47 @@ namespace Assets.Scripts.Services
             ecsWorld?.Destroy();
             ecsWorld = null;
 
+        }
+
+        private bool TryGetPlayerUnit(out Unit unit, out int cellId)
+        {
+            unit = null;
+            cellId = -1;
+
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+            var unitPool = ecsWorld.GetPool<UnitComp>();
+
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+                return false;
+
+            if (!playerPool.Has(playerEntity) ||
+                !unitPool.Has(playerEntity))
+                return false;
+
+            ref var unitComp = ref unitPool.Get(playerEntity);
+            unit = unitComp.Unit;
+
+            ref var playerComp = ref playerPool.Get(playerEntity);
+            cellId = playerComp.CellIndex;
+
+            return true;
+        }
+
+        private bool TryGetPlayerHero(out Hero hero)
+        {
+            hero = default;
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+                return false;
+
+            if (!playerPool.Has(playerEntity))
+                return false;
+
+            ref var playerComp = ref playerPool.Get(playerEntity);
+            hero = playerComp.Hero;
+
+            return false;
         }
     }
 }
