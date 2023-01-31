@@ -10,9 +10,6 @@ using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using Assets.Scripts.Services.Data;
 using Assets.Scripts.ECS.Data;
-using Leopotam.EcsLite.Di;
-using Leopotam.EcsLite;
-using UnityEngine.LowLevel;
 
 namespace Assets.Scripts.Services
 {
@@ -30,7 +27,7 @@ namespace Assets.Scripts.Services
 
             if (!InitiateBattle(cellId))
             {
-                UpdatePlayerCellId(cellId);
+                UpdateEcsPlayerCellId(cellId);
                 SetAimByHexDir(); // will try to continue move to direction set earlier
             }
         }

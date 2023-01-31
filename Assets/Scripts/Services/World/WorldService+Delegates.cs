@@ -18,7 +18,5 @@ namespace Assets.Scripts.Services
 
         public TerrainProducer TerrainProducer { get; set; }
         
-        private readonly WaitForSeconds TickTimer = new(.5f);
-
     }
 }

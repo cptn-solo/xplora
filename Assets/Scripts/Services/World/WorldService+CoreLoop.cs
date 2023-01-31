@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using Assets.Scripts.Services.Data;
-using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
 
     public partial class WorldService
     {
+
+        private readonly WaitForSeconds TickTimer = new(.5f);
+
         private IEnumerator WorldStateLoopCoroutine()
         {
             isWorldStateLoopActive = true;
