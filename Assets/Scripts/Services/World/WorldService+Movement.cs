@@ -26,37 +26,11 @@ namespace Assets.Scripts.Services
             var cellId = CellIndexResolver(coordinates);
 
             if (currentAim.HasValue && currentAim.Value.Equals(coordinates))
-            {
                 SetAimToCoordinates(null);
-            }
 
-            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
-            var opponentPool = ecsWorld.GetPool<OpponentComp>();
-            var playerPool = ecsWorld.GetPool<PlayerComp>();
-
-            Hero enemyHero = default;
-            int enemyEntity = default;
-            foreach (var opponentEntity in opponentFilter)
+            if (!InitiateBattle(cellId))
             {
-                ref var opponentComp = ref opponentPool.Get(opponentEntity);
-                if (opponentComp.CellIndex == cellId)
-                {
-                    enemyHero = opponentComp.Hero;
-                    enemyEntity = opponentEntity;
-                    break;
-                }
-            }
-
-
-            if (enemyHero.HeroType != HeroType.NA)
-            {
-                InitiateBattle(enemyEntity);
-            }
-            else if (PlayerEntity.Unpack(ecsWorld, out var playerEntity))
-            {
-                ref var playerComp = ref playerPool.Get(playerEntity);
-                playerComp.CellIndex = cellId;
-
+                UpdatePlayerCellId(cellId);
                 SetAimByHexDir(); // will try to continue move to direction set earlier
             }
         }
@@ -234,7 +208,8 @@ namespace Assets.Scripts.Services
 
         public void SetAimByHexDir()
         {
-            if (hexDir != HexDirection.NA && TryGetPlayerUnit(out var unit, out var _))
+            if (hexDir != HexDirection.NA &&
+                TryGetPlayerUnit(out var unit, out var _))
             {
                 // TODO: decide on move rules etc.
                 var startPoint = unit.CurrentCoord;

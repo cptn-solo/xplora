@@ -57,7 +57,7 @@ namespace Assets.Scripts.Services
             }
 
             // clear opponents' entities
-            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            var opponentFilter = ecsWorld.Filter<OpponentComp>().End();
             foreach (var opponentEntity in opponentFilter)
             {
                 ecsWorld.DelEntity(opponentEntity);
@@ -87,7 +87,10 @@ namespace Assets.Scripts.Services
                 .Add(new VisitSystem())
                 .Add(new LeaveSystem())
                 .Add(new RefillSystem())
-                .Add(new DrainSystem())
+                .Add(new DrainSystem()) 
+#if UNITY_EDITOR
+        .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
+#endif
                 .Inject(this)
                 .Init();
 
@@ -138,7 +141,7 @@ namespace Assets.Scripts.Services
 
         private void SpawnEnemies(UnitSpawnerCallback callback)
         {
-            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            var opponentFilter = ecsWorld.Filter<OpponentComp>().End();
             var opponentPool = ecsWorld.GetPool<OpponentComp>();
             var playerPool = ecsWorld.GetPool<PlayerComp>();
 
@@ -207,8 +210,37 @@ namespace Assets.Scripts.Services
 
         #region Battle
 
-        private void InitiateBattle(int enemyEntity)
+        private void UpdatePlayerCellId(int cellId)
         {
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+                return;
+
+            var playerPool = ecsWorld.GetPool<PlayerComp>();
+            ref var playerComp = ref playerPool.Get(playerEntity);
+            playerComp.CellIndex = cellId;
+        }
+
+        private bool InitiateBattle(int cellId)
+        {
+            var opponentFilter = ecsWorld.Filter<OpponentComp>().End();
+            var opponentPool = ecsWorld.GetPool<OpponentComp>();
+
+            int enemyEntity = -1;
+            Hero enemyHero = default;
+            foreach (var opponentEntity in opponentFilter)
+            {
+                ref var opponentComp = ref opponentPool.Get(opponentEntity);
+                if (opponentComp.CellIndex == cellId)
+                {
+                    enemyEntity = opponentEntity;
+                    enemyHero = opponentComp.Hero;
+                    break;
+                }
+            }
+
+            if (enemyEntity == -1)
+                return false;
+
             worldState = WorldState.PrepareBattle;
 
             var battlePool = ecsWorld.GetPool<BattleComp>();
@@ -217,13 +249,16 @@ namespace Assets.Scripts.Services
             ref var battleComp = ref battlePool.Add(battleEntity);
             battleComp.EnemyPackedEntity = ecsWorld.PackEntity(enemyEntity);
 
-            var opponentPool = ecsWorld.GetPool<OpponentComp>();
-            ref var opponentComp = ref opponentPool.Get(enemyEntity);
-
             BattleEntity = ecsWorld.PackEntity(battleEntity);
 
+            var unitPool = ecsWorld.GetPool<UnitComp>();
+            var unitFilter = ecsWorld.Filter<UnitComp>().End();
+
+            foreach (var unitEntity in unitFilter)
+                unitPool.Del(unitEntity);
+
             libManagementService.Library.MoveHero(
-                opponentComp.Hero,
+                enemyHero,
                 new(
                     libManagementService.EnemyTeam.Id,
                     BattleLine.Front,
@@ -235,6 +270,8 @@ namespace Assets.Scripts.Services
             worldState = WorldState.InBattle;
 
             menuNavigationService.NavigateToScreen(Screens.Battle);
+
+            return true;
         }
 
         internal void ProcessAftermath(BattleInfo battle)
@@ -280,7 +317,7 @@ namespace Assets.Scripts.Services
                 unitPool.Del(playerEntity);
             }
 
-            var opponentFilter = ecsWorld.Filter<Inc<OpponentComp>>().End();
+            var opponentFilter = ecsWorld.Filter<OpponentComp>().End();
             var opponentPool = ecsWorld.GetPool<OpponentComp>();
 
             foreach (var opponentEntity in opponentFilter)
