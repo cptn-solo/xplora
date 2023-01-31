@@ -15,6 +15,7 @@ public class Overlay : MonoBehaviour
 
     private Transform anchor;
     private Vector3 prevAnchorScale;
+    private bool destroyed;
 
     public void Attach(Transform anchor) =>
         this.anchor = anchor;
@@ -24,9 +25,17 @@ public class Overlay : MonoBehaviour
 
     internal void ResetOverlayInfo()
     {
+        if (destroyed)
+            return;
+
         piercedImage.gameObject.SetActive(false);
         damageText.text = "";
         effectText.text = "";
+    }
+    private void OnDestroy()
+    {
+        destroyed = true;
+        anchor = null;
     }
 
     private void Update()
@@ -67,6 +76,9 @@ public class Overlay : MonoBehaviour
 
     internal void ResetBarsAndEffects()
     {
+        if (destroyed)
+            return;
+
         barsContainer.gameObject.SetActive(false);
         effectsContainer.gameObject.SetActive(false);
     }
