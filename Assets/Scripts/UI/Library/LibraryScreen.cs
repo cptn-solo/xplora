@@ -1,5 +1,4 @@
 using Assets.Scripts.Services;
-using Assets.Scripts.UI.Battle;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
@@ -16,8 +15,7 @@ namespace Assets.Scripts.UI.Library
         [Inject] private readonly HeroLibraryManagementService libManager;
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly MenuNavigationService nav;
-        [Inject] private readonly WorldService worldService;
-
+        
         [SerializeField] private Transform libraryContainer;
         [SerializeField] private Transform playerTeamContainer;
         [SerializeField] private Transform enemyTeamContainer;
@@ -148,8 +146,6 @@ namespace Assets.Scripts.UI.Library
         {
             var playerHeroes = library.TeamHeroes(library.PlayerTeam.Id, true);
             
-            worldService.AssignPlayerAndEnemies(playerHeroes);
-
             raidButton.gameObject.SetActive(playerHeroes.Length > 0);
 
         }

@@ -1,32 +1,8 @@
-﻿using Leopotam.EcsLite;
+﻿using Assets.Scripts.ECS.Data;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class WorldSystem : IEcsRunSystem, IEcsInitSystem, IEcsDestroySystem
-    {
-        public void Init(IEcsSystems systems)
-        {
-        }
-        public void Run(IEcsSystems systems)
-        {
-        }
-        public void Destroy(IEcsSystems systems)
-        {
-        }
-    }
-    public class RaidSystem : IEcsRunSystem, IEcsInitSystem, IEcsDestroySystem
-    {
-        public void Init(IEcsSystems systems)
-        {
-            // spawn units
-        }
-        public void Run(IEcsSystems systems)
-        {
-        }
-        public void Destroy(IEcsSystems systems)
-        {
-        }
-    }
 
     /// <summary>
     /// Links cell to visitor
@@ -67,6 +43,7 @@ namespace Assets.Scripts.ECS.Systems
         {
         }
     }
+
 
     public class RefSystem : IEcsPreInitSystem, IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem, IEcsDestroySystem, IEcsPostDestroySystem
     {

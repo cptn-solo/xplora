@@ -14,6 +14,7 @@ namespace Assets.Scripts
         [SerializeField] private HeroLibraryManagementService libManagementService;
         [SerializeField] private BattleManagementService battleManagementService;
         [SerializeField] private WorldService worldService;
+        [SerializeField] private RaidService raidService;
 
         public override void InstallBindings()
         {
@@ -45,6 +46,10 @@ namespace Assets.Scripts
                 .Bind<WorldService>()
                 .FromInstance(worldService).AsSingle();
 
+            Container
+                .Bind<RaidService>()
+                .FromInstance(raidService).AsSingle();
+
             BindInstallerInterfaces();
         }
 
@@ -52,25 +57,24 @@ namespace Assets.Scripts
         {
             libManagementService.LoadData();
 
-            battleManagementService.AttachServices(
+            battleManagementService.Init(
                 playerPrefsService,
                 libManagementService,
                 menuNavigationService,
-                worldService);
-
-            battleManagementService.LoadData();
+                raidService);
             
-            audioPlaybackService.AttachServices(
+            audioPlaybackService.Init(
                 menuNavigationService);
             
-            audioPlaybackService.InitAudioPlayback();
+            raidService.Init(
+                menuNavigationService,
+                libManagementService,
+                worldService);
 
-            worldService.AttachServices(
+            worldService.Init(
                 libManagementService,
                 battleManagementService,
                 menuNavigationService);
-            
-            worldService.StartWorldStateLoop();
         }
 
         private void BindInstallerInterfaces()

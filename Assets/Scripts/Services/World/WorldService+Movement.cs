@@ -1,15 +1,6 @@
-﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.World;
+﻿using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
-using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using Random = UnityEngine.Random;
-using Assets.Scripts.Services.Data;
-using Assets.Scripts.ECS.Data;
 
 namespace Assets.Scripts.Services
 {
@@ -18,18 +9,20 @@ namespace Assets.Scripts.Services
         private HexCoordinates? currentAim;
         private HexDirection hexDir;
 
-        private void PlayerUnit_OnArrivedToCoordinates(HexCoordinates coordinates, Unit unit)
+        public Unit PlayerUnit { get; internal set; }
+
+        private bool TryGetPlayerUnit(out Unit unit, out int cellId)
         {
-            var cellId = CellIndexResolver(coordinates);
+            unit = null;
+            cellId = -1;
 
-            if (currentAim.HasValue && currentAim.Value.Equals(coordinates))
-                SetAimToCoordinates(null);
+            if (PlayerUnit == null)
+                return false;
 
-            if (!InitiateBattle(cellId))
-            {
-                UpdateEcsPlayerCellId(cellId);
-                SetAimByHexDir(); // will try to continue move to direction set earlier
-            }
+            unit = PlayerUnit;
+            cellId = CellIndexResolver(unit.CurrentCoord);
+
+            return true;
         }
 
         /// <summary>

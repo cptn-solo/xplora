@@ -1,11 +1,10 @@
-﻿using Assets.Scripts.Services.Data;
+﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Services
@@ -15,7 +14,7 @@ namespace Assets.Scripts.Services
         private HeroLibraryManagementService libraryManager;
         private PlayerPreferencesService prefs;
         private MenuNavigationService nav;
-        private WorldService worldService;
+        private RaidService raidService;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
@@ -179,8 +178,9 @@ namespace Assets.Scripts.Services
                 yield return new WaitForSeconds(2.0f);
             }
 
-            if (worldService.WorldState == WorldState.InBattle)
-                worldService.ProcessAftermath(battle);
+            if (raidService.State == RaidState.InBattle)
+                raidService.ProcessAftermath(
+                    battle.WinnerTeamId == libraryManager.PlayerTeam.Id);
             else
                 nav.NavigateToScreen(Screens.HeroesLibrary);
 
@@ -379,10 +379,6 @@ namespace Assets.Scripts.Services
             libraryManager.Library.UpdateHero(target);
         }
 
-        public void LoadData()
-        {
-        }
-
         private void GiveAssetsToTeams()
         {
             var hp = Asset.EmptyAsset(AssetType.Defence, "HP", "hp");
@@ -405,18 +401,26 @@ namespace Assets.Scripts.Services
 
         }
 
-        internal void AttachServices(
+        internal void Init(
             PlayerPreferencesService playerPreferencesService,
             HeroLibraryManagementService libManagementService,
             MenuNavigationService menuNavigationService,
-            WorldService worldService)
+            RaidService raidService)
         {
             this.libraryManager = libManagementService;
             this.nav = menuNavigationService;
-            this.worldService = worldService;
+            this.raidService = raidService;
             this.prefs = playerPreferencesService;
+
+            menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
 
         }
 
+        private void MenuNavigationService_OnBeforeNavigateToScreen(
+            Screens previous, Screens current)
+        {
+            if (current == Screens.Battle)
+                ResetBattle();
+        }
     }
 }

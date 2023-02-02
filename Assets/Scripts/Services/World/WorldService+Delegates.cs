@@ -7,16 +7,14 @@ namespace Assets.Scripts.Services
 
     public partial class WorldService
     {
-        public Spawner UnitSpawner { get; set; }
-        public HexCoordResolver CoordResolver { get; set; }
-        public CellCoordinatesResolver CellCoordinatesResolver { get; set; }
-        public CellIndexResolver CellIndexResolver { get; set; }
-        public WorldPositionResolver WorldPositionResolver { get; set; }
+        public HexCoordResolver CoordResolver { get; internal set; }
+        public CellCoordinatesResolver CellCoordinatesResolver { get; internal set; }
+        public CellIndexResolver CellIndexResolver { get; internal set; }
+        public WorldPositionResolver WorldPositionResolver { get; internal set; }
 
-        public HexCoordAccessor CoordHoverer { get; set; }
-        public HexCoordAccessor CoordSelector { get; set; }
+        public HexCoordAccessor CoordHoverer { get; internal set; }
+        public HexCoordAccessor CoordSelector { get; internal set; }
 
-        public TerrainProducer TerrainProducer { get; set; }
-        
+        public TerrainProducer TerrainProducer { get; internal set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Assets.Scripts.Services;
-using Assets.Scripts.Services.Data;
+using Assets.Scripts.Data;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -67,7 +67,7 @@ namespace Assets.Scripts.World
 
             pointerMoved = false;
 
-            if (worldService.WorldState < WorldState.UnitsSpawned)
+            if (worldService.PlayerUnit == null)
                 return;
 
             var overUI = EventSystem.current.IsPointerOverGameObject();

@@ -107,6 +107,16 @@ namespace Assets.Scripts.UI.Data
 
             return true;
         }
+        public bool MoveToEnemyFrontLine(Hero hero)
+        {
+            return MoveHero(
+                hero,
+                new(
+                    enemyTeam.Id,
+                    BattleLine.Front,
+                    0
+                    ));
+        }
         public bool RetireHero(Hero hero)
         {
             var pos = heroes.FirstFreeSlotIndex(x => x == -1);
@@ -160,6 +170,11 @@ namespace Assets.Scripts.UI.Data
             heroes.Add(pos, hero.Id);
 
             heroById[hero.Id] = hero;
+        }
+
+        internal Hero[] PlayerTeamHeroes()
+        {
+            return TeamHeroes(playerTeam.Id, true);
         }
 
         internal Hero[] NonPlayerTeamHeroes()

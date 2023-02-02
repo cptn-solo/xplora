@@ -87,7 +87,7 @@ namespace Assets.Scripts.Services.App
             }
         }
 
-        public void InitAudioPlayback()
+        private void InitAudioPlayback()
         {
             music = Instantiate(musicPrefab).GetComponent<IngameMusic>();
             DontDestroyOnLoad(music);
@@ -100,10 +100,12 @@ namespace Assets.Scripts.Services.App
             SetMixerValue(fxGroupKey, SfxVolume);
         }
 
-        internal void AttachServices(MenuNavigationService menuNavigationService)
+        internal void Init(MenuNavigationService menuNavigationService)
         {
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
+
+            InitAudioPlayback();
         }
 
         private void MenuNavigationService_OnNavigationToScreenComplete(Screens arg0)
@@ -135,7 +137,8 @@ namespace Assets.Scripts.Services.App
 
         }
 
-        private void MenuNavigationService_OnBeforeNavigateToScreen(Screens arg0)
+        private void MenuNavigationService_OnBeforeNavigateToScreen(
+            Screens previous, Screens current)
         {
             Stop();
         }

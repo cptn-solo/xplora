@@ -10,7 +10,9 @@ namespace Assets.Scripts.Services
     public class MenuNavigationService : MonoBehaviour
     {
         public UIManager UIManager { get; set; }
-        public event UnityAction<Screens> OnBeforeNavigateToScreen;
+        public Screens CurrentScreen { get; private set; }
+
+        public event UnityAction<Screens, Screens> OnBeforeNavigateToScreen;
         public event UnityAction<Screens> OnNavigationToScreenComplete;
 
         private void Start()
@@ -25,10 +27,14 @@ namespace Assets.Scripts.Services
             if (UIManager == null)
                 return;
 
-            OnBeforeNavigateToScreen?.Invoke(screen);
+            OnBeforeNavigateToScreen?.Invoke(CurrentScreen, screen);
 
             UIManager.ToggleScreen(screen, (screen) =>
-                OnNavigationToScreenComplete?.Invoke(screen));
+            {
+                CurrentScreen = screen;
+                OnNavigationToScreenComplete?.Invoke(screen);
+            });
+                
 
             switch (screen)
             {

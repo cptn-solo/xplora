@@ -19,6 +19,7 @@ namespace Assets.Scripts.World
         }
         private void Start()
         {
+
             worldService.CoordResolver = ResolveHexCoordinates;
             worldService.WorldPositionResolver = ResolveWorldPosition;
 

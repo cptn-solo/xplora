@@ -1,20 +1,9 @@
-﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.World;
-using Assets.Scripts.World.HexMap;
+﻿using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
-    public delegate void UnitSpawnerCallback();
     public delegate void TerrainProducerCallback();
-
-    /// <summary>
-    /// Spawns a unit appropriate for the specified Hero
-    /// </summary>
-    /// <param name="pos">World position for the unit to be spawned at</param>
-    /// <param name="hero">Hero structure for the unit to be constructed with</param>
-    /// <returns>A unit representing a hero in the world</returns>
-    public delegate Unit Spawner(Vector3 pos, Hero hero, UnitSpawnerCallback onSpawned);
 
     /// <summary>
     /// Resolves HexCoordinates of a heighboring cell

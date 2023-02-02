@@ -1,10 +1,21 @@
 ﻿using System;
+using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Data
 {
+    public struct WorldComp { }
+    public struct ProduceTag { }
+    public struct DestroyTag { }
+
+    public struct RaidComp
+    {
+        public Hero[] InitialPlayerHeroes { get; internal set; }
+        public Hero[] InitialOpponentHeroes { get; internal set; }
+    }
+
     public struct PlayerComp
     {
         public Hero Hero { get; internal set; } // avatar hero
@@ -43,6 +54,13 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntity EnemyPackedEntity { get; internal set; }
     }
+
+    public struct BattleAftermathComp
+    {
+        public bool Won { get; internal set; }
+    }
+
+    public struct RetireTag { }
 
     public struct RefComponent
     {

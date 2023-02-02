@@ -7,7 +7,7 @@ namespace Assets.Scripts.World
 {
     public class ProxyUnitsWorld : MonoBehaviour
     {
-        [Inject] private readonly WorldService worldService;
+        [Inject] private readonly RaidService raidService;
 
         [SerializeField] private GameObject unitPrefab;
 
@@ -19,17 +19,17 @@ namespace Assets.Scripts.World
         }
         private void Start()
         {
-            worldService.UnitSpawner = UnitSpawner;
-            worldService.OnUnitSpawned += WorldService_OnUnitSpawned;
+            raidService.UnitSpawner = UnitSpawner;
+            raidService.OnUnitSpawned += RaidService_OnUnitSpawned;
         }
 
         private void OnDestroy()
         {
-            worldService.OnUnitSpawned -= WorldService_OnUnitSpawned;
-            worldService.UnitSpawner = null;
+            raidService.OnUnitSpawned -= RaidService_OnUnitSpawned;
+            raidService.UnitSpawner = null;
         }
 
-        private void WorldService_OnUnitSpawned(Unit unit, bool isPlayer)
+        private void RaidService_OnUnitSpawned(Unit unit, bool isPlayer)
         {
             if (unit != null && isPlayer)
                 cameraFollow.Attach(unit.transform);
