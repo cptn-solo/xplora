@@ -5,24 +5,25 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RetireEnemySystem : IEcsRunSystem
+    public class RemoveWorldPoiSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HeroComp> heroPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<DestroyTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter;
-        
-        private readonly EcsCustomInject<RaidService> raidService;
+
+        private readonly EcsCustomInject<WorldService> worldService;
 
         public void Run(IEcsSystems systems)
         {
             foreach (var entity in opponentToRetireFilter.Value)
             {
-                ref var heroComp = ref heroPool.Value.Get(entity);
-                raidService.Value.RetireHero(heroComp.Hero);
+                ref var cellComp = ref cellPool.Value.Get(entity);
+                worldService.Value.DeletePoi<OpponentComp>(cellComp.CellIndex);
 
                 if (!garbagePool.Value.Has(entity))
                     garbagePool.Value.Add(entity);
+
             }
         }
     }

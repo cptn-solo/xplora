@@ -9,9 +9,10 @@ namespace Assets.Scripts.ECS.Systems
     {
         private EcsWorldInject ecsWorld;
 
-        private EcsCustomInject<WorldService> worldService;
-
         private EcsPoolInject<WorldComp> worldPool;
+        private EcsPoolInject<FieldCellComp> cellPool;
+
+        private EcsCustomInject<WorldService> worldService;
 
         public void Init(IEcsSystems systems)
         {
@@ -19,6 +20,16 @@ namespace Assets.Scripts.ECS.Systems
             worldPool.Value.Add(entity);
 
             worldService.Value.WorldEntity = ecsWorld.Value.PackEntity(entity);
+
+            for (int i = 0; i < worldService.Value.CellCount; i++)
+            {
+                var cellEntity = ecsWorld.Value.NewEntity();
+                ref var cellComp = ref cellPool.Value.Add(cellEntity);
+                cellComp.CellIndex = i;
+
+                worldService.Value.cellPackedEntities[i] = ecsWorld.Value.PackEntity(cellEntity);
+            }
+
         }
     }
 }

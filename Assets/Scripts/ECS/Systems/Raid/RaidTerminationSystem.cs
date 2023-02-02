@@ -13,7 +13,8 @@ namespace Assets.Scripts.ECS.Systems
         public void PostRun(IEcsSystems systems)
         {
             if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out _))
-                raidService.Value.FinalizeRaid();
+                raidService.Value.StopEcsRaidContext();
+
         }
     }
 }

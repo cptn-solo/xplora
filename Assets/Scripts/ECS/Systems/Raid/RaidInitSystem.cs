@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<OpponentComp> opponentPool;
         private readonly EcsPoolInject<HeroComp> heroPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<POIComp> poiPool;
 
         private readonly EcsFilterInject<Inc<PlayerComp>> playerFilter;
         private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;
@@ -60,17 +61,25 @@ namespace Assets.Scripts.ECS.Systems
                 PickCellIndex(entity);
 
             foreach (var entity in opponentFilter.Value)
-                PickCellIndex(entity);
+            {
+                var cellIndex = PickCellIndex(entity);
+                worldService.Value.AddPoi<OpponentComp>(cellIndex,
+                    ecsWorld.Value.PackEntityWithWorld(entity));
+            }
 
-            void PickCellIndex(int entity)
+            int PickCellIndex(int entity)
             {
                 var idx = Random.Range(0, segments.Count);
                 Debug.Log($"{idx}:{segments.Count}");
                 var num = segments[idx];
                 segments.RemoveAt(idx);
 
+                var cellIndex = Random.Range(sLength * num, sLength * (num + 1));
+
                 ref var cellComp = ref cellPool.Value.Add(entity);
-                cellComp.CellIndex = Random.Range(sLength * num, sLength * (num + 1));
+                cellComp.CellIndex = cellIndex;
+
+                return cellIndex;
             }
         }
 

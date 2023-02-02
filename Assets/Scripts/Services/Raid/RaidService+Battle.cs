@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
+using System;
 
 namespace Assets.Scripts.Services
 {
@@ -20,9 +21,9 @@ namespace Assets.Scripts.Services
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);
 
-        internal void FinalizeRaid()
+        internal void FinalizeLostBattle()
         {
-            StopEcsRaidContext();
+            MarkEcsWorldRaidForTeardown();
             menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
         }
 

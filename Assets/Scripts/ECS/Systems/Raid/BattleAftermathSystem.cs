@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DestroyTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
+        private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
 
@@ -51,12 +52,7 @@ namespace Assets.Scripts.ECS.Systems
                 else
                 {
                     // tag raid for teardown
-                    if (raidService.Value.PlayerEntity.Unpack(
-                        ecsWorld.Value, out var playerEntity))
-                        retirePool.Value.Add(playerEntity);
-
-                    if (raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
-                        ecsWorld.Value.DelEntity(raidEntity);
+                    raidService.Value.FinalizeLostBattle();
                 }
 
             }            

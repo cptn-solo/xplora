@@ -32,11 +32,13 @@ namespace Assets.Scripts.Services
                 .Add(new PlayerInitSystem())
                 .Add(new RaidInitSystem())
                 .Add(new BattleAftermathSystem())
+                .Add(new RaidTeardownSystem())
                 .Add(new DeployUnitSystem())
                 .Add(new BattleLaunchSystem())
                 .Add(new DestroyUnitSystem())
                 .Add(new RetireEnemySystem())
                 .Add(new RetirePlayerSystem())
+                .Add(new RemoveWorldPoiSystem())
                 .Add(new VisitSystem())
                 .Add(new LeaveSystem())
                 .Add(new RefillSystem())
@@ -71,7 +73,7 @@ namespace Assets.Scripts.Services
             raidRunloopCoroutine ??= StartCoroutine(RaidRunloopCoroutine());
         }
 
-        private void StopEcsRaidContext()
+        internal void StopEcsRaidContext()
         {
             runLoopActive = false;
 
@@ -121,30 +123,23 @@ namespace Assets.Scripts.Services
             out Hero enemyHero,
             out EcsPackedEntity enemyEntity)
         {
-            var opponentFilter = ecsRaidContext
-                .Filter<FieldCellComp>()
-                .Inc<HeroComp>()
-                .Inc<OpponentComp>()
-                .End();
-
-            var heroPool = ecsRaidContext.GetPool<HeroComp>();
-            var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
-
             enemyEntity = default;
             enemyHero = default;
-            foreach (var entity in opponentFilter)
-            {
-                ref var cellComp = ref cellPool.Get(entity);
-                if (cellComp.CellIndex == cellId)
-                {
-                    enemyEntity = ecsRaidContext.PackEntity(entity);
-                    ref var heroComp = ref heroPool.Get(entity);
-                    enemyHero = heroComp.Hero;
-                    return true;
-                }
-            }
 
-            return false;
+            if (!worldService.TryGetPoi<OpponentComp>(cellId, out EcsPackedEntityWithWorld packedEntity))
+                return false;
+
+            if (!packedEntity.Unpack(out var sourceWorld, out var entity) ||
+                sourceWorld != ecsRaidContext)
+                return false;
+            
+            enemyEntity = ecsRaidContext.PackEntity(entity);
+
+            var heroPool = sourceWorld.GetPool<HeroComp>();
+            ref var heroComp = ref heroPool.Get(entity);
+            enemyHero = heroComp.Hero;
+
+            return true;
         }
 
         private void InitiateEcsWorldBattle(EcsPackedEntity enemyPackedEntity)
@@ -163,6 +158,13 @@ namespace Assets.Scripts.Services
 
             BattleEntity = ecsRaidContext.PackEntity(battleEntity);
         }
+
+        private void MarkEcsWorldRaidForTeardown()
+        {
+            if (RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
+                ecsRaidContext.DelEntity(raidEntity);
+        }
+
 
     }
 }

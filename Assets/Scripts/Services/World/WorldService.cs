@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
-using Assets.Scripts.World;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -19,10 +18,6 @@ namespace Assets.Scripts.Services
 
         public event UnityAction OnTerrainProduced;
 
-        private HeroLibraryManagementService libManagementService;
-        private BattleManagementService battleManagementService;
-        private MenuNavigationService menuNavigationService;
-
         internal void GenerateTerrain()
         {
             worldState = WorldState.TerrainBeingGenerated;
@@ -39,14 +34,8 @@ namespace Assets.Scripts.Services
         }
 
         internal void Init(
-            HeroLibraryManagementService libManagementService,
-            BattleManagementService battleManagementService,
             MenuNavigationService menuNavigationService)
         {
-            this.libManagementService = libManagementService;
-            this.battleManagementService = battleManagementService;
-            this.menuNavigationService = menuNavigationService;
-
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
 

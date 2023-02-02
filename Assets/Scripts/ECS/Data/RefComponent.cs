@@ -47,7 +47,11 @@ namespace Assets.Scripts.ECS.Data
         public int CellIndex { get; internal set; }
     }
 
-    public struct POIComp { } // any static non-player object on the field
+    public struct POIComp // any non-player object on the field
+    {
+        public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
+    }
+
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi

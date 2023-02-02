@@ -72,8 +72,6 @@ namespace Assets.Scripts
                 worldService);
 
             worldService.Init(
-                libManagementService,
-                battleManagementService,
                 menuNavigationService);
         }
 

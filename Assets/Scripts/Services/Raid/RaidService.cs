@@ -49,7 +49,7 @@ namespace Assets.Scripts.Services
                 worldService.PlayerUnit = null;
 
                 if (current != Screens.Battle)
-                    StopEcsRaidContext();
+                    MarkEcsWorldRaidForTeardown();
             }
 
         }

@@ -7,10 +7,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class TerrainGenerationSystem : IEcsRunSystem
     {
-        private EcsPoolInject<ProduceTag> produceTagPool;
-        private EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter;
+        private readonly EcsWorldInject ecsWorld;
 
-        private EcsCustomInject<WorldService> worldService;
+        private readonly EcsPoolInject<ProduceTag> produceTagPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool;
+
+        private readonly EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter;
+
+        private readonly EcsCustomInject<WorldService> worldService;
 
         public void Run(IEcsSystems systems)
         {
