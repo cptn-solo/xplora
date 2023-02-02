@@ -18,6 +18,7 @@ namespace Assets.Scripts.Services
             ecsSystems = new EcsSystems(ecsWorld);
 
             ecsSystems
+                .Add(new WorldInitSystem())
                 .Add(new TerrainGenerationSystem())
                 .Add(new TerrainDestructionSystem())
                 .Add(new GarbageCollectorSystem())
@@ -26,13 +27,6 @@ namespace Assets.Scripts.Services
 #endif
                 .Inject(this)
                 .Init();
-
-            var worldEntity = ecsWorld.NewEntity();
-
-            var worldPool = ecsWorld.GetPool<WorldComp>();
-            ref var worldComp = ref worldPool.Add(worldEntity);
-
-            WorldEntity = ecsWorld.PackEntity(worldEntity);
         }
 
         private void StopEcsWorldContext()

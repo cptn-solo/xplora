@@ -5,6 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class TerrainDestructionSystem : IEcsRunSystem
     {
         private EcsPoolInject<DestroyTag> destroyTagPool;

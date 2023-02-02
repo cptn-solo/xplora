@@ -9,6 +9,7 @@ namespace Assets.Scripts.ECS.Data
     public struct WorldComp { }
     public struct ProduceTag { }
     public struct DestroyTag { }
+    public struct DraftTag { }
 
     public struct RaidComp
     {
@@ -18,14 +19,10 @@ namespace Assets.Scripts.ECS.Data
 
     public struct PlayerComp
     {
-        public Hero Hero { get; internal set; } // avatar hero
-        public int CellIndex { get; internal set; }
     }
 
     public struct OpponentComp
     {
-        public Hero Hero { get; internal set; } // avatar hero
-        public int CellIndex { get; internal set; }
     }
 
     /// <summary>
@@ -36,12 +33,20 @@ namespace Assets.Scripts.ECS.Data
         public Unit Unit { get; internal set; }
     }
 
-    public struct HeroComp { } // temp: reference to a hero data struct
+    public struct HeroComp
+    {
+        public Hero Hero { get; internal set; }
+    }
     public struct TeamComp { } // temp: reference to a team of heroes
     public struct StaminaComp { } // can be filled and drained
     public struct PowerSourceComp { }
     public struct PowerComp { } // value based on stamina
-    public struct FieldCellComp { } // cell on the world's map
+
+    public struct FieldCellComp // cell on the world's map
+    {
+        public int CellIndex { get; internal set; }
+    }
+
     public struct POIComp { } // any static non-player object on the field
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi

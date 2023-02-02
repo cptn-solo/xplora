@@ -4,6 +4,7 @@ using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -12,12 +13,15 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<PlayerComp> playerPool;
         private readonly EcsPoolInject<OpponentComp> opponentPool;
+        private readonly EcsPoolInject<HeroComp> heroPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool;
 
+        private readonly EcsFilterInject<Inc<PlayerComp>> playerFilter;
         private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<WorldService> worldService;
 
         public void Init(IEcsSystems systems)
         {
@@ -35,37 +39,58 @@ namespace Assets.Scripts.ECS.Systems
             raidService.Value.RaidEntity = ecsWorld.Value.PackEntity(raidEntity);
 
             SyncEcsRaidParties(playerHeroes, opponentHeroes);
+            PositionEcsRaidParties();
+        }
+
+        private void PositionEcsRaidParties()
+        {
+            var opponentCount = opponentFilter.Value.GetEntitiesCount();
+            var playerCount = playerFilter.Value.GetEntitiesCount();
+            var cellCount = worldService.Value.CellCount;
+            var sCount = opponentCount + playerCount;
+            var sLength = cellCount / sCount;
+
+            List<int> segments = new();
+
+            for (int i = 0; i < sCount; i++)
+                segments.Add(i);
+
+
+            foreach (var entity in playerFilter.Value)
+                PickCellIndex(entity);
+
+            foreach (var entity in opponentFilter.Value)
+                PickCellIndex(entity);
+
+            void PickCellIndex(int entity)
+            {
+                var idx = Random.Range(0, segments.Count);
+                Debug.Log($"{idx}:{segments.Count}");
+                var num = segments[idx];
+                segments.RemoveAt(idx);
+
+                ref var cellComp = ref cellPool.Value.Add(entity);
+                cellComp.CellIndex = Random.Range(sLength * num, sLength * (num + 1));
+            }
         }
 
         private void SyncEcsRaidParties(
             Hero[] playerHeroes,
             Hero[] freeHeroes)
         {
-            // reassign avatar hero to player entity
-            if (raidService.Value.PlayerEntity.Unpack(
-                ecsWorld.Value, out var playerEntity))
+            foreach (var entity in playerFilter.Value)
             {
-                ref var playerComp = ref playerPool.Value.Get(playerEntity);
-
-                playerComp.Hero = playerHeroes.Length > 0 ?
+                ref var heroComp = ref heroPool.Value.Add(entity);
+                heroComp.Hero = playerHeroes.Length > 0 ?
                     playerHeroes[0] : default;
-
-                playerComp.CellIndex = -1;
             }
 
-            // clear opponents' entities
-            foreach (var opponentEntity in opponentFilter.Value)
-            {
-                ecsWorld.Value.DelEntity(opponentEntity);
-            }
-
-            // create new ones marked with enemies' avatars
             foreach (var opponentHero in freeHeroes)
             {
                 var opponentEntity = ecsWorld.Value.NewEntity();
                 ref var opponentComp = ref opponentPool.Value.Add(opponentEntity);
-                opponentComp.Hero = opponentHero;
-                opponentComp.CellIndex = -1;
+                ref var heroComp = ref heroPool.Value.Add(opponentEntity);
+                heroComp.Hero = opponentHero;
             }
         }
 

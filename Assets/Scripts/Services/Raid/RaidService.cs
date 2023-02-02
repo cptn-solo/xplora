@@ -27,7 +27,7 @@ namespace Assets.Scripts.Services
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
 
             worldService.OnTerrainProduced += WorldService_OnTerrainProduced;
-
+            worldService.CoordBeforeSelector = WorldCoordBeforeSelect;
             this.worldService = worldService;
             this.menuNavigationService = menuNavigationService;
             this.libManagementService = libManagementService;
@@ -35,7 +35,7 @@ namespace Assets.Scripts.Services
 
         private void WorldService_OnTerrainProduced()
         {
-            State = RaidState.AwaitingUnits;
+            DeployEcsWorldUnits();
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(
@@ -46,7 +46,9 @@ namespace Assets.Scripts.Services
 
             if (previous == Screens.Raid)
             {
-                if (current == Screens.HeroesLibrary)
+                worldService.PlayerUnit = null;
+
+                if (current != Screens.Battle)
                     StopEcsRaidContext();
             }
 
@@ -59,6 +61,12 @@ namespace Assets.Scripts.Services
                 State = RaidState.InBattle;
         }
 
+        /// <summary>
+        /// Called from ecs during initialization
+        /// </summary>
+        /// <param name="playerHeroes"></param>
+        /// <param name="opponentHeroes"></param>
+        /// <returns></returns>
         public bool AssignPlayerAndEnemies(
             out Hero[] playerHeroes,
             out Hero[] opponentHeroes)
@@ -70,28 +78,14 @@ namespace Assets.Scripts.Services
             return playerHeroes.Length > 0;
         }
 
-        private void SpawnUnits()
-        {
-            State = RaidState.UnitsBeingSpawned;
-
-            worldService.PlayerUnit = SpawnPlayer();
-
-            SpawnEnemies(() => {
-                State = RaidState.UnitsSpawned;
-            });
-        }
-
-        private void DestroyUnits(DestroyUnitsCallback callback)
-        {
-            State = RaidState.UnitsBeingDestroyed;
-
-            worldService.PlayerUnit = null;
-
-            DestroyEcsUnits(callback);
-
-        }
-
-        private Unit PlayerDeploymentCallback(int cellId, Hero hero)
+        /// <summary>
+        /// Called from ecs to actually deploy unit being registered with
+        /// the opponent
+        /// </summary>
+        /// <param name="cellId"></param>
+        /// <param name="hero"></param>
+        /// <returns></returns>
+        internal Unit PlayerDeploymentCallback(int cellId, Hero hero)
         {
             var coord = worldService.CellCoordinatesResolver(cellId);
             var pos = worldService.WorldPositionResolver(coord);
@@ -103,11 +97,23 @@ namespace Assets.Scripts.Services
 
             playerUnit.OnArrivedToCoordinates += PlayerUnit_OnArrivedToCoordinates;
 
+            worldService.PlayerUnit = playerUnit;
+
+            // temp: to mark cell as visited. Need to be implemented via ecs
+            worldService.CoordSelector?.Invoke(coord);
+
             return playerUnit;
 
         }
 
-        private Unit OpponentDeploymentCallback(int cellId, Hero hero)
+        /// <summary>
+        /// Called from ecs to actually deploy unit being registered with
+        /// the opponent
+        /// </summary>
+        /// <param name="cellId"></param>
+        /// <param name="hero"></param>
+        /// <returns></returns>
+        internal Unit OpponentDeploymentCallback(int cellId, Hero hero)
         {
             var coord = worldService.CellCoordinatesResolver(cellId);
             var pos = worldService.WorldPositionResolver(coord);
@@ -120,39 +126,48 @@ namespace Assets.Scripts.Services
 
         }
 
-        private Unit SpawnPlayer()
+        internal void UnitDestroyCallback(Unit unit)
         {
-            var playerUnit = DeployEcsWorldPlayer(PlayerDeploymentCallback);
-
-            return playerUnit;
+            if (unit == worldService.PlayerUnit)
+            {
+                worldService.PlayerUnit = null;
+                Debug.Log("UnitDestroyCallback player unit destroyed");
+            }
         }
 
-        private void SpawnEnemies(UnitSpawnerCallback callback)
+        private void WorldCoordBeforeSelect(
+            HexCoordinates? coordinates,
+            HexCoordAccessorCallback callback = null)
         {
-            DeployEcsWorldOpponents(OpponentDeploymentCallback);
+            if (!coordinates.HasValue)
+                return;
 
-            callback?.Invoke();
+            if (CheckEcsWorldForOpponent(
+                worldService.CellIndexResolver(coordinates.Value),
+                out var hero,
+                out var packedEntity))
+            {
+                InitiateEcsWorldBattle(packedEntity);
+            }
+            else callback?.Invoke();
         }
 
-        private void PlayerUnit_OnArrivedToCoordinates(HexCoordinates coordinates, Unit unit)
+        private void PlayerUnit_OnArrivedToCoordinates(
+            HexCoordinates coordinates,
+            Unit unit)
         {
             var cellId = worldService.CellIndexResolver(coordinates);
 
             worldService.SetAimToCoordinates(null);
 
-            if (!InitiateBattle(cellId))
-            {
-                UpdateEcsPlayerCellId(cellId);
-                worldService.SetAimByHexDir(); // will try to continue move to direction set earlier
-            }
+            UpdateEcsPlayerCellId(cellId);
+            worldService.SetAimByHexDir(); // will try to continue move to direction set earlier
         }
 
         private void OnDestroy()
         {
             StopEcsRaidContext();
         }
-
-
     }
 
 }

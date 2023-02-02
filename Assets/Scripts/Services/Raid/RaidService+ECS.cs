@@ -31,9 +31,10 @@ namespace Assets.Scripts.Services
             ecsRaidSystems
                 .Add(new PlayerInitSystem())
                 .Add(new RaidInitSystem())
-                .Add(new DeployUnitSystem())
-                .Add(new DestroyUnitSystem())
                 .Add(new BattleAftermathSystem())
+                .Add(new DeployUnitSystem())
+                .Add(new BattleLaunchSystem())
+                .Add(new DestroyUnitSystem())
                 .Add(new RetireEnemySystem())
                 .Add(new RetirePlayerSystem())
                 .Add(new VisitSystem())
@@ -41,10 +42,12 @@ namespace Assets.Scripts.Services
                 .Add(new RefillSystem())
                 .Add(new DrainSystem())
                 .Add(new GarbageCollectorSystem())
+                .Add(new RaidTerminationSystem())
 #if UNITY_EDITOR
                 .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
                 .Inject(this)
+                .Inject(worldService)
                 .Init();
 
         }
@@ -70,6 +73,8 @@ namespace Assets.Scripts.Services
 
         private void StopEcsRaidContext()
         {
+            runLoopActive = false;
+
             if (raidRunloopCoroutine != null)
                 StopCoroutine(raidRunloopCoroutine);
 
@@ -79,88 +84,17 @@ namespace Assets.Scripts.Services
                 DestroyEcsRaidContext();
         }
 
-
-        private Unit DeployEcsWorldPlayer(DeployWorldUnit callback)
+        private void DeployEcsWorldUnits()
         {
-            if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
-                return null;
+            var cellFilter = ecsRaidContext
+                .Filter<FieldCellComp>().Inc<HeroComp>().End();
 
-            var playerPool = ecsRaidContext.GetPool<PlayerComp>();
-            ref var playerComp = ref playerPool.Get(playerEntity);
+            var producePool = ecsRaidContext.GetPool<ProduceTag>();
 
-            if (playerComp.Hero.HeroType == HeroType.NA)
-                return null;
-
-            if (playerComp.CellIndex < 0)
-                playerComp.CellIndex = Random.Range(0, worldService.CellCount);
-
-            var playerUnit = callback(playerComp.CellIndex, playerComp.Hero);
-
-            var unitPool = ecsRaidContext.GetPool<UnitComp>();
-            ref var unitComp = ref unitPool.Add(playerEntity);
-            unitComp.Unit = playerUnit;
-
-            return playerUnit;
-
+            foreach (var entity in cellFilter)
+                producePool.Add(entity);
         }
 
-        private void DeployEcsWorldOpponents(DeployWorldUnit callback)
-        {
-            var opponentFilter = ecsRaidContext.Filter<OpponentComp>().End();
-            var opponentPool = ecsRaidContext.GetPool<OpponentComp>();
-            var playerPool = ecsRaidContext.GetPool<PlayerComp>();
-
-            if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
-                return;
-
-            ref var playerComp = ref playerPool.Get(playerEntity);
-            var usedCells = new List<int>
-            {
-                playerComp.CellIndex
-            };
-
-            foreach (var opponentEntity in opponentFilter)
-            {
-                ref var opponentComp = ref opponentPool.Get(opponentEntity);
-                var enemyHero = opponentComp.Hero;
-
-                if (opponentComp.CellIndex < 0)
-                {
-                    var cellCount = worldService.CellCount;
-                    var cellIndex = Random.Range(0, cellCount);
-                    while (usedCells.Contains(cellIndex))
-                    {
-                        cellIndex = Random.Range(0, cellCount);
-                    }
-                    opponentComp.CellIndex = cellIndex;
-                    usedCells.Add(cellIndex);
-                }
-
-                if (enemyHero.HeroType != HeroType.NA)
-                {
-                    _ = callback(opponentComp.CellIndex, enemyHero);
-
-                    var unitPool = ecsRaidContext.GetPool<UnitComp>();
-                    ref var unitComp = ref unitPool.Add(opponentEntity);
-                    unitComp.Unit = null;
-                }
-
-            }
-        }
-        private void DestroyEcsUnits(DestroyUnitsCallback callback)
-        {
-            // TODO: mark all unitComps for destruction
-            var unitPool = ecsRaidContext.GetPool<UnitComp>();
-            var unitFilter = ecsRaidContext.Filter<UnitComp>().End();
-            foreach(var entity in unitFilter)
-            {
-                ref var unitComp = ref unitPool.Get(entity);
-                unitComp.Unit = null;
-
-                unitPool.Del(entity);
-            }
-            callback();
-        }
 
         private void ProcessEcsBattleAftermath(bool won)
         {
@@ -177,50 +111,59 @@ namespace Assets.Scripts.Services
             if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
                 return;
 
-            var playerPool = ecsRaidContext.GetPool<PlayerComp>();
-            ref var playerComp = ref playerPool.Get(playerEntity);
-            playerComp.CellIndex = cellId;
+            var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
+            ref var cellComp = ref cellPool.Get(playerEntity);
+            cellComp.CellIndex = cellId;
         }
 
         private bool CheckEcsWorldForOpponent(
             int cellId,
-            out Hero enemyHero)
+            out Hero enemyHero,
+            out EcsPackedEntity enemyEntity)
         {
-            var opponentFilter = ecsRaidContext.Filter<OpponentComp>().End();
-            var opponentPool = ecsRaidContext.GetPool<OpponentComp>();
+            var opponentFilter = ecsRaidContext
+                .Filter<FieldCellComp>()
+                .Inc<HeroComp>()
+                .Inc<OpponentComp>()
+                .End();
 
-            int enemyEntity = -1;
+            var heroPool = ecsRaidContext.GetPool<HeroComp>();
+            var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
+
+            enemyEntity = default;
             enemyHero = default;
-            foreach (var opponentEntity in opponentFilter)
+            foreach (var entity in opponentFilter)
             {
-                ref var opponentComp = ref opponentPool.Get(opponentEntity);
-                if (opponentComp.CellIndex == cellId)
+                ref var cellComp = ref cellPool.Get(entity);
+                if (cellComp.CellIndex == cellId)
                 {
-                    enemyEntity = opponentEntity;
-                    enemyHero = opponentComp.Hero;
-                    break;
+                    enemyEntity = ecsRaidContext.PackEntity(entity);
+                    ref var heroComp = ref heroPool.Get(entity);
+                    enemyHero = heroComp.Hero;
+                    return true;
                 }
             }
 
-            if (enemyEntity == -1)
-                return false;
+            return false;
+        }
+
+        private void InitiateEcsWorldBattle(EcsPackedEntity enemyPackedEntity)
+        {
+            if (!enemyPackedEntity.Unpack(ecsRaidContext, out var enemyEntity))
+                return;
 
             var battlePool = ecsRaidContext.GetPool<BattleComp>();
+            var draftPool = ecsRaidContext.GetPool<DraftTag>();
             var battleEntity = ecsRaidContext.NewEntity();
 
             ref var battleComp = ref battlePool.Add(battleEntity);
             battleComp.EnemyPackedEntity = ecsRaidContext.PackEntity(enemyEntity);
 
+            draftPool.Add(battleEntity);
+
             BattleEntity = ecsRaidContext.PackEntity(battleEntity);
+        }
 
-            var unitPool = ecsRaidContext.GetPool<UnitComp>();
-            var unitFilter = ecsRaidContext.Filter<UnitComp>().End();
-
-            foreach (var unitEntity in unitFilter)
-                unitPool.Del(unitEntity);
-
-            return true;
-        }        
     }
 }
 

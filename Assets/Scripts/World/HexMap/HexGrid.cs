@@ -116,7 +116,9 @@ namespace Assets.Scripts.World.HexMap
             return coordinates;
         }
 
-        public void MarkCellVisited(HexCoordinates? coordinates)
+        public void MarkCellVisited(
+            HexCoordinates? coordinates,
+            HexCoordAccessorCallback callback = null)
         {
             if (coordinates == null)
                 return;

@@ -62,10 +62,12 @@ namespace Assets.Scripts.Services
             if (!CheckIfReachable(coordinates.Value))
                 return;
 
-            CoordSelector?.Invoke(coordinates);
-
             //TODO: add a decision button or such
-            ProcessMoveToHexCoordinates(coordinates.Value);
+            CoordBeforeSelector?.Invoke(coordinates,() =>
+            {
+                ProcessMoveToHexCoordinates(coordinates.Value);
+            });
+
         }        
 
         public void ProcessMoveToHexCoordinates(HexCoordinates coordinates)
@@ -75,6 +77,8 @@ namespace Assets.Scripts.Services
 
             unit.SetMoveTargetCoordinates(coordinates);
             unit.MoveToTargetCoordinates();
+
+            CoordSelector?.Invoke(coordinates);
         }
 
         public void ProcessDirectionSelection(Vector3 direction)

@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Services
 {
     public delegate void TerrainProducerCallback();
+    public delegate void HexCoordAccessorCallback();
 
     /// <summary>
     /// Resolves HexCoordinates of a heighboring cell
@@ -45,8 +46,10 @@ namespace Assets.Scripts.Services
     /// To Highlight selected coordinates (instead of using event)
     /// </summary>
     /// <param name="coordinates"></param>
+    /// <param name="callback">Callback to be invoked or not by the accessor</param>
     public delegate void HexCoordAccessor(
-        HexCoordinates? coordinates);
+        HexCoordinates? coordinates,
+        HexCoordAccessorCallback callback = null);
     
     /// <summary>
     /// Produces the terrain for given dimensions

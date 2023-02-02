@@ -11,8 +11,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<BattleComp> battlePool;
         private readonly EcsPoolInject<BattleAftermathComp> aftermathPool;
-        private readonly EcsPoolInject<OpponentComp> opponentPool;
-        private readonly EcsPoolInject<PlayerComp> playerPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<RetireTag> retirePool;
         private readonly EcsPoolInject<DestroyTag> garbagePool;
 
@@ -38,11 +37,13 @@ namespace Assets.Scripts.ECS.Systems
                         if (raidService.Value.PlayerEntity.Unpack(
                             ecsWorld.Value, out var playerEntity))
                         {
-                            ref var opponentComp = ref opponentPool.Value.Get(opponentEntity);
-                            ref var playerComp = ref playerPool.Value.Get(playerEntity);
+                            ref var opponentCellComp = ref cellPool.Value.Get(opponentEntity);
+                            ref var playerCellComp = ref cellPool.Value.Get(playerEntity);
 
-                            playerComp.CellIndex = opponentComp.CellIndex;
+                            playerCellComp.CellIndex = opponentCellComp.CellIndex;
                         }
+
+                        ecsWorld.Value.DelEntity(battleEntity);
 
                         raidService.Value.FinalizeWonBattle();
                     }
@@ -52,14 +53,12 @@ namespace Assets.Scripts.ECS.Systems
                     // tag raid for teardown
                     if (raidService.Value.PlayerEntity.Unpack(
                         ecsWorld.Value, out var playerEntity))
-                    {
                         retirePool.Value.Add(playerEntity);
-                    }
 
-                    raidService.Value.FinalizeLostBattle();
+                    if (raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
+                        ecsWorld.Value.DelEntity(raidEntity);
                 }
 
-                garbagePool.Value.Add(battleEntity);
             }            
         }
     }

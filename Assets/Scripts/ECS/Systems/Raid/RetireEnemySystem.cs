@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Systems
 
     public class RetireEnemySystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<OpponentComp> opponentPool;
+        private readonly EcsPoolInject<HeroComp> heroPool;
         private readonly EcsPoolInject<DestroyTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter;
@@ -19,10 +19,8 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var entity in opponentToRetireFilter.Value)
             {
-                ref var opponentComp = ref opponentPool.Value.Get(entity);
-                raidService.Value.RetireHero(opponentComp.Hero);
-                opponentComp.Hero = default;
-                opponentComp.CellIndex = -1;
+                ref var heroComp = ref heroPool.Value.Get(entity);
+                raidService.Value.RetireHero(heroComp.Hero);
 
                 garbagePool.Value.Add(entity);
             }

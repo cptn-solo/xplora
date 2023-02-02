@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Assets.Scripts.Services;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
@@ -40,7 +39,9 @@ namespace Assets.Scripts.World
             Debug.Log($"UpdateCellHighlightData {cellVector}");
         }
 
-        public void HighlightCellAtCoordinates(HexCoordinates? coordinates)
+        public void HighlightCellAtCoordinates(
+            HexCoordinates? coordinates,
+            HexCoordAccessorCallback callback = null)
         {
             if (coordinates == null)
             {

@@ -10,20 +10,16 @@ namespace Assets.Scripts.Services
 
         private readonly WaitForSeconds TickTimer = new(.5f);
 
+        private bool runLoopActive = false;
+
         private IEnumerator RaidRunloopCoroutine()
         {
-            while (true)
+            runLoopActive = true;
+
+            while (runLoopActive)
             {
                 switch (State)
                 {
-                    case RaidState.AwaitingUnits:
-                        SpawnUnits();
-                        break;
-
-                    case RaidState.PrepareBattle:
-                        DestroyUnits(StartBattle);
-                        break;
-
                     default:
                         break;
                 }

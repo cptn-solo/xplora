@@ -5,22 +5,9 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService // Battle
     {
-        internal bool InitiateBattle(int cellId)
-        {
-            if (!CheckEcsWorldForOpponent(cellId, out var enemyHero))
-                return false;
-
-            State = RaidState.PrepareBattle;
-
-            return true;
-        }
 
         internal void ProcessAftermath(bool won)
         {
-            State = RaidState.Aftermath;
-
-            StartEcsRaidContext();
-
             ProcessEcsBattleAftermath(won);
         }
 
@@ -33,8 +20,11 @@ namespace Assets.Scripts.Services
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);
 
-        internal void FinalizeLostBattle() =>
+        internal void FinalizeRaid()
+        {
+            StopEcsRaidContext();
             menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
+        }
 
         internal void FinalizeWonBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Raid);
