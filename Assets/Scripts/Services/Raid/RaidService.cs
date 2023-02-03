@@ -31,11 +31,20 @@ namespace Assets.Scripts.Services
             this.worldService = worldService;
             this.menuNavigationService = menuNavigationService;
             this.libManagementService = libManagementService;
+
+            State = RaidState.NA;
         }
 
         private void WorldService_OnTerrainProduced()
         {
+            State = RaidState.AwaitingUnits;
+
             DeployEcsWorldUnits();
+        }
+
+        internal void OnUnitsSpawned()
+        {
+            State = RaidState.UnitsSpawned;
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(
@@ -47,9 +56,12 @@ namespace Assets.Scripts.Services
             if (previous == Screens.Raid)
             {
                 worldService.PlayerUnit = null;
+                State = RaidState.NA;
 
                 if (current != Screens.Battle)
                     MarkEcsWorldRaidForTeardown();
+                else
+                    State = RaidState.InBattle;
             }
 
         }
@@ -57,8 +69,6 @@ namespace Assets.Scripts.Services
         private void MenuNavigationService_OnNavigationToScreenComplete(
             Screens current)
         {
-            if (current == Screens.Battle)
-                State = RaidState.InBattle;
         }
 
         /// <summary>

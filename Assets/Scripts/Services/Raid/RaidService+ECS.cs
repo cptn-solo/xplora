@@ -93,6 +93,8 @@ namespace Assets.Scripts.Services
 
             var producePool = ecsRaidContext.GetPool<ProduceTag>();
 
+            State = Data.RaidState.AwaitingUnits;
+
             foreach (var entity in cellFilter)
                 producePool.Add(entity);
         }

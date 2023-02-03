@@ -19,8 +19,12 @@ namespace Assets.Scripts.ECS.Systems
 
         public void Run(IEcsSystems systems)
         {
+            bool producing = false;
+
             foreach (var entity in produceTagFilter.Value)
             {
+                producing = true;
+
                 ref var heroComp = ref heroPool.Value.Get(entity);
                 ref var cellComp = ref cellPool.Value.Get(entity);
 
@@ -33,6 +37,9 @@ namespace Assets.Scripts.ECS.Systems
 
                 produceTagPool.Value.Del(entity);
             }
+
+            if (producing)
+                raidService.Value.OnUnitsSpawned();
             
         }
     }
