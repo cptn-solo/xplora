@@ -81,7 +81,7 @@ namespace Assets.Scripts.UI.Battle
 
                 initialPosition = transform.parent.transform.localPosition;
 
-                var res = Resources.Load($"Hero_{hero.Id}");
+                var res = Resources.Load($"Animators/Hero_{hero.Id}");
                 if (res != null)
                     animator.runtimeAnimatorController =
                         Instantiate(res) as RuntimeAnimatorController;

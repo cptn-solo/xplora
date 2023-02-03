@@ -72,7 +72,7 @@ namespace Assets.Scripts.World
                     transform.localRotation = lr;
                 }
 
-                var res = Resources.Load($"Hero_{hero.Id}");
+                var res = Resources.Load($"Animators/Hero_{hero.Id}");
                 if (res != null)
                     animator.runtimeAnimatorController =
                         Instantiate(res) as RuntimeAnimatorController;

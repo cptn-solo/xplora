@@ -113,7 +113,7 @@ namespace Assets.Scripts.UI.Battle
             image.enabled = false;
             if (asset.AssetType != AssetType.NA && asset.IconName != null)
             {
-                image.sprite = SpriteForResourceName(asset.IconName);
+                image.sprite = SpriteForResourceName($"Icons/Assets/{asset.IconName}");
                 image.enabled = true;
             }
         }
