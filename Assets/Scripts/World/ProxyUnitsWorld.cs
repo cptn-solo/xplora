@@ -11,28 +11,14 @@ namespace Assets.Scripts.World
 
         [SerializeField] private GameObject unitPrefab;
 
-        private CameraFollow cameraFollow;
-
-        private void Awake()
-        {
-            cameraFollow = GetComponent<CameraFollow>();
-        }
         private void Start()
         {
             raidService.UnitSpawner = UnitSpawner;
-            raidService.OnUnitSpawned += RaidService_OnUnitSpawned;
         }
 
         private void OnDestroy()
         {
-            raidService.OnUnitSpawned -= RaidService_OnUnitSpawned;
             raidService.UnitSpawner = null;
-        }
-
-        private void RaidService_OnUnitSpawned(Unit unit, bool isPlayer)
-        {
-            if (unit != null && isPlayer)
-                cameraFollow.Attach(unit.transform);
         }
 
         private Unit UnitSpawner(Vector3 pos, Hero hero, UnitSpawnerCallback onSpawned) {

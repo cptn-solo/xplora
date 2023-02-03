@@ -86,6 +86,7 @@ namespace Assets.Scripts.Services
             hexDir = HexDirection.NA;
 
             if (!TryGetPlayerUnit(out var unit, out var _))
+                return;
 
 
             if (currentAim != null)
