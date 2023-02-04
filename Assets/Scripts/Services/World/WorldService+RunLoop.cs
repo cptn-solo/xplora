@@ -33,6 +33,10 @@ namespace Assets.Scripts.Services
                         break;
                     case WorldState.SceneReady:
                         break;
+                    case WorldState.AwaitingTerrainDestruction:
+                        worldState = WorldState.TerrainBeingDestoyed;
+                        DestroyEcsWorld();
+                        break;
                     case WorldState.TerrainBeingDestoyed:
                         break;
                     default:

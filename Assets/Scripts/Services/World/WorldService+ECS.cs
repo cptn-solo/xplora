@@ -28,8 +28,8 @@ namespace Assets.Scripts.Services
                 .Add(new WorldPoiInitSystem())
                 .Add(new TerrainGenerationSystem())
                 .Add(new DeployPoiSystem())
-                .Add(new DestroyPoiSystem())
                 .Add(new TerrainDestructionSystem())
+                .Add(new DestroyPoiSystem())
                 .Add(new GarbageCollectorSystem())
 #if UNITY_EDITOR
         .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
@@ -53,6 +53,14 @@ namespace Assets.Scripts.Services
                 return;
 
             world.GetPool<ProduceTag>().Add(worldEntity);
+        }
+
+        private void DestroyEcsWorld()
+        {
+            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+                return;
+
+            world.GetPool<DestroyTag>().Add(worldEntity);
         }
 
         /// <summary>
@@ -131,6 +139,7 @@ namespace Assets.Scripts.Services
                 return;
 
             poiPool.Del(cellEntity);
+            packedRefPool.Del(cellEntity);
 
             var pool = world.GetPool<T>();
             pool.Del(cellEntity);

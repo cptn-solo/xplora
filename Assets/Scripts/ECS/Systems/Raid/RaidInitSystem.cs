@@ -26,12 +26,11 @@ namespace Assets.Scripts.ECS.Systems
 
         public void Init(IEcsSystems systems)
         {
-            var raidEntity = ecsWorld.Value.NewEntity();
-
-            if (!raidService.Value.AssignPlayerAndEnemies(
+            var success = raidService.Value.AssignPlayerAndEnemies(
                 out var playerHeroes,
-                out var opponentHeroes))
-                return;
+                out var opponentHeroes);
+
+            var raidEntity = ecsWorld.Value.NewEntity();
 
             ref var raidComp = ref raidPool.Value.Add(raidEntity);
             raidComp.InitialPlayerHeroes = playerHeroes;

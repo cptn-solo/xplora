@@ -32,7 +32,9 @@ namespace Assets.Scripts.Services
 
         internal void DestroyTerrain()
         {
-            worldState = WorldState.TerrainBeingDestoyed;
+            DestroyEcsWorldPoi();
+
+            worldState = WorldState.NA;
         }
 
         /// <summary>
@@ -74,10 +76,7 @@ namespace Assets.Scripts.Services
                 worldState = WorldState.AwaitingTerrain;
 
             if (previous == Screens.Raid)
-            {
-                DestroyEcsWorldPoi();
-                worldState = WorldState.NA;
-            }
+                worldState = WorldState.AwaitingTerrainDestruction;
         }
 
         private void MenuNavigationService_OnNavigationToScreenComplete(

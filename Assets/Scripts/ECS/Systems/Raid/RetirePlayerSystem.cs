@@ -11,7 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroComp> heroPool;
         private readonly EcsPoolInject<GarbageTag> garbagePool;
 
-        private readonly EcsFilterInject<Inc<PlayerComp, RetireTag>> playerToRetireFilter;
+        private readonly EcsFilterInject<Inc<PlayerComp, HeroComp, RetireTag>> playerToRetireFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
 
