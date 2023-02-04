@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld;
 
-        private readonly EcsFilterInject<Inc<DestroyTag>> garbageTagFilter;
+        private readonly EcsFilterInject<Inc<GarbageTag>> garbageTagFilter;
 
         public void Run(IEcsSystems systems)
         {

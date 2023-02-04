@@ -25,6 +25,7 @@ namespace Assets.Scripts.Services
 
             TerrainProducer?.Invoke(width, height, () => { 
                 worldState = WorldState.SceneReady;
+                DeployEcsWorldPoi();
                 OnTerrainProduced?.Invoke();
             });
         }
@@ -73,7 +74,10 @@ namespace Assets.Scripts.Services
                 worldState = WorldState.AwaitingTerrain;
 
             if (previous == Screens.Raid)
+            {
+                DestroyEcsWorldPoi();
                 worldState = WorldState.NA;
+            }
         }
 
         private void MenuNavigationService_OnNavigationToScreenComplete(

@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Systems
     public class RetireEnemySystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<HeroComp> heroPool;
-        private readonly EcsPoolInject<DestroyTag> garbagePool;
+        private readonly EcsPoolInject<GarbageTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter;
         

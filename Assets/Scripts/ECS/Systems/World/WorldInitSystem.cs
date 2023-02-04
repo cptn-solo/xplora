@@ -17,9 +17,11 @@ namespace Assets.Scripts.ECS.Systems
         public void Init(IEcsSystems systems)
         {
             var entity = ecsWorld.Value.NewEntity();
-            worldPool.Value.Add(entity);
+            ref var worldComp = ref worldPool.Value.Add(entity);
+            worldComp.CellPackedEntities =
+                new EcsPackedEntity[worldService.Value.CellCount];
 
-            worldService.Value.WorldEntity = ecsWorld.Value.PackEntity(entity);
+            worldService.Value.SetWorldEntity(ecsWorld.Value.PackEntityWithWorld(entity));
 
             for (int i = 0; i < worldService.Value.CellCount; i++)
             {
@@ -27,7 +29,7 @@ namespace Assets.Scripts.ECS.Systems
                 ref var cellComp = ref cellPool.Value.Add(cellEntity);
                 cellComp.CellIndex = i;
 
-                worldService.Value.cellPackedEntities[i] = ecsWorld.Value.PackEntity(cellEntity);
+                worldComp.CellPackedEntities[i] = ecsWorld.Value.PackEntity(cellEntity);
             }
 
         }

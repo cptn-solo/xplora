@@ -6,9 +6,12 @@ using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Data
 {
-    public struct WorldComp { }
+    public struct WorldComp {
+        public EcsPackedEntity[] CellPackedEntities;
+    }
     public struct ProduceTag { }
     public struct DestroyTag { }
+    public struct GarbageTag { }
     public struct DraftTag { }
 
     public struct RaidComp
@@ -28,7 +31,7 @@ namespace Assets.Scripts.ECS.Data
     /// <summary>
     /// Representation of non-static actor on the field (player/enemy teams)
     /// </summary>
-    public struct UnitComp
+    public struct UnitRefComp
     {
         public Unit Unit { get; internal set; }
     }
@@ -39,15 +42,22 @@ namespace Assets.Scripts.ECS.Data
     }
     public struct TeamComp { } // temp: reference to a team of heroes
     public struct StaminaComp { } // can be filled and drained
-    public struct PowerSourceComp { }
+    public struct PowerSourceComp { } // 
+    public struct SpringComp { } // kind of powersource
+
     public struct PowerComp { } // value based on stamina
 
     public struct FieldCellComp // cell on the world's map
     {
         public int CellIndex { get; internal set; }
     }
-
     public struct POIComp // any non-player object on the field
+    {
+    }
+
+    public struct WorldPoiTag { } // to separate world (static) poi from raid poi
+
+    public struct PackedEntityRef
     {
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
     }

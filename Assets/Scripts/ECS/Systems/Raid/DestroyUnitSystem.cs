@@ -7,10 +7,10 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DestroyUnitSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<UnitComp> unitPool;
+        private readonly EcsPoolInject<UnitRefComp> unitPool;
         private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
-        private readonly EcsFilterInject<Inc<DestroyTag, UnitComp>> destroyTagFilter;
+        private readonly EcsFilterInject<Inc<DestroyTag, UnitRefComp>> destroyTagFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
 

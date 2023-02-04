@@ -11,7 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroComp> heroPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<PlayerComp> playerPool;
-        private readonly EcsPoolInject<UnitComp> unitPool;
+        private readonly EcsPoolInject<UnitRefComp> unitPool;
         private readonly EcsPoolInject<ProduceTag> produceTagPool;
 
         private readonly EcsFilterInject<Inc<ProduceTag, HeroComp, FieldCellComp>> produceTagFilter;

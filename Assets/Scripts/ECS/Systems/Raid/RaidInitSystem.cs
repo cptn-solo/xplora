@@ -47,39 +47,25 @@ namespace Assets.Scripts.ECS.Systems
         {
             var opponentCount = opponentFilter.Value.GetEntitiesCount();
             var playerCount = playerFilter.Value.GetEntitiesCount();
-            var cellCount = worldService.Value.CellCount;
-            var sCount = opponentCount + playerCount;
-            var sLength = cellCount / sCount;
+            int[] freeCellsIndexes = worldService.Value
+                .GetRandomFreeCellIndexes(opponentCount + playerCount);
 
-            List<int> segments = new();
-
-            for (int i = 0; i < sCount; i++)
-                segments.Add(i);
-
-
+            int i = -1;
             foreach (var entity in playerFilter.Value)
-                PickCellIndex(entity);
+            {
+                ref var cellComp = ref cellPool.Value.Add(entity);
+                cellComp.CellIndex = freeCellsIndexes[++i];
+            }
 
             foreach (var entity in opponentFilter.Value)
             {
-                var cellIndex = PickCellIndex(entity);
-                worldService.Value.AddPoi<OpponentComp>(cellIndex,
+                var cellIndex = freeCellsIndexes[++i];
+                worldService.Value.AddPoi<OpponentComp>(
+                    cellIndex,
                     ecsWorld.Value.PackEntityWithWorld(entity));
-            }
-
-            int PickCellIndex(int entity)
-            {
-                var idx = Random.Range(0, segments.Count);
-                Debug.Log($"{idx}:{segments.Count}");
-                var num = segments[idx];
-                segments.RemoveAt(idx);
-
-                var cellIndex = Random.Range(sLength * num, sLength * (num + 1));
 
                 ref var cellComp = ref cellPool.Value.Add(entity);
                 cellComp.CellIndex = cellIndex;
-
-                return cellIndex;
             }
         }
 

@@ -13,7 +13,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleAftermathComp> aftermathPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<RetireTag> retirePool;
-        private readonly EcsPoolInject<DestroyTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
         private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;

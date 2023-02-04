@@ -11,7 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<PoiRefComp> poiRefPool;
 
-        private readonly EcsFilterInject<Inc<ProduceTag, POIComp, FieldCellComp>> produceTagFilter;
+        private readonly EcsFilterInject<Inc<ProduceTag, POIComp, WorldPoiTag, FieldCellComp>> produceTagFilter;
 
         private readonly EcsCustomInject<WorldService> worldService;
 

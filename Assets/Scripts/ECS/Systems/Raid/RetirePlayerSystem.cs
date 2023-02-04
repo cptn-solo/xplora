@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS.Systems
     public class RetirePlayerSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<HeroComp> heroPool;
-        private readonly EcsPoolInject<DestroyTag> garbagePool;
+        private readonly EcsPoolInject<GarbageTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<PlayerComp, RetireTag>> playerToRetireFilter;
 

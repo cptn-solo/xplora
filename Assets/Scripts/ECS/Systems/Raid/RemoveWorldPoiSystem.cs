@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Systems
     public class RemoveWorldPoiSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<DestroyTag> garbagePool;
+        private readonly EcsPoolInject<GarbageTag> garbagePool;
 
         private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter;
 
