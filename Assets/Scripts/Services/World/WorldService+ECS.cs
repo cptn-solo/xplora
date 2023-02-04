@@ -25,6 +25,8 @@ namespace Assets.Scripts.Services
             ecsSystems
                 .Add(new WorldInitSystem())
                 .Add(new TerrainGenerationSystem())
+                .Add(new DeployPoiSystem())
+                .Add(new DestroyPoiSystem())
                 .Add(new TerrainDestructionSystem())
                 .Add(new GarbageCollectorSystem())
 #if UNITY_EDITOR

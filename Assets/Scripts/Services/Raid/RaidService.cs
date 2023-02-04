@@ -15,7 +15,7 @@ namespace Assets.Scripts.Services
 
         public RaidState State { get; internal set; }
 
-        public Spawner UnitSpawner { get; internal set; }
+        public UnitSpawner UnitSpawner { get; internal set; }
         public event UnityAction<Unit, bool> OnUnitSpawned;
 
         public void Init(

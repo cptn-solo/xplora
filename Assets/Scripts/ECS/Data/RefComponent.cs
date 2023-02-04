@@ -52,6 +52,11 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
     }
 
+    public struct PoiRefComp
+    {
+        public POI PoiRef { get; internal set; }
+    }
+
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi

@@ -454,6 +454,7 @@ GameObject:
   - component: {fileID: 918467831}
   - component: {fileID: 918467830}
   - component: {fileID: 918467837}
+  - component: {fileID: 918467839}
   - component: {fileID: 918467838}
   m_Layer: 5
   m_Name: Units
@@ -578,6 +579,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _containerSource: 1
+--- !u!114 &918467839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918467829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0077a91977f894a1fb19f5b47ea69a50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poiPrefab: {fileID: 3605851402388267574, guid: 121ed492c3ec34b708d6487f759005b1,
+    type: 3}
 --- !u!1 &1001729393
 GameObject:
   m_ObjectHideFlags: 0

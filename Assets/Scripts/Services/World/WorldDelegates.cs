@@ -1,4 +1,6 @@
-﻿using Assets.Scripts.World.HexMap;
+﻿using Assets.Scripts.UI.Data;
+using Assets.Scripts.World;
+using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
 namespace Assets.Scripts.Services
@@ -61,4 +63,16 @@ namespace Assets.Scripts.Services
         int width,
         int height,
         TerrainProducerCallback onComplete);
+
+    public delegate POI DeployWorldPoi(int cellId);
+    public delegate void PoiSpawnerCallback();
+
+    /// <summary>
+    /// Spawns a POI
+    /// </summary>
+    /// <param name="pos">World position for the POI to be spawned at</param>
+    /// <param name="onSpawned">Callback to call on spawned</param>
+    /// <returns>A POI in the world</returns>
+    public delegate POI PoiSpawner(Vector3 pos, PoiSpawnerCallback onSpawned);
+
 }

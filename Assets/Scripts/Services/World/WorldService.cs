@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
+using Assets.Scripts.World;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -32,6 +33,28 @@ namespace Assets.Scripts.Services
         {
             worldState = WorldState.TerrainBeingDestoyed;
         }
+
+        /// <summary>
+        /// Called from ecs to actually deploy POI
+        /// </summary>
+        /// <param name="cellId"></param>
+        /// <returns></returns>
+        internal POI POIDeploymentCallback(int cellId)
+        {
+            var coord = CellCoordinatesResolver(cellId);
+            var pos = WorldPositionResolver(coord);
+
+            var poi = PoiSpawner?.Invoke(pos, null);
+
+            return poi;
+        }
+
+        internal void PoiDestroyCallback(POI poi)
+        {
+            // NB: return to pool maybe
+            GameObject.Destroy(poi);
+        }
+
 
         internal void Init(
             MenuNavigationService menuNavigationService)

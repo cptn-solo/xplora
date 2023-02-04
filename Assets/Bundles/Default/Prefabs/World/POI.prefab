@@ -46,7 +46,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3605851402388267569}
-  - component: {fileID: 3605851402388267568}
+  - component: {fileID: 5099836213269269596}
   m_Layer: 5
   m_Name: POI
   m_TagString: Untagged
@@ -75,7 +75,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 89}
   m_SizeDelta: {x: 5, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3605851402388267568
+--- !u!114 &5099836213269269596
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,11 +84,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3605851402388267574}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 747085d2eecc20a4fa17d6d72edb19bf, type: 3}
+  m_Script: {fileID: 11500000, guid: 401c2e43dbfad429d9a9ec0dd0350e4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 3605851402330014149}
-  speedFactor: 5
 --- !u!1 &3605851402509890382
 GameObject:
   m_ObjectHideFlags: 0

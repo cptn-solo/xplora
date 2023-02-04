@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Assets.Scripts.Services;
+using UnityEngine.LowLevel;
 
 namespace Assets.Scripts.ECS.Systems
 {
