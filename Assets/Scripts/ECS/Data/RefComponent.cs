@@ -28,12 +28,19 @@ namespace Assets.Scripts.ECS.Data
     {
     }
 
-    /// <summary>
-    /// Representation of non-static actor on the field (player/enemy teams)
-    /// </summary>
-    public struct UnitRefComp
+    public struct UnitRef
     {
         public Unit Unit { get; internal set; }
+    }
+
+    public struct PoiRef
+    {
+        public POI Poi { get; internal set; }
+    }
+
+    public struct UnitOverlayRef
+    {
+        public UnitOverlay Overlay;
     }
 
     public struct HeroComp
@@ -45,7 +52,19 @@ namespace Assets.Scripts.ECS.Data
     public struct PowerSourceComp { } // 
     public struct SpringComp { } // kind of powersource
 
-    public struct PowerComp { } // value based on stamina
+    public struct VisitCellComp {
+        public int CellIndex { get; internal set; }
+    } // triggers systems aware of player being visiting a cell
+
+    public struct RefillComp
+    {
+        public int Value { get; internal set; }
+    }
+
+    public struct DrainComp
+    {
+        public int Value { get; internal set; }
+    }
 
     public struct FieldCellComp // cell on the world's map
     {
@@ -60,11 +79,6 @@ namespace Assets.Scripts.ECS.Data
     public struct PackedEntityRef
     {
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
-    }
-
-    public struct PoiRefComp
-    {
-        public POI PoiRef { get; internal set; }
     }
 
     public struct HostileComp { } // hostile unit/poi

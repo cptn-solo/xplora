@@ -12,7 +12,8 @@ namespace Assets.Scripts.Services
     public partial class RaidService // ECS
     {
         private EcsWorld ecsRaidContext = null;
-        private IEcsSystems ecsRaidSystems = null;
+        private IEcsSystems ecsRunSystems = null;
+        private IEcsSystems ecsInitSystems = null;
 
         public EcsPackedEntity PlayerEntity { get; set; }
         public EcsPackedEntity WorldEntity { get; set; }
@@ -26,23 +27,34 @@ namespace Assets.Scripts.Services
         private void InitEcsRaidContext()
         {
             ecsRaidContext = new EcsWorld();
-            ecsRaidSystems = new EcsSystems(ecsRaidContext);
+            ecsInitSystems = new EcsSystems(ecsRaidContext);
+            ecsRunSystems = new EcsSystems(ecsRaidContext);
 
-            ecsRaidSystems
-                .Add(new PlayerInitSystem())
+            ecsInitSystems
                 .Add(new RaidInitSystem())
+                .Add(new OpponentInitSystem())
+                .Add(new PlayerInitSystem())
+                .Inject(this)
+                .Inject(worldService)
+                .Init();
+
+            ecsRunSystems
+                .Add(new OpponentPositionSystem())
+                .Add(new PlayerPositionSystem())
                 .Add(new BattleAftermathSystem())
                 .Add(new RaidTeardownSystem())
                 .Add(new DeployUnitSystem())
+                .Add(new DeployUnitOverlaySystem())
+                .Add(new VisitSystem())
+                .Add(new RefillSystem())
+                .Add(new DrainSystem())
+                .Add(new LeaveSystem())
                 .Add(new BattleLaunchSystem())
+                .Add(new DestroyUnitOverlaySystem())
                 .Add(new DestroyUnitSystem())
                 .Add(new RetireEnemySystem())
                 .Add(new RetirePlayerSystem())
                 .Add(new RemoveWorldPoiSystem())
-                .Add(new VisitSystem())
-                .Add(new LeaveSystem())
-                .Add(new RefillSystem())
-                .Add(new DrainSystem())
                 .Add(new GarbageCollectorSystem())
                 .Add(new RaidTerminationSystem())
 #if UNITY_EDITOR
@@ -58,8 +70,11 @@ namespace Assets.Scripts.Services
         /// </summary>
         private void DestroyEcsRaidContext()
         {
-            ecsRaidSystems?.Destroy();
-            ecsRaidSystems = null;
+            ecsRunSystems?.Destroy();
+            ecsRunSystems = null;
+
+            ecsInitSystems?.Destroy();
+            ecsInitSystems = null;
 
             ecsRaidContext?.Destroy();
             ecsRaidContext = null;
@@ -110,14 +125,13 @@ namespace Assets.Scripts.Services
             aftermathComp.Won = won;
         }
 
-        private void UpdateEcsPlayerCellId(int cellId)
+        private void VisitEcsCellId(int cellId)
         {
             if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
                 return;
 
-            var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
-            ref var cellComp = ref cellPool.Get(playerEntity);
-            cellComp.CellIndex = cellId;
+            var visitPool = ecsRaidContext.GetPool<VisitCellComp>();
+            visitPool.Add(playerEntity);
         }
 
         private bool CheckEcsWorldForOpponent(

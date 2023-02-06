@@ -8,19 +8,12 @@ namespace Assets.Scripts.World
     {
 
         protected Animator animator;
-        protected Overlay overlay;
 
         private bool initialized;
         private readonly WaitForSeconds defaultWait = new(.35f);
         private readonly WaitForSeconds waitOneSec = new(1f);
 
         protected virtual string AnimStageIdle { get; } = "Idle";
-
-        public void SetOverlay(Overlay overlay)
-        {
-            this.overlay = overlay;
-            overlay.Attach(transform);
-        }
 
         private void Awake()
         {
@@ -41,35 +34,13 @@ namespace Assets.Scripts.World
         public void Initialize()
         {
             ResetAnimations();
-            overlay.ResetOverlayInfo();
             initialized = true;
         }
-
-        public void HideOverlay()
-        {
-            overlay.ResetOverlayInfo();
-            overlay.ResetBarsAndEffects();
-        }
-
-        public void SetOverlayInfo(TurnStageInfo info)
-        {
-            StartCoroutine(OverlayInfoCoroutine(info));
-        }
-
         private void ResetAnimations()
         {
             StopAllCoroutines();
 
             animator.Play(AnimStageIdle);
-        }
-
-        private IEnumerator OverlayInfoCoroutine(TurnStageInfo info)
-        {
-            overlay.SetOverlayInfo(info);
-
-            yield return waitOneSec;
-
-            overlay.ResetOverlayInfo();
         }
 
         private IEnumerator TimedAnimationCorotine(

@@ -10,19 +10,20 @@ namespace Assets.Scripts.ECS.Systems
     public class WorldPoiInitSystem : IEcsInitSystem
     {
 
-        private EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld;
 
-        private EcsPoolInject<WorldComp> worldPool;
-        private EcsPoolInject<FieldCellComp> cellPool;
-        private EcsPoolInject<PowerSourceComp> psPool;
-        private EcsPoolInject<POIComp> poiPool;
-        private EcsPoolInject<WorldPoiTag> worldPoiTagPool;
-        private EcsPoolInject<GarbageTag> garbagePool;
+        private readonly EcsPoolInject<WorldComp> worldPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<PowerSourceComp> psPool;
+        private readonly EcsPoolInject<PowerComp> powerPool;
+        private readonly EcsPoolInject<POIComp> poiPool;
+        private readonly EcsPoolInject<WorldPoiTag> worldPoiTagPool;
+        private readonly EcsPoolInject<GarbageTag> garbagePool;
 
-        private EcsFilterInject<Inc<FieldCellComp>, Exc<POIComp>> freeCellFilter;
-        private EcsFilterInject<Inc<PowerSourceComp>> powerSourceFilter;
+        private readonly EcsFilterInject<Inc<FieldCellComp>, Exc<POIComp>> freeCellFilter;
+        private readonly EcsFilterInject<Inc<PowerSourceComp>> powerSourceFilter;
 
-        private EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService;
 
         public void Init(IEcsSystems systems)
         {
@@ -45,6 +46,9 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var poiComp = ref poiPool.Value.Add(freeCellEntity);
                 ref var psComp = ref psPool.Value.Add(freeCellEntity);
+
+                ref var powerComp = ref powerPool.Value.Add(freeCellEntity);
+                powerComp.InitialValue = 10;
 
                 // will prevent from spawning raid and other non static objects here
                 worldPoiTagPool.Value.Add(freeCellEntity);

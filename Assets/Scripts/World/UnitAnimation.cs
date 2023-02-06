@@ -15,9 +15,6 @@ namespace Assets.Scripts.World
             if (hero.HeroType == HeroType.NA)
             {
                 animator.runtimeAnimatorController = null;
-
-                if (overlay != null)
-                    HideOverlay();
             }
             else
             {
@@ -34,11 +31,6 @@ namespace Assets.Scripts.World
                         Instantiate(res) as RuntimeAnimatorController;
                 else
                     animator.runtimeAnimatorController = null;
-
-                if (overlay != null)
-                    overlay.SetBarsEndEffectsInfo(
-                        hero.BarsInfoBattle,
-                        hero.ActiveEffects);
             }
         }
 

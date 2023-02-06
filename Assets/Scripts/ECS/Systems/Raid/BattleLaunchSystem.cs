@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
-        private readonly EcsFilterInject<Inc<UnitRefComp>> unitFilter;
+        private readonly EcsFilterInject<Inc<UnitRef>> unitFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
 

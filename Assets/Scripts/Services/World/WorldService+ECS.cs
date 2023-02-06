@@ -10,6 +10,7 @@ namespace Assets.Scripts.Services
     public partial class WorldService // ECS
     {
         private EcsWorld ecsWorld;
+        private IEcsSystems ecsInitSystems;
         private IEcsSystems ecsSystems;
 
         internal EcsPackedEntityWithWorld WorldEntity { get; private set; }
@@ -20,14 +21,21 @@ namespace Assets.Scripts.Services
         private void StartEcsWorldContext()
         {
             ecsWorld = new EcsWorld();
-            ecsSystems = new EcsSystems(ecsWorld);
 
-            ecsSystems
+            ecsInitSystems = new EcsSystems(ecsWorld);
+            ecsInitSystems
                 .Add(new WorldInitSystem())
                 .Add(new WorldPowerSourceInitSystem())
                 .Add(new WorldPoiInitSystem())
+                .Inject(this)
+                .Init();
+
+            ecsSystems = new EcsSystems(ecsWorld);
+            ecsSystems
                 .Add(new TerrainGenerationSystem())
                 .Add(new DeployPoiSystem())
+                .Add(new DrainSystem())
+                .Add(new OutOfPowerSystem())
                 .Add(new TerrainDestructionSystem())
                 .Add(new DestroyPoiSystem())
                 .Add(new GarbageCollectorSystem())
@@ -42,6 +50,9 @@ namespace Assets.Scripts.Services
         {
             ecsSystems?.Destroy();
             ecsSystems = null;
+
+            ecsInitSystems?.Destroy();
+            ecsInitSystems = null;
 
             ecsWorld?.Destroy();
             ecsWorld = null;
@@ -91,7 +102,7 @@ namespace Assets.Scripts.Services
             var destroyTagPool = world.GetPool<DestroyTag>();
             var deployedPoiFilter = world
                 .Filter<WorldPoiTag>()
-                .Inc<PoiRefComp>()
+                .Inc<PoiRef>()
                 .End();
 
             foreach (var entity in deployedPoiFilter)
@@ -151,7 +162,7 @@ namespace Assets.Scripts.Services
         /// <param name="cellIndex"></param>
         /// <param name="poiPackedEntity">Will carry out the entity of
         /// the POI in the world it belongs to</param>
-        /// <returns></returns>
+        /// <returns>True if found POI combined with specified type component</returns>
         internal bool TryGetPoi<T>(int cellIndex, out EcsPackedEntityWithWorld poiPackedEntity)
             where T: struct
         {
@@ -166,6 +177,35 @@ namespace Assets.Scripts.Services
             if (!poiPool.Has(cellEntity) ||
                 !packedRefPool.Has(cellEntity) ||
                 !world.GetPool<T>().Has(cellEntity))
+                return false;
+
+            ref var poiComp = ref poiPool.Get(cellEntity);
+
+            ref var packedRef = ref packedRefPool.Get(cellEntity);
+            poiPackedEntity = packedRef.PackedEntity;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to get Any POI
+        /// </summary>
+        /// <param name="cellIndex"></param>
+        /// <param name="poiPackedEntity">Will carry out the entity of
+        /// the POI in the world it belongs to</param>
+        /// <returns>True if POI comp found on the cell</returns>
+        internal bool TryGetPoi(int cellIndex, out EcsPackedEntityWithWorld poiPackedEntity)
+        {
+            poiPackedEntity = default;
+
+            if (!TryGetCellEntity(cellIndex, out var cellEntity, out var world))
+                return false;
+
+            var poiPool = world.GetPool<POIComp>();
+            var packedRefPool = world.GetPool<PackedEntityRef>();
+
+            if (!poiPool.Has(cellEntity) ||
+                !packedRefPool.Has(cellEntity))
                 return false;
 
             ref var poiComp = ref poiPool.Get(cellEntity);

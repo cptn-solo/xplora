@@ -30,6 +30,7 @@ namespace Assets.Scripts.UI.Common
                     var barRectTransform = bar.GetComponent<RectTransform>();
                     barRectTransform.localScale = canvas.transform.localScale * parentTransform.localScale.x;
                     barRectTransform.SetParent(rectTransform);
+                    barRectTransform.localRotation = Quaternion.identity;
                     barRectTransform.anchoredPosition3D = Vector3.zero;
                     barRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rectTransform.rect.width);
                     

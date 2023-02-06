@@ -1,43 +1,12 @@
-﻿using Assets.Scripts.ECS.Data;
-using Leopotam.EcsLite;
+﻿using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Systems
 {
 
     /// <summary>
-    /// Links cell to visitor
-    /// </summary>
-    public class VisitSystem : IEcsRunSystem
-    {
-        public void Run(IEcsSystems systems)
-        {            
-        }
-    }
-
-    /// <summary>
     /// Unlinks cell from visitor
     /// </summary>
     public class LeaveSystem : IEcsRunSystem
-    {
-        public void Run(IEcsSystems systems)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Refills power from source
-    /// </summary>
-    public class RefillSystem : IEcsRunSystem
-    {
-        public void Run(IEcsSystems systems)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Drains power from source
-    /// </summary>
-    public class DrainSystem : IEcsRunSystem
     {
         public void Run(IEcsSystems systems)
         {

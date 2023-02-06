@@ -12,6 +12,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleComp> battlePool;
         private readonly EcsPoolInject<BattleAftermathComp> aftermathPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<DrainComp> drainPool;
+        private readonly EcsPoolInject<VisitCellComp> visitPool;
         private readonly EcsPoolInject<RetireTag> retirePool;
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
@@ -40,7 +42,14 @@ namespace Assets.Scripts.ECS.Systems
                             ref var opponentCellComp = ref cellPool.Value.Get(opponentEntity);
                             ref var playerCellComp = ref cellPool.Value.Get(playerEntity);
 
-                            playerCellComp.CellIndex = opponentCellComp.CellIndex;
+                            if (!drainPool.Value.Has(playerEntity))
+                                drainPool.Value.Add(playerEntity);
+
+                            ref var drainComp = ref drainPool.Value.Get(playerEntity);
+                            drainComp.Value += 10;
+
+                            ref var visitComp = ref visitPool.Value.Add(playerEntity);
+                            visitComp.CellIndex = opponentCellComp.CellIndex;
                         }
 
                         ecsWorld.Value.DelEntity(battleEntity);

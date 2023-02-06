@@ -8,15 +8,14 @@ namespace Assets.Scripts.ECS.Systems
     {
         private const int pSourceCount = 3;
 
-        private EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld;
 
-        private EcsPoolInject<PowerSourceComp> pSourcePool;
+        private readonly EcsPoolInject<PowerSourceComp> pSourcePool;
 
         public void Init(IEcsSystems systems)
         {
             for (int i = 0; i < pSourceCount; i++)
                 pSourcePool.Value.Add(ecsWorld.Value.NewEntity());
-            
         }
     }
 }

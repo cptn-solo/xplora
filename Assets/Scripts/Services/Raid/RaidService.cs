@@ -16,6 +16,8 @@ namespace Assets.Scripts.Services
         public RaidState State { get; internal set; }
 
         public UnitSpawner UnitSpawner { get; internal set; }
+        public UnitOverlaySpawner UnitOverlaySpawner { get; internal set; }
+
         public event UnityAction<Unit, bool> OnUnitSpawned;
 
         public void Init(
@@ -170,7 +172,7 @@ namespace Assets.Scripts.Services
 
             worldService.SetAimToCoordinates(null);
 
-            UpdateEcsPlayerCellId(cellId);
+            VisitEcsCellId(cellId);
             worldService.SetAimByHexDir(); // will try to continue move to direction set earlier
         }
 

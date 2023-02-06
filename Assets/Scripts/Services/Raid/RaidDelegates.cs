@@ -10,6 +10,7 @@ namespace Assets.Scripts.Services
 
     public delegate bool LibraryActionWithHero(Hero hero);
     public delegate Unit DeployWorldUnit(int cellId, Hero hero);
+    public delegate UnitOverlay DeployWorldUnitOverlay(Unit unit);
 
 
     /// <summary>
@@ -19,5 +20,7 @@ namespace Assets.Scripts.Services
     /// <param name="hero">Hero structure for the unit to be constructed with</param>
     /// <returns>A unit representing a hero in the world</returns>
     public delegate Unit UnitSpawner(Vector3 pos, Hero hero, UnitSpawnerCallback onSpawned);
+
+    public delegate UnitOverlay UnitOverlaySpawner(Transform anchor);
 }
 

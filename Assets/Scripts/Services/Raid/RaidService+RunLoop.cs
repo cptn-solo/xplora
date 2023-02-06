@@ -24,7 +24,7 @@ namespace Assets.Scripts.Services
                         break;
                 }
 
-                ecsRaidSystems?.Run();
+                ecsRunSystems?.Run();
 
                 yield return TickTimer;
 

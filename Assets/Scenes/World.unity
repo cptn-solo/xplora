@@ -315,7 +315,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 1208350592}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -566,6 +566,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 3605851402388267574, guid: cadb5571c5ceceb4198f563765db74d9,
     type: 3}
+  overlayPrefab: {fileID: 4744941177101426547, guid: 9a0584a5e46cf44c4a0f8db839d77275,
+    type: 3}
+  overlayParent: {fileID: 296088654}
 --- !u!114 &918467838
 MonoBehaviour:
   m_ObjectHideFlags: 0

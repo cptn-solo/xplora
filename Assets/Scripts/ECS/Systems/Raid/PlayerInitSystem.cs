@@ -7,20 +7,48 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class PlayerInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld = default;
-        private readonly EcsPoolInject<PlayerComp> playerPool = default;
-        private readonly EcsPoolInject<TeamComp> teamPool = default;
+        private readonly EcsWorldInject ecsWorld;
 
-        private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsPoolInject<RaidComp> raidPool;
+        private readonly EcsPoolInject<PlayerComp> playerPool;
+        private readonly EcsPoolInject<TeamComp> teamPool;
+        private readonly EcsPoolInject<HeroComp> heroPool;
+        private readonly EcsPoolInject<PowerComp> powerPool;
+        private readonly EcsPoolInject<StaminaComp> staminaPool;
+
+        private readonly EcsCustomInject<RaidService> raidService;
 
         public void Init(IEcsSystems systems)
         {
-            var playerEntity = ecsWorld.Value.NewEntity();
-            raidService.Value.PlayerEntity = ecsWorld.Value.PackEntity(playerEntity);
+            if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
+                return;
 
-            ref var playerComp = ref playerPool.Value.Add(playerEntity);
+            ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            ref var teamComp = ref teamPool.Value.Add(playerEntity);
+            if (raidComp.InitialPlayerHeroes.Length <= 0)
+                return;
+
+            var entity = ecsWorld.Value.NewEntity();
+
+            ref var playerComp = ref playerPool.Value.Add(entity);
+
+            ref var teamComp = ref teamPool.Value.Add(entity);
+
+            ref var heroComp = ref heroPool.Value.Add(entity);
+            heroComp.Hero = raidComp.InitialPlayerHeroes[0];
+
+
+            ref var staminaComp = ref staminaPool.Value.Add(entity);
+
+            var initialPower = 0;
+            foreach (var hero in raidComp.InitialPlayerHeroes)
+                initialPower += hero.Health * hero.Speed / raidComp.InitialPlayerHeroes.Length; ;
+
+            ref var powerComp = ref powerPool.Value.Add(entity);
+            powerComp.InitialValue = initialPower;
+            powerComp.CurrentValue = initialPower;
+
+            raidService.Value.PlayerEntity = ecsWorld.Value.PackEntity(entity);
         }
     }
 }

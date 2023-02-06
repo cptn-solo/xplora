@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<ProduceTag> produceTagPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<PoiRefComp> poiRefPool;
+        private readonly EcsPoolInject<PoiRef> poiRefPool;
 
         private readonly EcsFilterInject<Inc<ProduceTag, POIComp, WorldPoiTag, FieldCellComp>> produceTagFilter;
 
@@ -25,7 +25,7 @@ namespace Assets.Scripts.ECS.Systems
                 DeployWorldPoi callback = worldService.Value.POIDeploymentCallback;
 
                 ref var poiRef = ref poiRefPool.Value.Add(entity);
-                poiRef.PoiRef = callback(cellComp.CellIndex);
+                poiRef.Poi = callback(cellComp.CellIndex);
 
                 produceTagPool.Value.Del(entity);
             }
