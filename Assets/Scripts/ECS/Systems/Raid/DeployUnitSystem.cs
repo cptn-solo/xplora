@@ -13,7 +13,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<PlayerComp> playerPool;
         private readonly EcsPoolInject<UnitRef> unitPool;
-        private readonly EcsPoolInject<ProduceTag> produceTagPool;
 
         private readonly EcsFilterInject<Inc<ProduceTag, HeroComp, FieldCellComp>> produceTagFilter;
 
@@ -38,8 +37,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var unitRef = ref unitPool.Value.Add(entity);
                 unitRef.Unit = callback(cellComp.CellIndex, heroComp.Hero);
-
-                produceTagPool.Value.Del(entity);
             }
 
             if (producing)

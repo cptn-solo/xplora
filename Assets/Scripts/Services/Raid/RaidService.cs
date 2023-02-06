@@ -49,6 +49,12 @@ namespace Assets.Scripts.Services
             State = RaidState.UnitsSpawned;
         }
 
+        internal void FinalizeRaid()
+        {
+            MarkEcsWorldRaidForTeardown();
+            menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
+        }
+
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens previous, Screens current)
         {
@@ -135,7 +141,6 @@ namespace Assets.Scripts.Services
             OnUnitSpawned?.Invoke(enemyUnit, false);
 
             return enemyUnit;
-
         }
 
         internal void UnitDestroyCallback(Unit unit)

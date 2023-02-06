@@ -11,6 +11,8 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<PowerComp> powerPool;
         private readonly EcsPoolInject<RefillComp> refillPool;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool;
+
         private readonly EcsFilterInject<Inc<RefillComp, PowerComp>> refillFilter;
 
         public void Run(IEcsSystems systems)
@@ -23,7 +25,8 @@ namespace Assets.Scripts.ECS.Systems
                 //TODO: implement partial refill
                 powerComp.CurrentValue = powerComp.InitialValue;
 
-                refillPool.Value.Del(entity);
+                if (!updateTagPool.Value.Has(entity))
+                    updateTagPool.Value.Add(entity);
             }
         }
     }

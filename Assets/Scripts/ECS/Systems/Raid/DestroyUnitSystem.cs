@@ -25,8 +25,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 unitPool.Value.Del(entity);
 
-                destroyTagPool.Value.Del(entity);
-
                 raidService.Value.UnitDestroyCallback(destroyedUnit);
             }
         }

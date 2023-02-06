@@ -4,18 +4,6 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class OutOfPowerSystem : IEcsRunSystem
-    {
-        private readonly EcsPoolInject<OutOfPowerTag> oopTagPool;
-
-        private readonly EcsFilterInject<Inc<OutOfPowerTag, PowerComp>> oopFilter;
-
-
-        public void Run(IEcsSystems systems)
-        {
-            //TODO: mark source as disabled
-        }
-    }
 
     /// <summary>
     /// Drains power from source
@@ -23,6 +11,7 @@ namespace Assets.Scripts.ECS.Systems
     public class DrainSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<PowerComp> powerPool;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool;
         private readonly EcsPoolInject<OutOfPowerTag> oopTagPool;
         private readonly EcsPoolInject<DrainComp> drainPool;
 
@@ -39,7 +28,8 @@ namespace Assets.Scripts.ECS.Systems
                 if (powerComp.CurrentValue <= 0)
                     oopTagPool.Value.Add(entity);
 
-                drainPool.Value.Del(entity);
+                if (!updateTagPool.Value.Has(entity))
+                    updateTagPool.Value.Add(entity);
             }
         }
     }

@@ -4,6 +4,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using UnityEngine;
 using System.Collections.Generic;
+using Leopotam.EcsLite.ExtendedSystems;
 
 namespace Assets.Scripts.Services
 {
@@ -34,11 +35,16 @@ namespace Assets.Scripts.Services
             ecsSystems
                 .Add(new TerrainGenerationSystem())
                 .Add(new DeployPoiSystem())
+                .DelHere<ProduceTag>()
                 .Add(new DrainSystem())
-                .Add(new OutOfPowerSystem())
+                .DelHere<DrainComp>()
+                .Add(new UpdatePowerSourceSystem())
+                .DelHere<UpdateTag>()
                 .Add(new TerrainDestructionSystem())
                 .Add(new DestroyPoiSystem())
+                .DelHere<DestroyTag>()
                 .Add(new GarbageCollectorSystem())
+
 #if UNITY_EDITOR
         .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
@@ -202,16 +208,12 @@ namespace Assets.Scripts.Services
                 return false;
 
             var poiPool = world.GetPool<POIComp>();
-            var packedRefPool = world.GetPool<PackedEntityRef>();
 
-            if (!poiPool.Has(cellEntity) ||
-                !packedRefPool.Has(cellEntity))
+            if (!poiPool.Has(cellEntity))
                 return false;
 
             ref var poiComp = ref poiPool.Get(cellEntity);
-
-            ref var packedRef = ref packedRefPool.Get(cellEntity);
-            poiPackedEntity = packedRef.PackedEntity;
+            poiPackedEntity = world.PackEntityWithWorld(cellEntity);
 
             return true;
         }

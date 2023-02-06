@@ -11,7 +11,6 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<BattleComp> battlePool;
         private readonly EcsPoolInject<HeroComp> heroPool;
-        private readonly EcsPoolInject<DraftTag> draftTagPool;
         private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
@@ -33,8 +32,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 foreach (var unitEntity in unitFilter.Value)
                     destroyTagPool.Value.Add(unitEntity);
-
-                draftTagPool.Value.Del(entity);
 
                 raidService.Value.StartBattle();
             }

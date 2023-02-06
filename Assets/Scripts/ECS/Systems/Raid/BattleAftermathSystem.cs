@@ -5,6 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class BattleAftermathSystem : IEcsRunSystem
     {
         private readonly EcsWorldInject ecsWorld;
@@ -60,7 +61,7 @@ namespace Assets.Scripts.ECS.Systems
                 else
                 {
                     // tag raid for teardown
-                    raidService.Value.FinalizeLostBattle();
+                    raidService.Value.FinalizeRaid();
                 }
 
             }            

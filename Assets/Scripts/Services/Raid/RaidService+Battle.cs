@@ -21,12 +21,6 @@ namespace Assets.Scripts.Services
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);
 
-        internal void FinalizeLostBattle()
-        {
-            MarkEcsWorldRaidForTeardown();
-            menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
-        }
-
         internal void FinalizeWonBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Raid);
     }

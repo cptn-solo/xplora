@@ -14,6 +14,13 @@
       "dependencies": {},
       "hash": "7db3425156099e60f751a95bb344dee2c0692390"
     },
+    "com.leopotam.ecslite.extendedsystems": {
+      "version": "https://github.com/Leopotam/ecslite-extendedsystems.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "007a5af4aaa1c4993523232f306a5f02e1de7c0f"
+    },
     "com.leopotam.ecslite.unityeditor": {
       "version": "https://github.com/Leopotam/ecslite-unityeditor.git",
       "depth": 0,

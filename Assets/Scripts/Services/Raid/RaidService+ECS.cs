@@ -1,6 +1,7 @@
 ﻿using Leopotam.EcsLite;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite.Di;
+using Leopotam.EcsLite.ExtendedSystems;
 using UnityEngine;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.UI.Data;
@@ -41,20 +42,29 @@ namespace Assets.Scripts.Services
             ecsRunSystems
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
+                .Add(new OutOfPowerSystem())
                 .Add(new BattleAftermathSystem())
-                .Add(new RaidTeardownSystem())
-                .Add(new DeployUnitSystem())
-                .Add(new DeployUnitOverlaySystem())
-                .Add(new VisitSystem())
-                .Add(new RefillSystem())
-                .Add(new DrainSystem())
-                .Add(new LeaveSystem())
-                .Add(new BattleLaunchSystem())
-                .Add(new DestroyUnitOverlaySystem())
-                .Add(new DestroyUnitSystem())
                 .Add(new RetireEnemySystem())
                 .Add(new RetirePlayerSystem())
                 .Add(new RemoveWorldPoiSystem())
+                .Add(new RaidTeardownSystem())
+                .Add(new DeployUnitSystem())
+                .Add(new DeployUnitOverlaySystem())
+                .DelHere<ProduceTag>()
+                .Add(new VisitSystem())
+                .DelHere<VisitCellComp>()
+                .Add(new RefillSystem())
+                .DelHere<RefillComp>()
+                .Add(new DrainSystem())
+                .DelHere<DrainComp>()
+                .Add(new LeaveSystem())
+                .Add(new UpdateUnitOverlaySystem())
+                .DelHere<UpdateTag>()
+                .Add(new BattleLaunchSystem())
+                .DelHere<DraftTag>()
+                .Add(new DestroyUnitOverlaySystem())
+                .Add(new DestroyUnitSystem())
+                .DelHere<DestroyTag>()
                 .Add(new GarbageCollectorSystem())
                 .Add(new RaidTerminationSystem())
 #if UNITY_EDITOR
@@ -131,7 +141,8 @@ namespace Assets.Scripts.Services
                 return;
 
             var visitPool = ecsRaidContext.GetPool<VisitCellComp>();
-            visitPool.Add(playerEntity);
+            ref var visitComp = ref visitPool.Add(playerEntity);
+            visitComp.CellIndex = cellId;
         }
 
         private bool CheckEcsWorldForOpponent(

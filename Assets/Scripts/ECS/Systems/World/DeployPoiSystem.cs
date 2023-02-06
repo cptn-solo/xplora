@@ -19,13 +19,13 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var entity in produceTagFilter.Value)
             {
-
                 ref var cellComp = ref cellPool.Value.Get(entity);
 
                 DeployWorldPoi callback = worldService.Value.POIDeploymentCallback;
 
                 ref var poiRef = ref poiRefPool.Value.Add(entity);
                 poiRef.Poi = callback(cellComp.CellIndex);
+                poiRef.Poi.Toggle(true);
 
                 produceTagPool.Value.Del(entity);
             }

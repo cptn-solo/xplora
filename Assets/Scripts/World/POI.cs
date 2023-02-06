@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.World.HexMap;
+﻿using System;
+using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
 namespace Assets.Scripts.World
@@ -22,5 +23,9 @@ namespace Assets.Scripts.World
             coordinates = initialCoordinates;
         }
 
+        internal void Toggle(bool toggle)
+        {
+            poiAnimation.SetActive(toggle);
+        }
     }
 }

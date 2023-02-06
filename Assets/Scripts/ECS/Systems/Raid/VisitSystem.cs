@@ -63,9 +63,6 @@ namespace Assets.Scripts.ECS.Systems
                     ref var drainComp = ref drainPool.Get(entity);
                     drainComp.Value += 10;
                 }
-
-                visitPool.Value.Del(entity);
-
             }
         }
     }

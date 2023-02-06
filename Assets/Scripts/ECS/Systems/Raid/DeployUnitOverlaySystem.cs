@@ -9,6 +9,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<UnitRef> unitPool;
         private readonly EcsPoolInject<PowerComp> powerPool;
+
         private readonly EcsPoolInject<UnitOverlayRef> overlayPool;
 
         private readonly EcsFilterInject<
