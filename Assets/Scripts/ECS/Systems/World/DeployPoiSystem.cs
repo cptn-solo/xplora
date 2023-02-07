@@ -7,7 +7,7 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DeployPoiSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<ProduceTag> produceTagPool;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<PoiRef> poiRefPool;
 
@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
                 poiRef.Poi = callback(cellComp.CellIndex);
                 poiRef.Poi.Toggle(true);
 
-                produceTagPool.Value.Del(entity);
+                updateTagPool.Value.Add(entity);
             }
         }
     }
