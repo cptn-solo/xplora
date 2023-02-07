@@ -31,10 +31,15 @@ namespace Assets.Scripts.World.HexMap
 
         private HexCell[] cells;
 
+        private HexCellShaderData cellShaderData;
+
         private void Awake()
         {
             gridCanvas = GetComponentInChildren<Canvas>();
-            hexMesh = GetComponentInChildren<HexMesh>();            
+            hexMesh = GetComponentInChildren<HexMesh>();
+            cellShaderData = gameObject.AddComponent<HexCellShaderData>();
+            cellShaderData.Grid = this;
+
         }
 
         /// <summary>
@@ -44,8 +49,11 @@ namespace Assets.Scripts.World.HexMap
         /// <param name="width"></param>
         public void ProduceCells(int height, int width, TerrainProducerCallback callback)
         {
+
             this.height = height;
             this.width = width;
+
+            cellShaderData.Initialize(CellCountX, CellCountZ);
 
             cells = new HexCell[height * width];
 
@@ -73,6 +81,8 @@ namespace Assets.Scripts.World.HexMap
             cell.transform.SetParent(transform, false);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
+            cell.Index = i;
+            cell.ShaderData = cellShaderData;
             cell.color = defaultColor;
 
             if (x > 0)

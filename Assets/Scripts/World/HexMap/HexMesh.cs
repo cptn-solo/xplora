@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.World.HexMap
@@ -8,11 +9,18 @@ namespace Assets.Scripts.World.HexMap
     {
 
         private Mesh hexMesh;
-        private List<Vector3> vertices;
-        private List<int> triangles;
-        private List<Color> colors;
+        [NonSerialized] private List<Vector3> vertices, cellIndices;
+        [NonSerialized] List<Color> cellWeights;
+        [NonSerialized] private List<int> triangles;
+        [NonSerialized] private List<Color> colors;
 
         private MeshCollider meshCollider;
+        private readonly bool useCellData = true;
+
+        static Color weights1 = new Color(1f, 0f, 0f);
+        static Color weights2 = new Color(0f, 1f, 0f);
+        static Color weights3 = new Color(0f, 0f, 1f);
+
 
         void Awake()
         {
@@ -24,22 +32,51 @@ namespace Assets.Scripts.World.HexMap
             triangles = new List<int>();
         }
 
-        public void Triangulate(HexCell[] cells)
+        /// <summary>
+        /// Clear all data.
+        /// </summary>
+        public void Clear()
         {
             hexMesh.Clear();
-            vertices.Clear();
-            colors.Clear();
-            triangles.Clear();
+            vertices = ListPool<Vector3>.Get();
+            if (useCellData)
+            {
+                cellWeights = ListPool<Color>.Get();
+                cellIndices = ListPool<Vector3>.Get();
+            }
+            triangles = ListPool<int>.Get();
+        }
+
+        /// <summary>
+        /// Apply all triangulation data to the underlying mesh.
+        /// </summary>
+        public void Apply()
+        {
+            hexMesh.SetVertices(vertices);
+            ListPool<Vector3>.Add(vertices);
+            if (useCellData)
+            {
+                hexMesh.SetColors(cellWeights);
+                ListPool<Color>.Add(cellWeights);
+                hexMesh.SetUVs(2, cellIndices);
+                ListPool<Vector3>.Add(cellIndices);
+            }
+            hexMesh.SetTriangles(triangles, 0);
+            ListPool<int>.Add(triangles);
+
+            hexMesh.RecalculateNormals();
+
+            meshCollider.sharedMesh = hexMesh;
+        }
+
+        public void Triangulate(HexCell[] cells)
+        {
+            Clear();
             for (int i = 0; i < cells.Length; i++)
             {
                 Triangulate(cells[i]);
             }
-            hexMesh.vertices = vertices.ToArray();
-            hexMesh.colors = colors.ToArray();
-            hexMesh.triangles = triangles.ToArray();
-            hexMesh.RecalculateNormals();
-
-            meshCollider.sharedMesh = hexMesh;
+            Apply();
         }
 
         private void Triangulate(HexCell cell)
@@ -53,6 +90,10 @@ namespace Assets.Scripts.World.HexMap
                     center + HexMetrics.corners[i + 1]
                 );
                 AddTriangleColor(cell.color);
+
+                Vector3 indices;
+                indices.x = indices.y = indices.z = cell.Index;
+                AddTriangleCellData(indices, weights1);
             }
         }
         private void AddTriangleColor(Color color)
@@ -72,5 +113,32 @@ namespace Assets.Scripts.World.HexMap
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
         }
+
+        /// <summary>
+        /// Add cell data for a triangle.
+        /// </summary>
+        /// <param name="indices">Terrain type indices.</param>
+        /// <param name="weights1">First terrain weights.</param>
+        /// <param name="weights2">Second terrain weights.</param>
+        /// <param name="weights3">Third terrain weights.</param>
+        public void AddTriangleCellData(
+            Vector3 indices, Color weights1, Color weights2, Color weights3
+        )
+        {
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellWeights.Add(weights1);
+            cellWeights.Add(weights2);
+            cellWeights.Add(weights3);
+        }
+
+        /// <summary>
+        /// Add cell data for a triangle.
+        /// </summary>
+        /// <param name="indices">Terrain type indices.</param>
+        /// <param name="weights">Terrain weights, uniform for entire triangle.</param>
+        public void AddTriangleCellData(Vector3 indices, Color weights) =>
+            AddTriangleCellData(indices, weights, weights, weights);
     }
 }
