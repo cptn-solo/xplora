@@ -8,10 +8,23 @@ float4 GetTerrainColor (
 	float3 Weights,
 	int index
 ) {
-	float3 uvw = float3(WorldPosition.xz * (2 * TILING_SCALE), Terrain[index]);
+	float3 uvw = float3((WorldPosition.xz) * (2 * TILING_SCALE), Terrain[index]);
 	float4 c = TerrainTextures.Sample(TerrainTextures.samplerstate, uvw);
 	return c * (Weights[index]);
 }
+
+float4 GetTerrainColorUV (
+	UnityTexture2DArray TerrainTextures,
+	float2 cellUV,
+	float4 Terrain,
+	float3 Weights,
+	int index
+) {
+	float3 uvw = float3(cellUV, Terrain[index]);
+	float4 c = TerrainTextures.Sample(TerrainTextures.samplerstate, uvw);
+	return c * (Weights[index]);
+}
+
 
 // Apply an 70% darkening grid outline at hex center distance 0.965-1.
 float3 ApplyGrid (float3 baseColor, HexGridData h) {
@@ -49,14 +62,14 @@ void GetFragmentData_float (
 	out float3 BaseColor
 ) {
 
+	HexGridData hgd = GetHexGridData(WorldPosition.xz);
+
 	float4 c =
-		GetTerrainColor(TerrainTextures, WorldPosition, Terrain, Weights, 0) +
-		GetTerrainColor(TerrainTextures, WorldPosition, Terrain, Weights, 1) +
-		GetTerrainColor(TerrainTextures, WorldPosition, Terrain, Weights, 2);
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 0) +
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 1) +
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 2);
 
 	BaseColor = c.rgb;
-
-	HexGridData hgd = GetHexGridData(WorldPosition.xz);
 	
 	BaseColor = ApplyGrid(BaseColor, hgd);
 

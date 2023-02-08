@@ -86,6 +86,7 @@ namespace Assets.Scripts.World.HexMap
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.Index = i;
             cell.ShaderData = cellShaderData;
+            cell.TerrainTypeIndex = UnityEngine.Random.Range(0, 2);
             cell.color = defaultColor;
 
             if (x > 0)
