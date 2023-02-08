@@ -25,6 +25,7 @@ float3 ApplyHighlight (float3 baseColor, float3 hlColor, HexGridData h) {
 
 void GetVertexCellData_float (
 	float3 Indices,
+	float3 Weights,
 	out float4 Terrain
 ) {
 	bool editMode = false;//no need yet
@@ -52,6 +53,8 @@ void GetFragmentData_float (
 		GetTerrainColor(TerrainTextures, WorldPosition, Terrain, Weights, 0) +
 		GetTerrainColor(TerrainTextures, WorldPosition, Terrain, Weights, 1) +
 		GetTerrainColor(TerrainTextures, WorldPosition, Terrain, Weights, 2);
+
+	BaseColor = c.rgb;
 
 	HexGridData hgd = GetHexGridData(WorldPosition.xz);
 	

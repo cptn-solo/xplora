@@ -39,6 +39,7 @@ namespace Assets.Scripts.World.HexMap
             hexMesh = GetComponentInChildren<HexMesh>();
             cellShaderData = gameObject.AddComponent<HexCellShaderData>();
             cellShaderData.Grid = this;
+            cellShaderData.enabled = false;
 
         }
 
@@ -52,6 +53,8 @@ namespace Assets.Scripts.World.HexMap
 
             this.height = height;
             this.width = width;
+
+            cellShaderData.enabled = true;
 
             cellShaderData.Initialize(CellCountX, CellCountZ);
 
