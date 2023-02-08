@@ -1,16 +1,18 @@
 #include "HexCellData.hlsl"
 
-// Sample appropriate terrain texture and apply cell weights and visibility.
+// Sample appropriate terrain texture and apply
+// cell weights and visibility.
 float4 GetTerrainColor (
 	UnityTexture2DArray TerrainTextures,
 	float3 WorldPosition,
 	float4 Terrain,
 	float3 Weights,
+	float4 Visibility,
 	int index
 ) {
 	float3 uvw = float3((WorldPosition.xz) * (2 * TILING_SCALE), Terrain[index]);
 	float4 c = TerrainTextures.Sample(TerrainTextures.samplerstate, uvw);
-	return c * (Weights[index]);
+	return c * (Weights[index] * Visibility[index]);
 }
 
 float4 GetTerrainColorUV (
@@ -18,11 +20,12 @@ float4 GetTerrainColorUV (
 	float2 cellUV,
 	float4 Terrain,
 	float3 Weights,
+	float4 Visibility,
 	int index
 ) {
 	float3 uvw = float3(cellUV, Terrain[index]);
 	float4 c = TerrainTextures.Sample(TerrainTextures.samplerstate, uvw);
-	return c * (Weights[index]);
+	return c * (Weights[index] * Visibility[index]);
 }
 
 
@@ -39,7 +42,8 @@ float3 ApplyHighlight (float3 baseColor, float3 hlColor, HexGridData h) {
 void GetVertexCellData_float (
 	float3 Indices,
 	float3 Weights,
-	out float4 Terrain
+	out float4 Terrain,
+	out float4 Visibility
 ) {
 	bool editMode = false;//no need yet
 
@@ -51,27 +55,32 @@ void GetVertexCellData_float (
 	Terrain.y = cell1.w;
 	Terrain.z = cell2.w;
 	Terrain.w = max(max(cell0.b, cell1.b), cell2.b) * 30.0;
+
+	Visibility.x = cell0.x;
+	Visibility.y = cell1.x;
+	Visibility.z = cell2.x;
+	Visibility.xyz = lerp(0.25, 1, Visibility.xyz);
+	Visibility.w = cell0.y * Weights.x + cell1.y * Weights.y + cell2.y * Weights.z;
+
 }
 
 void GetFragmentData_float (
 	UnityTexture2DArray TerrainTextures,
 	float3 WorldPosition,
 	float4 Terrain,
+	float4 Visibility,
 	float3 Weights,
 	float4 HighlightColor,
-	out float3 BaseColor
+	out float3 BaseColor,
+	out float Exploration
 ) {
 
 	HexGridData hgd = GetHexGridData(WorldPosition.xz);
-/*
-	float4 c =
-		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 0) +
-		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 1) +
-		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 2);
 
-*/
 	float4 c =
-		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 0);
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, Visibility, 0) +
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, Visibility, 1) +
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, Visibility, 2);
 
 	BaseColor = c.rgb;
 	
@@ -80,4 +89,6 @@ void GetFragmentData_float (
 	if (hgd.IsHighlighted()) {
 		BaseColor = ApplyHighlight(BaseColor, HighlightColor.rgb, hgd);
 	}
+
+	Exploration = Visibility.w;
 }
