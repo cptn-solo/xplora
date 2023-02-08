@@ -796,11 +796,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
-  far clip plane: 100
+  near clip plane: 0
+  far clip plane: 230
   field of view: 60
   orthographic: 1
-  orthographic size: 30
+  orthographic size: 60
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -843,8 +843,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e7035921e0b5e64f8b1a863d6977323, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distance: 50
-  angle: 30
+  distance: 120
+  angleX: 30
+  angleY: 0
 --- !u!114 &1208350595
 MonoBehaviour:
   m_ObjectHideFlags: 0

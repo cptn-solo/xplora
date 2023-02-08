@@ -2,6 +2,7 @@
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -31,6 +32,9 @@ namespace Assets.Scripts.ECS.Systems
 
                 worldComp.CellPackedEntities[i] = ecsWorld.Value.PackEntity(cellEntity);
             }
+
+            worldComp.PowerSourceCount = (int)Mathf.Pow(
+                Mathf.Sqrt((int)worldService.Value.CellCount) * .1f, 2);
 
         }
     }

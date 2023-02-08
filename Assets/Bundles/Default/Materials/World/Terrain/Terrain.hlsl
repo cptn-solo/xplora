@@ -63,11 +63,15 @@ void GetFragmentData_float (
 ) {
 
 	HexGridData hgd = GetHexGridData(WorldPosition.xz);
-
+/*
 	float4 c =
 		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 0) +
 		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 1) +
 		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 2);
+
+*/
+	float4 c =
+		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, 0);
 
 	BaseColor = c.rgb;
 	

@@ -8,8 +8,8 @@ namespace Assets.Scripts.Services
 {
     public partial class WorldService : MonoBehaviour
     {
-        [SerializeField] private int width = 6;
-        [SerializeField] private int height = 6;
+        [SerializeField] private int width = 50;
+        [SerializeField] private int height = 50;
 
         public int CellCount => width * height;
 

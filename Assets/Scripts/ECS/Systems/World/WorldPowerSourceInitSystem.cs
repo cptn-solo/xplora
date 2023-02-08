@@ -6,16 +6,23 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldPowerSourceInitSystem : IEcsInitSystem
     {
-        private const int pSourceCount = 3;
-
         private readonly EcsWorldInject ecsWorld;
+        private readonly EcsPoolInject<WorldComp> worldPool;
+
+        private readonly EcsFilterInject<Inc<WorldComp>> worldFilter;
 
         private readonly EcsPoolInject<PowerSourceComp> pSourcePool;
 
         public void Init(IEcsSystems systems)
         {
-            for (int i = 0; i < pSourceCount; i++)
-                pSourcePool.Value.Add(ecsWorld.Value.NewEntity());
+            foreach(var worldEntity in worldFilter.Value)
+            {
+                ref var worldComp = ref worldPool.Value.Get(worldEntity);
+                for (int i = 0; i < worldComp.PowerSourceCount; i++)
+                    pSourcePool.Value.Add(ecsWorld.Value.NewEntity());
+
+            }
+
         }
     }
 }

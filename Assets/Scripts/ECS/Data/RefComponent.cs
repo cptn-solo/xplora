@@ -47,6 +47,7 @@ namespace Assets.Scripts.ECS.Data
     public struct WorldComp
     {
         public EcsPackedEntity[] CellPackedEntities;
+        public int PowerSourceCount { get; internal set; }
     }
 
     public struct RaidComp

@@ -11,7 +11,8 @@ namespace Assets.Scripts.World
         private Transform target;
 
         [SerializeField] private float distance = 5f;
-        [SerializeField] private float angle = 30f;
+        [SerializeField] private float angleX = 30f;
+        [SerializeField] private float angleY = 0f;
 
         private void Start()
         {
@@ -40,8 +41,10 @@ namespace Assets.Scripts.World
             if (target == null)
                 return;
 
-            var pos = target.position - transform.forward * distance;
+            var lookDir = Quaternion.Euler(angleX, angleY, 0) * target.forward;
+            var pos = target.position - lookDir * distance;
             transform.position = pos;
+            transform.rotation = Quaternion.LookRotation(lookDir);
         }
     }
 }
