@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Assets.Scripts.World.HexMap
 {
@@ -7,7 +8,8 @@ namespace Assets.Scripts.World.HexMap
     {
         public HexCoordinates coordinates;
         public Color color;
-        int terrainTypeIndex;
+        private int terrainTypeIndex;
+        private int visibility;
 
         /// <summary>
         /// Unique global index of the cell.
@@ -42,6 +44,8 @@ namespace Assets.Scripts.World.HexMap
         [SerializeField]
         HexCell[] neighbors;
 
+        public HexCell[] Neighbors => neighbors;
+
         public HexCell GetNeighbor(HexDirection direction)
         {
             return neighbors[(int)direction];
@@ -51,5 +55,43 @@ namespace Assets.Scripts.World.HexMap
             neighbors[(int)direction] = cell;
             cell.neighbors[(int)direction.Opposite()] = this;
         }
+
+        /// <summary>
+        /// Reset visibility level to zero.
+        /// </summary>
+        public void ResetVisibility()
+        {
+            if (visibility > 0)
+            {
+                visibility = 0;
+                ShaderData.RefreshVisibility(this);
+            }
+        }
+
+        /// <summary>
+        /// Increment visibility level.
+        /// </summary>
+        public void IncreaseVisibility()
+        {
+            visibility += 1;
+            if (visibility == 1)
+            {
+                IsExplored = true;
+                ShaderData.RefreshVisibility(this);
+            }
+        }
+
+        /// <summary>
+        /// Decrement visiblility level.
+        /// </summary>
+        public void DecreaseVisibility()
+        {
+            visibility -= 1;
+            if (visibility == 0)
+            {
+                ShaderData.RefreshVisibility(this);
+            }
+        }
+
     }
 }

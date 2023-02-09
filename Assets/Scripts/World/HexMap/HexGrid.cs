@@ -1,5 +1,6 @@
 using Assets.Scripts.Services;
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -69,6 +70,8 @@ namespace Assets.Scripts.World.HexMap
             }
             hexMesh.Triangulate(cells);
 
+            ResetVisibility();
+
             callback?.Invoke();
         }
 
@@ -120,6 +123,65 @@ namespace Assets.Scripts.World.HexMap
             label.text = cell.coordinates.ToStringOnSeparateLines();
         }
 
+        
+        /// <summary>
+        /// Increase the visibility of all cells relative to a view cell.
+        /// </summary>
+        /// <param name="fromCell">Cell from which to start viewing.</param>
+        /// <param name="range">Visibility range.</param>
+        public void IncreaseVisibility(HexCell fromCell, int range)
+        {
+            List<HexCell> cells = GetVisibleCells(fromCell, range);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                cells[i].IncreaseVisibility();
+            }
+            ListPool<HexCell>.Add(cells);
+        }
+
+        /// <summary>
+        /// Decrease the visibility of all cells relative to a view cell.
+        /// </summary>
+        /// <param name="fromCell">Cell from which to stop viewing.</param>
+        /// <param name="range">Visibility range.</param>
+        public void DecreaseVisibility(HexCell fromCell, int range)
+        {
+            List<HexCell> cells = GetVisibleCells(fromCell, range);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                cells[i].DecreaseVisibility();
+            }
+            ListPool<HexCell>.Add(cells);
+        }
+
+        /// <summary>
+        /// Reset visibility of the entire map, viewing from all units.
+        /// </summary>
+        public void ResetVisibility()
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i].ResetVisibility();
+            }
+            //for (int i = 0; i < units.Count; i++)
+            //{
+            //    IncreaseVisibility(unit.Location, 1);
+            //}
+        }
+
+        List<HexCell> GetVisibleCells(HexCell fromCell, int range)
+        {
+            List<HexCell> visibleCells = ListPool<HexCell>.Get();
+
+            visibleCells.AddRange(fromCell.Neighbors);
+
+            return visibleCells;
+        }
+
+
+
+
+
         public HexCoordinates TouchCell(Vector3 position)
         {
             position = transform.InverseTransformPoint(position);
@@ -140,6 +202,8 @@ namespace Assets.Scripts.World.HexMap
             HexCell cell = CellForCoordinates((HexCoordinates)coordinates);
             cell.color = touchedColor;
             hexMesh.Triangulate(cells);
+
+            IncreaseVisibility(cell, 1);
         }
         public HexCoordinates CellCoordinatesForIndex(int index)
         {
