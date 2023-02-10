@@ -77,8 +77,6 @@ namespace Assets.Scripts.Services
 
             unit.SetMoveTargetCoordinates(coordinates);
             unit.MoveToTargetCoordinates();
-
-            CoordSelector?.Invoke(coordinates);
         }
 
         public void ProcessDirectionSelection(Vector3 direction)

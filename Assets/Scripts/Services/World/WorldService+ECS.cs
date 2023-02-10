@@ -5,6 +5,8 @@ using Assets.Scripts.ECS.Systems;
 using UnityEngine;
 using System.Collections.Generic;
 using Leopotam.EcsLite.ExtendedSystems;
+using Assets.Scripts.World;
+using Assets.Scripts.World.HexMap;
 
 namespace Assets.Scripts.Services
 {
@@ -42,6 +44,7 @@ namespace Assets.Scripts.Services
                 .DelHere<UpdateTag>()
                 .Add(new TerrainDestructionSystem())
                 .Add(new DestroyPoiSystem())
+                .Add(new DestroyVisibilityRefsSystem())
                 .DelHere<DestroyTag>()
                 .Add(new GarbageCollectorSystem())
 
@@ -109,6 +112,7 @@ namespace Assets.Scripts.Services
             var deployedPoiFilter = world
                 .Filter<WorldPoiTag>()
                 .Inc<PoiRef>()
+                .Exc<DestroyTag>()
                 .End();
 
             foreach (var entity in deployedPoiFilter)
@@ -218,6 +222,74 @@ namespace Assets.Scripts.Services
             return true;
         }
 
+        internal void IncreaseVisibilityInRange(int cellIndex, int range)
+        {
+            if (!TryGetCellEntity(cellIndex, out var cellEntity, out var world))
+                return;
+
+            var visibilityRefPool = world.GetPool<FieldVisibilityRef>();
+
+            CellEntityRangeCallback callback = (int entity) =>
+            {
+                if (!visibilityRefPool.Has(entity))
+                    return;
+
+                ref var visibilityRef = ref visibilityRefPool.Get(entity);
+                visibilityRef.visibility.IncreaseVisibility();
+
+            };
+
+            IterateCellRange(cellIndex, range, callback);
+        }
+
+        internal void DecreaseVisibilityInRange(int cellIndex, int range)
+        {
+            if (!TryGetCellEntity(cellIndex, out var cellEntity, out var world))
+                return;
+
+            var visibilityRefPool = world.GetPool<FieldVisibilityRef>();
+
+            CellEntityRangeCallback callback = (int entity) =>
+            {
+                if (!visibilityRefPool.Has(entity))
+                    return;
+
+                ref var visibilityRef = ref visibilityRefPool.Get(entity);
+                visibilityRef.visibility.DecreaseVisibility();
+
+            };
+
+            IterateCellRange(cellIndex, range, callback);
+        }
+
+        private delegate void CellEntityRangeCallback(int entity);
+
+        private void IterateCellRange(int cellIndex, int range, CellEntityRangeCallback callback)
+        {
+            var coord = CellCoordinatesResolver(cellIndex);
+            for (var z = coord.Z - range; z < coord.Z + range + 1; z++)
+            {
+                for (var x = coord.HexX - range; x < coord.HexX + range + 1; x++)
+                {
+                    var offsetX = x - z / 2 - ((z & 1) == 0 ? 0f : 0.5f);
+                    var refCoord = new HexCoordinates((int)offsetX, z);
+
+                    if (refCoord.HexX < 0 || refCoord.HexX > width)
+                        continue;
+
+                    if (refCoord.HexZ < 0 || refCoord.HexZ > height)
+                        continue;
+
+                    var refIndex = CellIndexResolver(refCoord);
+
+                    if (!TryGetCellEntity(refIndex, out var refCellEntity, out var _))
+                        continue;
+
+                    callback(refCellEntity);
+                }
+            }
+        }
+
         private bool TryGetCellEntity(int cellIndex, out int entity, out EcsWorld world)
         {
             entity = -1;
@@ -281,6 +353,7 @@ namespace Assets.Scripts.Services
             }
             return freeIndexes;
         }
+
     }
 
 }

@@ -2,18 +2,6 @@
 
 namespace Assets.Scripts.ECS.Systems
 {
-
-    /// <summary>
-    /// Unlinks cell from visitor
-    /// </summary>
-    public class LeaveSystem : IEcsRunSystem
-    {
-        public void Run(IEcsSystems systems)
-        {
-        }
-    }
-
-
     public class RefSystem : IEcsPreInitSystem, IEcsInitSystem, IEcsRunSystem, IEcsPostRunSystem, IEcsDestroySystem, IEcsPostDestroySystem
     {
         public void PreInit(IEcsSystems systems)

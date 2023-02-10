@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
+using Assets.Scripts.World;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
@@ -9,8 +10,8 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld;
 
-        private readonly EcsPoolInject<ProduceTag> produceTagPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<WorldComp> worldPool;
+        private readonly EcsPoolInject<FieldVisibilityRef> visibilityRefPool;
 
         private readonly EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter;
 
@@ -20,9 +21,20 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var worldEntity in worlFilter.Value)
             {
-                worldService.Value.GenerateTerrain();
+                ref var worldComp = ref worldPool.Value.Get(worldEntity);
+                var packed = worldComp.CellPackedEntities;
 
-                produceTagPool.Value.Del(worldEntity);
+                CellProducerCallback cellCallback = (IVisibility cell, int index) => {
+                    if (!packed[index].Unpack(ecsWorld.Value, out var cellEntity))
+                        return;
+
+                    ref var visibilityRef = ref visibilityRefPool.Value.Add(cellEntity);
+                    visibilityRef.visibility = cell;
+
+                    cell.ResetVisibility();
+                };
+
+                worldService.Value.GenerateTerrain(cellCallback);
             }
         }
     }

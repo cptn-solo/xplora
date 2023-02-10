@@ -5,10 +5,10 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class DestroyPoiSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<PoiRef> poiRefPool;
-        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
         private readonly EcsFilterInject<Inc<DestroyTag, PoiRef>> destroyTagFilter;
 
@@ -23,7 +23,6 @@ namespace Assets.Scripts.ECS.Systems
                 poiRef.Poi = null;
 
                 poiRefPool.Value.Del(entity);
-                destroyTagPool.Value.Del(entity);
 
                 worldService.Value.PoiDestroyCallback(destroyedPoi);
             }

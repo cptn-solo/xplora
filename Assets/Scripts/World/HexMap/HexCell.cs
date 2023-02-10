@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace Assets.Scripts.World.HexMap
 {
-    public class HexCell : MonoBehaviour
+    public class HexCell : MonoBehaviour, IVisibility
     {
         public HexCoordinates coordinates;
         public Color color;
@@ -38,8 +38,11 @@ namespace Assets.Scripts.World.HexMap
         public HexCellShaderData ShaderData { get; set; }
         public bool IsUnderwater { get; internal set; } = false;
         public float WaterSurfaceY { get; internal set; } = -100f;
-        public bool IsVisible { get; internal set; } = true;
-        public bool IsExplored { get; internal set; } = true;
+
+        public bool IsVisible =>
+            visibility > 0;
+
+        public bool IsExplored { get; internal set; }
 
         [SerializeField]
         HexCell[] neighbors;

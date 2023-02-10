@@ -49,7 +49,9 @@ namespace Assets.Scripts.World.HexMap
         /// </summary>
         /// <param name="height"></param>
         /// <param name="width"></param>
-        public void ProduceCells(int height, int width, TerrainProducerCallback callback)
+        public void ProduceCells(int height, int width,
+            CellProducerCallback cellCallback,
+            TerrainProducerCallback callback)
         {
 
             this.height = height;
@@ -65,17 +67,17 @@ namespace Assets.Scripts.World.HexMap
             {
                 for (int x = 0; x < width; x++)
                 {
-                    CreateCell(x, z, i++);
+                    var cell = CreateCell(x, z, i);
+                    cellCallback(cell, i);
+                    i++;
                 }
             }
             hexMesh.Triangulate(cells);
 
-            ResetVisibility();
-
             callback?.Invoke();
         }
 
-        private void CreateCell(int x, int z, int i)
+        private HexCell CreateCell(int x, int z, int i)
         {
             Vector3 position;
             //position.x = x * (HexMetrics.innerRadius * 2f); // square
@@ -121,66 +123,9 @@ namespace Assets.Scripts.World.HexMap
             label.rectTransform.anchoredPosition =
                 new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
+
+            return cell;
         }
-
-        
-        /// <summary>
-        /// Increase the visibility of all cells relative to a view cell.
-        /// </summary>
-        /// <param name="fromCell">Cell from which to start viewing.</param>
-        /// <param name="range">Visibility range.</param>
-        public void IncreaseVisibility(HexCell fromCell, int range)
-        {
-            List<HexCell> cells = GetVisibleCells(fromCell, range);
-            for (int i = 0; i < cells.Count; i++)
-            {
-                cells[i].IncreaseVisibility();
-            }
-            ListPool<HexCell>.Add(cells);
-        }
-
-        /// <summary>
-        /// Decrease the visibility of all cells relative to a view cell.
-        /// </summary>
-        /// <param name="fromCell">Cell from which to stop viewing.</param>
-        /// <param name="range">Visibility range.</param>
-        public void DecreaseVisibility(HexCell fromCell, int range)
-        {
-            List<HexCell> cells = GetVisibleCells(fromCell, range);
-            for (int i = 0; i < cells.Count; i++)
-            {
-                cells[i].DecreaseVisibility();
-            }
-            ListPool<HexCell>.Add(cells);
-        }
-
-        /// <summary>
-        /// Reset visibility of the entire map, viewing from all units.
-        /// </summary>
-        public void ResetVisibility()
-        {
-            for (int i = 0; i < cells.Length; i++)
-            {
-                cells[i].ResetVisibility();
-            }
-            //for (int i = 0; i < units.Count; i++)
-            //{
-            //    IncreaseVisibility(unit.Location, 1);
-            //}
-        }
-
-        List<HexCell> GetVisibleCells(HexCell fromCell, int range)
-        {
-            List<HexCell> visibleCells = ListPool<HexCell>.Get();
-
-            visibleCells.AddRange(fromCell.Neighbors);
-
-            return visibleCells;
-        }
-
-
-
-
 
         public HexCoordinates TouchCell(Vector3 position)
         {
@@ -192,19 +137,6 @@ namespace Assets.Scripts.World.HexMap
             return coordinates;
         }
 
-        public void MarkCellVisited(
-            HexCoordinates? coordinates,
-            HexCoordAccessorCallback callback = null)
-        {
-            if (coordinates == null)
-                return;
-
-            HexCell cell = CellForCoordinates((HexCoordinates)coordinates);
-            cell.color = touchedColor;
-            hexMesh.Triangulate(cells);
-
-            IncreaseVisibility(cell, 1);
-        }
         public HexCoordinates CellCoordinatesForIndex(int index)
         {
             HexCell cell = cells[index];

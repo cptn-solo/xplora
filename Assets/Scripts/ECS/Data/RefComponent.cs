@@ -40,6 +40,12 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
     }
 
+    public struct FieldVisibilityRef
+    {
+        public IVisibility visibility;
+    }
+
+
     #endregion
 
 
@@ -80,6 +86,9 @@ namespace Assets.Scripts.ECS.Data
     }
     public struct TeamComp { } // temp: reference to a team of heroes
     public struct StaminaComp { } // can be filled and drained
+    public struct SightRangeComp {
+        public int Range { get; internal set; }
+    }
     public struct PowerSourceComp { } // 
     public struct SpringComp { } // kind of powersource
 
@@ -101,6 +110,7 @@ namespace Assets.Scripts.ECS.Data
     {
         public int CellIndex { get; internal set; }
     }
+
     public struct POIComp // any non-player object on the field
     {
     }

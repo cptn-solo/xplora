@@ -10,17 +10,20 @@ namespace Assets.Scripts.ECS.Systems
     {
         private EcsPoolInject<DestroyTag> destroyTagPool;
 
-        private EcsFilterInject<Inc<WorldComp, DestroyTag>> worlFilter;
+        private EcsFilterInject<Inc<FieldVisibilityRef>> visibilityFilter;
+        private EcsFilterInject<Inc<WorldComp, DestroyTag>> worldFilter;
 
         private EcsCustomInject<WorldService> worldService;
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var worldEntity in worlFilter.Value)
+            foreach (var worldEntity in worldFilter.Value)
             {
-                worldService.Value.DestroyTerrain();
+                foreach (var visEntity in visibilityFilter.Value)
+                    destroyTagPool.Value.Add(visEntity);
 
-                destroyTagPool.Value.Del(worldEntity);
+                worldService.Value.DestroyTerrain();
+                
             }
         }
     }

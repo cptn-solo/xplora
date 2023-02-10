@@ -19,15 +19,17 @@ namespace Assets.Scripts.Services
 
         public event UnityAction OnTerrainProduced;
 
-        internal void GenerateTerrain()
+        internal void GenerateTerrain(CellProducerCallback cellCallback)
         {
             worldState = WorldState.TerrainBeingGenerated;
 
-            TerrainProducer?.Invoke(width, height, () => { 
-                worldState = WorldState.SceneReady;
-                DeployEcsWorldPoi();
-                OnTerrainProduced?.Invoke();
-            });
+            TerrainProducer?.Invoke(width, height,
+                cellCallback,
+                () => { 
+                    worldState = WorldState.SceneReady;
+                    DeployEcsWorldPoi();
+                    OnTerrainProduced?.Invoke();
+                });
         }
 
         internal void DestroyTerrain()

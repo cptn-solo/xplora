@@ -15,6 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroComp> heroPool;
         private readonly EcsPoolInject<PowerComp> powerPool;
         private readonly EcsPoolInject<StaminaComp> staminaPool;
+        private readonly EcsPoolInject<SightRangeComp> sightRangePool;
 
         private readonly EcsCustomInject<RaidService> raidService;
 
@@ -37,6 +38,8 @@ namespace Assets.Scripts.ECS.Systems
             ref var heroComp = ref heroPool.Value.Add(entity);
             heroComp.Hero = raidComp.InitialPlayerHeroes[0];
 
+            ref var sightRangeComp = ref sightRangePool.Value.Add(entity);
+            sightRangeComp.Range = 2;
 
             ref var staminaComp = ref staminaPool.Value.Add(entity);
 

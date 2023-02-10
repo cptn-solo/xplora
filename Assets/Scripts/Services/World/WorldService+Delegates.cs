@@ -15,8 +15,6 @@ namespace Assets.Scripts.Services
         public HexCoordAccessor CoordHoverer { get; internal set; }
         public HexCoordAccessor CoordBeforeSelector { get; internal set; }
 
-        public HexCoordAccessor CoordSelector { get; internal set; }
-
         public TerrainProducer TerrainProducer { get; internal set; }
 
         public PoiSpawner PoiSpawner { get; internal set; }

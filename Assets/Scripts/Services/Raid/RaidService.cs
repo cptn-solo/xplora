@@ -117,8 +117,7 @@ namespace Assets.Scripts.Services
 
             worldService.PlayerUnit = playerUnit;
 
-            // temp: to mark cell as visited. Need to be implemented via ecs
-            worldService.CoordSelector?.Invoke(coord);
+            VisitEcsCellId(cellId);
 
             return playerUnit;
 
