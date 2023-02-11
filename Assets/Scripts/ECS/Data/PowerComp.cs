@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Data
                 barsInfo = new() {
                     BarInfo.EmptyBarInfo(
                         0,
-                        $"Power:{currentValue}",
+                        $"Stamina:{currentValue}",
                         color,
                         relativeValue)
                 };
