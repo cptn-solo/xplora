@@ -36,7 +36,7 @@ namespace Assets.Scripts.World.HexMap
 
         private void Awake()
         {
-            gridCanvas = GetComponentInChildren<Canvas>();
+            gridCanvas = GetComponentInChildren<Canvas>(true);
             hexMesh = GetComponentInChildren<HexMesh>();
             cellShaderData = gameObject.AddComponent<HexCellShaderData>();
             cellShaderData.Grid = this;

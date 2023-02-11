@@ -48,11 +48,10 @@ namespace Assets.Scripts.Services
                 .Add(new RetirePlayerSystem())
                 .Add(new RemoveWorldPoiSystem())
                 .Add(new RaidTeardownSystem())
+                .Add(new MoveSightSystem())
                 .Add(new DeployUnitSystem())
                 .Add(new DeployUnitOverlaySystem())
                 .DelHere<ProduceTag>()
-                .Add(new OutOfSightSystem())
-                .Add(new InSightSystem())
                 .Add(new VisitSystem())
                 .DelHere<VisitCellComp>()
                 .Add(new RefillSystem())
@@ -112,17 +111,46 @@ namespace Assets.Scripts.Services
                 DestroyEcsRaidContext();
         }
 
-        private void DeployEcsWorldUnits()
+        private void DestroyEcsWorldUnits(int cellIndex)
         {
-            var cellFilter = ecsRaidContext
-                .Filter<FieldCellComp>().Inc<HeroComp>().End();
+            var destroyPool = ecsRaidContext.GetPool<DestroyTag>();
+            var unitRefPool = ecsRaidContext.GetPool<UnitRef>();
 
-            var producePool = ecsRaidContext.GetPool<ProduceTag>();
+            if (worldService.TryGetPoi<OpponentComp>(cellIndex, out var opponentPackedEntity) &&
+                opponentPackedEntity.Unpack(out var world, out var opponentEntity) &&
+                world == ecsRaidContext)
+            {
+                if (unitRefPool.Has(opponentEntity) &&
+                    !destroyPool.Has(opponentEntity))
+                    destroyPool.Add(opponentEntity);
+            }
 
+        }
+        private void DeployEcsWorldUnits(int cellIndex)
+        {
             State = Data.RaidState.AwaitingUnits;
 
-            foreach (var entity in cellFilter)
-                producePool.Add(entity);
+            var producePool = ecsRaidContext.GetPool<ProduceTag>();
+            var unitRefPool = ecsRaidContext.GetPool<UnitRef>();
+
+            var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
+            if (PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
+            {
+                ref var cellComp = ref cellPool.Get(playerEntity);
+                if (cellComp.CellIndex == cellIndex &&
+                    !unitRefPool.Has(playerEntity) &&
+                    !producePool.Has(playerEntity))
+                    producePool.Add(playerEntity);
+            }
+
+            if (worldService.TryGetPoi<OpponentComp>(cellIndex, out var opponentPackedEntity) &&
+                opponentPackedEntity.Unpack(out var world, out var opponentEntity) &&
+                world == ecsRaidContext)
+            {
+                if (!unitRefPool.Has(opponentEntity) &&
+                    !producePool.Has(opponentEntity))
+                    producePool.Add(opponentEntity);
+            }
         }
 
 
@@ -136,10 +164,17 @@ namespace Assets.Scripts.Services
             aftermathComp.Won = won;
         }
 
-        private void VisitEcsCellId(int cellId)
+        private void VisitEcsCellId(int cellId = -1)
         {
             if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
                 return;
+
+            if (cellId == -1) // 1st appearance in the world after lib/battle
+            {
+                var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
+                ref var cellComp = ref cellPool.Get(playerEntity);
+                cellId = cellComp.CellIndex;
+            }
 
             var visitPool = ecsRaidContext.GetPool<VisitCellComp>();
             ref var visitComp = ref visitPool.Add(playerEntity);

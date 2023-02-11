@@ -9,8 +9,9 @@ namespace Assets.Scripts.ECS.Systems
     public class TerrainDestructionSystem : IEcsRunSystem
     {
         private EcsPoolInject<DestroyTag> destroyTagPool;
+        private EcsPoolInject<VisibilityRef> visibilityRefPool;
 
-        private EcsFilterInject<Inc<FieldVisibilityRef>> visibilityFilter;
+        private EcsFilterInject<Inc<VisibilityRef>> visibilityFilter;
         private EcsFilterInject<Inc<WorldComp, DestroyTag>> worldFilter;
 
         private EcsCustomInject<WorldService> worldService;
@@ -20,7 +21,13 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var worldEntity in worldFilter.Value)
             {
                 foreach (var visEntity in visibilityFilter.Value)
-                    destroyTagPool.Value.Add(visEntity);
+                {
+                    ref var visibilityRef = ref visibilityRefPool.Value.Get(visEntity);
+                    visibilityRef.visibility = null;
+
+                    visibilityRefPool.Value.Del(visEntity);
+                }
+                    
 
                 worldService.Value.DestroyTerrain();
                 

@@ -22,7 +22,7 @@ namespace Assets.Scripts.Services
                         break;
                     case WorldState.AwaitingTerrain:
 
-                        if (TerrainProducer != null)
+                        if (TerrainProducer != null && PoiSpawner != null)
                         {
                             worldState = WorldState.TerrainBeingGenerated;
                             ProduceEcsWorld();

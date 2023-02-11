@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace Assets.Scripts.Services
         public WorldState WorldState => worldState;
 
         public event UnityAction OnTerrainProduced;
+        public event UnityAction<int, bool> OnCellVisibilityChanged;
 
         internal void GenerateTerrain(CellProducerCallback cellCallback)
         {
@@ -27,9 +29,22 @@ namespace Assets.Scripts.Services
                 cellCallback,
                 () => { 
                     worldState = WorldState.SceneReady;
-                    DeployEcsWorldPoi();
+                    // DeployEcsWorldPoi(); // now relies on visibility
                     OnTerrainProduced?.Invoke();
                 });
+        }
+
+        internal void CellVisibilityUpdated(int cellId, IVisibility visibilityRef, bool visible)
+        {
+            if (WorldState != Scripts.Data.WorldState.SceneReady)
+                return;
+
+            if (visible)
+                visibilityRef.IncreaseVisibility();
+            else
+                visibilityRef.DecreaseVisibility();
+
+            OnCellVisibilityChanged?.Invoke(cellId, visible);
         }
 
         internal void DestroyTerrain()
@@ -57,7 +72,8 @@ namespace Assets.Scripts.Services
         internal void PoiDestroyCallback(POI poi)
         {
             // NB: return to pool maybe
-            GameObject.Destroy(poi);
+            if (worldState == WorldState.SceneReady)
+                GameObject.Destroy(poi.gameObject);
         }
 
 

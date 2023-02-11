@@ -59,7 +59,7 @@ void GetVertexCellData_float (
 	Visibility.x = cell0.x;
 	Visibility.y = cell1.x;
 	Visibility.z = cell2.x;
-	Visibility.xyz = lerp(0.25, 1, Visibility.xyz);
+	Visibility.xyz = lerp(0.5, 1, Visibility.xyz);
 	Visibility.w = cell0.y * Weights.x + cell1.y * Weights.y + cell2.y * Weights.z;
 
 }
@@ -83,8 +83,11 @@ void GetFragmentData_float (
 		GetTerrainColorUV(TerrainTextures, hgd.cellUV, Terrain, Weights, Visibility, 2);
 
 	BaseColor = c.rgb;
-	
-	BaseColor = ApplyGrid(BaseColor, hgd);
+
+	bool drawGrid = false;
+	if (drawGrid) {
+		BaseColor = ApplyGrid(BaseColor, hgd);
+	}
 
 	if (hgd.IsHighlighted()) {
 		BaseColor = ApplyHighlight(BaseColor, HighlightColor.rgb, hgd);

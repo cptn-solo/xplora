@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class OutOfSightSystem : IEcsRunSystem
+    public class MoveSightSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<VisitCellComp> visitPool;
@@ -19,9 +19,6 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var entity in visitFilter.Value)
             {
-                if (!cellPool.Value.Has(entity))
-                    continue;
-
                 ref var cellComp = ref cellPool.Value.Get(entity);
                 var oldCellId = cellComp.CellIndex;
 
@@ -30,8 +27,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var sightRange = ref sightRangePool.Value.Get(entity);
 
-                if (nextCellId != oldCellId)
-                    worldService.Value.DecreaseVisibilityInRange(oldCellId, sightRange.Range);
+                worldService.Value.UpdateVisibilityInRange(oldCellId, nextCellId, sightRange.Range);
             }
         }
     }

@@ -29,6 +29,7 @@ namespace Assets.Scripts.Services
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
 
             worldService.OnTerrainProduced += WorldService_OnTerrainProduced;
+            worldService.OnCellVisibilityChanged += WorldService_OnCellVisibilityChanged;
             worldService.CoordBeforeSelector = WorldCoordBeforeSelect;
             this.worldService = worldService;
             this.menuNavigationService = menuNavigationService;
@@ -37,11 +38,21 @@ namespace Assets.Scripts.Services
             State = RaidState.NA;
         }
 
+        private void WorldService_OnCellVisibilityChanged(int cellIndex, bool visible)
+        {
+            if (visible)
+                DeployEcsWorldUnits(cellIndex);
+            else
+                DestroyEcsWorldUnits(cellIndex);
+        }
+
         private void WorldService_OnTerrainProduced()
         {
             State = RaidState.AwaitingUnits;
 
-            DeployEcsWorldUnits();
+            VisitEcsCellId();
+
+            //DeployEcsWorldUnits();
         }
 
         internal void OnUnitsSpawned()
@@ -117,8 +128,6 @@ namespace Assets.Scripts.Services
 
             worldService.PlayerUnit = playerUnit;
 
-            VisitEcsCellId(cellId);
-
             return playerUnit;
 
         }
@@ -149,6 +158,9 @@ namespace Assets.Scripts.Services
                 worldService.PlayerUnit = null;
                 Debug.Log("UnitDestroyCallback player unit destroyed");
             }
+
+            if (worldService.WorldState == WorldState.SceneReady)
+                GameObject.Destroy(unit.gameObject);
         }
 
         private void WorldCoordBeforeSelect(

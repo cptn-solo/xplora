@@ -17,6 +17,10 @@ namespace Assets.Scripts.ECS.Data
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
 
+    public struct VisibleTag { } // for units and terrain
+    public struct ExploredTag { } // for terrain
+    public struct VisibilityUpdateTag { }
+
     #endregion
 
     #region Refs
@@ -40,7 +44,7 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
     }
 
-    public struct FieldVisibilityRef
+    public struct VisibilityRef
     {
         public IVisibility visibility;
     }

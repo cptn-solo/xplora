@@ -11,7 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<WorldComp> worldPool;
-        private readonly EcsPoolInject<FieldVisibilityRef> visibilityRefPool;
+        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
 
         private readonly EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter;
 

@@ -26,13 +26,15 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach(var entity in visitFilter.Value)
             {
+                var moved = false;
+
                 ref var visitComp = ref visitPool.Value.Get(entity);
                 var nextCellId = visitComp.CellIndex;
 
-                if (!cellPool.Value.Has(entity))
-                    cellPool.Value.Add(entity);
-
                 ref var cellComp = ref cellPool.Value.Get(entity);
+
+                moved = cellComp.CellIndex != nextCellId;
+
                 cellComp.CellIndex = nextCellId;
 
                 if (worldService.Value.TryGetPoi(
@@ -52,7 +54,7 @@ namespace Assets.Scripts.ECS.Systems
                     }
                     //TODO: battle can be moved here if initiated after the move, not before
                 }
-                else
+                else if (moved)
                 {
                     // drain for player event
                     var drainPool = ecsWorld.Value.GetPool<DrainComp>();
