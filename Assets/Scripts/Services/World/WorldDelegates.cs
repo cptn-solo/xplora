@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Assets.Scripts.Services
 {
     public delegate void TerrainProducerCallback();
+    public delegate void CellProducerCallback(IVisibility cell, int index);
     public delegate void HexCoordAccessorCallback();
 
     /// <summary>
@@ -62,6 +63,7 @@ namespace Assets.Scripts.Services
     public delegate void TerrainProducer(
         int width,
         int height,
+        CellProducerCallback onCell,
         TerrainProducerCallback onComplete);
 
     public delegate POI DeployWorldPoi(int cellId);

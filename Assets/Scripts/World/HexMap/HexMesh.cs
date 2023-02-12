@@ -89,18 +89,11 @@ namespace Assets.Scripts.World.HexMap
                     center + HexMetrics.corners[i],
                     center + HexMetrics.corners[i + 1]
                 );
-                AddTriangleColor(cell.color);
 
                 Vector3 indices;
                 indices.x = indices.y = indices.z = cell.Index;
                 AddTriangleCellData(indices, weights1);
             }
-        }
-        private void AddTriangleColor(Color color)
-        {
-            colors.Add(color);
-            colors.Add(color);
-            colors.Add(color);
         }
 
         private void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3)

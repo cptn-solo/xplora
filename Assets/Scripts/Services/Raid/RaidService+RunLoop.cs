@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Assets.Scripts.Data;
+using Assets.Scripts.UI.Data;
+using System;
 
 namespace Assets.Scripts.Services
 {
@@ -31,7 +33,6 @@ namespace Assets.Scripts.Services
             }
 
         }
-
     }
 }
 

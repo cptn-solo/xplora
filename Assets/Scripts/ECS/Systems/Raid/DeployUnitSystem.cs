@@ -6,7 +6,6 @@ using UnityEngine.LowLevel;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     public class DeployUnitSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<HeroComp> heroPool;

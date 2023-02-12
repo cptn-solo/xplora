@@ -1,5 +1,7 @@
 using Assets.Scripts.Services;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -35,12 +37,22 @@ namespace Assets.Scripts.World.HexMap
 
         private void Awake()
         {
-            gridCanvas = GetComponentInChildren<Canvas>();
+            gridCanvas = GetComponentInChildren<Canvas>(true);
             hexMesh = GetComponentInChildren<HexMesh>();
             cellShaderData = gameObject.AddComponent<HexCellShaderData>();
             cellShaderData.Grid = this;
             cellShaderData.enabled = false;
 
+            enabled = false;
+        }
+
+        public void Refresh() =>
+            enabled = true;
+
+        void LateUpdate()
+        {
+            hexMesh.Triangulate(cells);
+            enabled = false;
         }
 
         /// <summary>
@@ -48,13 +60,18 @@ namespace Assets.Scripts.World.HexMap
         /// </summary>
         /// <param name="height"></param>
         /// <param name="width"></param>
-        public void ProduceCells(int height, int width, TerrainProducerCallback callback)
+        public void ProduceCells(int height, int width,
+            CellProducerCallback cellCallback,
+            TerrainProducerCallback callback)
         {
+
+            bool originalImmediateMode = cellShaderData.ImmediateMode;
+            cellShaderData.ImmediateMode = true;
 
             this.height = height;
             this.width = width;
 
-            cellShaderData.enabled = true;
+            cellShaderData.enabled = false;
 
             cellShaderData.Initialize(CellCountX, CellCountZ);
 
@@ -64,15 +81,20 @@ namespace Assets.Scripts.World.HexMap
             {
                 for (int x = 0; x < width; x++)
                 {
-                    CreateCell(x, z, i++);
+                    var cell = CreateCell(x, z, i);
+                    cellCallback(cell, i);
+                    i++;
                 }
             }
-            hexMesh.Triangulate(cells);
+
+            Refresh();
+
+            cellShaderData.ImmediateMode = originalImmediateMode;
 
             callback?.Invoke();
         }
 
-        private void CreateCell(int x, int z, int i)
+        private HexCell CreateCell(int x, int z, int i)
         {
             Vector3 position;
             //position.x = x * (HexMetrics.innerRadius * 2f); // square
@@ -86,8 +108,6 @@ namespace Assets.Scripts.World.HexMap
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.Index = i;
             cell.ShaderData = cellShaderData;
-            cell.TerrainTypeIndex = UnityEngine.Random.Range(0, 2);
-            cell.color = defaultColor;
 
             if (x > 0)
             {
@@ -118,6 +138,8 @@ namespace Assets.Scripts.World.HexMap
             label.rectTransform.anchoredPosition =
                 new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
+
+            return cell;
         }
 
         public HexCoordinates TouchCell(Vector3 position)
@@ -130,17 +152,6 @@ namespace Assets.Scripts.World.HexMap
             return coordinates;
         }
 
-        public void MarkCellVisited(
-            HexCoordinates? coordinates,
-            HexCoordAccessorCallback callback = null)
-        {
-            if (coordinates == null)
-                return;
-
-            HexCell cell = CellForCoordinates((HexCoordinates)coordinates);
-            cell.color = touchedColor;
-            hexMesh.Triangulate(cells);
-        }
         public HexCoordinates CellCoordinatesForIndex(int index)
         {
             HexCell cell = cells[index];

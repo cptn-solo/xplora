@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Assets.Scripts.Services;
+using Assets.Scripts.World;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -10,6 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<UpdateTag> updateTagPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<PoiRef> poiRefPool;
+        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
 
         private readonly EcsFilterInject<Inc<ProduceTag, POIComp, WorldPoiTag, FieldCellComp>> produceTagFilter;
 

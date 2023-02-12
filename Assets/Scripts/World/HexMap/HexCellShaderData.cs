@@ -9,7 +9,7 @@ namespace Assets.Scripts.World.HexMap
     public class HexCellShaderData : MonoBehaviour
     {
 
-        const float transitionSpeed = 255f;
+        const float transitionSpeed = 100f;
 
         Texture2D cellTexture;
 
@@ -23,7 +23,7 @@ namespace Assets.Scripts.World.HexMap
 
         public HexGrid Grid { get; set; }
 
-        public bool ImmediateMode { get; set; } = true;
+        public bool ImmediateMode { get; set; } = false;
 
         /// <summary>
         /// Initialze the map data.

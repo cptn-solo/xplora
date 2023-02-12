@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Data
@@ -10,6 +11,17 @@ namespace Assets.Scripts.UI.Data
         public override string ToString()
         { 
             return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}";
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj is Hero hero)
+                return Id == hero.Id && HeroType == hero.HeroType;
+            else return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, HeroType);
         }
 
         public static Hero Default =>

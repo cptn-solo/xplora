@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 namespace Assets.Scripts.World.HexMap
 {
@@ -62,6 +63,7 @@ namespace Assets.Scripts.World.HexMap
 
             return (xy + (z < other.z ? other.z - z : z - other.z)) / 2;
         }
+
         public static HexCoordinates FromOffsetCoordinates(int x, int z)
         {
             return new HexCoordinates(x - z / 2, z);

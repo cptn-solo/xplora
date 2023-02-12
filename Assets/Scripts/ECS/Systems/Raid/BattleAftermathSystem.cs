@@ -47,10 +47,9 @@ namespace Assets.Scripts.ECS.Systems
                                 drainPool.Value.Add(playerEntity);
 
                             ref var drainComp = ref drainPool.Value.Get(playerEntity);
-                            drainComp.Value += 10;
+                            drainComp.Value += 20;
 
-                            ref var visitComp = ref visitPool.Value.Add(playerEntity);
-                            visitComp.CellIndex = opponentCellComp.CellIndex;
+                            playerCellComp.CellIndex = opponentCellComp.CellIndex;
                         }
 
                         ecsWorld.Value.DelEntity(battleEntity);

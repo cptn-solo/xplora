@@ -6,14 +6,18 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService // Battle
     {
+        internal void ProcessBattleHeroUpdate(Hero hero)
+        {
+            ProcessEcsBattleHeroUpdate(hero);
+
+            if (hero.HealthCurrent <= 0)
+                libManagementService.Library.RetireHero(hero);
+        }
 
         internal void ProcessAftermath(bool won)
         {
             ProcessEcsBattleAftermath(won);
         }
-
-        internal void RetireHero(Hero hero) =>
-            libManagementService.Library.RetireHero(hero);
 
         internal void MoveEnemyToFront(Hero hero) =>
             libManagementService.Library.MoveToEnemyFrontLine(hero);

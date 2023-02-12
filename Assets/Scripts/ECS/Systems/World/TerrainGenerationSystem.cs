@@ -1,7 +1,11 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
+using Assets.Scripts.World;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -9,8 +13,11 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld;
 
-        private readonly EcsPoolInject<ProduceTag> produceTagPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<WorldComp> worldPool;
+        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
+
+        private readonly EcsPoolInject<ExploredTag> exploredTagPool;
+        private readonly EcsPoolInject<TerrainTypeComp> terrainTypePool;
 
         private readonly EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter;
 
@@ -20,9 +27,39 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var worldEntity in worlFilter.Value)
             {
-                worldService.Value.GenerateTerrain();
+                ref var worldComp = ref worldPool.Value.Get(worldEntity);
+                var packed = worldComp.CellPackedEntities;
 
-                produceTagPool.Value.Del(worldEntity);
+                var terrainTypes = new TerrainType[2] {
+                    TerrainType.Grass,
+                    TerrainType.LightGrass,
+                };
+
+                CellProducerCallback cellCallback = (IVisibility cell, int index) => {
+                    if (!packed[index].Unpack(ecsWorld.Value, out var cellEntity))
+                        return;
+
+                    ref var visibilityRef = ref visibilityRefPool.Value.Add(cellEntity);
+                    visibilityRef.visibility = cell;
+
+                    var tti = -1;
+                    if (!terrainTypePool.Value.Has(cellEntity))
+                    {
+                        ref var terrainType = ref terrainTypePool.Value.Add(cellEntity);
+                        terrainType.TerrainType = terrainTypes[Random.Range(0, terrainTypes.Length)];
+                        tti = (int)terrainType.TerrainType;
+                    }
+                    else
+                    {
+                        ref var terrainType = ref terrainTypePool.Value.Get(cellEntity);
+                        tti = (int)terrainType.TerrainType;
+                    }
+
+                    cell.ResetVisibility();
+                    cell.Load(tti, exploredTagPool.Value.Has(cellEntity));
+                };
+
+                worldService.Value.GenerateTerrain(cellCallback);
             }
         }
     }

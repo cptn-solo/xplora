@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Scripts.Data;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
@@ -16,6 +17,10 @@ namespace Assets.Scripts.ECS.Data
     public struct GarbageTag { }
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
+
+    public struct VisibleTag { } // for units and terrain
+    public struct ExploredTag { } // for terrain
+    public struct VisibilityUpdateTag { }
 
     #endregion
 
@@ -39,6 +44,12 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
     }
+
+    public struct VisibilityRef
+    {
+        public IVisibility visibility;
+    }
+
 
     #endregion
 
@@ -80,6 +91,9 @@ namespace Assets.Scripts.ECS.Data
     }
     public struct TeamComp { } // temp: reference to a team of heroes
     public struct StaminaComp { } // can be filled and drained
+    public struct SightRangeComp {
+        public int Range { get; internal set; }
+    }
     public struct PowerSourceComp { } // 
     public struct SpringComp { } // kind of powersource
 
@@ -101,6 +115,12 @@ namespace Assets.Scripts.ECS.Data
     {
         public int CellIndex { get; internal set; }
     }
+
+    public struct TerrainTypeComp
+    {
+        public TerrainType TerrainType { get; set; }
+    }
+
     public struct POIComp // any non-player object on the field
     {
     }

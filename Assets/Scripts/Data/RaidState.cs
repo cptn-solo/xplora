@@ -1,5 +1,6 @@
 ﻿namespace Assets.Scripts.Data
 {
+
     public enum RaidState
     {
         NA = -1,

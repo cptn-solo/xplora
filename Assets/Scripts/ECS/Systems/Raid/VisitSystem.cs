@@ -26,13 +26,15 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach(var entity in visitFilter.Value)
             {
+                var needDrainPlayerStamina = false;
+
                 ref var visitComp = ref visitPool.Value.Get(entity);
                 var nextCellId = visitComp.CellIndex;
 
-                if (!cellPool.Value.Has(entity))
-                    cellPool.Value.Add(entity);
-
                 ref var cellComp = ref cellPool.Value.Get(entity);
+
+                needDrainPlayerStamina = cellComp.CellIndex != nextCellId;
+
                 cellComp.CellIndex = nextCellId;
 
                 if (worldService.Value.TryGetPoi(
@@ -46,13 +48,16 @@ namespace Assets.Scripts.ECS.Systems
                         ref var refillComp = ref refillPool.Value.Add(entity);
                         refillComp.Value = 10;
 
+                        needDrainPlayerStamina = false;
+
                         var drainPool = world.GetPool<DrainComp>();
                         ref var drainComp = ref drainPool.Add(poiEntity);
                         drainComp.Value = 10;
                     }
                     //TODO: battle can be moved here if initiated after the move, not before
                 }
-                else
+
+                if (needDrainPlayerStamina)
                 {
                     // drain for player event
                     var drainPool = ecsWorld.Value.GetPool<DrainComp>();

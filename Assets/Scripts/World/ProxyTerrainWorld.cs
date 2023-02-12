@@ -24,7 +24,6 @@ namespace Assets.Scripts.World
             worldService.WorldPositionResolver = ResolveWorldPosition;
 
             worldService.CoordHoverer = cellHighlighter.HighlightCellAtCoordinates;
-            worldService.CoordSelector = grid.MarkCellVisited;
 
             worldService.TerrainProducer = grid.ProduceCells;
             worldService.CellIndexResolver = grid.CellIndexForCoordinates;
@@ -37,7 +36,6 @@ namespace Assets.Scripts.World
             worldService.WorldPositionResolver = null;
 
             worldService.CoordHoverer = null;
-            worldService.CoordSelector = null;
 
             worldService.TerrainProducer = null;
             worldService.CellIndexResolver = null;

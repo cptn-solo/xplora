@@ -119,8 +119,12 @@ namespace Assets.Scripts.UI.Data
         }
         public bool RetireHero(Hero hero)
         {
-            var pos = heroes.FirstFreeSlotIndex(x => x == -1);
+            ResetHealthAndEffects(hero);
 
+            hero = HeroById(hero.Id);
+
+            var pos = heroes.FirstFreeSlotIndex(x => x == -1);
+            
             SyncHeroPosition(hero, pos);
 
             return true;
@@ -136,9 +140,12 @@ namespace Assets.Scripts.UI.Data
             return true;
         }
 
-        public void ResetHealthAndEffects()
+        public void ResetHealthAndEffects(Hero target = default)
         {
-            var keys = heroById.Select(x => x.Key).ToArray();
+            var keys = target.HeroType == HeroType.NA ?
+                heroById.Select(x => x.Key).ToArray() :
+                heroById.Where(x => x.Value.Equals(target))
+                    .Select(x => x.Key).ToArray();
             foreach (var item in keys)
             {
                 var hero = heroById[item];
