@@ -58,3 +58,6 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+Assets/Addons/Zenject/Source/Zenject.csproj.meta
+Assets/Addons/Zenject/Source/Editor/ReflectionBaking/Zenject-ReflectionBaking.csproj.meta
+Assets/Addons/Zenject/Source/Runtime/Signals/Zenject-Signals.csproj.meta
