@@ -377,6 +377,10 @@ namespace Assets.Scripts.Services
         {
             battle.UpdateHero(target);
             libraryManager.Library.UpdateHero(target);
+
+            if (raidService.State == RaidState.InBattle)
+                raidService.ProcessBattleHeroUpdate(target);
+
         }
 
         private void GiveAssetsToTeams()

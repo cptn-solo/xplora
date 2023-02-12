@@ -153,7 +153,42 @@ namespace Assets.Scripts.Services
             }
         }
 
+        private void ProcessEcsBattleHeroUpdate(Hero hero)
+        {
+            if (hero.HealthCurrent > 0)
+                return;
 
+            if (!BattleEntity.Unpack(ecsRaidContext, out var battleEntity))
+                return;
+
+            if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
+                return;
+
+            if (hero.TeamId != libManagementService.Library.PlayerTeam.Id)
+                return;
+
+            var raidPool = ecsRaidContext.GetPool<RaidComp>();
+            ref var raidComp = ref raidPool.Get(raidEntity);
+
+            var buffer = ListPool<Hero>.Get();
+
+            buffer.AddRange(raidComp.InitialPlayerHeroes);
+            buffer.Remove(hero);
+
+            raidComp.InitialPlayerHeroes = buffer.ToArray();
+
+            ListPool<Hero>.Add(buffer);
+
+            if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
+                return;
+
+            var heroPool = ecsRaidContext.GetPool<HeroComp>();
+            ref var heroComp = ref heroPool.Get(playerEntity);
+
+            heroComp.Hero = raidComp.InitialPlayerHeroes.Length > 0 ?
+                raidComp.InitialPlayerHeroes.HeroBestBySpeed() : Hero.Default;
+
+        }
         private void ProcessEcsBattleAftermath(bool won)
         {
             if (!BattleEntity.Unpack(ecsRaidContext, out var battleEntity))

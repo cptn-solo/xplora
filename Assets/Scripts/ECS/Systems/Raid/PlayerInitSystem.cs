@@ -36,7 +36,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var teamComp = ref teamPool.Value.Add(entity);
 
             ref var heroComp = ref heroPool.Value.Add(entity);
-            heroComp.Hero = raidComp.InitialPlayerHeroes[0];
+            heroComp.Hero = raidComp.InitialPlayerHeroes.HeroBestBySpeed();
 
             ref var sightRangeComp = ref sightRangePool.Value.Add(entity);
             sightRangeComp.Range = 2;
@@ -45,7 +45,7 @@ namespace Assets.Scripts.ECS.Systems
 
             var initialPower = 0;
             foreach (var hero in raidComp.InitialPlayerHeroes)
-                initialPower += hero.Health * hero.Speed / raidComp.InitialPlayerHeroes.Length; ;
+                initialPower += 5 * hero.Health * hero.Speed / raidComp.InitialPlayerHeroes.Length; ;
 
             ref var powerComp = ref powerPool.Value.Add(entity);
             powerComp.InitialValue = initialPower;

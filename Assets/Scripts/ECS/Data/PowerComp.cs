@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.UI.Common;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -16,7 +17,7 @@ namespace Assets.Scripts.ECS.Data
             get => currentValue;
             internal set
             {
-                currentValue = value;
+                currentValue = Mathf.Max(0, value);
 
                 var relativeValue =
                     InitialValue <= 0 ? 0f :
