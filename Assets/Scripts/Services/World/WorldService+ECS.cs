@@ -351,6 +351,23 @@ namespace Assets.Scripts.Services
             return freeIndexes;
         }
 
+        internal void ResetEcsTerrain()
+        {
+            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+                return;
+
+            var explorationPool = world.GetPool<ExploredTag>();
+            var terrainTypePool = world.GetPool<TerrainTypeComp>();
+
+            var filter1 = world.Filter<FieldCellComp>().Inc<ExploredTag>().End();
+            foreach (var entity in filter1)
+                explorationPool.Del(entity);
+
+            var filter2 = world.Filter<FieldCellComp>().Inc<TerrainTypeComp>().End();
+            foreach (var entity in filter2)
+                terrainTypePool.Del(entity);
+
+        }
     }
 
 }

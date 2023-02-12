@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,7 +8,6 @@ namespace Assets.Scripts.World.HexMap
     public class HexCell : MonoBehaviour, IVisibility
     {
         public HexCoordinates coordinates;
-        public Color color;
         private int terrainTypeIndex;
         private int visibility;
 
@@ -94,6 +94,15 @@ namespace Assets.Scripts.World.HexMap
             {
                 ShaderData.RefreshVisibility(this);
             }
+        }
+
+        public void Load(int tti, bool explored)
+        {
+            terrainTypeIndex = tti;
+            IsExplored = explored;
+
+            ShaderData.RefreshTerrain(this);
+            ShaderData.RefreshVisibility(this);
         }
 
     }

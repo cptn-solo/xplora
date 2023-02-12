@@ -1,6 +1,7 @@
 using Assets.Scripts.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -42,6 +43,16 @@ namespace Assets.Scripts.World.HexMap
             cellShaderData.Grid = this;
             cellShaderData.enabled = false;
 
+            enabled = false;
+        }
+
+        public void Refresh() =>
+            enabled = true;
+
+        void LateUpdate()
+        {
+            hexMesh.Triangulate(cells);
+            enabled = false;
         }
 
         /// <summary>
@@ -54,10 +65,13 @@ namespace Assets.Scripts.World.HexMap
             TerrainProducerCallback callback)
         {
 
+            bool originalImmediateMode = cellShaderData.ImmediateMode;
+            cellShaderData.ImmediateMode = true;
+
             this.height = height;
             this.width = width;
 
-            cellShaderData.enabled = true;
+            cellShaderData.enabled = false;
 
             cellShaderData.Initialize(CellCountX, CellCountZ);
 
@@ -72,7 +86,10 @@ namespace Assets.Scripts.World.HexMap
                     i++;
                 }
             }
-            hexMesh.Triangulate(cells);
+
+            Refresh();
+
+            cellShaderData.ImmediateMode = originalImmediateMode;
 
             callback?.Invoke();
         }
@@ -91,8 +108,6 @@ namespace Assets.Scripts.World.HexMap
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.Index = i;
             cell.ShaderData = cellShaderData;
-            cell.TerrainTypeIndex = UnityEngine.Random.Range(0, 2);
-            cell.color = defaultColor;
 
             if (x > 0)
             {

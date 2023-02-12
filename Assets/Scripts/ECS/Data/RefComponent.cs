@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Scripts.Data;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
@@ -113,6 +114,11 @@ namespace Assets.Scripts.ECS.Data
     public struct FieldCellComp // cell on the world's map
     {
         public int CellIndex { get; internal set; }
+    }
+
+    public struct TerrainTypeComp
+    {
+        public TerrainType TerrainType { get; set; }
     }
 
     public struct POIComp // any non-player object on the field
