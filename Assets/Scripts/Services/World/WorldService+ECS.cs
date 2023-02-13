@@ -85,7 +85,24 @@ namespace Assets.Scripts.Services
 
             world.GetPool<DestroyTag>().Add(worldEntity);
         }
-        
+
+        private bool CheckEcsWorldIfReachable(int cellId)
+        {
+            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+                return false;
+
+            var noGoPool = world.GetPool<NonPassableTag>();
+            var worldPool = world.GetPool<WorldComp>();
+
+            ref var worldComp = ref worldPool.Get(worldEntity);
+            var packedCellEntity = worldComp.CellPackedEntities[cellId];
+
+            if (!packedCellEntity.Unpack(world, out var cellEntity))
+                return false;
+
+            return !noGoPool.Has(cellEntity);
+        }
+
         private void DestroyEcsWorldPoi()
         {
             if (!WorldEntity.Unpack(out var world, out var worldEntity))
@@ -317,7 +334,11 @@ namespace Assets.Scripts.Services
             if (!WorldEntity.Unpack(out var world, out var worldEntity))
                 return new int[] { };
 
-            var freeCellFilter = world.Filter<FieldCellComp>().Exc<POIComp>().End();
+            var freeCellFilter = world
+                .Filter<FieldCellComp>()
+                .Exc<POIComp>()
+                .Exc<NonPassableTag>()
+                .End();
             var cellPool = world.GetPool<FieldCellComp>();
             var cellCount = freeCellFilter.GetEntitiesCount();
             var sCount = count;

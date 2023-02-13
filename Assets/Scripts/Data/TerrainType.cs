@@ -4,5 +4,6 @@
     {
         Grass = 0,
         LightGrass = 1,
+        NoGo = 2,
     }
 }

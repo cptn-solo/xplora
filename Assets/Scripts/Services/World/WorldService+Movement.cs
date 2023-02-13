@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.World;
+﻿using System;
+using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
@@ -39,10 +40,15 @@ namespace Assets.Scripts.Services
             var coord = CellCoordinatesResolver(cellId);
             var distance = coord.DistanceTo(coordinates);
 
-            if (distance > 0 && distance <= unit.WorldRange)
-                return true;
+            if (distance == 0 || distance > unit.WorldRange)
+                return false;
 
-            return false;
+            var targetCellId = CellIndexResolver(coordinates);
+
+            if (!CheckEcsWorldIfReachable(targetCellId))
+                return false;
+
+            return true;
         }
 
         public void SetAimToCoordinates(HexCoordinates? coordinates)

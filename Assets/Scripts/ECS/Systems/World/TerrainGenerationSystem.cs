@@ -30,11 +30,6 @@ namespace Assets.Scripts.ECS.Systems
                 ref var worldComp = ref worldPool.Value.Get(worldEntity);
                 var packed = worldComp.CellPackedEntities;
 
-                var terrainTypes = new TerrainType[2] {
-                    TerrainType.Grass,
-                    TerrainType.LightGrass,
-                };
-
                 CellProducerCallback cellCallback = (IVisibility cell, int index) => {
                     if (!packed[index].Unpack(ecsWorld.Value, out var cellEntity))
                         return;
@@ -42,21 +37,10 @@ namespace Assets.Scripts.ECS.Systems
                     ref var visibilityRef = ref visibilityRefPool.Value.Add(cellEntity);
                     visibilityRef.visibility = cell;
 
-                    var tti = -1;
-                    if (!terrainTypePool.Value.Has(cellEntity))
-                    {
-                        ref var terrainType = ref terrainTypePool.Value.Add(cellEntity);
-                        terrainType.TerrainType = terrainTypes[Random.Range(0, terrainTypes.Length)];
-                        tti = (int)terrainType.TerrainType;
-                    }
-                    else
-                    {
-                        ref var terrainType = ref terrainTypePool.Value.Get(cellEntity);
-                        tti = (int)terrainType.TerrainType;
-                    }
+                    ref var terrainType = ref terrainTypePool.Value.Get(cellEntity);
 
                     cell.ResetVisibility();
-                    cell.Load(tti, exploredTagPool.Value.Has(cellEntity));
+                    cell.Load((int)terrainType.TerrainType, exploredTagPool.Value.Has(cellEntity));
                 };
 
                 worldService.Value.GenerateTerrain(cellCallback);

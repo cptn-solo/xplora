@@ -20,6 +20,8 @@ namespace Assets.Scripts.ECS.Data
 
     public struct VisibleTag { } // for units and terrain
     public struct ExploredTag { } // for terrain
+    public struct NonPassableTag { } // for terrain
+
     public struct VisibilityUpdateTag { }
 
     #endregion
