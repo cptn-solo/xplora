@@ -9,17 +9,17 @@ namespace Assets.Scripts.World.HexMap
     public class HexCellShaderData : MonoBehaviour
     {
 
-        const float transitionSpeed = 100f;
+        const float transitionSpeed = 255f;
 
-        Texture2D cellTexture;
+        private Texture2D cellTexture;
 
-        Color32[] cellTextureData;
+        private Color32[] cellTextureData;
 
-        bool[] visibilityTransitions;
+        private bool[] visibilityTransitions;
 
-        List<HexCell> transitioningCells = new List<HexCell>();
+        private readonly List<HexCell> transitioningCells = new List<HexCell>();
 
-        bool needsVisibilityReset;
+        private bool needsVisibilityReset;
 
         public HexGrid Grid { get; set; }
 
@@ -127,7 +127,7 @@ namespace Assets.Scripts.World.HexMap
             enabled = true;
         }
 
-        void LateUpdate()
+        private void LateUpdate()
         {
             //if (needsVisibilityReset)
             //{
@@ -155,7 +155,7 @@ namespace Assets.Scripts.World.HexMap
             enabled = transitioningCells.Count > 0;
         }
 
-        bool UpdateCellData(HexCell cell, int delta)
+        private bool UpdateCellData(HexCell cell, int delta)
         {
             int index = cell.Index;
             Color32 data = cellTextureData[index];

@@ -211,6 +211,8 @@ namespace Assets.Scripts.Services
                 if (CheckIfReachable(targetCoord))
                     SetAimToCoordinates(targetCoord);
             }
+            else
+                SetAimToCoordinates(null);
 
         }
 

@@ -11,9 +11,6 @@ namespace Assets.Scripts.World
 
         private PlayerInputActions input;
         private Vector3 direction = Vector3.zero;
-        private bool isListening;
-
-        private readonly WaitForSeconds keyboardWait = new(.1f);
 
         private void Awake()
         {
@@ -45,8 +42,6 @@ namespace Assets.Scripts.World
 
             input.World.ActionsGo.performed -= ActionsGo_performed;
 
-            isListening = false;
-            StopCoroutine(DelayedDirectionSelectionCoroutine());
         }
 
         private void Move_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -54,9 +49,8 @@ namespace Assets.Scripts.World
             var move = obj.ReadValue<Vector2>();
             direction = Vector3.forward * move.y + Vector3.right * move.x;
 
-            if (!isListening)
-                StartCoroutine(DelayedDirectionSelectionCoroutine());
-            
+            worldService.ProcessDirectionSelection(direction);
+
             Debug.Log($"Move_performed {move}");
         }
 
@@ -78,8 +72,7 @@ namespace Assets.Scripts.World
 
             direction = Vector3.forward * move.y + Vector3.right * move.x;
 
-            if (!isListening)
-                StartCoroutine(DelayedDirectionSelectionCoroutine());
+            worldService.ProcessDirectionSelection(direction);
 
             Debug.Log($"Gamepad_performed {move}");
         }
@@ -87,22 +80,6 @@ namespace Assets.Scripts.World
         private void ActionsGo_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
             worldService.ProcessTargetCoordinatesSelection();
-        }
-
-        private IEnumerator DelayedDirectionSelectionCoroutine()
-        {
-            isListening = true;
-
-            while (isListening && direction != Vector3.zero)
-            {
-                worldService.ProcessDirectionSelection(direction);
-
-                yield return keyboardWait;
-
-                direction = Vector3.zero;
-            }
-
-            isListening = false;
         }
 
     }

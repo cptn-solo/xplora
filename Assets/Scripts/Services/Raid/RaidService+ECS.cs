@@ -216,6 +216,15 @@ namespace Assets.Scripts.Services
             visitComp.CellIndex = cellId;
         }
 
+        private bool CheckEcsRaidForBattle()
+        {
+            if (BattleEntity.Unpack(ecsRaidContext, out var battleEntity) &&
+                ecsRaidContext.GetPool<BattleComp>().Has(battleEntity))
+                return true;
+
+            return false;
+        }
+
         private bool CheckEcsWorldForOpponent(
             int cellId,
             out Hero enemyHero,

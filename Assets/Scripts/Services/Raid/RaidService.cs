@@ -170,25 +170,34 @@ namespace Assets.Scripts.Services
             if (!coordinates.HasValue)
                 return;
 
+            if (CheckEcsRaidForBattle())
+                return;
+
             if (CheckEcsWorldForOpponent(
                 worldService.CellIndexResolver(coordinates.Value),
                 out var hero,
                 out var packedEntity))
             {
+                worldService.ResetHexDir();
+
                 InitiateEcsWorldBattle(packedEntity);
             }
-            else callback?.Invoke();
+            else
+            {
+                var cellId = worldService.CellIndexResolver(coordinates.Value);
+
+                worldService.SetAimToCoordinates(null);
+
+                VisitEcsCellId(cellId);
+
+                callback?.Invoke();
+            }
         }
 
         private void PlayerUnit_OnArrivedToCoordinates(
             HexCoordinates coordinates,
             Unit unit)
         {
-            var cellId = worldService.CellIndexResolver(coordinates);
-
-            worldService.SetAimToCoordinates(null);
-
-            VisitEcsCellId(cellId);
             worldService.SetAimByHexDir(); // will try to continue move to direction set earlier
         }
 
