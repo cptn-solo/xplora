@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using Leopotam.EcsLite.ExtendedSystems;
 using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
+using Assets.Scripts.UI;
+using Assets.Scripts.Data;
 
 namespace Assets.Scripts.Services
 {
@@ -388,6 +390,28 @@ namespace Assets.Scripts.Services
             foreach (var entity in filter2)
                 terrainTypePool.Del(entity);
 
+        }
+
+        private IEventDialog<WorldEventInfo> dialog;
+
+        internal void OnEventAction<T>(int idx) where T: struct
+        {
+            if (typeof(T) == typeof(WorldEventInfo))
+            {
+                dialog.Dismiss();
+            }
+        }
+
+        internal void RegisterEventDialog<T>(IEventDialog<T> dialog) where T: struct
+        {
+            if (typeof(T) == typeof(WorldEventInfo))
+                this.dialog = (IEventDialog<WorldEventInfo>)dialog;
+        }
+
+        internal void UnregisterEventDialog<T>(IEventDialog<T> dialog) where T: struct
+        {
+            if (typeof(T) == typeof(WorldEventInfo))
+                this.dialog = null;        
         }
     }
 

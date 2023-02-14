@@ -77,8 +77,6 @@ namespace Assets.Scripts.World
         {
             var targetPos = targetCoord.ToPosition();
             
-            Debug.Log($"MoveCoroutine {targetPos} {Vector3.SqrMagnitude(targetPos - transform.position)}");
-
             isMoving = true;
             
             var dir = (targetPos - transform.position).normalized;
@@ -93,7 +91,6 @@ namespace Assets.Scripts.World
                 var dif = Vector3.SqrMagnitude(targetPos - transform.position);
                 if (dif <= approachThreshold)
                 {
-                    Debug.Log($"Approaching {dif}");
                     coordinates = targetCoord;
                     OnArrivedToCoordinates?.Invoke(coordinates, this);
                     break;
