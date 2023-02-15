@@ -42,8 +42,17 @@ namespace Assets.Scripts.ECS.Systems
                 ref var terrainType = ref terrainTypePool.Value.Add(cellEntity);
                 terrainType.TerrainType = terrainTypes[Random.Range(0, terrainTypes.Length)];
 
-                if (terrainType.TerrainType == TerrainType.NoGo)
-                    noGoTagPool.Value.Add(cellEntity);
+                switch (terrainType.TerrainType)
+                {
+                    case TerrainType.NoGo:
+                        noGoTagPool.Value.Add(cellEntity);
+                        break;
+                    case TerrainType.Grass:
+                    case TerrainType.LightGrass:
+                        break;
+                    default:
+                        break;
+                }
 
                 worldComp.CellPackedEntities[i] = ecsWorld.Value.PackEntity(cellEntity);
             }

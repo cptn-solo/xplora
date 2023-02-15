@@ -1,6 +1,4 @@
-using Assets.Scripts.UI.Data;
-using System;
-using System.Collections.Generic;
+using Assets.Scripts.Data;
 using UnityEngine;
 
 namespace Assets.Scripts.World

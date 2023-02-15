@@ -1,6 +1,6 @@
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Battle;
-using Assets.Scripts.UI.Data;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Library;
 using UnityEngine;
 using UnityEngine.UIElements;

@@ -1,14 +1,17 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
+using Assets.Scripts.Services.App;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
 using UnityEngine;
 using UnityEngine.Events;
+using Zenject;
 
 namespace Assets.Scripts.Services
-{
+{    
     public partial class WorldService : MonoBehaviour
     {
+
         [SerializeField] private int width = 50;
         [SerializeField] private int height = 50;
 
@@ -20,6 +23,7 @@ namespace Assets.Scripts.Services
 
         public event UnityAction OnTerrainProduced;
         public event UnityAction<int, bool> OnCellVisibilityChanged;
+
 
         internal void GenerateTerrain(CellProducerCallback cellCallback)
         {
@@ -83,8 +87,15 @@ namespace Assets.Scripts.Services
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
 
+            InitConfigLoading();
+
+            OnDataAvailable += WorldService_OnDataAvailable;
+        }
+
+        private void WorldService_OnDataAvailable()
+        {
             StartEcsWorldContext();
-            worldRunloopCoroutine ??= StartCoroutine(WorldStateLoopCoroutine());                            
+            worldRunloopCoroutine ??= StartCoroutine(WorldStateLoopCoroutine());
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(
@@ -107,6 +118,8 @@ namespace Assets.Scripts.Services
             StopEcsWorldContext();
             if (worldRunloopCoroutine != null)
                 StopCoroutine(worldRunloopCoroutine);
+
+            OnDataAvailable -= WorldService_OnDataAvailable;
 
         }
     }

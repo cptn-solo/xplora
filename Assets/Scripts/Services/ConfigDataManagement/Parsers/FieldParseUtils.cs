@@ -1,6 +1,6 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.UI.Data;
 using System;
-using System.Collections;
 using UnityEngine;
 
 namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
@@ -96,7 +96,80 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 return DamageEffect.NA;
             }
         }
-        
+
+        public static TerrainType ParseTerrainType(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue.Replace(" ", "").ToLower();
+                return rawValues switch
+                {
+                    "луг" => TerrainType.Grass,
+                    "песок" => TerrainType.Sand,
+                    _ => TerrainType.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseTerrainType [{rawValue}] Exception: {ex.Message}");
+                return TerrainType.NA;
+            }
+        }
+
+        public static TerrainAttribute ParseTerrainAttribute(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue.Replace(" ", "").ToLower();
+                return rawValues switch
+                {
+                    "кустарник" => TerrainAttribute.Bush,
+                    "цветы" => TerrainAttribute.Frowers,
+                    "грибы" => TerrainAttribute.Mushrums,
+                    "деревья" => TerrainAttribute.Trees,
+                    "река" => TerrainAttribute.River,
+                    "тропа" => TerrainAttribute.Path,
+                    _ => TerrainAttribute.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseTerrainAttribute [{rawValue}] Exception: {ex.Message}");
+                return TerrainAttribute.NA;
+            }
+
+        }
+
+        public static HeroTrait ParseHeroTrait(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue.Replace(" ", "").ToLower();
+                return rawValues switch
+                {
+                    "скрытный" => HeroTrait.Hidden,
+                    "эстет" => HeroTrait.Purist,
+                    "грибник" => HeroTrait.Shrumer,
+                    "разведчик" => HeroTrait.Scout,
+                    "чистюля" => HeroTrait.Tidy,
+                    "изнеженный" => HeroTrait.Soft,
+                    _ => HeroTrait.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseHeroTrait [{rawValue}] Exception: {ex.Message}");
+                return HeroTrait.NA;
+            }
+
+        }
+
         public static void ParseAbsoluteRangeValue(this object rawValueObj, out int minVal, out int maxVal)
         {
             string rawValue = (string)rawValueObj;
@@ -145,19 +218,21 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 return "nosound";
             }
         }
-        public static int ParseAbsoluteValue(this object rawValueObj)
+        public static int ParseAbsoluteValue(this object rawValueObj, int defaultValue = 0)
         {
             string rawValue = (string)rawValueObj;
 
             try
             {
                 var rawValues = rawValue.Replace("%", "").Replace(" ", "");
+                if (rawValue.Length == 0)
+                    return defaultValue;
                 return int.Parse(rawValues, System.Globalization.NumberStyles.None);
             }
             catch (Exception ex)
             {
                 Debug.LogError($"ParseAbsoluteValue [{rawValue}] Exception: {ex.Message}");
-                return 0;
+                return defaultValue;
             }
         }
 

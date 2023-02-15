@@ -1,8 +1,7 @@
-﻿using Assets.Scripts.UI.Data;
-using System;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.UI.Data;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Events;
 
 namespace Assets.Scripts.Services.App
 {

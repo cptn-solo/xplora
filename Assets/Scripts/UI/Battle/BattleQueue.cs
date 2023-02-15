@@ -1,5 +1,5 @@
+using Assets.Scripts.Data;
 using Assets.Scripts.Services;
-using Assets.Scripts.UI.Data;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -8,7 +8,7 @@ namespace Assets.Scripts.UI.Battle
 {
     public class BattleQueue : MonoBehaviour
     {
-        [Inject] private readonly HeroLibraryManagementService libraryService;
+        [Inject] private readonly HeroLibraryService libraryService;
 
         [SerializeField] private RectTransform battleQueuePanel;
 

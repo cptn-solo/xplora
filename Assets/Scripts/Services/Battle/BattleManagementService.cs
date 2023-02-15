@@ -11,7 +11,7 @@ namespace Assets.Scripts.Services
 {
     public partial class BattleManagementService : MonoBehaviour
     {
-        private HeroLibraryManagementService libraryManager;
+        private HeroLibraryService libraryManager;
         private PlayerPreferencesService prefs;
         private MenuNavigationService nav;
         private RaidService raidService;
@@ -407,7 +407,7 @@ namespace Assets.Scripts.Services
 
         internal void Init(
             PlayerPreferencesService playerPreferencesService,
-            HeroLibraryManagementService libManagementService,
+            HeroLibraryService libManagementService,
             MenuNavigationService menuNavigationService,
             RaidService raidService)
         {

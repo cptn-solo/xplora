@@ -15,8 +15,6 @@ namespace Assets.Scripts.UI.Inventory
         private Color normalColor;
         private Color acceptingColor;
 
-        public event UnityAction OnBeginDragItem;
-
         private SlotDelegateProvider delegateProvider = default;
         public SlotDelegateProvider DelegateProvider { 
             get => delegateProvider; 

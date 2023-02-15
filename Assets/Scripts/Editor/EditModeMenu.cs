@@ -1,9 +1,6 @@
 #if UNITY_EDITOR
-using Assets.Scripts.Services;
 using Assets.Scripts.Services.ConfigDataManagement.Parsers;
-using Assets.Scripts.UI.Data;
-using Newtonsoft.Json;
-using System.IO;
+using Assets.Scripts.Data;
 using UnityEditor;
 using UnityEngine;
 
@@ -26,22 +23,46 @@ public class EditModeMenu : EditorWindow
         {
             LoadDamageTypesFromGoogleSheet();
         }
+        else if (GUILayout.Button("Load Terrain Attributes (Google)"))
+        {
+            LoadTerrainAttributes();
+        }
+        else if (GUILayout.Button("Load Terrain Events (Google)"))
+        {
+            LoadTerrainEvents();
+        }
     }
 
     private void LoadHeroesFromGoogleSheet()
-    {
-        Debug.Log("The function LoadHeroesFromGoogleSheet ran.");
-        
+    {        
         var loader = new HeroesConfigLoader(HeroesLibrary.EmptyLibrary(), () => { });
-        loader.LoadGoogleData();        
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadHeroesFromGoogleSheet ran.");
     }
 
     private void LoadDamageTypesFromGoogleSheet()
     {
-        Debug.Log("The function LoadDamageTypesFromGoogleSheet ran.");
-
         var loader = new DamageTypesConfigLoader(DamageTypesLibrary.EmptyLibrary(), () => { });
         loader.LoadGoogleData();
+
+        Debug.Log("The function LoadDamageTypesFromGoogleSheet ran.");
+    }
+
+    private void LoadTerrainAttributes()
+    {
+        var loader = new TerrainAttributesConfigLoader(TerrainAttributesLibrary.EmptyLibrary(), () => { });
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadTerrainAttributes ran.");
+    }
+
+    private void LoadTerrainEvents()
+    {
+        var loader = new TerrainEventsConfigLoader(TerrainEventLibrary.EmptyLibrary(), () => { });
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadTerrainEvents ran.");
     }
 
 }

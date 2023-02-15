@@ -1,10 +1,7 @@
-using Assets.Scripts.UI.Common;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
-using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Battle
 {

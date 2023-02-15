@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Assets.Scripts.UI.Data;
+using Assets.Scripts.Data;
 using Assets.Scripts.World;
 
 namespace Assets.Scripts.Services

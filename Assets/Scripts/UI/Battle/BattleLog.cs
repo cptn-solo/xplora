@@ -1,5 +1,5 @@
 using Assets.Scripts.Services;
-using Assets.Scripts.UI.Data;
+using Assets.Scripts.Data;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;

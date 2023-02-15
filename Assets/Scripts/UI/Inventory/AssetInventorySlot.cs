@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Data;
 
 namespace Assets.Scripts.UI.Inventory
 {

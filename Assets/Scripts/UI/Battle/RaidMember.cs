@@ -1,10 +1,10 @@
-using Assets.Scripts.UI.Data;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Inventory;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Asset = Assets.Scripts.UI.Data.Asset;
+using Asset = Assets.Scripts.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {

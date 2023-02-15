@@ -1,3 +1,4 @@
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;

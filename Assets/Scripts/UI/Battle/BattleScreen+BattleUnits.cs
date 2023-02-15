@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.UI.Data;
 using System.Linq;
 using UnityEngine;
 

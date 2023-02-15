@@ -9,7 +9,7 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService : MonoBehaviour
     {
-        private HeroLibraryManagementService libManagementService;
+        private HeroLibraryService libManagementService;
         private MenuNavigationService menuNavigationService;
         private WorldService worldService;
 
@@ -22,7 +22,7 @@ namespace Assets.Scripts.Services
 
         public void Init(
             MenuNavigationService menuNavigationService,
-            HeroLibraryManagementService libManagementService,
+            HeroLibraryService libManagementService,
             WorldService worldService)
         {
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;

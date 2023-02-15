@@ -1,3 +1,4 @@
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
 using System.Collections.Generic;

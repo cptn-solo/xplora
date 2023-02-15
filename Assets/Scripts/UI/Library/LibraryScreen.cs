@@ -1,4 +1,5 @@
 using Assets.Scripts.Services;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
@@ -12,7 +13,7 @@ namespace Assets.Scripts.UI.Library
 
     public partial class LibraryScreen : MenuScreen
     {
-        [Inject] private readonly HeroLibraryManagementService libManager;
+        [Inject] private readonly HeroLibraryService libManager;
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly MenuNavigationService nav;
         

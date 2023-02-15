@@ -19,7 +19,7 @@ namespace Assets.Scripts.World.HexMap
 
         private readonly List<HexCell> transitioningCells = new List<HexCell>();
 
-        private bool needsVisibilityReset;
+        //private bool needsVisibilityReset;
 
         public HexGrid Grid { get; set; }
 
@@ -123,7 +123,7 @@ namespace Assets.Scripts.World.HexMap
         {
             cellTextureData[cell.Index].b = cell.IsUnderwater ?
                 (byte)(cell.WaterSurfaceY * (255f / 30f)) : (byte)0;
-            needsVisibilityReset = true;
+            //needsVisibilityReset = true;
             enabled = true;
         }
 

@@ -1,5 +1,5 @@
 using Assets.Scripts.UI.Battle;
-using Assets.Scripts.UI.Data;
+using Assets.Scripts.Data;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;

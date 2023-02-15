@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Data;
 using System.Collections.Generic;
 
 namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
@@ -6,7 +6,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
     public class HeroesConfigLoader : BaseConfigLoader
     {
 
-        protected override string RangeString => "'Герои'!A1:Q32";
+        protected override string RangeString => "'Герои'!A1:Q40";
         protected override string ConfigName => "Heroes";
         private const int heroesNumber = 16;
 
@@ -25,7 +25,14 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             if (list == null || list.Count < 3)
                 return;
 
-            object val(int row, int cell) => list[row][cell];
+            object val(int row, int cell)
+            {
+                if (list.Count > row &&
+                    list[row] is var rowValues &&
+                    rowValues.Count > cell)
+                    return rowValues[cell];
+                return "";
+            }
 
             for (int col = 0; col < heroesNumber; col++)
             {
@@ -89,6 +96,15 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             hero.SndFreezed = val(++rowIndex, cell).ParseSoundFileValue();
             hero.SndCritHit = val(++rowIndex, cell).ParseSoundFileValue();
             hero.SndDied = val(++rowIndex, cell).ParseSoundFileValue();
+
+            rowIndex = 33;
+
+            hero.Traits[HeroTrait.Hidden] = HeroTrait.Hidden.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            hero.Traits[HeroTrait.Purist] = HeroTrait.Purist.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            hero.Traits[HeroTrait.Shrumer] = HeroTrait.Shrumer.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            hero.Traits[HeroTrait.Scout] = HeroTrait.Scout.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            hero.Traits[HeroTrait.Tidy] = HeroTrait.Tidy.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            hero.Traits[HeroTrait.Soft] = HeroTrait.Soft.Level(val(++rowIndex, cell).ParseAbsoluteValue());
 
             hero.HealthCurrent = hero.Health;
 

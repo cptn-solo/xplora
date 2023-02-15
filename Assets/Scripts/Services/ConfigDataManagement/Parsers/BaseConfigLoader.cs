@@ -23,6 +23,8 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
         protected virtual string RangeString => null;
         protected virtual string ConfigName => null; //without extension
 
+        public string ConfigFileName => $"{ConfigName}.json";
+
         private void NotifyDataAvailable()
         {
             dataAvailable = true;
@@ -39,7 +41,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             list = libraryMetadata.GetSheetRange(RangeString);
             
             var serialized = JsonConvert.SerializeObject(list);
-            File.WriteAllText(Application.streamingAssetsPath + $"/{ConfigName}.json", serialized);
+            File.WriteAllText(Application.streamingAssetsPath + $"/{ConfigFileName}", serialized);
 
 #endif
             ProcessList(list);

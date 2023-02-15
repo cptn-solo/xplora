@@ -1,6 +1,6 @@
-﻿using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.Data;
 using System.Collections.Generic;
-using Asset = Assets.Scripts.UI.Data.Asset;
+using Asset = Assets.Scripts.Data.Asset;
 
 namespace Assets.Scripts
 {

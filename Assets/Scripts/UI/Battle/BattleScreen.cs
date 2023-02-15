@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Services;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.Services;
 using Assets.Scripts.Services.App;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
@@ -15,7 +16,7 @@ namespace Assets.Scripts.UI.Battle
     public partial class BattleScreen : MenuScreen
     {
         [Inject] private readonly BattleManagementService battleManager;
-        [Inject] private readonly HeroLibraryManagementService libraryManager;
+        [Inject] private readonly HeroLibraryService libraryManager;
         [Inject] private readonly AudioPlaybackService audioService;
         [Inject] private readonly MenuNavigationService navService;
 

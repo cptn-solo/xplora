@@ -1,7 +1,6 @@
-using Assets.Scripts.UI.Data;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,12 +11,10 @@ namespace Assets.Scripts.UI.Library
     public partial class LibraryScreen // Slot Delegate 
     {
         private event UnityAction<Hero> OnHeroMoved;
-        private event UnityAction<Hero> OnHeroUpdated;
 
         private void InitSlotDelegates()
         {
             OnHeroMoved += SlotDelegate_HeroMoved;
-            OnHeroUpdated += SlotDelegate_HeroUpdated;
 
             slotDelegate.TransferEnabled = (UIItemSlot s) => true;
             slotDelegate.Validator = (UIItemSlot s) => s.IsEmpty;
@@ -110,19 +107,6 @@ namespace Assets.Scripts.UI.Library
         {
             SyncHeroCardSelectionWithHero();
             SyncWorldAndButton();
-        }
-
-        private void SlotDelegate_HeroUpdated(Hero hero) =>
-            CardForHero(hero).Hero = hero;
-
-        private HeroCard CardForHero(Hero hero)
-        {
-            var card = librarySlots
-                .Where(x => x.HeroCard.Hero.Id == hero.Id)
-                .Select(x => x.HeroCard)
-                .FirstOrDefault();
-
-            return card;
         }
     }
 }

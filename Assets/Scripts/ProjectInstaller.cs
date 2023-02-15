@@ -11,7 +11,7 @@ namespace Assets.Scripts
         [SerializeField] private AudioPlaybackService audioPlaybackService;
         [SerializeField] private StreamingAssetsLoaderService saLoaderService;
         [SerializeField] private MenuNavigationService menuNavigationService;
-        [SerializeField] private HeroLibraryManagementService libManagementService;
+        [SerializeField] private HeroLibraryService libManagementService;
         [SerializeField] private BattleManagementService battleManagementService;
         [SerializeField] private WorldService worldService;
         [SerializeField] private RaidService raidService;
@@ -35,7 +35,7 @@ namespace Assets.Scripts
                 .FromInstance(menuNavigationService).AsSingle();
 
             Container
-                .Bind<HeroLibraryManagementService>()
+                .Bind<HeroLibraryService>()
                 .FromInstance(libManagementService).AsSingle();
 
             Container
@@ -55,6 +55,7 @@ namespace Assets.Scripts
 
         public void Initialize()
         {
+            libManagementService.Init();
             libManagementService.LoadData();
 
             battleManagementService.Init(
@@ -73,6 +74,7 @@ namespace Assets.Scripts
 
             worldService.Init(
                 menuNavigationService);
+            worldService.LoadData();
         }
 
         private void BindInstallerInterfaces()

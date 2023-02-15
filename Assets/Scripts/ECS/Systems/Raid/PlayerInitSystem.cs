@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
