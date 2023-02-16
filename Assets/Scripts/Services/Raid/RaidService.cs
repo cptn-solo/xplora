@@ -4,6 +4,7 @@ using Assets.Scripts.Data;
 using UnityEngine.Events;
 using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
+using System;
 
 namespace Assets.Scripts.Services
 {
@@ -189,6 +190,9 @@ namespace Assets.Scripts.Services
                 worldService.SetAimToCoordinates(null);
 
                 VisitEcsCellId(cellId);
+
+                if (CheckEcsWorldForAttributes(cellId, out var attribute))
+                    ProcessTerrainAttribute(attribute);
 
                 callback?.Invoke();
             }

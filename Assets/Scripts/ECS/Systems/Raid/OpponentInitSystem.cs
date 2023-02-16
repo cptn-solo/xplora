@@ -22,7 +22,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            foreach (var opponentHero in raidComp.InitialOpponentHeroes)
+            foreach (var opponentHero in raidComp.OpponentHeroes)
             {
                 var opponentEntity = ecsWorld.Value.NewEntity();
                 ref var opponentComp = ref opponentPool.Value.Add(opponentEntity);

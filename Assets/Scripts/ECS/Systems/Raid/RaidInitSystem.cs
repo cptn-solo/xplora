@@ -25,8 +25,8 @@ namespace Assets.Scripts.ECS.Systems
             var raidEntity = ecsWorld.Value.NewEntity();
 
             ref var raidComp = ref raidPool.Value.Add(raidEntity);
-            raidComp.InitialPlayerHeroes = playerHeroes;
-            raidComp.InitialOpponentHeroes = opponentHeroes;
+            raidComp.PlayerHeroes = playerHeroes;
+            raidComp.OpponentHeroes = opponentHeroes;
 
             raidService.Value.RaidEntity = ecsWorld.Value.PackEntity(raidEntity);
         }

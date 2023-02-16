@@ -60,22 +60,6 @@ namespace Assets.Scripts.Services
 
         public void ProcessTargetCoordinatesSelection(HexCoordinates? coordinates = null)
         {
-            if (dialog != null)
-            {
-                var info = new WorldEventInfo()
-                {
-                    EventTitle = "Move",
-                    EventText = "Move description",
-                    IconName = "Icons/Assets/bomb",
-                    ActionTitles = new string[2]
-                    {
-                        "1st action",
-                        "2nd action"
-                    }
-                };
-                dialog.SetEventInfo(info);
-            }
-
             if (coordinates == null || !CheckIfReachable(coordinates.Value))
                 coordinates = currentAim;
 

@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            if (raidComp.InitialPlayerHeroes.Length <= 0)
+            if (raidComp.PlayerHeroes.Length <= 0)
                 return;
 
             var entity = ecsWorld.Value.NewEntity();
@@ -37,7 +37,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var teamComp = ref teamPool.Value.Add(entity);
 
             ref var heroComp = ref heroPool.Value.Add(entity);
-            heroComp.Hero = raidComp.InitialPlayerHeroes.HeroBestBySpeed();
+            heroComp.Hero = raidComp.PlayerHeroes.HeroBestBySpeed();
 
             ref var sightRangeComp = ref sightRangePool.Value.Add(entity);
             sightRangeComp.Range = 2;
@@ -45,8 +45,8 @@ namespace Assets.Scripts.ECS.Systems
             ref var staminaComp = ref staminaPool.Value.Add(entity);
 
             var initialPower = 0;
-            foreach (var hero in raidComp.InitialPlayerHeroes)
-                initialPower += 5 * hero.Health * hero.Speed / raidComp.InitialPlayerHeroes.Length; ;
+            foreach (var hero in raidComp.PlayerHeroes)
+                initialPower += 5 * hero.Health * hero.Speed / raidComp.PlayerHeroes.Length; ;
 
             ref var powerComp = ref powerPool.Value.Add(entity);
             powerComp.InitialValue = initialPower;

@@ -188,13 +188,20 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             }
         }
 
-        public static int ParseRateValue(this object rawValueObj)
+        public static int ParseRateValue(this object rawValueObj, int defaultValue = 0)
         {
             string rawValue = (string)rawValueObj;
 
             try
             {
-                var rawValues = rawValue.Replace("%", "").Replace(" ", "");
+                var rawValues = rawValue.Replace("%", "")
+                    .Replace(" ", "")
+                    .Replace("-", "")
+                    .Replace("-", "");
+
+                if (rawValues.Length == 0)
+                    return defaultValue;
+
                 return int.Parse(rawValues, System.Globalization.NumberStyles.None);
             }
             catch (Exception ex)
@@ -225,8 +232,10 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             try
             {
                 var rawValues = rawValue.Replace("%", "").Replace(" ", "");
-                if (rawValue.Length == 0)
+
+                if (rawValues.Length == 0)
                     return defaultValue;
+
                 return int.Parse(rawValues, System.Globalization.NumberStyles.None);
             }
             catch (Exception ex)

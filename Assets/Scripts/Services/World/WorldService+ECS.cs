@@ -30,6 +30,9 @@ namespace Assets.Scripts.Services
             ecsInitSystems = new EcsSystems(ecsWorld);
             ecsInitSystems
                 .Add(new WorldInitSystem())
+                .Add(new TerrainInitSystem())
+                .Add(new TerrainTypesInitSystem())
+                .Add(new TerrainAttributesInitSystem())
                 .Add(new WorldPowerSourceInitSystem())
                 .Add(new WorldPoiInitSystem())
                 .Inject(this)
@@ -119,6 +122,23 @@ namespace Assets.Scripts.Services
 
             foreach (var entity in deployedPoiFilter)
                 destroyTagPool.Add(entity);
+        }
+
+        internal bool TryGetAttribute(int cellIndex, out TerrainAttribute attribute)
+        {
+            attribute = TerrainAttribute.NA;
+
+            if (!TryGetCellEntity(cellIndex, out var cellEntity, out var world))
+                return false;
+
+            var attributePool = world.GetPool<TerrainAttributeComp>();
+            if (!attributePool.Has(cellEntity))
+                return false;
+
+            ref var attributeComp = ref attributePool.Get(cellEntity);
+            attribute = attributeComp.TerrainAttribute;
+
+            return true;
         }
 
         /// <summary>
@@ -340,6 +360,7 @@ namespace Assets.Scripts.Services
                 .Filter<FieldCellComp>()
                 .Exc<POIComp>()
                 .Exc<NonPassableTag>()
+                .Exc<TerrainAttributeComp>()
                 .End();
             var cellPool = world.GetPool<FieldCellComp>();
             var cellCount = freeCellFilter.GetEntitiesCount();
@@ -390,28 +411,6 @@ namespace Assets.Scripts.Services
             foreach (var entity in filter2)
                 terrainTypePool.Del(entity);
 
-        }
-
-        private IEventDialog<WorldEventInfo> dialog;
-
-        internal void OnEventAction<T>(int idx) where T: struct
-        {
-            if (typeof(T) == typeof(WorldEventInfo))
-            {
-                dialog.Dismiss();
-            }
-        }
-
-        internal void RegisterEventDialog<T>(IEventDialog<T> dialog) where T: struct
-        {
-            if (typeof(T) == typeof(WorldEventInfo))
-                this.dialog = (IEventDialog<WorldEventInfo>)dialog;
-        }
-
-        internal void UnregisterEventDialog<T>(IEventDialog<T> dialog) where T: struct
-        {
-            if (typeof(T) == typeof(WorldEventInfo))
-                this.dialog = null;        
         }
     }
 

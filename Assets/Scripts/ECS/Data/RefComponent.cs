@@ -65,8 +65,8 @@ namespace Assets.Scripts.ECS.Data
 
     public struct RaidComp
     {
-        public Hero[] InitialPlayerHeroes { get; internal set; }
-        public Hero[] InitialOpponentHeroes { get; internal set; }
+        public Hero[] PlayerHeroes { get; internal set; }
+        public Hero[] OpponentHeroes { get; internal set; }
     }
 
     public struct BattleComp
@@ -121,6 +121,11 @@ namespace Assets.Scripts.ECS.Data
     public struct TerrainTypeComp
     {
         public TerrainType TerrainType { get; set; }
+    }
+
+    public struct TerrainAttributeComp
+    {
+        public TerrainAttribute TerrainAttribute { get; set; }
     }
 
     public struct POIComp // any non-player object on the field

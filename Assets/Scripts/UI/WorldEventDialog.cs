@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI
 {
     public class WorldEventDialog : MonoBehaviour, IEventDialog<WorldEventInfo>
     {
-        private WorldService worldService;
+        private RaidService raidService;
 
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI eventTitle;
@@ -19,17 +19,17 @@ namespace Assets.Scripts.UI
         [SerializeField] private Button[] actionButtons;
 
         [Inject]
-        public void Construct(WorldService worldService)
+        public void Construct(RaidService raidService)
         {
-            this.worldService = worldService;
-            worldService.RegisterEventDialog(this);
+            this.raidService = raidService;
+            this.raidService.RegisterEventDialog(this);
 
             gameObject.SetActive(false);
         }
 
         private void OnActionButtonClick(int idx)
         {
-            worldService.OnEventAction<WorldEventInfo>(idx);
+            raidService.OnEventAction<WorldEventInfo>(idx);
         }
 
         private void Awake()
@@ -47,7 +47,7 @@ namespace Assets.Scripts.UI
             foreach (var button in actionButtons)
                 button.onClick.RemoveAllListeners();
 
-            worldService.UnregisterEventDialog(this);
+            raidService.UnregisterEventDialog(this);
         }
 
         #region IEventDialog members

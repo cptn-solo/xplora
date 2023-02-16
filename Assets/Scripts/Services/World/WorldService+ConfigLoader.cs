@@ -16,8 +16,12 @@ namespace Assets.Scripts.Services
         private TerrainAttributesLibrary terrainAttributesLibrary = TerrainAttributesLibrary.EmptyLibrary();
         private TerrainAttributesConfigLoader terrainAttributesConfigLoader;
 
+        public TerrainAttributesLibrary TerrainAttributesLibrary => terrainAttributesLibrary;
+
         private TerrainEventLibrary terrainEventsLibrary = TerrainEventLibrary.EmptyLibrary();
         private TerrainEventsConfigLoader terrainEventsConfigLoader;
+
+        public TerrainEventLibrary TerrainEventsLibrary => terrainEventsLibrary;
 
         public event UnityAction OnDataAvailable;
 

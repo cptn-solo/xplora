@@ -19,7 +19,16 @@ namespace Assets.Scripts.Services
         public EcsPackedEntity RaidEntity { get; set; }
         public EcsPackedEntity BattleEntity { get; set; }
 
+        private Hero[] GetActiveTeamMembers()
+        {
+            if (!RaidEntity.Unpack(ecsRaidContext, out var entity))
+                return new Hero[0];
 
+            var raidPool = ecsRaidContext.GetPool<RaidComp>();
+            ref var raidComp = ref raidPool.Get(entity);
+
+            return raidComp.PlayerHeroes;
+        }
         /// <summary>
         /// Run before new raid, not after return from the battle/event
         /// </summary>
@@ -170,10 +179,10 @@ namespace Assets.Scripts.Services
 
             var buffer = ListPool<Hero>.Get();
 
-            buffer.AddRange(raidComp.InitialPlayerHeroes);
+            buffer.AddRange(raidComp.PlayerHeroes);
             buffer.Remove(hero);
 
-            raidComp.InitialPlayerHeroes = buffer.ToArray();
+            raidComp.PlayerHeroes = buffer.ToArray();
 
             ListPool<Hero>.Add(buffer);
 
@@ -183,8 +192,8 @@ namespace Assets.Scripts.Services
             var heroPool = ecsRaidContext.GetPool<HeroComp>();
             ref var heroComp = ref heroPool.Get(playerEntity);
 
-            heroComp.Hero = raidComp.InitialPlayerHeroes.Length > 0 ?
-                raidComp.InitialPlayerHeroes.HeroBestBySpeed() : Hero.Default;
+            heroComp.Hero = raidComp.PlayerHeroes.Length > 0 ?
+                raidComp.PlayerHeroes.HeroBestBySpeed() : Hero.Default;
 
         }
         private void ProcessEcsBattleAftermath(bool won)
@@ -243,6 +252,18 @@ namespace Assets.Scripts.Services
             var heroPool = sourceWorld.GetPool<HeroComp>();
             ref var heroComp = ref heroPool.Get(entity);
             enemyHero = heroComp.Hero;
+
+            return true;
+        }
+
+        private bool CheckEcsWorldForAttributes(
+            int cellId,
+            out TerrainAttribute attribute)
+        {
+            attribute = TerrainAttribute.NA;
+
+            if (!worldService.TryGetAttribute(cellId, out attribute))
+                return false;
 
             return true;
         }
