@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Assets.Scripts.Data;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -96,9 +97,20 @@ namespace Assets.Scripts.World.HexMap
             }
         }
 
-        public void Load(int tti, bool explored)
+        /// <summary>
+        /// Please check texture array attached to the terrain material for
+        /// TerrainType to textrue index mapping
+        /// </summary>
+        /// <param name="terrainType"></param>
+        /// <param name="explored"></param>
+        public void Load(TerrainType terrainType, bool explored)
         {
-            terrainTypeIndex = tti;
+            terrainTypeIndex = terrainType switch
+            {
+                TerrainType.Grass => 0,
+                TerrainType.LightGrass => 1,
+                _ => 2
+            };
             IsExplored = explored;
 
             ShaderData.RefreshTerrain(this);

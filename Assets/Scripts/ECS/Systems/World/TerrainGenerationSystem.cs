@@ -40,7 +40,7 @@ namespace Assets.Scripts.ECS.Systems
                     ref var terrainType = ref terrainTypePool.Value.Get(cellEntity);
 
                     cell.ResetVisibility();
-                    cell.Load((int)terrainType.TerrainType, exploredTagPool.Value.Has(cellEntity));
+                    cell.Load(terrainType.TerrainType, exploredTagPool.Value.Has(cellEntity));
                 };
 
                 worldService.Value.GenerateTerrain(cellCallback);
