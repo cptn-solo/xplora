@@ -9,14 +9,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldInitSystem : IEcsInitSystem
     {
-        private EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld;
 
-        private EcsPoolInject<WorldComp> worldPool;
-        private EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<WorldComp> worldPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<NonPassableTag> noGoTagPool;
         private readonly EcsPoolInject<TerrainTypeComp> terrainTypePool;
 
-        private EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService;
 
         public void Init(IEcsSystems systems)
         {
@@ -49,6 +49,7 @@ namespace Assets.Scripts.ECS.Systems
                         break;
                     case TerrainType.Grass:
                     case TerrainType.LightGrass:
+
                         break;
                     default:
                         break;

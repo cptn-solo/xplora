@@ -3,7 +3,7 @@
     public enum CommonSoundEvent
     {
         NA = 0,
-        HeroLibrary = 100,
+        HeroLibrary = 100,        
         Battle = 200,
         BattleWon = 300,
         BattleLost = 400,

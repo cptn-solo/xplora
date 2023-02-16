@@ -23,10 +23,9 @@ namespace Assets.Scripts.World.HexMap
         public int CellCountZ => height;
 
         [SerializeField] private HexCell cellPrefab;
-        [SerializeField] private TextMeshProUGUI cellLabelPrefab;
 
-        [SerializeField] private Color defaultColor;
-        [SerializeField] private Color touchedColor;
+        [SerializeField] private bool cellsWithLabels = false;
+        [SerializeField] private TextMeshProUGUI cellLabelPrefab;
         
         private Canvas gridCanvas;
         private HexMesh hexMesh;
@@ -133,23 +132,19 @@ namespace Assets.Scripts.World.HexMap
                 }
             }
 
+            if (cellsWithLabels)
+                AddLabel(position, cell);
+
+            return cell;
+        }
+
+        private void AddLabel(Vector3 position, HexCell cell)
+        {
             TextMeshProUGUI label = Instantiate<TextMeshProUGUI>(cellLabelPrefab);
             label.rectTransform.SetParent(gridCanvas.transform, false);
             label.rectTransform.anchoredPosition =
                 new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
-
-            return cell;
-        }
-
-        public HexCoordinates TouchCell(Vector3 position)
-        {
-            position = transform.InverseTransformPoint(position);
-
-            HexCoordinates coordinates = HexCoordinates.FromPosition(position);
-            Debug.Log("touched at " + coordinates.ToString());
-
-            return coordinates;
         }
 
         public HexCoordinates CellCoordinatesForIndex(int index)
