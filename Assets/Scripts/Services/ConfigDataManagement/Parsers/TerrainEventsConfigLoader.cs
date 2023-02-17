@@ -39,7 +39,49 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 var trait = val(row, 1).ParseHeroTrait();
                 var name = (string)val(row, 2);
 
-                library.UpdateConfig(attribute, trait, name);
+                var bonusOptions = ListPool<EventBonusConfig>.Get();
+
+                var bonusOptionConfigs = ListPool<BonusOptionConfig>.Get();
+
+                var optionKeys = val(row, 3).ParseSpecOptionsArray();
+                var optionSpawnRates = val(row, 4).ParseIntArray();
+                var optionFactors = val(row, 5).ParseIntArray();
+
+                for (int i = 0; i < optionKeys.Length; i++)
+                    bonusOptionConfigs.Add(BonusOptionConfig.Create(
+                        optionKeys[i], HeroTrait.NA, optionSpawnRates[i], optionFactors[i]));
+
+                bonusOptions.Add(EventBonusConfig.Create(bonusOptionConfigs.ToArray()));
+
+                bonusOptionConfigs.Clear();
+
+                optionKeys = val(row, 6).ParseSpecOptionsArray();
+                optionSpawnRates = val(row, 7).ParseIntArray();
+                optionFactors = val(row, 8).ParseIntArray();
+
+                for (int i = 0; i < optionKeys.Length; i++)
+                    bonusOptionConfigs.Add(BonusOptionConfig.Create(
+                        optionKeys[i], HeroTrait.NA, optionSpawnRates[i], optionFactors[i]));
+
+                bonusOptions.Add(EventBonusConfig.Create(bonusOptionConfigs.ToArray()));
+
+                bonusOptionConfigs.Clear();
+
+                var traitKeys = val(row, 9).ParseHeroTraitsArray();
+                var traitSpawnRates = val(row, 10).ParseIntArray();
+                var traitFactors = val(row, 11).ParseIntArray();
+
+                for (int i = 0; i < traitKeys.Length; i++)
+                    bonusOptionConfigs.Add(BonusOptionConfig.Create(
+                        SpecOption.NA, traitKeys[i], traitSpawnRates[i], traitFactors[i]));
+
+                bonusOptions.Add(EventBonusConfig.Create(bonusOptionConfigs.ToArray()));
+
+                ListPool<BonusOptionConfig>.Add(bonusOptionConfigs);
+
+                library.UpdateConfig(attribute, trait, name, bonusOptions.ToArray());
+
+                ListPool<EventBonusConfig>.Add(bonusOptions);
             }
         }
 

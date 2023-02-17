@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using System.IO;
+
+namespace Assets.Scripts.Data
 {
     public enum TerrainAttribute // атрибуты клеток игрового поля
     {

@@ -28,6 +28,7 @@ namespace Assets.Scripts.Data
         public bool Ranged => AttackType == AttackType.Ranged;
 
         #region Specs
+        //TODO: convert to DamageRange to match SpecOption enum
         public int DamageMin { get; internal set; }
         public int DamageMax { get; internal set; }
         public int DefenceRate { get; internal set; }

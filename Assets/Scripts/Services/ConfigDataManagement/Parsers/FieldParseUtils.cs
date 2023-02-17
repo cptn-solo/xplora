@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
@@ -13,7 +14,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "h" => HeroDomain.Hero,
@@ -34,7 +37,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "силовой" => DamageType.Force,
@@ -57,7 +62,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "дистанционная" => AttackType.Ranged,
@@ -79,7 +86,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "оглушение" => DamageEffect.Stunned,
@@ -103,7 +112,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "луг" => TerrainType.Grass,
@@ -118,13 +129,79 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             }
         }
 
+        public static SpecOption ParseSpecOption(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
+                return rawValues switch
+                {
+                    "урон" => SpecOption.DamageRange,
+                    "защита" => SpecOption.DefenceRate,
+                    "точность" => SpecOption.AccuracyRate,
+                    "уклонение" => SpecOption.DodgeRate,
+                    "здоровье" => SpecOption.Health,
+                    "скорость" => SpecOption.Speed,
+                    "нетратитвыносливость" => SpecOption.UnlimitedStaminaTag,
+                    "критическийудар" => SpecOption.NA,
+                    "сопротивляемостькровотечению" => SpecOption.NA,
+                    "сопротивляемостьяду" => SpecOption.NA,
+                    "сопротивляемостьоглушению" => SpecOption.NA,
+                    "сопротивляемостьгорению" => SpecOption.NA,
+                    "сопротивляемостьхолоду" => SpecOption.NA,
+                    "споротивляемостьослеплению" => SpecOption.NA,
+                    _ => SpecOption.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseSpecOption [{rawValue}] Exception: {ex.Message}");
+                return SpecOption.NA;
+            }
+        }
+
+        public static SpecOption[] ParseSpecOptionsArray(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower()
+                    .Split(";");
+
+                var buffer = ListPool<SpecOption>.Get();
+
+                foreach (var literal in rawValues)
+                    buffer.Add(literal.ParseSpecOption());
+
+                var retval = buffer.ToArray();
+
+                ListPool<SpecOption>.Add(buffer);
+
+                return retval;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseTerrainAttribute [{rawValue}] Exception: {ex.Message}");
+                return new SpecOption[0];
+            }
+        }
+
         public static TerrainAttribute ParseTerrainAttribute(this object rawValueObj)
         {
             string rawValue = (string)rawValueObj;
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "кустарник" => TerrainAttribute.Bush,
@@ -150,7 +227,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "скрытный" => HeroTrait.Hidden,
@@ -169,6 +248,35 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             }
 
         }
+        public static HeroTrait[] ParseHeroTraitsArray(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower()
+                    .Split(";");
+
+                var buffer = ListPool<HeroTrait>.Get();
+
+                foreach (var literal in rawValues)
+                    buffer.Add(literal.ParseHeroTrait());
+
+                var retval = buffer.ToArray();
+
+                ListPool<HeroTrait>.Add(buffer);
+
+                return retval;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseHeroTraitsArray [{rawValue}] Exception: {ex.Message}");
+                return new HeroTrait[0];
+            }
+        }
+
 
         public static void ParseAbsoluteRangeValue(this object rawValueObj, out int minVal, out int maxVal)
         {
@@ -176,7 +284,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace(" ", "").Split('-');
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .Split('-');
                 minVal = int.Parse(rawValues[0], System.Globalization.NumberStyles.None);
                 maxVal = int.Parse(rawValues[1], System.Globalization.NumberStyles.None);
             }
@@ -194,9 +304,9 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace("%", "")
+                var rawValues = rawValue
+                    .Replace("%", "")
                     .Replace(" ", "")
-                    .Replace("-", "")
                     .Replace("-", "");
 
                 if (rawValues.Length == 0)
@@ -210,6 +320,37 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 return 0;
             }
         }
+
+        public static int[] ParseIntArray(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .Replace("%", "")
+                    .ToLower()
+                    .Split(";");
+
+                var buffer = ListPool<int>.Get();
+
+                foreach (var literal in rawValues)
+                    buffer.Add(literal.ParseAbsoluteValue());
+
+                var retval = buffer.ToArray();
+
+                ListPool<int>.Add(buffer);
+
+                return retval;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseHeroTraitsArray [{rawValue}] Exception: {ex.Message}");
+                return new int[0];
+            }
+        }
+
         public static string ParseSoundFileValue(this object rawValueObj)
         {
             string rawValue = (string)rawValueObj;
@@ -231,7 +372,11 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace("%", "").Replace(" ", "");
+                var rawValues = rawValue
+                    .Replace("%", "")
+                    .Replace(" ", "");
+
+                rawValues = Regex.Replace(rawValues, "[^0-9]", "");
 
                 if (rawValues.Length == 0)
                     return defaultValue;
@@ -251,7 +396,10 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
             try
             {
-                var rawValues = rawValue.Replace("%", "").Replace(" ", "").ToLower();
+                var rawValues = rawValue
+                    .Replace("%", "")
+                    .Replace(" ", "")
+                    .ToLower();
                 return rawValues switch
                 {
                     "да" => true,

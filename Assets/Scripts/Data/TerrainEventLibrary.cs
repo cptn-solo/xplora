@@ -22,12 +22,14 @@ namespace Assets.Scripts.Data
         internal void UpdateConfig(
             TerrainAttribute attribute,
             HeroTrait trait,
-            string name)
+            string name,
+            EventBonusConfig[] eventBonusConfigs)
         {
             var config = TerrainEventConfig.Create(
                 attribute,
                 trait,
-                name);
+                name,
+                eventBonusConfigs);
 
             if (TerrainEvents.TryGetValue(attribute, out _))
                 TerrainEvents[attribute] = config;
