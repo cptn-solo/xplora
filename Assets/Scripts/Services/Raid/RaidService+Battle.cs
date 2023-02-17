@@ -11,7 +11,7 @@ namespace Assets.Scripts.Services
             ProcessEcsBattleHeroUpdate(hero);
 
             if (hero.HealthCurrent <= 0)
-                libManagementService.Library.RetireHero(hero);
+                libManagementService.RetireHero(hero);
         }
 
         internal void ProcessAftermath(bool won)
@@ -20,7 +20,7 @@ namespace Assets.Scripts.Services
         }
 
         internal void MoveEnemyToFront(Hero hero) =>
-            libManagementService.Library.MoveToEnemyFrontLine(hero);
+            libManagementService.MoveToEnemyFrontLine(hero);
 
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);

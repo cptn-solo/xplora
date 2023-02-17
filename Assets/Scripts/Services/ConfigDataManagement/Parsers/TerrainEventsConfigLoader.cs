@@ -6,7 +6,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 {
     public class TerrainEventsConfigLoader : BaseConfigLoader
     {
-        private readonly TerrainEventLibrary library;
+        private readonly TerrainEventLibrary? library;
 
         protected override string RangeString => "'Гексы/Черты'!A12:L17";
         protected override string ConfigName => "TerrainEvents";
@@ -17,11 +17,16 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             this.library = library;
         }
 
+        public TerrainEventsConfigLoader() :
+            base()
+        {
+        }
+
         protected override void ProcessList(IList<IList<object>> list)
         {
             var rowsCount = 6;
 
-            if (list == null || list.Count < rowsCount)
+            if (list == null || list.Count < rowsCount || library == null)
                 return;
 
             object val(int row, int cell) => list[row][cell];
@@ -79,7 +84,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 
                 ListPool<BonusOptionConfig>.Add(bonusOptionConfigs);
 
-                library.UpdateConfig(attribute, trait, name, bonusOptions.ToArray());
+                library.Value.UpdateConfig(attribute, trait, name, bonusOptions.ToArray());
 
                 ListPool<EventBonusConfig>.Add(bonusOptions);
             }

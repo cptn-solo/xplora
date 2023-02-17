@@ -171,7 +171,7 @@ namespace Assets.Scripts.Services
             if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
                 return;
 
-            if (hero.TeamId != libManagementService.Library.PlayerTeam.Id)
+            if (hero.TeamId != libManagementService.PlayerTeam.Id)
                 return;
 
             var raidPool = ecsRaidContext.GetPool<RaidComp>();

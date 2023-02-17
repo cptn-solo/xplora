@@ -5,7 +5,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 {
     public class DamageTypesConfigLoader : BaseConfigLoader
     {
-        private readonly DamageTypesLibrary library;
+        private readonly DamageTypesLibrary? library;
         private const int colNumber = 6;
 
         protected override string RangeString => "'Урон'!A1:H6";
@@ -16,9 +16,14 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
         {
             this.library = library;
         }
+        public DamageTypesConfigLoader() :
+            base()
+        {
+        }
+
         protected override void ProcessList(IList<IList<object>> list)
         {
-            if (list == null || list.Count < 3)
+            if (list == null || list.Count < 3 || library == null)
                 return;
 
             object val(int row, int cell) => list[row][cell];
@@ -34,7 +39,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 var useShieldRate = val(row, 5).ParseRateValue();
                 var chanceRate = val(row, 6).ParseRateValue();
 
-                library.UpdateConfig(damageType, effectType, turnsCountInt, skipTurnsBool, extraDamage, useShieldRate,
+                library.Value.UpdateConfig(damageType, effectType, turnsCountInt, skipTurnsBool, extraDamage, useShieldRate,
                                      chanceRate);
             }
         }

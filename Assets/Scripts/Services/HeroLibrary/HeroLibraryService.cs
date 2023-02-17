@@ -1,24 +1,26 @@
 ﻿using UnityEngine;
 using Assets.Scripts.Data;
+using Leopotam.EcsLite;
+using System;
 
 namespace Assets.Scripts.Services
-{    
+{
     public partial class HeroLibraryService : MonoBehaviour
     {
-
-        public HeroesLibrary Library => library;
-
         public DamageTypesLibrary DamageTypesLibrary => damageTypesLib;
 
-        public Team PlayerTeam => library.PlayerTeam;
-        public Team EnemyTeam => library.EnemyTeam;
+        public ref Team PlayerTeam => ref GetEcsPlayerTeam();
+        public ref Team EnemyTeam => ref GetEcsEnemyTeam();
+        public Hero[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity, true);
+        public Hero[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity, true);
+        public Hero[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
 
         public bool PrepareTeamsForBattle(out Hero[] playerHeroes, out Hero[] enemyHeroes)
         {
             ResetHealthCurrent();
 
-            playerHeroes = library.TeamHeroes(PlayerTeam.Id, true);
-            enemyHeroes = library.TeamHeroes(EnemyTeam.Id, true);
+            playerHeroes = PlayerHeroes;
+            enemyHeroes = EnemyHeroes;
 
             if (playerHeroes.Length > 0 && enemyHeroes.Length > 0)
                 return true;
@@ -28,16 +30,35 @@ namespace Assets.Scripts.Services
 
         public void Init()
         {
+            StartEcsContext();
             InitConfigLoading();
         }
 
         internal void ResetHealthCurrent() =>
-            library.ResetHealthAndEffects();
+            ResetEcsHealthAndEffects();
 
         internal void ResetTeams()
         {
-            library = Library.ResetTeamAssets();
-            Library.ResetHealthAndEffects();
+            ResetEcsTeamAssets();
+            ResetEcsHealthAndEffects();
         }
+
+        internal void RetireHero(Hero hero) =>
+            RetireEcsHero(hero);
+        
+        internal void MoveToEnemyFrontLine(Hero hero) =>
+            MoveEcsEnemyFrontLine(hero);
+
+        internal Hero HeroById(int heroId) =>
+            GetEcsHeroById(heroId);
+
+        internal Hero HeroAtPosition(Tuple<int, BattleLine, int> position) =>
+            GetEcsHeroAtPosition(position);
+
+        internal void MoveHero(Hero hero, Tuple<int, BattleLine, int> pos) =>
+            MoveEcsHeroToPosition(hero, pos);
+
+        internal void UpdateHero(Hero target) =>
+            UpdateEcsHero(target);
     }
 }

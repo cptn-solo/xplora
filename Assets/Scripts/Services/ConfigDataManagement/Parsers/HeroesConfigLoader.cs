@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 {
+    public delegate ref Hero HeroConfigProcessor(int id);
+
     public class HeroesConfigLoader : BaseConfigLoader
     {
-
         protected override string RangeString => "'Герои'!A1:Q40";
         protected override string ConfigName => "Heroes";
         private const int heroesNumber = 16;
@@ -13,16 +14,21 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
         private const string heroesIconsPath = "Heroes/Icons";
         private const string heroesIdleSpritesPath = "Heroes/IdleSprites";
 
-        private readonly HeroesLibrary library;
+        private readonly HeroConfigProcessor processor;
 
-        public HeroesConfigLoader(HeroesLibrary library, DataDelegate onDataAvailable) : 
+        public HeroesConfigLoader(HeroConfigProcessor processor, DataDelegate onDataAvailable) : 
             base(onDataAvailable) {
-            this.library = library;
+            this.processor = processor;
+        }
+
+        public HeroesConfigLoader() :
+            base()
+        {
         }
 
         protected override void ProcessList(IList<IList<object>> list)
         {
-            if (list == null || list.Count < 3)
+            if (list == null || list.Count < 3 || processor == null)
                 return;
 
             object val(int row, int cell)
@@ -45,22 +51,25 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 var iconName = $"{heroesIconsPath}/{typeName}";
                 var idleSpriteName = $"{heroesIdleSpritesPath}/{typeName}";
 
-                if (library.HeroById(id) is Hero hero && hero.HeroType != HeroType.NA)
-                {
-                    UpdateHero(hero, val, cell);
-                }
-                else if (library.GiveHero(Hero.EmptyHero(id, heroName, iconName, idleSpriteName)))
-                {
-                    UpdateHero(library.HeroById(id), val, cell);
-                }
+                ref var hero = ref processor(id);
+
+                hero.Id = id;
+                hero.Name = heroName;
+                hero.IconName = iconName;
+                hero.IdleSpriteName = idleSpriteName;
+
+                UpdateHero(ref hero, val, cell);
             }            
         }
         
-        private bool UpdateHero(Hero oldHero, ValueGetter val, int cell)
+        private void UpdateHero(ref Hero hero, ValueGetter val, int cell)
         {
-            var hero = oldHero;
             var rowIndex = 0;
             hero.Domain = val(++rowIndex, cell).ParseHeroDomain();
+
+            if (hero.Domain != HeroDomain.Hero)
+                hero.HeroType = HeroType.Beast;
+
             hero.Name = (string)val(++rowIndex, cell);
 
             rowIndex = 4;
@@ -107,10 +116,6 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             hero.Traits[HeroTrait.Soft] = HeroTrait.Soft.Level(val(++rowIndex, cell).ParseAbsoluteValue());
 
             hero.HealthCurrent = hero.Health;
-
-            library.UpdateHero(hero);
-
-            return true;
         }
     }
 }

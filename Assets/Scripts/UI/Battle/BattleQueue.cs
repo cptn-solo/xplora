@@ -33,7 +33,7 @@ namespace Assets.Scripts.UI.Battle
             {
                 var queueMember = combinedSlots[idx].QueueMember;
                 var slotInfo = heroes[idx];
-                queueMember.Hero = libraryService.Library.HeroById(slotInfo.HeroId);
+                queueMember.Hero = libraryService.HeroById(slotInfo.HeroId);
             }
         }
 

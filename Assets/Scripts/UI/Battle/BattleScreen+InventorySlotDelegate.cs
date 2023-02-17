@@ -29,7 +29,7 @@ namespace Assets.Scripts.UI.Battle
                 if (s is BattleLineSlot bls)
                 {
                     heroTransfer.Begin(bls.Hero, bls.Position);
-                    Rollback = () => bls.Hero = libraryManager.Library.HeroAtPosition(bls.Position);
+                    Rollback = () => bls.Hero = libraryManager.HeroAtPosition(bls.Position);
                     bls.Hero = Hero.Default;
 
                 }
@@ -51,7 +51,7 @@ namespace Assets.Scripts.UI.Battle
 
                     if (success)
                     {
-                        libraryManager.Library.MoveHero(hero, bls.Position);
+                        libraryManager.MoveHero(hero, bls.Position);
                         OnHeroMoved?.Invoke(bls.Hero);
                     }
                 }

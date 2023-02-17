@@ -34,8 +34,8 @@ public class EditModeMenu : EditorWindow
     }
 
     private void LoadHeroesFromGoogleSheet()
-    {        
-        var loader = new HeroesConfigLoader(HeroesLibrary.EmptyLibrary(), () => { });
+    {
+        var loader = new HeroesConfigLoader();
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadHeroesFromGoogleSheet ran.");
@@ -43,7 +43,7 @@ public class EditModeMenu : EditorWindow
 
     private void LoadDamageTypesFromGoogleSheet()
     {
-        var loader = new DamageTypesConfigLoader(DamageTypesLibrary.EmptyLibrary(), () => { });
+        var loader = new DamageTypesConfigLoader();
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadDamageTypesFromGoogleSheet ran.");
@@ -51,7 +51,7 @@ public class EditModeMenu : EditorWindow
 
     private void LoadTerrainAttributes()
     {
-        var loader = new TerrainAttributesConfigLoader(TerrainAttributesLibrary.EmptyLibrary(), () => { });
+        var loader = new TerrainAttributesConfigLoader();
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadTerrainAttributes ran.");
@@ -59,7 +59,7 @@ public class EditModeMenu : EditorWindow
 
     private void LoadTerrainEvents()
     {
-        var loader = new TerrainEventsConfigLoader(TerrainEventLibrary.EmptyLibrary(), () => { });
+        var loader = new TerrainEventsConfigLoader();
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadTerrainEvents ran.");

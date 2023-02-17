@@ -101,9 +101,8 @@ namespace Assets.Scripts.Services
             out Hero[] playerHeroes,
             out Hero[] opponentHeroes)
         {
-            var library = libManagementService.Library;
-            playerHeroes = library.PlayerTeamHeroes();
-            opponentHeroes = library.NonPlayerTeamHeroes();
+            playerHeroes = libManagementService.PlayerHeroes;
+            opponentHeroes = libManagementService.NonPlayerTeamHeroes;
 
             return playerHeroes.Length > 0;
         }

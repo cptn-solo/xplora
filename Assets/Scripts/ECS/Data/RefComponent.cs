@@ -132,6 +132,18 @@ namespace Assets.Scripts.ECS.Data
     {
     }
 
+    /// <summary>
+    /// Assigns Hero to a position on the library screen (shared, player team or
+    /// enemy team + slot index
+    /// </summary>
+    public struct LibraryPositionComp
+    {
+        /// <summary>
+        /// team id + battle line + slot index 
+        /// </summary>
+        public Tuple<int, BattleLine, int> Position { get; set; }
+    }
+
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi

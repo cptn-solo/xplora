@@ -6,7 +6,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
 {
     public class TerrainAttributesConfigLoader : BaseConfigLoader
     {
-        private readonly TerrainAttributesLibrary library;
+        private readonly TerrainAttributesLibrary? library;
 
         protected override string RangeString => "'Гексы/Черты'!A2:E8";
         protected override string ConfigName => "TerrainAttributes";
@@ -17,10 +17,15 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             this.library = library;
         }
 
+        public TerrainAttributesConfigLoader() :
+            base()
+        {
+        }
+
         protected override void ProcessList(IList<IList<object>> list)
         {
             var rowsCount = 7;
-            if (list == null || list.Count < rowsCount)
+            if (list == null || list.Count < rowsCount || library == null)
                 return;
 
             object val(int row, int cell) => list[row][cell];
@@ -38,7 +43,7 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 var terrainAttribute = val(row, 3).ParseTerrainAttribute();
                 var spawnRate = val(row, 4).ParseRateValue();
 
-                library.UpdateConfig(terrainType, terrainAttribute, spawnRate);
+                library.Value.UpdateConfig(terrainType, terrainAttribute, spawnRate);
             }
         }
 

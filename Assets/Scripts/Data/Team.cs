@@ -6,9 +6,6 @@ namespace Assets.Scripts.Data
 
     public struct Team : IEntity
     {
-        private int id;
-        private string name;
-        private AssetDict inventory; // index, item
         public override string ToString()
         {
             return $"Команда {Id}: {Name}" ;
@@ -17,20 +14,20 @@ namespace Assets.Scripts.Data
         public static Team Create(int id, string name)
         {
             Team team = default;
-            team.id = id;
-            team.name = name;
-            team.inventory = DefaultInventory();
+            team.Id = id;
+            team.Name = name;
+            team.Inventory = DefaultInventory();
 
             return team;
         }
 
-        public int Id => id;
-        public string Name => name;
-        public AssetDict Inventory => inventory; // index, item
+        public int Id { get; internal set; }
+        public string Name { get; internal set; }
+        public AssetDict Inventory { get; internal set; }
 
         #region Assets
         public int GiveAsset(Asset asset, int index = -1) =>
-            inventory.PutAsset(asset, index);
+            Inventory.PutAsset(asset, index);
 
         public Asset TakeAsset(AssetType assetType, int count)
         {
@@ -38,16 +35,16 @@ namespace Assets.Scripts.Data
         }
         public Asset TakeAsset(int index, int count)
         {
-            return inventory.TakeAsset(index);
+            return Inventory.TakeAsset(index);
         }
 
         public Team ResetAssets()        
         {
-            inventory = DefaultInventory();
+            Inventory = DefaultInventory();
             return this;
         }
 
-        private static AssetDict DefaultInventory() => new() {
+        public static AssetDict DefaultInventory() => new() {
             {0, default}, {1, default}, {2, default}, {3, default}, {4, default},
             {5, default}, {6, default}, {7, default}, {8, default}, {9, default},
             {10, default}, {11, default}, {12, default}, {13, default}, {14, default},

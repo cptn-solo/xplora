@@ -1,3 +1,4 @@
+using System;
 using Assets.Scripts.Data;
 using Assets.Scripts.Services.App;
 using Assets.Scripts.Services.ConfigDataManagement.Parsers;
@@ -10,7 +11,6 @@ namespace Assets.Scripts.Services
     {
         [Inject] private readonly StreamingAssetsLoaderService saLoader;
 
-        private HeroesLibrary library = HeroesLibrary.EmptyLibrary();
         private HeroesConfigLoader heroesConfigLoader;
 
         private DamageTypesLibrary damageTypesLib = DamageTypesLibrary.EmptyLibrary();
@@ -25,7 +25,7 @@ namespace Assets.Scripts.Services
 
         private void InitConfigLoading()
         {
-            heroesConfigLoader = new(Library, NotifyIfAllDataAvailable);
+            heroesConfigLoader = new(ProcessEcsHeroConfig, NotifyIfAllDataAvailable);
             damageConfigLoader = new(DamageTypesLibrary, NotifyIfAllDataAvailable);
         }
 

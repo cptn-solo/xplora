@@ -259,7 +259,7 @@ namespace Assets.Scripts.Services
         internal void PrepareTurn()
         {
             var roundSlot = battle.CurrentRound.QueuedHeroes[0];
-            var attacker = libraryManager.Library.HeroById(roundSlot.HeroId);
+            var attacker = libraryManager.HeroById(roundSlot.HeroId);
 
             if (attacker.SkipTurnActive)
             {
@@ -376,7 +376,7 @@ namespace Assets.Scripts.Services
         private void UpdateBattleHero(Hero target)
         {
             battle.UpdateHero(target);
-            libraryManager.Library.UpdateHero(target);
+            libraryManager.UpdateHero(target);
 
             if (raidService.State == RaidState.InBattle)
                 raidService.ProcessBattleHeroUpdate(target);

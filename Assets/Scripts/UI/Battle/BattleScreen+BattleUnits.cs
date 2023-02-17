@@ -48,10 +48,10 @@ namespace Assets.Scripts.UI.Battle
                 playerBackSlots : enemyBackSlots;
 
             foreach (var slot in frontSlots)
-                slot.Hero = libraryManager.Library.HeroAtPosition(slot.Position);
+                slot.Hero = libraryManager.HeroAtPosition(slot.Position);
 
             foreach (var slot in backSlots)
-                slot.Hero = libraryManager.Library.HeroAtPosition(slot.Position);
+                slot.Hero = libraryManager.HeroAtPosition(slot.Position);
         }
     }
 }

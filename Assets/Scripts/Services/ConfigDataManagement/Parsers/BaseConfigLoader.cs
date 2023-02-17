@@ -18,6 +18,8 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
         public BaseConfigLoader(DataDelegate dataDelegate) =>
             OnDataAvailable = dataDelegate;
 
+        public BaseConfigLoader() { }
+
         public bool DataAvailable => dataAvailable;
 
         protected virtual string RangeString => null;

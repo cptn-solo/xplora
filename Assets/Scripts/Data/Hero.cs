@@ -46,15 +46,7 @@ namespace Assets.Scripts.Data
             hero.Line = BattleLine.NA;
             hero.ActiveEffects = new();
 
-            hero.Traits = new()
-            {
-                { HeroTrait.Hidden, HeroTrait.Hidden.Zero() },
-                { HeroTrait.Purist, HeroTrait.Purist.Zero()  },
-                { HeroTrait.Shrumer, HeroTrait.Shrumer.Zero()  },
-                { HeroTrait.Scout, HeroTrait.Scout.Zero()  },
-                { HeroTrait.Tidy, HeroTrait.Tidy.Zero()  },
-                { HeroTrait.Soft, HeroTrait.Soft.Zero() },
-            };
+            hero.Traits = DefaultTraits();
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();
@@ -85,18 +77,28 @@ namespace Assets.Scripts.Data
             throw new System.NotImplementedException();
         }
 
-        private static AssetDict DefaultDefence() => new() {
+        public static AssetDict DefaultDefence() => new() {
             {0, default}, {1, default},
         };
 
-        private static AssetDict DefaultAttack() => new() {
+        public static AssetDict DefaultAttack() => new() {
             {0, default}, {1, default},
         };
 
-        private static AssetDict DefaultInventory() => new() {
+        public static AssetDict DefaultInventory() => new() {
             {0, default}, {1, default}, {2, default}, {3, default}, {4, default},
             {5, default}, {6, default}, {7, default}, {8, default}, {9, default},
         };
+
+        public static Dictionary<HeroTrait, HeroTraitInfo> DefaultTraits() => new()
+            {
+                { HeroTrait.Hidden, HeroTrait.Hidden.Zero() },
+                { HeroTrait.Purist, HeroTrait.Purist.Zero()  },
+                { HeroTrait.Shrumer, HeroTrait.Shrumer.Zero()  },
+                { HeroTrait.Scout, HeroTrait.Scout.Zero()  },
+                { HeroTrait.Tidy, HeroTrait.Tidy.Zero()  },
+                { HeroTrait.Soft, HeroTrait.Soft.Zero() },
+            };
     }
 
 }

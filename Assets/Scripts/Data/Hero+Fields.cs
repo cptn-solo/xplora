@@ -8,13 +8,13 @@ namespace Assets.Scripts.Data
 
     public partial struct Hero // Fields
     {
-        public int Id { get; private set; }
+        public int Id { get; internal set; }
         public string Name { get; internal set; }
         public HeroDomain Domain { get; internal set; }
 
-        public HeroType HeroType;
-        public string IconName;
-        public string IdleSpriteName;
+        public HeroType HeroType { get; set; }
+        public string IconName { get; set; }
+        public string IdleSpriteName { get; set; }
 
         #region Dynamic
 
@@ -102,10 +102,10 @@ namespace Assets.Scripts.Data
         #endregion
 
         #region Visual/Inventory
-        public AssetDict Inventory { get; private set; } // index, item
-        public AssetDict Attack; // index, item
-        public AssetDict Defence; // index, item
+        public AssetDict Inventory { get; set; } // index, item
+        public AssetDict Attack { get; set; }  // index, item
+        public AssetDict Defence { get; set; } // index, item
 
-        #endregion
-    }
+    #endregion
+}
 }

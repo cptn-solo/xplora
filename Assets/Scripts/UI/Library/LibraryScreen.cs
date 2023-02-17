@@ -36,7 +36,6 @@ namespace Assets.Scripts.UI.Library
         private readonly EnemyTeamSlot[] enemySlots = new EnemyTeamSlot[4];
 
         private SlotDelegateProvider slotDelegate = default;
-        private HeroesLibrary library;
         private bool initialized;
         private readonly HeroTransfer heroTransfer = new();
 
@@ -66,11 +65,9 @@ namespace Assets.Scripts.UI.Library
 
             libManager.OnDataAvailable += LibManager_OnDataAvailable;
             
-            library = libManager.Library;
-
             InitSlots(libraryContainer, librarySlots, -1);
-            InitSlots(playerTeamContainer, playerSlots, library.PlayerTeam.Id);
-            InitSlots(enemyTeamContainer, enemySlots, library.EnemyTeam.Id);
+            InitSlots(playerTeamContainer, playerSlots, 0);
+            InitSlots(enemyTeamContainer, enemySlots, 1);
 
 
             initialized = true;
@@ -98,8 +95,8 @@ namespace Assets.Scripts.UI.Library
         private void LibManager_OnDataAvailable()
         {            
             ShowHeroesLibraryCards();
-            ShowTeamCards(library.PlayerTeam.Id);
-            ShowTeamCards(library.EnemyTeam.Id);
+            ShowTeamCards(libManager.PlayerTeam.Id);
+            ShowTeamCards(libManager.EnemyTeam.Id);
 
             SyncWorldAndButton();
         }
@@ -107,13 +104,13 @@ namespace Assets.Scripts.UI.Library
         private void ShowHeroesLibraryCards()
         {
             foreach (var slot in librarySlots)
-                slot.Hero = library.HeroAtPosition(slot.Position);
+                slot.Hero = libManager.HeroAtPosition(slot.Position);
         }
 
         private void ShowTeamCards(int teamId)
         {
-            var heroes = library.TeamHeroes(teamId);
-            TeamMemberSlot[] slots = teamId == library.PlayerTeam.Id ? playerSlots : enemySlots;
+            var heroes = teamId == 0 ? libManager.PlayerHeroes : libManager.EnemyHeroes;
+            TeamMemberSlot[] slots = teamId == 0 ? playerSlots : enemySlots;
             for (int i = 0; i < slots.Length; i++)
             {
                 var slot = slots[i];
@@ -145,7 +142,7 @@ namespace Assets.Scripts.UI.Library
         }
         private void SyncWorldAndButton()
         {
-            var playerHeroes = library.TeamHeroes(library.PlayerTeam.Id, true);
+            var playerHeroes = libManager.PlayerHeroes;
             
             raidButton.gameObject.SetActive(playerHeroes.Length > 0);
 
