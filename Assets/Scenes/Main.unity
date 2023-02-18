@@ -631,27 +631,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1614290749}
     m_Modifications:
-    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -182
-      objectReference: {fileID: 0}
-    - target: {fileID: 7141485357889704800, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
-        type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: de381fa167700d844a9d97e5575819b2,
-        type: 3}
-    - target: {fileID: 7141485357889704800, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
-        type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 2100000, guid: 91344f4d9d45ea2488557cd631b3b215, type: 2}
-    - target: {fileID: 8387124494141967333, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
-        type: 3}
-      propertyPath: menuButton
-      value: 
-      objectReference: {fileID: 8387124494300482829}
     - target: {fileID: 8387124494141967336, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
         type: 3}
       propertyPath: m_Name
@@ -762,22 +741,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8387124494141967338, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ea333b7ab1d8404bba1183ac9cb16cf, type: 3}
---- !u!114 &8387124494300482829 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5667784706327141094, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
-    type: 3}
-  m_PrefabInstance: {fileID: 8387124494300482828}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
