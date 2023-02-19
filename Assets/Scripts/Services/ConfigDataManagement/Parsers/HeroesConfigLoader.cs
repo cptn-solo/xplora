@@ -40,20 +40,19 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
                 return "";
             }
 
-            for (int col = 0; col < heroesNumber; col++)
+            for (int idx = 0; idx < heroesNumber; idx++)
             {
 
-                var cell = col + 1; // 1st column is used for headers
-                var id = col;
+                var cell = idx + 1; // 1st column is used for headers
                 var typeName = (string)val(0, cell);
                 var heroName = (string)val(1, cell);
 
                 var iconName = $"{heroesIconsPath}/{typeName}";
                 var idleSpriteName = $"{heroesIdleSpritesPath}/{typeName}";
 
-                ref var hero = ref processor(id);
+                ref var hero = ref processor(idx);
 
-                hero.Id = id;
+                hero.Id = idx;
                 hero.Name = heroName;
                 hero.IconName = iconName;
                 hero.IdleSpriteName = idleSpriteName;

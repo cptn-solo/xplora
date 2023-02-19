@@ -1,7 +1,5 @@
 ﻿using System;
 using Assets.Scripts.Data;
-using Assets.Scripts.Services;
-using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
 
@@ -69,11 +67,6 @@ namespace Assets.Scripts.ECS.Data
         public Hero[] OpponentHeroes { get; internal set; }
     }
 
-    public struct BattleComp
-    {
-        public EcsPackedEntity EnemyPackedEntity { get; internal set; }
-    }
-
     public struct BattleAftermathComp
     {
         public bool Won { get; internal set; }
@@ -133,10 +126,10 @@ namespace Assets.Scripts.ECS.Data
     }
 
     /// <summary>
-    /// Assigns Hero to a position on the library screen (shared, player team or
+    /// Assigns Hero to a position on the library or battle screen (shared, player team or
     /// enemy team + slot index
     /// </summary>
-    public struct LibraryPositionComp
+    public struct PositionComp
     {
         /// <summary>
         /// team id + battle line + slot index 

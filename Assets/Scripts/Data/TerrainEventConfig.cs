@@ -15,7 +15,12 @@
 
         public override string ToString()
         {
-            return $"{ (SpecOption != SpecOption.NA ? SpecOption.Name() : TraitOption.Name())} +{Factor}";
+            var factorString = SpecOption switch
+            {
+                SpecOption.UnlimitedStaminaTag => "unlim",
+                _ => $"{Factor}"
+            };
+            return $"{ (SpecOption != SpecOption.NA ? SpecOption.Name() : TraitOption.Name())} +{factorString}";
         }
 
         public static BonusOptionConfig Create(

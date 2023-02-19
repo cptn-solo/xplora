@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.Data;
+﻿using Assets.Scripts.Data;
 using System.Collections;
 
 namespace Assets.Scripts.Services
@@ -10,58 +9,58 @@ namespace Assets.Scripts.Services
         {
             battleRouterCoroutineRunning = true;
 
-            battle.SetState(BattleState.BattleInProgress);
-            OnBattleEvent?.Invoke(battle);
+            CurrentBattle.SetState(BattleState.BattleInProgress);
+            OnBattleEvent?.Invoke(CurrentBattle);
 
             int winnerTeamId = -1;
 
-            while (battle.State == BattleState.BattleInProgress)
+            while (CurrentBattle.State == BattleState.BattleInProgress)
             {
                 if (winnerTeamId >= 0)
                 {
                     playMode = BattleMode.NA;
-                    battle.SetState(BattleState.Completed);
+                    CurrentBattle.SetState(BattleState.Completed);
                     break;
                 }
 
                 StartCoroutine(PrepareNextRoundsCoroutine());
 
-                while (battle.State == BattleState.BattleInProgress && 
-                    battle.CurrentRound.State != RoundState.RoundPrepared)
+                while (CurrentBattle.State == BattleState.BattleInProgress && 
+                    CurrentRound.State != RoundState.RoundPrepared)
                     yield return null;
 
-                battle.SetRoundState(RoundState.RoundInProgress);
+                CurrentRound.SetState(RoundState.RoundInProgress);
 
-                while (battle.State == BattleState.BattleInProgress && 
-                    battle.CurrentRound.State == RoundState.RoundInProgress)
+                while (CurrentBattle.State == BattleState.BattleInProgress && 
+                    CurrentRound.State == RoundState.RoundInProgress)
                 {
                     winnerTeamId = CheckForWinner();
                     if (winnerTeamId >= 0)
                     {
-                        battle.SetWinnerTeamId(winnerTeamId);
-                        battle.SetRoundState(RoundState.RoundCompleted);
+                        CurrentBattle.SetWinnerTeamId(winnerTeamId);
+                        CurrentRound.SetState(RoundState.RoundCompleted);
                         break;
                     }
 
-                    if (battle.CurrentRound.QueuedHeroes.Count == 0)
+                    if (CurrentRound.QueuedHeroes.Count == 0)
                     {
-                        battle.SetRoundState(RoundState.RoundCompleted);
+                        CurrentRound.SetState(RoundState.RoundCompleted);
                         break;
                     }
 
-                    OnRoundEvent?.Invoke(battle.CurrentRound, battle);
+                    OnRoundEvent?.Invoke(CurrentRound, CurrentBattle);
 
                     PrepareNextTurn();
 
-                    while (battle.State == BattleState.BattleInProgress &&
-                        battle.CurrentTurn.State != TurnState.TurnPrepared &&
-                        battle.CurrentTurn.State != TurnState.TurnSkipped)
+                    while (CurrentBattle.State == BattleState.BattleInProgress &&
+                        CurrentTurn.State != TurnState.TurnPrepared &&
+                        CurrentTurn.State != TurnState.TurnSkipped)
                         yield return null;
 
-                    OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+                    OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);
 
-                    while (battle.State == BattleState.BattleInProgress && 
-                        battle.CurrentTurn.State != TurnState.TurnCompleted)
+                    while (CurrentBattle.State == BattleState.BattleInProgress && 
+                        CurrentTurn.State != TurnState.TurnCompleted)
                     {
                         if (PlayMode == BattleMode.Autoplay ||
                             PlayMode == BattleMode.Fastforward)
@@ -70,24 +69,24 @@ namespace Assets.Scripts.Services
                         yield return null;
                     }
 
-                    OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+                    OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);
 
-                    while (battle.State == BattleState.BattleInProgress && 
-                        battle.CurrentTurn.State != TurnState.TurnProcessed)
+                    while (CurrentBattle.State == BattleState.BattleInProgress && 
+                        CurrentTurn.State != TurnState.TurnProcessed)
                     {
                         if (PlayMode == BattleMode.Fastforward)
-                            SetTurnProcessed(battle.CurrentTurn);
+                            SetTurnProcessed(CurrentTurn);
 
                         yield return null;
                     }
 
-                    OnTurnEvent?.Invoke(battle.CurrentTurn, battle.CurrentRound, battle);
+                    OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);
                 }
 
-                OnRoundEvent?.Invoke(battle.CurrentRound, battle);
+                OnRoundEvent?.Invoke(CurrentRound, CurrentBattle);
             }
 
-            OnBattleEvent?.Invoke(battle);
+            OnBattleEvent?.Invoke(CurrentBattle);
 
             battleRouterCoroutineRunning = false;
         }

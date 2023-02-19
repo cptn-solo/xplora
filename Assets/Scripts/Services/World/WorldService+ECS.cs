@@ -5,9 +5,7 @@ using Assets.Scripts.ECS.Systems;
 using UnityEngine;
 using System.Collections.Generic;
 using Leopotam.EcsLite.ExtendedSystems;
-using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
-using Assets.Scripts.UI;
 using Assets.Scripts.Data;
 
 namespace Assets.Scripts.Services

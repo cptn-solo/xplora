@@ -8,10 +8,9 @@ namespace Assets.Scripts.Data
         private Hero target;
         private int turn;
         private int damage;
-        private TurnState state;
         private DamageEffect[] attackerEffects;
         private DamageEffect[] targetEffects;
-        public TurnState State => state;
+        public TurnState State { get; set; }
         public Hero Attacker => attacker;
         public Hero Target => target;
         public int Turn => turn;
@@ -93,18 +92,13 @@ namespace Assets.Scripts.Data
             info.target = target;
             info.turn = currentTurn;
             info.damage = damage;
-            info.state = TurnState.NA;
+            info.State = TurnState.NA;
             info.attackerEffects = attackerEffects ?? (new DamageEffect[] { });
             info.targetEffects = targetEffects ?? (new DamageEffect[] { });
 
             return info;
         }
 
-        public BattleTurnInfo SetState(TurnState state)
-        {
-            this.state = state;
-            return this;
-        }
 
         public BattleTurnInfo UpdateAttacker(Hero attacker)
         {

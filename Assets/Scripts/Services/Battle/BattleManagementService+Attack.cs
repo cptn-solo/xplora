@@ -33,7 +33,7 @@ namespace Assets.Scripts.Services
             {
                 var shield = target.DefenceRate;
 
-                if (TryCast(attacker, target, battle.CurrentRound.Round, out var damageEffect,
+                if (TryCast(attacker, target, CurrentRound.Round, out var damageEffect,
                     prefs.DisableRNGToggle))
                 {
                     if (damageEffect.Config.Effect == DamageEffect.Pierced)
@@ -61,7 +61,7 @@ namespace Assets.Scripts.Services
 
             target = target.UpdateHealthCurrent(damage+extraDamage, out int display, out int current);
 
-            resultInfo = BattleTurnInfo.Create(CurrentTurn, attacker, target,
+            resultInfo = BattleTurnInfo.Create(CurrentTurn.Turn, attacker, target,
                 damage, null, targetEffects);
             resultInfo.Critical = criticalDamage;
             resultInfo.Dodged = dodged;

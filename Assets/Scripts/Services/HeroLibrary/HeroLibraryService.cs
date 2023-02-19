@@ -34,6 +34,11 @@ namespace Assets.Scripts.Services
             InitConfigLoading();
         }
 
+        private void OnDestroy()
+        {
+            StopEcsContext();
+        }
+
         internal void ResetHealthCurrent() =>
             ResetEcsHealthAndEffects();
 
