@@ -16,15 +16,6 @@ namespace Assets.Scripts.Data
         public string IconName { get; set; }
         public string IdleSpriteName { get; set; }
 
-        #region Dynamic
-
-        public int TeamId { get; set; }
-        public BattleLine Line { get; set; }
-        public int Position { get; set; }
-        public int HealthCurrent { get; internal set; }
-        
-        #endregion
-
         public bool Ranged => AttackType == AttackType.Ranged;
 
         #region Specs

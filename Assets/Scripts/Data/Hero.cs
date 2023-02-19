@@ -10,7 +10,7 @@ namespace Assets.Scripts.Data
     {
         public override string ToString()
         { 
-            return $"#{Id} {Name} (К{TeamId}, {Line}) HP: {HealthCurrent}";
+            return $"#{Id} {Name}";
         }
         public override bool Equals(object obj)
         {
@@ -42,9 +42,6 @@ namespace Assets.Scripts.Data
             hero.HeroType = heroType;
             hero.IconName = iconName;
             hero.IdleSpriteName = idleSpriteName;
-            hero.TeamId = -1;
-            hero.Line = BattleLine.NA;
-            hero.ActiveEffects = new();
 
             hero.Traits = DefaultTraits();
 
@@ -52,17 +49,6 @@ namespace Assets.Scripts.Data
             hero.Defence = DefaultDefence();
 
             return hero;
-        }
-
-        public Hero UpdateHealthCurrent(int damage, out int displayVal, out int currentVal)
-        {
-            var result = Mathf.Max(0, HealthCurrent - damage);
-            var ratio = (float)(result / Health);
-            displayVal = (int)(100f * ratio);
-            currentVal = result;
-            HealthCurrent = result;
-
-            return this;
         }
 
         public int GiveAsset(Asset asset, int index = -1) =>

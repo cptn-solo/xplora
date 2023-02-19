@@ -1,11 +1,15 @@
 ﻿using Assets.Scripts.Data;
-using Assets.Scripts.UI.Data;
-using System.Linq;
+using Leopotam.EcsLite;
 
-namespace Assets.Scripts.Services
+namespace Assets.Scripts.ECS.Systems
 {
-    public partial class BattleManagementService // Effects
+    public class BattleTryCastEffectsSystem : IEcsRunSystem
     {
+        public void Run(IEcsSystems systems)
+        {
+            throw new System.NotImplementedException();
+        }
+
         private bool TryCast(Hero attacker, Hero target, int roundOn, out DamageEffectInfo info,
             bool disableRNGToggle)
         {
@@ -19,7 +23,7 @@ namespace Assets.Scripts.Services
 
             if (!disableRNGToggle)
             {
-                
+
                 if (!config.ChanceRate.RatedRandomBool()) return false;
 
                 switch (config.Effect)
@@ -51,31 +55,6 @@ namespace Assets.Scripts.Services
 
             return true;
         }
-        private void ApplyQueuedEffects(BattleTurnInfo turnInfo, out Hero attacker, out BattleTurnInfo? effectsInfo)
-        {
-            attacker = turnInfo.Attacker;
-            if (attacker.ActiveEffects.Count == 0)
-            {
-                effectsInfo = null;
-                return;
-            }
-            
-            var effs = attacker.ActiveEffects.Keys.ToArray(); // will be used to flash used effects ===>
 
-            var effectDamage = 0;
-            foreach (var eff in effs)
-            {
-                effectDamage += libraryManager.DamageTypesLibrary
-                    .EffectForDamageEffect(eff).ExtraDamage;
-                attacker = attacker.UseEffect(eff, out var used);
-            }
-
-            attacker = turnInfo.Attacker.UpdateHealthCurrent(effectDamage, out int aDisplay, out int aCurrent);
-
-            // intermediate turn info, no round turn override to preserve pre-calculated target:
-            effectsInfo = BattleTurnInfo.Create(CurrentTurn, attacker,
-                effectDamage, effs); // <===
-            effectsInfo = effectsInfo?.SetState(TurnState.TurnEffects);
-        }
     }
 }

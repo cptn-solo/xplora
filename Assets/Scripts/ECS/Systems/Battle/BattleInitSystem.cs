@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
@@ -10,6 +11,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattleRoundRefComp> roundRefPool;
+        private readonly EcsPoolInject<BattleTurnRefComp> turnRefPool;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
@@ -20,6 +23,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var battle = ref battleInfoPool.Value.Add(entity);
             battle.LastRoundNumber = -1;
+            battle.LastTurnNumber = -1;
             battle.State = BattleState.Created;
 
             //battle.roundsQueue = new();

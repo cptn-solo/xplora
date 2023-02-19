@@ -49,9 +49,6 @@ namespace Assets.Scripts.Services
             throw new System.NotImplementedException();
         }
 
-        private void RemoveCompletedRounds() =>
-            RemoveEcsCompletedRounds();
-
         public bool CanReorderTurns =>
             !retreatBattleRunning &&
             CurrentBattle.State switch
@@ -132,7 +129,7 @@ namespace Assets.Scripts.Services
                 CurrentBattle.SetState(BattleState.TeamsPrepared);
                 OnBattleEvent?.Invoke(CurrentBattle);
 
-                StartCoroutine(PrepareNextRoundsCoroutine());
+                StartCoroutine(BattleEcsRunloopCoroutine());
             }
         }
         internal void RetreatBattle()
@@ -172,8 +169,7 @@ namespace Assets.Scripts.Services
 
         internal void MakeTurn()
         {
-            if (!turnCoroutineRunning)
-                StartCoroutine(CompleteTurn());
+            MakeEcsTurn();
         }
         private IEnumerator RetreatBattleCoroutine()
         {
@@ -205,72 +201,14 @@ namespace Assets.Scripts.Services
         }
 
 
-        private IEnumerator PrepareNextRoundsCoroutine()
+        public void NotifyRoundEventListeners()
         {
-            RemoveCompletedRounds();
-
-            while (GetEcsRoundsCount() is var count && count < minRoundsQueue)
-            {
-                EnqueueEcsRound();
-                yield return null;
-            }
-
             OnRoundEvent?.Invoke(CurrentRound, CurrentBattle); // to update queued members in UI/log
         }
 
-
-        private void PrepareNextTurn()
+        public void NotifyTurnEventListeners(BattleTurnInfo? info = null)
         {
-            var turnInfo = BattleTurnInfo.Create(CurrentTurn.Turn + 1, Hero.Default, Hero.Default);
-            SetTurnInfo(turnInfo, TurnState.PrepareTurn);
-            OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);
-
-            PrepareTurn();
-        }
-
-        internal IEnumerator CompleteTurn()
-        {
-            turnCoroutineRunning = true;
-
-            var turnInfo = CurrentTurn;
-            
-            //capture value just in case
-            var skipTurn = turnInfo.State == TurnState.TurnSkipped;
-
-            ApplyQueuedEffects(turnInfo, out var attacker, out var effectsInfo);
-
-            yield return null;
-
-            if (effectsInfo != null)
-            {
-                UpdateBattleHero(attacker); // Sync health
-                OnTurnEvent?.Invoke((BattleTurnInfo)effectsInfo, CurrentRound, CurrentBattle);
-            }
-
-            if (attacker.HealthCurrent <=0 || skipTurn)
-            {
-                turnInfo = turnInfo.UpdateAttacker(attacker);
-                SetTurnInfo(turnInfo, TurnState.TurnCompleted);
-                
-                yield return null;
-            }
-            else
-            {
-                ProcessAttack(turnInfo, attacker, out var target, out var resultInfo);
-
-                UpdateBattleHero(target); // Sync health
-
-                SetTurnInfo(resultInfo, TurnState.TurnInProgress);
-                OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);
-                
-                yield return null;
-                
-                SetTurnState(TurnState.TurnCompleted);
-            }
-            
-            yield return null;
-
-            turnCoroutineRunning = false;
+            OnTurnEvent?.Invoke(info??CurrentTurn, CurrentRound, CurrentBattle); // to update queued members in UI/log
         }
 
         internal void SetTurnProcessed(BattleTurnInfo stage)
@@ -279,6 +217,7 @@ namespace Assets.Scripts.Services
 
             SetTurnInfo(stage, TurnState.TurnProcessed);
         }
+
         private int CheckForWinner()
         {
             if (PlayerHeroes.Length > 0 &&
@@ -342,6 +281,14 @@ namespace Assets.Scripts.Services
         {
             if (current == Screens.Battle)
                 ResetBattle();
+
+            if (previous == Screens.Battle)
+            {
+                StopAllCoroutines();
+                StopEcsContext();
+            }
+
+
         }
     }
 }

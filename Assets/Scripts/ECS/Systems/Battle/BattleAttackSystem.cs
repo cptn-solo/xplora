@@ -1,11 +1,15 @@
-﻿using Assets.Scripts.Data;
-using System.Linq;
-using UnityEngine;
+﻿using System.Linq;
+using Assets.Scripts.Data;
+using Leopotam.EcsLite;
 
-namespace Assets.Scripts.Services
+namespace Assets.Scripts.ECS.Systems
 {
-    public partial class BattleManagementService // Attack
+    public class BattleAttackSystem : IEcsRunSystem
     {
+        public void Run(IEcsSystems systems)
+        {
+            
+        }
 
         private void ProcessAttack(BattleTurnInfo turnInfo, Hero attacker,
             out Hero target, out BattleTurnInfo resultInfo)
@@ -59,7 +63,7 @@ namespace Assets.Scripts.Services
                 damage = Mathf.Max(0, damage);
             }
 
-            target = target.UpdateHealthCurrent(damage+extraDamage, out int display, out int current);
+            target = target.UpdateHealthCurrent(damage + extraDamage, out int display, out int current);
 
             resultInfo = BattleTurnInfo.Create(CurrentTurn.Turn, attacker, target,
                 damage, null, targetEffects);

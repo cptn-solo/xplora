@@ -5,7 +5,8 @@ namespace Assets.Scripts.Data
 
     public struct BattleInfo
     {
-        public int LastRoundNumber { get; set; }
+        public int LastRoundNumber { get; set; } // future round, last in queue
+        public int LastTurnNumber { get; set; } // most resent, current turn
 
         //private BattleTurnInfo currentTurn;
         //private List<BattleRoundInfo> roundsQueue;
@@ -52,25 +53,25 @@ namespace Assets.Scripts.Data
             };
         }
 
-        internal static BattleInfo Create(Team playerTeam, Team enemyTeam)
-        {
-            BattleInfo battle = default;
+        //internal static BattleInfo Create(Team playerTeam, Team enemyTeam)
+        //{
+        //    BattleInfo battle = default;
 
-            battle.State = BattleState.Created;
+        //    battle.State = BattleState.Created;
 
-            //battle.roundsQueue = new();
-            //battle.currentTurn = BattleTurnInfo.Create(-1, Hero.Default, Hero.Default);
+        //    //battle.roundsQueue = new();
+        //    //battle.currentTurn = BattleTurnInfo.Create(-1, Hero.Default, Hero.Default);
 
-            battle.PlayerTeam = playerTeam;
-            //battle.PlayerHeroes = new();
+        //    battle.PlayerTeam = playerTeam;
+        //    //battle.PlayerHeroes = new();
 
-            battle.EnemyTeam = enemyTeam;
-            //battle.EnemyHeroes = new();
+        //    battle.EnemyTeam = enemyTeam;
+        //    //battle.EnemyHeroes = new();
 
-            battle.WinnerTeamId = -1;
+        //    battle.WinnerTeamId = -1;
 
-            return battle;
-        }
+        //    return battle;
+        //}
 
         internal void SetState(BattleState state)
         {

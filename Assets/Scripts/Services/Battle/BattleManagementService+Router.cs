@@ -23,13 +23,13 @@ namespace Assets.Scripts.Services
                     break;
                 }
 
-                StartCoroutine(PrepareNextRoundsCoroutine());
+                //StartCoroutine(PrepareNextRoundsCoroutine());
 
                 while (CurrentBattle.State == BattleState.BattleInProgress && 
                     CurrentRound.State != RoundState.RoundPrepared)
                     yield return null;
 
-                CurrentRound.SetState(RoundState.RoundInProgress);
+                CurrentRound.State = RoundState.RoundInProgress;
 
                 while (CurrentBattle.State == BattleState.BattleInProgress && 
                     CurrentRound.State == RoundState.RoundInProgress)
@@ -38,23 +38,25 @@ namespace Assets.Scripts.Services
                     if (winnerTeamId >= 0)
                     {
                         CurrentBattle.SetWinnerTeamId(winnerTeamId);
-                        CurrentRound.SetState(RoundState.RoundCompleted);
+                        CurrentRound.State = RoundState.RoundCompleted;
                         break;
                     }
 
-                    if (CurrentRound.QueuedHeroes.Count == 0)
+                    if (CurrentRound.QueuedHeroes.Length == 0)
                     {
-                        CurrentRound.SetState(RoundState.RoundCompleted);
+                        CurrentRound.State = RoundState.RoundCompleted;
                         break;
                     }
 
                     OnRoundEvent?.Invoke(CurrentRound, CurrentBattle);
 
-                    PrepareNextTurn();
+                    PrepareEcsNextTurn();
 
                     while (CurrentBattle.State == BattleState.BattleInProgress &&
-                        CurrentTurn.State != TurnState.TurnPrepared &&
-                        CurrentTurn.State != TurnState.TurnSkipped)
+                        CurrentTurn is var turnInfo &&
+                        turnInfo.State != TurnState.TurnPrepared &&
+                        turnInfo.State != TurnState.TurnSkipped &&
+                        turnInfo.State != TurnState.NoTargets)
                         yield return null;
 
                     OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);

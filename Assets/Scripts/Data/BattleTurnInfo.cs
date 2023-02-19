@@ -77,17 +77,16 @@ namespace Assets.Scripts.Data
         }
 
         // constructors
-        public static BattleTurnInfo Create(int currentTurn, Hero attacker,
+        public static void Update(ref BattleTurnInfo info, int currentTurn, Hero attacker,
             int damage = 0, DamageEffect[] attackerEffects = null)
         {
-            BattleTurnInfo info = Create(currentTurn, attacker, Hero.Default, damage);
+            Update(ref info, currentTurn, attacker, Hero.Default, damage);
             info.attackerEffects = attackerEffects;
-            return info;
         }
-        public static BattleTurnInfo Create(int currentTurn, Hero attacker, Hero target, 
+
+        public static void Update(ref BattleTurnInfo info, int currentTurn, Hero attacker, Hero target, 
             int damage = 0, DamageEffect[] attackerEffects = null, DamageEffect[] targetEffects = null)
         {
-            BattleTurnInfo info = default;
             info.attacker = attacker;
             info.target = target;
             info.turn = currentTurn;
@@ -95,8 +94,6 @@ namespace Assets.Scripts.Data
             info.State = TurnState.NA;
             info.attackerEffects = attackerEffects ?? (new DamageEffect[] { });
             info.targetEffects = targetEffects ?? (new DamageEffect[] { });
-
-            return info;
         }
 
 
