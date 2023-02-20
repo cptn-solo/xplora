@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.Services;
-using Assets.Scripts.Services.App;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
@@ -155,9 +154,9 @@ namespace Assets.Scripts.UI.Battle
             ShowTeamInventory(libraryManager.PlayerTeam);
             ShowTeamInventory(libraryManager.EnemyTeam);
 
-            if (battleManager.CurrentBattle.CurrentRound.State == RoundState.RoundPrepared)
+            if (battleManager.CurrentRound.State == RoundState.RoundPrepared)
                 battleQueue.LayoutHeroes(
-                    battleManager.CurrentBattle.QueuedHeroes);
+                    battleManager.QueuedHeroes);
 
 
             UpdateActionButtons();

@@ -77,7 +77,7 @@ namespace Assets.Scripts.Services
                         CurrentTurn.State != TurnState.TurnProcessed)
                     {
                         if (PlayMode == BattleMode.Fastforward)
-                            SetTurnProcessed(CurrentTurn);
+                            SetEcsTurnProcessed();
 
                         yield return null;
                     }

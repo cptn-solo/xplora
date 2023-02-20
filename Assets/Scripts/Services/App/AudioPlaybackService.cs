@@ -3,7 +3,7 @@ using Assets.Scripts.UI.Data;
 using UnityEngine;
 using UnityEngine.Audio;
 
-namespace Assets.Scripts.Services.App
+namespace Assets.Scripts.Services
 {
     public class AudioPlaybackService : MonoBehaviour
     {

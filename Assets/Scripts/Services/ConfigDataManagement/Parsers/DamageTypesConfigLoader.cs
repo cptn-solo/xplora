@@ -1,7 +1,7 @@
 ﻿using Assets.Scripts.Data;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
+namespace Assets.Scripts.Services
 {
     public class DamageTypesConfigLoader : BaseConfigLoader
     {

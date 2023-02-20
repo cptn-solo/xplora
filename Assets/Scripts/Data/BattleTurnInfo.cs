@@ -4,19 +4,13 @@ namespace Assets.Scripts.Data
 {
     public struct BattleTurnInfo
     {
-        private Hero attacker;
-        private Hero target;
-        private int turn;
-        private int damage;
-        private DamageEffect[] attackerEffects;
-        private DamageEffect[] targetEffects;
         public TurnState State { get; set; }
-        public Hero Attacker => attacker;
-        public Hero Target => target;
-        public int Turn => turn;
-        public int Damage => damage;
-        public DamageEffect[] TargetEffects => targetEffects;
-        public DamageEffect[] AttackerEffects => attackerEffects;
+        public Hero Attacker { get; set; }
+        public Hero Target { get; set; }
+        public int Turn { get; set; }
+        public int Damage { get; set; }
+        public DamageEffect[] TargetEffects { get; set; }
+        public DamageEffect[] AttackerEffects { get; set; }
 
         // effects
         public bool Lethal { get; set; }
@@ -33,11 +27,11 @@ namespace Assets.Scripts.Data
                 $">>> {Target}";
 
             var attackerEff = "";
-            foreach (var ef in attackerEffects)
+            foreach (var ef in AttackerEffects)
                 attackerEff += $"+{ef}";
 
             var targetEff = "";
-            foreach (var ef in targetEffects)
+            foreach (var ef in TargetEffects)
                 targetEff += $"+{ef}";
 
             if (targetEff.Length > 0 && ExtraDamage > 0)
@@ -74,33 +68,6 @@ namespace Assets.Scripts.Data
                 TurnState.TurnCompleted => completed,
                 _ => $"Ход #{Turn}: {State}"
             };
-        }
-
-        // constructors
-        public static void Update(ref BattleTurnInfo info, int currentTurn, Hero attacker,
-            int damage = 0, DamageEffect[] attackerEffects = null)
-        {
-            Update(ref info, currentTurn, attacker, Hero.Default, damage);
-            info.attackerEffects = attackerEffects;
-        }
-
-        public static void Update(ref BattleTurnInfo info, int currentTurn, Hero attacker, Hero target, 
-            int damage = 0, DamageEffect[] attackerEffects = null, DamageEffect[] targetEffects = null)
-        {
-            info.attacker = attacker;
-            info.target = target;
-            info.turn = currentTurn;
-            info.damage = damage;
-            info.State = TurnState.NA;
-            info.attackerEffects = attackerEffects ?? (new DamageEffect[] { });
-            info.targetEffects = targetEffects ?? (new DamageEffect[] { });
-        }
-
-
-        public BattleTurnInfo UpdateAttacker(Hero attacker)
-        {
-            this.attacker = attacker;
-            return this;
         }
     }
 }

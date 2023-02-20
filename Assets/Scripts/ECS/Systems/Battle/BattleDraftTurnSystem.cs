@@ -27,9 +27,14 @@ namespace Assets.Scripts.ECS.Systems
                 ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
 
                 ref var turnInfo = ref battleTurnPool.Value.Get(entity);
-
-                BattleTurnInfo.Update(ref turnInfo, ++battleInfo.LastTurnNumber, Hero.Default, Hero.Default);
-
+                turnInfo.Turn = ++battleInfo.LastTurnNumber;
+                turnInfo.Attacker = default;
+                turnInfo.Target = default;
+                turnInfo.AttackerEffects = new DamageEffect[0]; 
+                turnInfo.TargetEffects = new DamageEffect[0];
+                turnInfo.Damage = turnInfo.ExtraDamage = 0;
+                turnInfo.Lethal = turnInfo.Pierced = turnInfo.Critical = turnInfo.Dodged = false;
+                
                 turnInfo.State = TurnState.PrepareTurn;
 
                 battleService.Value.NotifyTurnEventListeners(turnInfo);

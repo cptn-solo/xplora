@@ -1,5 +1,6 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.Services;
+using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -56,6 +57,11 @@ namespace Assets.Scripts.UI.Battle
                 .ToArray();
 
             slotsInitialized = true;
+        }
+
+        internal void LayoutHeroes(object queuedHeroes)
+        {
+            throw new NotImplementedException();
         }
     }
 }

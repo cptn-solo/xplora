@@ -1,6 +1,5 @@
 using System;
 using Assets.Scripts.Data;
-using Assets.Scripts.Services.App;
 using Assets.Scripts.Services.ConfigDataManagement.Parsers;
 using UnityEngine.Events;
 using Zenject;

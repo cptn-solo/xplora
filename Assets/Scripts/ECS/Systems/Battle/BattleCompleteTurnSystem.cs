@@ -1,5 +1,7 @@
-﻿using Assets.Scripts.Data;
+﻿using System;
+using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
+using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
@@ -7,8 +9,21 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleCompleteTurnSystem : IEcsRunSystem
     {
+        private readonly EcsWorldInject ecsWorld;
+
         private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
+        private readonly EcsPoolInject<CompletedTurnTag> completeTagPool;
+
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
+        private readonly EcsPoolInject<TargetRef> targetRefPool;
+        private readonly EcsPoolInject<DeadTag> deadTagPool;
+
+        private readonly EcsPoolInject<HPComp> hpCompPool;
+
         private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag>> makeTurnFilter;
+
+        private readonly EcsCustomInject<BattleManagementService> battleService;
 
         public void Run(IEcsSystems systems)
         {
@@ -18,50 +33,31 @@ namespace Assets.Scripts.ECS.Systems
                 makeTurnTagPool.Value.Del(entity);
             }
         }
-        internal void CompleteTurn(int turnEntity)
+
+        private void CompleteTurn(int turnEntity)
         {
-            //turnCoroutineRunning = true;
+            MarkDeadHero<AttackerRef>(turnEntity);
+            MarkDeadHero<TargetRef>(turnEntity);
 
-            var turnInfo = CurrentTurn;
+            battleService.Value.NotifyTurnEventListeners(); // sums up the turn aftermath
 
-            //capture value just in case
-            var skipTurn = turnInfo.State == TurnState.TurnSkipped;
+            ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
+            turnInfo.State = TurnState.TurnCompleted;
 
-            ApplyQueuedEffects(turnInfo, out var attacker, out var effectsInfo);
-
-            //yield return null;
-
-            if (effectsInfo != null)
-            {
-                UpdateBattleHero(attacker); // Sync health
-                OnTurnEvent?.Invoke((BattleTurnInfo)effectsInfo, CurrentRound, CurrentBattle);
-            }
-
-            if (attacker.HealthCurrent <= 0 || skipTurn)
-            {
-                turnInfo = turnInfo.UpdateAttacker(attacker);
-                SetTurnInfo(turnInfo, TurnState.TurnCompleted);
-
-                //yield return null;
-            }
-            else
-            {
-                ProcessAttack(turnInfo, attacker, out var target, out var resultInfo);
-
-                UpdateBattleHero(target); // Sync health
-
-                SetTurnInfo(resultInfo, TurnState.TurnInProgress);
-                OnTurnEvent?.Invoke(CurrentTurn, CurrentRound, CurrentBattle);
-
-                //yield return null;
-
-                SetTurnState(TurnState.TurnCompleted);
-            }
-
-            //yield return null;
-
-            //turnCoroutineRunning = false;
+            completeTagPool.Value.Add(turnEntity);
         }
+
+        private void MarkDeadHero<T>(int turnEntity) where T : struct, IPackedWithWorldRef
+        {
+            ref var heroInstanceRef = ref ecsWorld.Value.GetPool<T>().Get(turnEntity);
+            if (!heroInstanceRef.Packed.Unpack(out var world, out var heroInstanceEntity))
+                throw new Exception("No hero instance");
+
+            ref var hpComp = ref hpCompPool.Value.Get(heroInstanceEntity);
+            if (hpComp.HP <= 0)
+                deadTagPool.Value.Add(turnEntity);
+        }
+
 
     }
 }

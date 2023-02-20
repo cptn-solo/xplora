@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
+namespace Assets.Scripts.Services
 {
     public class BaseConfigLoader
     {

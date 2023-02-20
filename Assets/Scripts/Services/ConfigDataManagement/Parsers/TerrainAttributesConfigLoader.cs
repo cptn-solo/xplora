@@ -2,7 +2,7 @@
 using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
+namespace Assets.Scripts.Services
 {
     public class TerrainAttributesConfigLoader : BaseConfigLoader
     {

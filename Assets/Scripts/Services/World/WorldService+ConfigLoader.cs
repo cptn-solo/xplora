@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Data;
-using Assets.Scripts.Services.App;
-using Assets.Scripts.Services.ConfigDataManagement.Parsers;
+using Assets.Scripts.Services;
 using UnityEngine;
 using UnityEngine.Events;
 using Zenject;

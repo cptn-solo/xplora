@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Assets.Scripts.Services.App
+namespace Assets.Scripts.Services
 {
     public class StreamingAssetsLoaderService : MonoBehaviour
     {

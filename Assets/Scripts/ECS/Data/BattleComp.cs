@@ -12,13 +12,20 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntity BattlePackedEntity { get; internal set; }
     }
-    public struct HeroConfigRefComp
+    public interface IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld Packed { get; }
+    }
+    public struct HeroConfigRefComp : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroConfigPackedEntity { get; internal set; }
+        public EcsPackedEntityWithWorld Packed => HeroConfigPackedEntity;
     }
-    public struct HeroInstanceRefComp
+    public struct HeroInstanceRefComp : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
+        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+
     }
     public struct BattleTurnRefComp
     {
@@ -30,6 +37,8 @@ namespace Assets.Scripts.ECS.Data
     }
 
     public struct MakeTurnTag { } // To activate prepared turn execution
+    public struct CompletedTurnTag { } // Activate finalize
+    public struct ProcessedTurnTag { } // Destroy
     
     /// <summary>
     /// Current HP
@@ -73,7 +82,25 @@ namespace Assets.Scripts.ECS.Data
     public struct FrontlineTag { }
     public struct BacklineTag { }
 
-    public struct RangedTag { }
+    public struct RangedTag { } // hero
+    public struct SkippedTag { } // turn
+    public struct AttackerEffectsTag { } // turn
+    public struct AttackTag { } // turn
+    public struct DealDamageTag { } // turn
+    public struct DealEffectsTag { } // turn
+
+    public struct AttackerRef : IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; set; }
+
+        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+    }
+    public struct TargetRef : IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; set; }
+
+        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+    }
 
 
 

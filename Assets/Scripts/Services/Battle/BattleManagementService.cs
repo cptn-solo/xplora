@@ -26,8 +26,6 @@ namespace Assets.Scripts.Services
         private BattleMode playMode = BattleMode.NA;
 
         public BattleMode PlayMode => playMode;
-
-        private bool turnCoroutineRunning;
         
         private bool retreatBattleRunning;
         private readonly int minRoundsQueue = 4;
@@ -38,16 +36,7 @@ namespace Assets.Scripts.Services
 
         public int CurrentTurnNumber => CurrentTurn.Turn;
 
-        private void SetTurnState(TurnState state) =>
-            CurrentTurn.State = state;
-
-        private void SetTurnInfo(BattleTurnInfo info, TurnState state) =>
-            SetEcsCurrentTurnInfo(info, state);
-
-        private void UpdateHero(Hero target)
-        {
-            throw new System.NotImplementedException();
-        }
+        public RoundSlotInfo[] QueuedHeroes => GetEcsRoundSlots();
 
         public bool CanReorderTurns =>
             !retreatBattleRunning &&
@@ -73,7 +62,6 @@ namespace Assets.Scripts.Services
 
         public bool CanMakeTurn =>
             !retreatBattleRunning &&
-            !turnCoroutineRunning &&
             PlayMode switch
             {
                 BattleMode.StepMode => true,
@@ -118,8 +106,6 @@ namespace Assets.Scripts.Services
             StartEcsContext();
             
             playMode = BattleMode.NA;
-
-            GiveAssetsToTeams();
 
             CurrentBattle.SetState(BattleState.PrepareTeams);
             OnBattleEvent?.Invoke(CurrentBattle);
@@ -177,9 +163,6 @@ namespace Assets.Scripts.Services
 
             playMode = BattleMode.NA;
 
-            while (turnCoroutineRunning)
-                yield return null;
-
             if (CurrentBattle.State == BattleState.BattleStarted ||
                 CurrentBattle.State == BattleState.BattleInProgress)
             {
@@ -213,9 +196,7 @@ namespace Assets.Scripts.Services
 
         internal void SetTurnProcessed(BattleTurnInfo stage)
         {
-            FinalizeTurn();
-
-            SetTurnInfo(stage, TurnState.TurnProcessed);
+            SetEcsTurnProcessed();
         }
 
         private int CheckForWinner()
@@ -227,38 +208,6 @@ namespace Assets.Scripts.Services
                 return CurrentBattle.PlayerTeam.Id;
             else
                 return CurrentBattle.EnemyTeam.Id;
-        }
-
-        private void UpdateBattleHero(Hero target)
-        {
-            UpdateHero(target);
-            libraryManager.UpdateHero(target);
-
-            if (raidService.State == RaidState.InBattle)
-                raidService.ProcessBattleHeroUpdate(target);
-
-        }
-
-        private void GiveAssetsToTeams()
-        {
-            var hp = Asset.EmptyAsset(AssetType.Defence, "HP", "hp");
-            var shield = Asset.EmptyAsset(AssetType.Defence, "Shield", "shield");
-            var bomb = Asset.EmptyAsset(AssetType.Attack, "Bomb", "bomb");
-            var shuriken = Asset.EmptyAsset(AssetType.Attack, "Shuriken", "shuriken");
-            var power = Asset.EmptyAsset(AssetType.Attack, "Power", "power");
-
-            hp.GiveAsset(CurrentBattle.PlayerTeam, 5);
-            shield.GiveAsset(CurrentBattle.PlayerTeam, 5);
-            bomb.GiveAsset(CurrentBattle.PlayerTeam, 5);
-            shuriken.GiveAsset(CurrentBattle.PlayerTeam, 5);
-            power.GiveAsset(CurrentBattle.PlayerTeam, 5);
-
-            hp.GiveAsset(CurrentBattle.EnemyTeam, 5);
-            shield.GiveAsset(CurrentBattle.EnemyTeam, 5);
-            bomb.GiveAsset(CurrentBattle.EnemyTeam, 5);
-            shuriken.GiveAsset(CurrentBattle.EnemyTeam, 5);
-            power.GiveAsset(CurrentBattle.EnemyTeam, 5);
-
         }
 
         internal void Init(

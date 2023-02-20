@@ -4,7 +4,7 @@ using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
+namespace Assets.Scripts.Services
 {
     public static class FieldParserUtils
     {

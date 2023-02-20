@@ -1,4 +1,4 @@
-using Assets.Scripts.Services.App;
+using Assets.Scripts.Services;
 using System;
 using UnityEngine;
 using UnityEngine.Events;

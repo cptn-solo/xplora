@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Assets.Scripts.Services.App;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
 using UnityEngine;
