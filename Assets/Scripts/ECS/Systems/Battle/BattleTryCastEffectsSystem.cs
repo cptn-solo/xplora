@@ -71,6 +71,10 @@ namespace Assets.Scripts.ECS.Systems
                     ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
                     hpComp.UpdateHealthCurrent(turnInfo.ExtraDamage, healthComp.Health, out int aDisplay, out int aCurrent);
+
+                    turnInfo.Health = healthComp.Health;
+                    turnInfo.Speed = turnInfo.Target.Speed; // this should be taken from somewhere else
+                    turnInfo.ActiveEffects = effectsComp.ActiveEffects;
                 }
             }
         }

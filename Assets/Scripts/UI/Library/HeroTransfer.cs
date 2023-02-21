@@ -15,6 +15,7 @@ namespace Assets.Scripts
         }
         private HeroTransaction heroTransaction = default;
         public Hero TransferHero => heroTransaction.Hero;
+        public int TeamId => heroTransaction.FromPosition.Item1;
 
         public void Begin(Hero hero, HeroPosition from)
         {

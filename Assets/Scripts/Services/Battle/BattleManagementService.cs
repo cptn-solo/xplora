@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -236,8 +237,13 @@ namespace Assets.Scripts.Services
                 StopAllCoroutines();
                 StopEcsContext();
             }
-
-
         }
+
+        internal Hero HeroAtPosition(Tuple<int, BattleLine, int> position) =>
+            GetEcsHeroAtPosition(position);
+
+        internal void MoveHero(Hero hero, Tuple<int, BattleLine, int> pos) =>
+            MoveEcsHeroToPosition(hero, pos);
+
     }
 }

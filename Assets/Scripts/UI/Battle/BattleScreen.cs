@@ -170,9 +170,9 @@ namespace Assets.Scripts.UI.Battle
                 slot.RaidMember.HeroAnimation.transform.localPosition = Vector3.zero;
         }
 
-
+        //TODO: add team or remove method completely
         private void SlotDelegate_HeroUpdated(Hero hero) =>
-            RaidMemberForHero(hero).Hero = hero;
+            RaidMemberForHero(hero).SetHero(hero);
 
         private void SlotDelegate_HeroMoved(Hero hero)
         {

@@ -48,10 +48,17 @@ namespace Assets.Scripts.UI.Battle
                 playerBackSlots : enemyBackSlots;
 
             foreach (var slot in frontSlots)
-                slot.Hero = libraryManager.HeroAtPosition(slot.Position);
+            {
+                slot.SetHero(battleManager.HeroAtPosition(slot.Position), teamId == playerTeamId);
+                slot.SetBarsAndEffects();
+
+            }
 
             foreach (var slot in backSlots)
-                slot.Hero = libraryManager.HeroAtPosition(slot.Position);
+            {
+                slot.SetHero(battleManager.HeroAtPosition(slot.Position), teamId == playerTeamId);
+                slot.SetBarsAndEffects();
+            }
         }
     }
 }

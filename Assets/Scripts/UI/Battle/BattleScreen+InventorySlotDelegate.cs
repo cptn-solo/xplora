@@ -29,8 +29,8 @@ namespace Assets.Scripts.UI.Battle
                 if (s is BattleLineSlot bls)
                 {
                     heroTransfer.Begin(bls.Hero, bls.Position);
-                    Rollback = () => bls.Hero = libraryManager.HeroAtPosition(bls.Position);
-                    bls.Hero = Hero.Default;
+                    Rollback = () => bls.SetHero(battleManager.HeroAtPosition(bls.Position), bls.Position.Item1 == 0);
+                    bls.SetHero(null);
 
                 }
                 else if (s is AssetInventorySlot ais)
@@ -47,11 +47,11 @@ namespace Assets.Scripts.UI.Battle
                 if (s is BattleLineSlot bls)
                 {
                     success = heroTransfer.Commit(bls.Position, out var hero);
-                    bls.Hero = hero;
+                    bls.SetHero(hero, bls.Position.Item1 == 0);
 
                     if (success)
                     {
-                        libraryManager.MoveHero(hero, bls.Position);
+                        battleManager.MoveHero(hero, bls.Position);
                         OnHeroMoved?.Invoke(bls.Hero);
                     }
                 }
@@ -106,7 +106,7 @@ namespace Assets.Scripts.UI.Battle
             }
             else if (slot is BattleLineSlot bls)
                 return heroTransfer.TransferHero.HeroType != HeroType.NA &&
-                    heroTransfer.TransferHero.TeamId == bls.Position.Item1;
+                    heroTransfer.TeamId == bls.Position.Item1;
             else
                 return false;
         }
@@ -177,6 +177,7 @@ namespace Assets.Scripts.UI.Battle
                                     selectedHero.Inventory;
         }
 
+        //TODO: use position comp from ecs
         private RaidMember RaidMemberForHero(Hero hero)
         {
             var slots = (hero.TeamId == playerTeamId) ?

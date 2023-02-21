@@ -173,14 +173,13 @@ namespace Assets.Scripts.UI.Battle
                     }
 
                     EnqueueTurnAnimation(() => { }, .1f);
-                    EnqueueTurnAnimation(() => targetRM.Hero = info.Target);
+                    EnqueueTurnAnimation(() => targetRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
                     EnqueueTurnAnimation(() => { }, 1f);
 
                     break;
 
                 case TurnState.TurnEffects:
                     
-                    var lethal = info.Attacker.HealthCurrent <= 0;
 
                     if (info.AttackerEffects.Length > 0)
                         EnqueueEffects(info.AttackerEffects, attackerRM, info.Damage);
@@ -190,14 +189,17 @@ namespace Assets.Scripts.UI.Battle
                             audioService.Play(SFX.Named(info.Attacker.SndHit));
                         }, 1f);
 
-                    if (lethal)
+                    if (info.Lethal)
+                    {
                         EnqueueTurnAnimation(() => {
                             attackerRM.HeroAnimation.Death();
                             audioService.Play(SFX.Named(info.Attacker.SndDied));
                         }, 1f);
-                    
-                    if (!lethal)
-                        EnqueueTurnAnimation(() => attackerRM.Hero = info.Attacker);
+                        EnqueueTurnAnimation(() => attackerRM.SetHero(null));
+                    }
+
+                    if (!info.Lethal)
+                        EnqueueTurnAnimation(() => attackerRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
                     
                     break;
 
@@ -214,11 +216,8 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnCompleted:
 
                     EnqueueTurnAnimation(() => {
-                        if (targetRM != null && info.Target.HealthCurrent <= 0)
-                            targetRM.Hero = Hero.Default;
-
-                        if (attackerRM != null && info.Attacker.HealthCurrent <= 0)
-                            attackerRM.Hero = Hero.Default;
+                        if (targetRM != null && info.Lethal)
+                            targetRM.SetHero(null);
 
                         // move cards back or remove dead ones from the field.
                         if (attackerRM != null)

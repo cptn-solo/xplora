@@ -64,7 +64,12 @@ namespace Assets.Scripts.ECS.Systems
                 Attacker = turnInfo.Attacker,
                 Damage = effectDamage,
                 AttackerEffects = effs,
-                State = TurnState.TurnEffects
+                Lethal = hpComp.HP <= 0,
+                Health = healthComp.Health,
+                HealthCurrent = hpComp.HP,
+                Speed = turnInfo.Attacker.Speed, // this should be taken from somewhere else
+                ActiveEffects = effectsComp.ActiveEffects,
+                State = TurnState.TurnEffects,
             };
 
             battleService.Value.NotifyTurnEventListeners(effectsInfo);

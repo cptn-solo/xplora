@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Assets.Scripts.Data;
+using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Inventory;
 using TMPro;
 using UnityEngine;
@@ -39,37 +41,37 @@ namespace Assets.Scripts.UI.Battle
 
 
         private Hero hero;
-        public Hero Hero
+        public Hero Hero => hero;
+
+        public void SetHero(Hero? hero, bool isPlayerTeam = false)
         {
-            get => hero;
-            set
+            this.hero = hero == null ? default : hero.Value;
+            if (hero == null)
             {
-                hero = value;
-                if (hero.HeroType == HeroType.NA)
-                {
-                    this.gameObject.SetActive(false);
-                    
-                    if (heroAnimation != null)
-                        heroAnimation.SetHero(hero);
+                this.gameObject.SetActive(false);
 
-                    return;
-                }
-
-                this.gameObject.SetActive(true);
-
-                ResolveIcons();
-                heroNameText.text = hero.Name;
-                
-                normalColor = hero.TeamId == 0 ? playerColor : enemyColor;
-                backgroundImage.color = normalColor;
-                
                 if (heroAnimation != null)
-                {
-                    heroAnimation.SetHero(hero);
-                    heroAnimation.Initialize();
-                }
+                    heroAnimation.SetHero(hero, isPlayerTeam);
+
+                return;
+            }
+
+            this.gameObject.SetActive(true);
+
+            ResolveIcons();
+            heroNameText.text = hero.Value.Name;
+
+            normalColor = isPlayerTeam ? playerColor : enemyColor;
+            backgroundImage.color = normalColor;
+
+            if (heroAnimation != null)
+            {
+                heroAnimation.SetHero(hero, isPlayerTeam);
+                heroAnimation.Initialize();
             }
         }
+        public void SetBarsAndEffects(List<BarInfo> bars, Dictionary<DamageEffect, int> effects) =>
+            heroAnimation.SetBarsAndEffects(bars, effects);
 
         private bool selected;
         public bool Selected

@@ -216,5 +216,37 @@ namespace Assets.Scripts.Services
 
             ecsContext.GetPool<ProcessedTurnTag>().Add(entity);
         }
+
+        #region Battle screen move hero
+
+        private Hero GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
+        {
+            var heroPool = ecsContext.GetPool<Hero>();
+            var positionPool = ecsContext.GetPool<PositionComp>();
+            var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
+            foreach (var entity in filter)
+            {
+                ref var pos = ref positionPool.Get(entity);
+                if (pos.Position.Equals(position))
+                    return heroPool.Get(entity);
+            }
+            return default;
+        }
+
+        private void MoveEcsHeroToPosition(Hero target, Tuple<int, BattleLine, int> position)
+        {
+            var packedEntity = HeroConfigEntities[target.Id];
+
+            if (!packedEntity.Unpack(out var world, out var entity))
+                throw new Exception($"No Hero config for id {target.Id}");
+
+            var positionPool = ecsContext.GetPool<PositionComp>();
+
+            ref var pos = ref positionPool.Get(entity);
+            pos.Position = position;
+
+        }
+
+        #endregion
     }
 }

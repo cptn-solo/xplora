@@ -83,12 +83,6 @@ namespace Assets.Scripts.Data
             }
         }
         public List<BarInfo> BarsInfoShort => BarsInfo.GetRange(0, 2);
-        public List<BarInfo> BarsInfoBattle => new() {
-            BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, (float)HealthCurrent / Health),
-            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / Mathf.Max(Speed, 10f)),
-        };
-
-        public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }
 
         #endregion
 

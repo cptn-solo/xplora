@@ -62,8 +62,5 @@ namespace Assets.Scripts.Services
 
         internal void MoveHero(Hero hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
-
-        internal void UpdateHero(Hero target) =>
-            UpdateEcsHero(target);
     }
 }

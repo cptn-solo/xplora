@@ -1,6 +1,8 @@
 using Assets.Scripts.Data;
+using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Data;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
@@ -60,16 +62,19 @@ namespace Assets.Scripts.UI.Battle
             overlay.ResetBarsAndEffects();
         }
 
-        internal void SetHero(Hero hero)
+        internal void SetBarsAndEffects(List<BarInfo> bars, Dictionary<DamageEffect, int> effects) =>
+            overlay.SetBarsEndEffectsInfo(bars, effects);
+
+        internal void SetHero(Hero? hero, bool isPlayerTeam = false)
         {
-            if (hero.HeroType == HeroType.NA)
+            if (hero == null)
             {    
                 animator.runtimeAnimatorController = null;
                 HideOverlay();
             }
             else
             {
-                if (hero.TeamId == 1)
+                if (!isPlayerTeam)
                 {
                     var lr = transform.localRotation;
                     lr.y = 180f;
@@ -78,16 +83,12 @@ namespace Assets.Scripts.UI.Battle
 
                 initialPosition = transform.parent.transform.localPosition;
 
-                var res = Resources.Load($"Animators/Hero_{hero.Id}");
+                var res = Resources.Load($"Animators/Hero_{hero.Value.Id}");
                 if (res != null)
                     animator.runtimeAnimatorController =
                         Instantiate(res) as RuntimeAnimatorController;
                 else
                     animator.runtimeAnimatorController = null;
-
-                overlay.SetBarsEndEffectsInfo(
-                    hero.BarsInfoBattle,
-                    hero.ActiveEffects);
             }
 
         }

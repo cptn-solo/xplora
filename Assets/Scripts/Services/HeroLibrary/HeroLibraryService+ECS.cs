@@ -305,13 +305,6 @@ namespace Assets.Scripts.Services
 
         }
 
-        private void UpdateEcsHero(Hero target)
-        {
-            ref var hero = ref GetEcsRefHero(target);
-            hero.HealthCurrent = target.HealthCurrent;
-            hero.ActiveEffects = target.ActiveEffects;
-        }
-
         private void StopEcsContext()
         {
             ecsSystems?.Destroy();
