@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class BattleAssignTargetSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<TargetRef> targetRefPool;

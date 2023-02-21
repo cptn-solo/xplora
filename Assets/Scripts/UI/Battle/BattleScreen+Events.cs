@@ -66,7 +66,7 @@ namespace Assets.Scripts.UI.Battle
             {
                 case RoundState.RoundPrepared:
                 case RoundState.RoundCompleted:
-                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
+                    battleQueue.LayoutHeroes(battleManager.QueuedHeroes);
                     break;
                 default:
                     break;
@@ -97,7 +97,7 @@ namespace Assets.Scripts.UI.Battle
                     }
                     break;
                 case TurnState.TurnProcessed:
-                    battleQueue.LayoutHeroes(battleInfo.QueuedHeroes);
+                    battleQueue.LayoutHeroes(battleManager.QueuedHeroes);
                     break;
                 default:
                     break;

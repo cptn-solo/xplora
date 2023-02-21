@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
@@ -6,69 +7,48 @@ using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
     public class BattlePrepareRoundSystem : IEcsRunSystem
     {
-        private const int minRoundsQueue = 4;
-
         private readonly EcsWorldInject ecsWorld;
 
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
         private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
+        private readonly EcsPoolInject<DraftTag> draftTagPool;
         private readonly EcsPoolInject<NameComp> namePool;
         private readonly EcsPoolInject<SpeedComp> speedPool;
 
-        private readonly EcsFilterInject<Inc<BattleRoundInfo>> roundInfoFilter;
+        private readonly EcsFilterInject<Inc<BattleRoundInfo, DraftTag>> roundInfoFilter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
         public void Run(IEcsSystems systems)
         {
-            if (battleService.Value.CurrentBattle.State != BattleState.BattleInProgress)
-                return;
-
-            if (GetEcsRoundsCount() is var count && count < minRoundsQueue)
+            foreach (var entity in roundInfoFilter.Value)
             {
-                EnqueueEcsRound();
+                PrepareRound(entity);// TODO: can just copy queue from the previous round
+                draftTagPool.Value.Del(entity);
             }
         }
 
-        private void EnqueueEcsRound()
-        {
-            ref var battleInfo = ref battleService.Value.CurrentBattle;
-
-            var roundEntity = ecsWorld.Value.NewEntity();
-
-            var roundPool = ecsWorld.Value.GetPool<BattleRoundInfo>();
-
-            ref var roundInfo = ref roundPool.Add(roundEntity);
-            roundInfo.Round = ++battleInfo.LastRoundNumber;
-
-            PrepareRound(ref roundInfo, ref battleInfo);
-
-            battleInfo.LastRoundNumber = roundInfo.Round;
-        }
-
-        private int GetEcsLastRoundNumber()
-        {
-            ref var battleInfo = ref battleService.Value.CurrentBattle;
-            return battleInfo.LastRoundNumber;
-        }
-
-        private int GetEcsRoundsCount()
-        {
-            var filter = roundInfoFilter.Value;
-            return filter.GetEntitiesCount();
-        }
         ///     Enqueue heroes 
         /// </summary>
         /// <param name="info">Draft round</param>
         /// <returns>Round with heroes</returns>
-        internal void PrepareRound(ref BattleRoundInfo info, ref BattleInfo battleInfo)
+        private void PrepareRound(int roundEntity)
         {
-            info.State = RoundState.PrepareRound;
+            if (battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
+                throw new Exception("No battle");
+
+            ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
+            ref var roundInfo = ref roundInfoPool.Value.Get(roundEntity);
+
+            roundInfo.State = RoundState.PrepareRound;
 
             var buffer = ListPool<RoundSlotInfo>.Get();
 
@@ -76,7 +56,7 @@ namespace Assets.Scripts.ECS.Systems
                 battleService.Value.EnemyHeroes))
             {
                 if (!heroInstance.HeroInstancePackedEntity.Unpack(
-                    out var world, out var heroInstanceEntity))
+                    out _, out var heroInstanceEntity))
                     continue;
 
                 ref var heroInstanceRef = ref heroInstanceRefPool.Value.Get(heroInstanceEntity);
@@ -120,11 +100,14 @@ namespace Assets.Scripts.ECS.Systems
                 }
             }
 
-            info.QueuedHeroes = queue.ToArray();
+            roundInfo.QueuedHeroes = queue.ToArray();
 
             ListPool<RoundSlotInfo>.Add(queue);
 
-            info.State = RoundState.RoundPrepared;
+            roundInfo.State = RoundState.RoundPrepared;
+
+            battleService.Value.NotifyRoundEventListeners();
+
         }
 
     }

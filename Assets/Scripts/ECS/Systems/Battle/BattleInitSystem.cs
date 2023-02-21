@@ -23,6 +23,7 @@ namespace Assets.Scripts.ECS.Systems
             battle.LastRoundNumber = -1;
             battle.LastTurnNumber = -1;
             battle.State = BattleState.Created;
+            battle.QueuedRounds = new EcsPackedEntity[0];
 
             //battle.roundsQueue = new();
             //battle.currentTurn = BattleTurnInfo.Create(-1, Hero.Default, Hero.Default);
@@ -34,7 +35,6 @@ namespace Assets.Scripts.ECS.Systems
             //battle.EnemyHeroes = new();
 
             battle.WinnerTeamId = -1;
-
 
             battleService.Value.BattleEntity = ecsWorld.Value.PackEntityWithWorld(entity);
         }

@@ -9,6 +9,8 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleFinalizeTurnSystem : IEcsRunSystem
     {
+        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
 
         private readonly EcsFilterInject<Inc<BattleTurnInfo, ProcessedTurnTag>> filter;
@@ -18,29 +20,35 @@ namespace Assets.Scripts.ECS.Systems
         public void Run(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
-            {
                 FinalizeTurn(entity);
-            }
         }
 
         private void FinalizeTurn(int turnEntity)
         {
+
+            ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
+            turnInfo.State = TurnState.TurnProcessed;
+            battleService.Value.NotifyTurnEventListeners(turnInfo);
+
             var buffer = ListPool<RoundSlotInfo>.Get();
 
             if (!battleService.Value.RoundEntity.Unpack(out var world, out var roundEntity))
                 throw new Exception("No round");
 
-            ref var round = ref roundInfoPool.Value.Get(roundEntity);
+            ref var roundInfo = ref roundInfoPool.Value.Get(roundEntity);
 
-            buffer.AddRange(round.QueuedHeroes);
+            buffer.AddRange(roundInfo.QueuedHeroes);
 
             if (buffer.Count > 0)
                 buffer.RemoveAt(0);
 
-            round.QueuedHeroes = buffer.ToArray();
-            if (round.QueuedHeroes.Length == 0)
+            roundInfo.QueuedHeroes = buffer.ToArray();
+            if (roundInfo.QueuedHeroes.Length == 0)
             {
-                world.GetPool<DestroyTag>().Add(roundEntity);
+                destroyTagPool.Value.Add(roundEntity);
+
+                roundInfo.State = RoundState.RoundCompleted;
+                battleService.Value.NotifyRoundEventListeners(roundInfo);
             }
 
             ListPool<RoundSlotInfo>.Add(buffer);

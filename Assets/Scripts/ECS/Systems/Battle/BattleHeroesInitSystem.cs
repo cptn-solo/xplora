@@ -4,6 +4,7 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -22,7 +23,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<FrontlineTag> frontlineTagPool;
         private readonly EcsPoolInject<BacklineTag> backlineTagPool;        
         private readonly EcsPoolInject<RangedTag> rangedTagPool;        
-        private readonly EcsPoolInject<NameComp> namePool;        
+        private readonly EcsPoolInject<NameComp> namePool;
+        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
@@ -33,7 +35,11 @@ namespace Assets.Scripts.ECS.Systems
                 return;
 
             ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
+            battleInfo.State = BattleState.PrepareTeams;
+            battleService.Value.NotifyBattleEventListeners(battleInfo);
 
+            var playerCount = 0;
+            var enemyCount = 0;
             foreach (var heroConfigPackedEntity in libraryService.Value.HeroConfigEntities)
             {
                 //clone hero config into a new entity in the battle context
@@ -50,9 +56,15 @@ namespace Assets.Scripts.ECS.Systems
                 var heroInstanceEntity = battleWorld.NewEntity();
 
                 if (libPosition.Position.Item1 == battleInfo.PlayerTeam.Id)
+                {
                     playerTeamTagPool.Value.Add(heroInstanceEntity);
+                    playerCount++;
+                }
                 else
+                {
                     enemyTeamTagPool.Value.Add(heroInstanceEntity);
+                    enemyCount++;
+                }
 
                 ref var heroInstanceRef = ref heroInstanceRefPool.Value.Add(heroInstanceEntity);
                 heroInstanceRef.HeroInstancePackedEntity = battleWorld.PackEntityWithWorld(heroInstanceEntity);
@@ -86,7 +98,14 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var nameComp = ref namePool.Value.Add(heroInstanceEntity);
                 nameComp.Name = heroConfig.Name;
+            }
 
+            if (playerCount > 0 && enemyCount > 0)
+            {
+                battleInfo.State = BattleState.TeamsPrepared;
+                battleService.Value.NotifyBattleEventListeners(battleInfo);
+
+                roundShortageTagPool.Value.Add(battleEntity); // to create 1st rounds
             }
 
         }

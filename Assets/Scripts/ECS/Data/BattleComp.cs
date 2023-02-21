@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -36,30 +35,6 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntity RoundPackedEntity { get; internal set; }
     }
 
-    public struct MakeTurnTag { } // To activate prepared turn execution
-    public struct CompletedTurnTag { } // Activate finalize
-    public struct ProcessedTurnTag { } // Destroy
-    
-    /// <summary>
-    /// Current HP
-    /// </summary>
-    public struct HPComp
-    {
-        public int HP { get; set; }
-
-        public HPComp UpdateHealthCurrent(int damage, int initial, out int displayVal, out int currentVal)
-        {
-            var result = Mathf.Max(0, HP - damage);
-            var ratio = (float)(result / initial);
-            displayVal = (int)(100f * ratio);
-            currentVal = result;
-            HP = result;
-
-            return this;
-        }
-
-    }
-
     /// <summary>
     /// Initial HP
     /// </summary>
@@ -75,9 +50,22 @@ namespace Assets.Scripts.ECS.Data
     {
         public string Name { get; set; }
     }
+
+    public struct BattleInProgressTag { }
+    public struct BattleCompletedTag { }
+    public struct RetreatTag { }
+    public struct RoundInProgressTag { }
+    public struct RoundShortageTag { }
     public struct PlayerTeamTag { }
     public struct EnemyTeamTag { }
     public struct DeadTag { }
+    public struct RetiredTag { }
+    public struct WinnerTag { }
+
+    public struct ReadyTurnTag { } // Ready to make turn
+    public struct MakeTurnTag { } // To activate prepared turn execution
+    public struct CompletedTurnTag { } // Activate finalize
+    public struct ProcessedTurnTag { } // Destroy
 
     public struct FrontlineTag { }
     public struct BacklineTag { }

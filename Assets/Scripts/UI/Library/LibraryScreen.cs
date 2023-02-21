@@ -173,8 +173,6 @@ namespace Assets.Scripts.UI.Library
                     break;
                 case Actions.SaveTeamForBattle:
                     {                        
-                        battleManager.ResetBattle();
-
                         nav.NavigateToScreen(Screens.Battle);
                     }
                     break;

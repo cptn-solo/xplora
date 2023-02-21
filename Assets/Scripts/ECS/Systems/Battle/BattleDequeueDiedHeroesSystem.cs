@@ -9,10 +9,13 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld;
 
+        private readonly EcsPoolInject<RetiredTag> retiredTagPool;
         private readonly EcsPoolInject<HeroInstanceRefComp> pool;
         private readonly EcsPoolInject<BattleRoundInfo> roundPool;
 
-        private readonly EcsFilterInject<Inc<HeroInstanceRefComp, DeadTag>> filter;
+        private readonly EcsFilterInject<
+            Inc<HeroInstanceRefComp, DeadTag>,
+            Exc<RetiredTag>> filter;
 
         public void Run(IEcsSystems systems)
         {
@@ -20,6 +23,7 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var instanceRef = ref pool.Value.Get(entity);
                 DequeueHero(instanceRef.Packed);
+                retiredTagPool.Value.Add(entity);
             }
         }
 

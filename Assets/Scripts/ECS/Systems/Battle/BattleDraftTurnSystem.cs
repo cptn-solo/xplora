@@ -37,6 +37,7 @@ namespace Assets.Scripts.ECS.Systems
                 
                 turnInfo.State = TurnState.PrepareTurn;
 
+                battleService.Value.TurnEntity = world.PackEntityWithWorld(entity);
                 battleService.Value.NotifyTurnEventListeners(turnInfo);
             }
         }

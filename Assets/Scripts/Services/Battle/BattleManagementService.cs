@@ -22,13 +22,9 @@ namespace Assets.Scripts.Services
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
         public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;
 
-        private bool battleRouterCoroutineRunning;
+        public BattleMode PlayMode { get; set; } = BattleMode.NA;
 
-        private BattleMode playMode = BattleMode.NA;
-
-        public BattleMode PlayMode => playMode;
-        
-        private bool retreatBattleRunning;
+        //private bool retreatBattleRunning;
         private readonly int minRoundsQueue = 4;
 
         public ref BattleInfo CurrentBattle => ref GetEcsCurrentBattle();
@@ -40,7 +36,6 @@ namespace Assets.Scripts.Services
         public RoundSlotInfo[] QueuedHeroes => GetEcsRoundSlots();
 
         public bool CanReorderTurns =>
-            !retreatBattleRunning &&
             CurrentBattle.State switch
             {
                 BattleState.Created => true,
@@ -49,7 +44,6 @@ namespace Assets.Scripts.Services
             };
 
         public bool CanStartBattle =>
-            !retreatBattleRunning &&
             CurrentBattle.State switch
             {
                 BattleState.TeamsPrepared => 
@@ -62,7 +56,6 @@ namespace Assets.Scripts.Services
             };
 
         public bool CanMakeTurn =>
-            !retreatBattleRunning &&
             PlayMode switch
             {
                 BattleMode.StepMode => true,
@@ -70,7 +63,6 @@ namespace Assets.Scripts.Services
             };
 
         public bool CanAutoPlayBattle =>
-            !retreatBattleRunning &&
             PlayMode switch
             {
                 BattleMode.Autoplay => true,
@@ -79,7 +71,6 @@ namespace Assets.Scripts.Services
             };
 
         public bool CanStepPlayBattle =>
-            !retreatBattleRunning &&
             PlayMode switch
             {
                 BattleMode.Autoplay => true,
@@ -100,29 +91,21 @@ namespace Assets.Scripts.Services
         ///     Flag to let the battle screen know if it should reset the battle/queue
         /// </summary>
         public void ResetBattle()
-        {
-            libraryManager.ResetTeams();
-
-            StopEcsContext();
-            StartEcsContext();
-            
-            playMode = BattleMode.NA;
-
-            CurrentBattle.SetState(BattleState.PrepareTeams);
-            OnBattleEvent?.Invoke(CurrentBattle);
-
-            if (libraryManager.PrepareTeamsForBattle(out var playerHeroes, out var enemyHeroes))
-            {
-                CurrentBattle.SetState(BattleState.TeamsPrepared);
-                OnBattleEvent?.Invoke(CurrentBattle);
-
-                StartCoroutine(BattleEcsRunloopCoroutine());
-            }
+        {            
+            DestroyEcsRounds();
         }
+
+        internal void OnBattleComplete(bool won)
+        {
+            if (raidService.State == RaidState.InBattle)
+                raidService.ProcessAftermath(won);
+            else
+                nav.NavigateToScreen(Screens.HeroesLibrary);
+        }
+
         internal void RetreatBattle()
         {
-            if (!retreatBattleRunning)
-                StartCoroutine(RetreatBattleCoroutine());
+            PlayMode = BattleMode.NA;
         }
 
         internal void BeginBattle()
@@ -130,64 +113,40 @@ namespace Assets.Scripts.Services
             CurrentBattle.SetState(BattleState.BattleStarted);
             OnBattleEvent?.Invoke(CurrentBattle);
 
-            playMode = BattleMode.Autoplay;
-
-            if (!battleRouterCoroutineRunning)
-                StartCoroutine(BattleRouterCoroutine());
+            PlayMode = BattleMode.Autoplay;
         }
 
         internal void AutoPlay()
         {
             if (CanMakeTurn)
-                playMode = BattleMode.Autoplay;
+                PlayMode = BattleMode.Autoplay;
         }
         
         internal void StepPlayBattle()
         {
             if (CanStepPlayBattle)
-                playMode = BattleMode.StepMode;
+                PlayMode = BattleMode.StepMode;
         }
 
         internal void FastForwardPlay()
         {
             if (CanAutoPlayBattle)
-                playMode = BattleMode.Fastforward;
+                PlayMode = BattleMode.Fastforward;
         }
 
         internal void MakeTurn()
         {
             MakeEcsTurn();
         }
-        private IEnumerator RetreatBattleCoroutine()
+
+        public void NotifyBattleEventListeners(BattleInfo? info = null)
         {
-            retreatBattleRunning = true;
-
-            playMode = BattleMode.NA;
-
-            if (CurrentBattle.State == BattleState.BattleStarted ||
-                CurrentBattle.State == BattleState.BattleInProgress)
-            {
-                CurrentBattle.SetWinnerTeamId(CurrentBattle.EnemyTeam.Id);
-                CurrentBattle.SetState(BattleState.Completed);
-
-                OnBattleEvent?.Invoke(CurrentBattle);
-
-                yield return new WaitForSeconds(2.0f);
-            }
-
-            if (raidService.State == RaidState.InBattle)
-                raidService.ProcessAftermath(
-                    CurrentBattle.WinnerTeamId == libraryManager.PlayerTeam.Id);
-            else
-                nav.NavigateToScreen(Screens.HeroesLibrary);
-
-            retreatBattleRunning = false;
+            OnBattleEvent?.Invoke(info??CurrentBattle);
         }
 
-
-        public void NotifyRoundEventListeners()
+        public void NotifyRoundEventListeners(BattleRoundInfo? info = null)
         {
-            OnRoundEvent?.Invoke(CurrentRound, CurrentBattle); // to update queued members in UI/log
+            OnRoundEvent?.Invoke(info??CurrentRound, CurrentBattle); // to update queued members in UI/log
         }
 
         public void NotifyTurnEventListeners(BattleTurnInfo? info = null)
@@ -199,18 +158,7 @@ namespace Assets.Scripts.Services
         {
             SetEcsTurnProcessed();
         }
-
-        private int CheckForWinner()
-        {
-            if (PlayerHeroes.Length > 0 &&
-                EnemyHeroes.Length > 0)
-                return -1;
-            else if (PlayerHeroes.Length > 0)
-                return CurrentBattle.PlayerTeam.Id;
-            else
-                return CurrentBattle.EnemyTeam.Id;
-        }
-
+        
         internal void Init(
             PlayerPreferencesService playerPreferencesService,
             HeroLibraryService libManagementService,
@@ -230,13 +178,10 @@ namespace Assets.Scripts.Services
             Screens previous, Screens current)
         {
             if (current == Screens.Battle)
-                ResetBattle();
+                StartEcsContext();
 
             if (previous == Screens.Battle)
-            {
-                StopAllCoroutines();
                 StopEcsContext();
-            }
         }
 
         internal Hero HeroAtPosition(Tuple<int, BattleLine, int> position) =>

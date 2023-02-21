@@ -8,6 +8,8 @@ namespace Assets.Scripts.Data
         public int LastRoundNumber { get; set; } // future round, last in queue
         public int LastTurnNumber { get; set; } // most resent, current turn
 
+        public EcsPackedEntity[] QueuedRounds { get; set; }
+
         //private BattleTurnInfo currentTurn;
         //private List<BattleRoundInfo> roundsQueue;
 

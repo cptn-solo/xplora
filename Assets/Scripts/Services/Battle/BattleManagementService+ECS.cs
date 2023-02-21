@@ -29,6 +29,8 @@ namespace Assets.Scripts.Services
 
         private void StartEcsContext()
         {
+            PlayMode = BattleMode.NA;
+
             ecsContext = new EcsWorld();
 
             ecsInitSystems = new EcsSystems(ecsContext);
@@ -41,21 +43,35 @@ namespace Assets.Scripts.Services
 
             ecsSystems = new EcsSystems(ecsContext);
             ecsSystems
-                .Add(new BattlePrepareRoundSystem())
+                .Add(new BattleStartSystem()) // looks for playmode and a battle and starts it
+                .Add(new BattleRetreatSystem()) // check if battle is retreated (canceled 
+                .Add(new BattleWinCheckSystem()) // check if battle is already won 
+                .Add(new BattleCompleteSystem()) // report won/retreated battle
+                // with battle in progress tag
+                .Add(new BattleEnqueueRoundSystem()) // check queue length and add if needed
+                .Add(new BattlePrepareRoundSystem()) // prepare added round (heroes queue)
+                .Add(new BattleRoundStartSystem()) // picks 1st round and marks it as inprogress
+                .Add(new BattleEnqueueTurnSystem()) // checks for empty turn and creates draft one
                 // with DraftTag
                 .Add(new BattleDraftTurnSystem())
                 .Add(new BattleAssignAttackerSystem())
                 .Add(new BattleAssignAttackerEffectsSystem())
                 .Add(new BattleAssignTargetSystem())
+                .Add(new BattleMarkTurnReadySystem()) // marks ready turns for autoplay
                 .DelHere<DraftTag>()
+                .Add(new BattleAutoMakeTurnSystem())
                 // with MakeTurnTag
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
                 .Add(new BattleDealAttackDamageSystem())
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
+                // with CompletedTurnTag
+                .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
-                .Add(new BattleDequeueDiedHeroesSystem())                 
+                // dequeue fired items
+                .Add(new BattleDequeueDiedHeroesSystem())
+                .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
 
 #if UNITY_EDITOR
@@ -65,10 +81,14 @@ namespace Assets.Scripts.Services
                 .Inject(libraryManager)
                 .Inject(prefs)
                 .Init();
+
+            StartCoroutine(BattleEcsRunloopCoroutine());
         }
 
         private void StopEcsContext()
         {
+            StopAllCoroutines();
+
             ecsSystems?.Destroy();
             ecsSystems = null;
 
@@ -188,19 +208,6 @@ namespace Assets.Scripts.Services
         private HeroInstanceRefComp[] GetEcsEnemyHeroes() =>
             GetEcsTaggedHeroes<EnemyTeamTag>();
 
-        private void PrepareEcsNextTurn()
-        {
-            var entity = ecsContext.NewEntity();
-
-            var battleTurnPool = ecsContext.GetPool<BattleTurnInfo>();
-            ref var turnInfo = ref battleTurnPool.Add(entity);
-
-            var draftTagPool = ecsContext.GetPool<DraftTag>();
-            draftTagPool.Add(entity);
-
-            TurnEntity = ecsContext.PackEntityWithWorld(entity);
-        }
-
         private void MakeEcsTurn()
         {
             if (TurnEntity.Unpack(out var world, out var entity))
@@ -231,6 +238,17 @@ namespace Assets.Scripts.Services
                     return heroPool.Get(entity);
             }
             return default;
+        }
+
+        /// <summary>
+        ///  Will trigger recreate of rounds with their respective hero queues
+        /// </summary>
+        private void DestroyEcsRounds()
+        {
+            var filter = ecsContext.Filter<BattleRoundInfo>().End();
+            var destroyTagPool = ecsContext.GetPool<DestroyTag>();
+            foreach (var entity in filter)
+                destroyTagPool.Add(entity);
         }
 
         private void MoveEcsHeroToPosition(Hero target, Tuple<int, BattleLine, int> position)

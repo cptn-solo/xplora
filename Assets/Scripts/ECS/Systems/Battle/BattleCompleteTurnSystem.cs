@@ -50,6 +50,8 @@ namespace Assets.Scripts.ECS.Systems
             turnInfo.HealthCurrent = hp;
 
             completeTagPool.Value.Add(turnEntity);
+
+            battleService.Value.NotifyTurnEventListeners(); // sums up the turn aftermath
         }
 
         private void MarkDeadHero<T>(int turnEntity, out int hp) where T : struct, IPackedWithWorldRef
