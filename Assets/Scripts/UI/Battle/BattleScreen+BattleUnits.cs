@@ -1,13 +1,13 @@
-﻿using Assets.Scripts.Data;
-using Assets.Scripts.UI.Data;
+﻿using Assets.Scripts.UI.Data;
 using System.Linq;
 using UnityEngine;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen // Battle Units
     {
-        private Hero selectedHero;
+        private EcsPackedEntityWithWorld selectedHero;
 
         private void BindHeroCard(RaidMember heroCard)
         {
@@ -23,9 +23,8 @@ namespace Assets.Scripts.UI.Battle
             var raidMemeber = actionTransform.GetComponent<RaidMember>();
             Debug.Log($"Hero from line #{raidMemeber.Hero} selected");
             
-            selectedHero = raidMemeber.Hero;            
+            selectedHero = raidMemeber.HeroInstanceEntity.Value;            
             SyncHeroCardSelectionWithHero();
-            ShowHeroInventory(selectedHero);
 
         }
 
@@ -37,28 +36,7 @@ namespace Assets.Scripts.UI.Battle
                 .Concat(enemyBackSlots);
 
             foreach (var card in slots.Select(x => x.RaidMember).ToArray())
-                card.Selected = card.Hero.Equals(selectedHero);
-        }
-
-        private void ShowTeamBatleUnits(int teamId)
-        {
-            var frontSlots = (teamId == playerTeamId) ?
-                playerFrontSlots : enemyFrontSlots;
-            var backSlots = (teamId == enemyTeamId) ?
-                playerBackSlots : enemyBackSlots;
-
-            foreach (var slot in frontSlots)
-            {
-                slot.SetHero(battleManager.HeroAtPosition(slot.Position), teamId == playerTeamId);
-                slot.SetBarsAndEffects();
-
-            }
-
-            foreach (var slot in backSlots)
-            {
-                slot.SetHero(battleManager.HeroAtPosition(slot.Position), teamId == playerTeamId);
-                slot.SetBarsAndEffects();
-            }
+                card.Selected = card.HeroInstanceEntity.Equals(selectedHero);
         }
     }
 }

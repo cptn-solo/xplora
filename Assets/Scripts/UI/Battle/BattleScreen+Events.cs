@@ -12,9 +12,6 @@ namespace Assets.Scripts.UI.Battle
             {
                 case BattleState.Created:
 
-                    ShowTeamInventory(libraryManager.PlayerTeam);
-                    ShowTeamInventory(libraryManager.EnemyTeam);
-
                     ToggleHeroCards(true);
 
                     break;

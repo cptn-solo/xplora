@@ -1,6 +1,5 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.Services;
-using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -19,11 +18,8 @@ namespace Assets.Scripts.UI.Battle
 
         internal void ResetQueue()
         {
-            var emptyHero = Hero.Default;
             foreach (var slot in combinedSlots)
-            {
-                slot.QueueMember.Hero = emptyHero;
-            }
+                slot.QueueMember.Hero = null;
         }
 
         internal void LayoutHeroes(RoundSlotInfo[] heroes)
@@ -33,8 +29,7 @@ namespace Assets.Scripts.UI.Battle
             for (int idx = 0; idx < Mathf.Min(heroes.Length, combinedSlots.Length); idx++)
             {
                 var queueMember = combinedSlots[idx].QueueMember;
-                var slotInfo = heroes[idx];
-                queueMember.Hero = libraryService.HeroById(slotInfo.HeroId);
+                queueMember.Hero = heroes[idx];
             }
         }
 
@@ -48,20 +43,14 @@ namespace Assets.Scripts.UI.Battle
         internal void InitSlots()
         {
             var slots = battleQueuePanel.GetComponentsInChildren<BattleQueueSlot>(true);
-            var emptyHero = Hero.Default;
             foreach (var slot in slots)
-                slot.InitQueueMember(emptyHero);
+                slot.InitQueueMember(null);
 
             combinedSlots = slots
                 .OrderBy(x => x.QueueIndex)
                 .ToArray();
 
             slotsInitialized = true;
-        }
-
-        internal void LayoutHeroes(object queuedHeroes)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }

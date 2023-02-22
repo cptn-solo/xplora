@@ -16,7 +16,7 @@ namespace Assets.Scripts.World
             }
             else
             {
-                if (hero.TeamId == 1)
+                if (Random.Range(0,2) == 0)
                 {
                     var lr = transform.localRotation;
                     lr.y = 180f;

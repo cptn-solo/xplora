@@ -18,35 +18,35 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Color playerColor;
         [SerializeField] private Color enemyColor;
 
-        private Hero hero;
-        public Hero Hero
+        private RoundSlotInfo? hero;
+        public RoundSlotInfo? Hero
         {
             get => hero;
             set
             {
                 hero = value;
-                if (hero.HeroType == HeroType.NA)
+                if (hero == null)
                 {
-                    this.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
                     return;
                 }
 
-                this.gameObject.SetActive(true);
+                gameObject.SetActive(true);
 
                 ResolveIcons();
-                heroNameText.text = hero.Name;
+                heroNameText.text = hero.Value.HeroName;
 
-                normalColor = hero.TeamId == 0 ? playerColor : enemyColor;
+                normalColor = hero.Value.TeamId == 0 ? playerColor : enemyColor;
                 backgroundImage.color = normalColor;
             }
         }
 
         private void ResolveIcons()
         {
-            ResolveIcons(heroIconImage, heroIdleImage, Hero);
+            ResolveIcons(heroIconImage, heroIdleImage, Hero.Value);
         }
 
-        private void ResolveIcons(Image image, Image idle, Hero hero)
+        private void ResolveIcons(Image image, Image idle, RoundSlotInfo hero)
         {
             image.sprite = null;
             idle.sprite = null;

@@ -3,6 +3,19 @@ using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Data
 {
+    public interface IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld Packed { get; }
+    }
+    public interface IName
+    {
+        public string Name { get; }
+    }
+    public interface IIntValue
+    {
+        public int Value { get; }
+    }
+
     public struct BattleComp
     {
         public EcsPackedEntity EnemyPackedEntity { get; internal set; }
@@ -10,10 +23,6 @@ namespace Assets.Scripts.ECS.Data
     public struct BattleRefComp
     {
         public EcsPackedEntity BattlePackedEntity { get; internal set; }
-    }
-    public interface IPackedWithWorldRef
-    {
-        public EcsPackedEntityWithWorld Packed { get; }
     }
     public struct HeroConfigRefComp : IPackedWithWorldRef
     {
@@ -38,18 +47,26 @@ namespace Assets.Scripts.ECS.Data
     /// <summary>
     /// Initial HP
     /// </summary>
-    public struct HealthComp
+    public struct HealthComp : IIntValue
     {
-        public int Health { get; set; }
+        public int Value { get; set; }
     }
-    public struct SpeedComp
+    public struct SpeedComp : IIntValue
     {
-        public int Speed { get; set; }
+        public int Value { get; set; }
     }
-    public struct NameComp
+    public struct NameComp : IName
     {
         public string Name { get; set; }
     }
+    public struct IconName : IName
+    {
+        public string Name { get; set; }
+    }
+    public struct IdleSpriteName : IName
+    {
+        public string Name { get; set; }
+    }    
 
     public struct BattleInProgressTag { }
     public struct BattleCompletedTag { }

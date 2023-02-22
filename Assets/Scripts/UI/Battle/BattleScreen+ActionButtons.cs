@@ -33,7 +33,6 @@ namespace Assets.Scripts.UI.Battle
             {
                 case Actions.ToggleInventoryPanel:
                     {
-                        ToggleInventory();
                     }
                     break;
                 case Actions.CompleteTurn:

@@ -1,12 +1,14 @@
 ﻿using Assets.Scripts.UI.Common;
 using Assets.Scripts.Data;
+using Assets.Scripts.Battle;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.UI.Library
 {
-    public class HeroCard : MonoBehaviour
+    public class HeroCard : MonoBehaviour, IHeroInstanceEntity
     {
 
         [SerializeField] private Image heroIconImage;
@@ -18,6 +20,9 @@ namespace Assets.Scripts.UI.Library
 
         [SerializeField] private Color acceptingColor;
         [SerializeField] private Color selectedColor;
+
+        public EcsPackedEntityWithWorld? HeroInstanceEntity { get; set; }
+
 
         private Hero hero;
         public Hero Hero
@@ -51,6 +56,7 @@ namespace Assets.Scripts.UI.Library
                 backgroundImage.color = value ? selectedColor : normalColor;
             }
         }
+
         private void ResolveIcons()
         {
             ResolveIcon(heroIconImage, Hero);

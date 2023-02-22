@@ -1,6 +1,5 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
-using Assets.Scripts.UI.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +32,7 @@ namespace Assets.Scripts.UI.Battle
             this.overlay = overlay;
             overlay.Attach(transform);
         }
+        public Overlay Overlay => overlay;
 
         private void Awake()
         {

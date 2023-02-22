@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
@@ -9,7 +10,6 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Services
 {
@@ -224,20 +224,25 @@ namespace Assets.Scripts.Services
             ecsContext.GetPool<ProcessedTurnTag>().Add(entity);
         }
 
-        #region Battle screen move hero
+        #region Battle screen
 
-        private Hero GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
+        internal void BindEcsBattleScreenHeroSlots(List<IHeroPosition> buffer)
         {
-            var heroPool = ecsContext.GetPool<Hero>();
+            //TODO: remember these objects to later attach/track heroes to/with them
+        }
+
+
+        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
+        {
             var positionPool = ecsContext.GetPool<PositionComp>();
             var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
             foreach (var entity in filter)
             {
                 ref var pos = ref positionPool.Get(entity);
                 if (pos.Position.Equals(position))
-                    return heroPool.Get(entity);
+                    return ecsContext.PackEntityWithWorld(entity);
             }
-            return default;
+            return null;
         }
 
         /// <summary>
@@ -251,14 +256,14 @@ namespace Assets.Scripts.Services
                 destroyTagPool.Add(entity);
         }
 
-        private void MoveEcsHeroToPosition(Hero target, Tuple<int, BattleLine, int> position)
+        private void MoveEcsHeroToPosition(
+            EcsPackedEntityWithWorld packedEntity,
+            Tuple<int, BattleLine, int> position)
         {
-            var packedEntity = HeroConfigEntities[target.Id];
-
             if (!packedEntity.Unpack(out var world, out var entity))
-                throw new Exception($"No Hero config for id {target.Id}");
+                throw new Exception($"No Hero instance");
 
-            var positionPool = ecsContext.GetPool<PositionComp>();
+            var positionPool = world.GetPool<PositionComp>();
 
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;

@@ -22,6 +22,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DraftTag> draftTagPool;
         private readonly EcsPoolInject<NameComp> namePool;
         private readonly EcsPoolInject<SpeedComp> speedPool;
+        private readonly EcsPoolInject<IconName> iconNamePool;
+        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool;
 
         private readonly EcsFilterInject<Inc<BattleRoundInfo, DraftTag>> roundInfoFilter;
 
@@ -65,10 +67,12 @@ namespace Assets.Scripts.ECS.Systems
                 {
                     HeroInstancePackedEntity = heroInstance.HeroInstancePackedEntity,
                     HeroName = namePool.Value.Get(heroInstanceEntity).Name,
-                    Speed = speedPool.Value.Get(heroInstanceEntity).Speed,
+                    Speed = speedPool.Value.Get(heroInstanceEntity).Value,
                     TeamId = playerTeamTagPool.Value.Has(heroInstanceEntity) ?
                         battleInfo.PlayerTeam.Id :
-                        battleInfo.EnemyTeam.Id
+                        battleInfo.EnemyTeam.Id,
+                    IconName = iconNamePool.Value.Get(heroInstanceEntity).Name,
+                    IdleSpriteName = idleSpriteNamePool.Value.Get(heroInstanceEntity).Name,
                 };
                 buffer.Add(slotInfo);
             }

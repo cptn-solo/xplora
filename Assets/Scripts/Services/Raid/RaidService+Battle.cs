@@ -6,14 +6,6 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService // Battle
     {
-        internal void ProcessBattleHeroUpdate(Hero hero)
-        {
-            ProcessEcsBattleHeroUpdate(hero);
-
-            if (hero.HealthCurrent <= 0)
-                libManagementService.RetireHero(hero);
-        }
-
         internal void ProcessAftermath(bool won)
         {
             ProcessEcsBattleAftermath(won);

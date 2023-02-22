@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using System;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts
 {
@@ -9,15 +10,15 @@ namespace Assets.Scripts
     {
         public struct HeroTransaction
         {
-            public Hero Hero;
+            public EcsPackedEntityWithWorld? Hero;
             public HeroPosition FromPosition;
             public HeroPosition ToPosition;
         }
         private HeroTransaction heroTransaction = default;
-        public Hero TransferHero => heroTransaction.Hero;
+        public EcsPackedEntityWithWorld? TransferHero => heroTransaction.Hero;
         public int TeamId => heroTransaction.FromPosition.Item1;
 
-        public void Begin(Hero hero, HeroPosition from)
+        public void Begin(EcsPackedEntityWithWorld hero, HeroPosition from)
         {
             heroTransaction = new HeroTransaction
             {
@@ -26,18 +27,15 @@ namespace Assets.Scripts
             };
         }
 
-        public bool Commit(HeroPosition toPosition, out Hero hero)
+        public bool Commit(HeroPosition toPosition, out EcsPackedEntityWithWorld hero)
         {
-            hero = Hero.Default;
-            if (heroTransaction.Hero.HeroType == HeroType.NA)
+            hero = default;
+            if (heroTransaction.Hero == null)
                 return false;
 
             heroTransaction.ToPosition = toPosition;
 
-            hero = heroTransaction.Hero;
-            hero.TeamId = toPosition.Item1;
-            hero.Line = toPosition.Item2;
-            hero.Position = toPosition.Item3;
+            hero = heroTransaction.Hero.Value;
 
             heroTransaction = default;
 

@@ -95,11 +95,12 @@ namespace Assets.Scripts.UI.Battle
         {
             var attackerPos = attackerBattleGround.position;
 
-            var attackerRM = RaidMemberForHero(info.Attacker);
+            var attackerRM =
+                RaidMemberForPosition(info.AttackerPosition);
             var targetRM = 
                 info.State == TurnState.TurnSkipped ||
-                info.State == TurnState.TurnEffects ? null : 
-                RaidMemberForHero(info.Target);
+                info.State == TurnState.TurnEffects ? null :
+                RaidMemberForPosition(info.TargetPosition);
 
             if (targetRM != null)
                 attackerPos.y = targetRM.transform.position.y;
@@ -122,8 +123,43 @@ namespace Assets.Scripts.UI.Battle
                     
                     break;
 
-                case TurnState.TurnInProgress:
+                case TurnState.TurnSkipped:
                     
+                    EnqueueTurnAnimation(() => {
+                        var move = 1.0f;
+                        attackerRM.HeroAnimation.Highlight(true);
+                        attackerRM.HeroAnimation.Zoom(move);
+                    }, 1f);
+                    
+                    break;
+
+                case TurnState.TurnEffects:
+
+
+                    if (info.AttackerEffects.Length > 0)
+                        EnqueueEffects(info.AttackerEffects, attackerRM, info.Damage);
+                    else if (info.Damage > 0)
+                        EnqueueTurnAnimation(() => {
+                            attackerRM.HeroAnimation.Hit();
+                            audioService.Play(SFX.Named(info.Attacker.SndHit));
+                        }, 1f);
+
+                    if (info.Lethal)
+                    {
+                        EnqueueTurnAnimation(() => {
+                            attackerRM.HeroAnimation.Death();
+                            audioService.Play(SFX.Named(info.Attacker.SndDied));
+                        }, 1f);
+                        EnqueueTurnAnimation(() => attackerRM.SetHero(null));
+                    }
+
+                    if (!info.Lethal)
+                        EnqueueTurnAnimation(() => attackerRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
+
+                    break;
+
+                case TurnState.TurnInProgress:
+
                     EnqueueTurnAnimation(() => {
                         attackerRM.HeroAnimation.Attack(info.Attacker.Ranged);
                         audioService.Play(SFX.Named(info.Attacker.SndAttack));
@@ -176,41 +212,6 @@ namespace Assets.Scripts.UI.Battle
                     EnqueueTurnAnimation(() => targetRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
                     EnqueueTurnAnimation(() => { }, 1f);
 
-                    break;
-
-                case TurnState.TurnEffects:
-                    
-
-                    if (info.AttackerEffects.Length > 0)
-                        EnqueueEffects(info.AttackerEffects, attackerRM, info.Damage);
-                    else if (info.Damage > 0)
-                        EnqueueTurnAnimation(() => {
-                            attackerRM.HeroAnimation.Hit();
-                            audioService.Play(SFX.Named(info.Attacker.SndHit));
-                        }, 1f);
-
-                    if (info.Lethal)
-                    {
-                        EnqueueTurnAnimation(() => {
-                            attackerRM.HeroAnimation.Death();
-                            audioService.Play(SFX.Named(info.Attacker.SndDied));
-                        }, 1f);
-                        EnqueueTurnAnimation(() => attackerRM.SetHero(null));
-                    }
-
-                    if (!info.Lethal)
-                        EnqueueTurnAnimation(() => attackerRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
-                    
-                    break;
-
-                case TurnState.TurnSkipped:
-                    
-                    EnqueueTurnAnimation(() => {
-                        var move = 1.0f;
-                        attackerRM.HeroAnimation.Highlight(true);
-                        attackerRM.HeroAnimation.Zoom(move);
-                    }, 1f);
-                    
                     break;
 
                 case TurnState.TurnCompleted:

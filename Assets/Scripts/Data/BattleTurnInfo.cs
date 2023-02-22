@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts.Data;
-using Assets.Scripts.ECS.Data;
+﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.UI.Common;
 using UnityEngine;
 
@@ -10,7 +9,9 @@ namespace Assets.Scripts.Data
     {
         public TurnState State { get; set; }
         public Hero Attacker { get; set; }
+        public Tuple<int, BattleLine, int> AttackerPosition { get; set; }
         public Hero Target { get; set; }
+        public Tuple<int, BattleLine, int> TargetPosition { get; set; }
         public int Turn { get; set; }
         public int Damage { get; set; }
         public DamageEffect[] TargetEffects { get; set; }

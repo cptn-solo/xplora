@@ -72,7 +72,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
             ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
-            hpComp.UpdateHealthCurrent(damage, healthComp.Health, out int aDisplay, out int aCurrent);
+            hpComp.UpdateHealthCurrent(damage, healthComp.Value, out int aDisplay, out int aCurrent);
         }
     }
 }

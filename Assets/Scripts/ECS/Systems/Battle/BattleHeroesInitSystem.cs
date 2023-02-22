@@ -24,6 +24,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BacklineTag> backlineTagPool;        
         private readonly EcsPoolInject<RangedTag> rangedTagPool;        
         private readonly EcsPoolInject<NameComp> namePool;
+        private readonly EcsPoolInject<IconName> iconNamePool;
+        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool;
         private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
@@ -81,10 +83,10 @@ namespace Assets.Scripts.ECS.Systems
                     backlineTagPool.Value.Add(heroInstanceEntity);
 
                 ref var speed = ref speedPool.Value.Add(heroInstanceEntity);
-                speed.Speed = heroConfig.Speed;
+                speed.Value = heroConfig.Speed;
 
                 ref var healthComp = ref healthPool.Value.Add(heroInstanceEntity);
-                healthComp.Health = heroConfig.Health;
+                healthComp.Value = heroConfig.Health;
 
                 ref var hpComp = ref hpPool.Value.Add(heroInstanceEntity);
                 hpComp.HP = heroConfig.Health;
@@ -98,6 +100,12 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var nameComp = ref namePool.Value.Add(heroInstanceEntity);
                 nameComp.Name = heroConfig.Name;
+
+                ref var iconNameComp = ref iconNamePool.Value.Add(heroInstanceEntity);
+                iconNameComp.Name = heroConfig.IconName;
+
+                ref var idleSpriteNameComp = ref idleSpriteNamePool.Value.Add(heroInstanceEntity);
+                idleSpriteNameComp.Name = heroConfig.IdleSpriteName;
             }
 
             if (playerCount > 0 && enemyCount > 0)

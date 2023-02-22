@@ -32,9 +32,9 @@ namespace Assets.Scripts.UI.Library
                     pts.Position :
                     new(-1, BattleLine.NA, s.SlotIndex);
 
-                heroTransfer.Begin(bls.Hero, pos);
+                heroTransfer.Begin(bls.Unit.HeroInstanceEntity.Value, pos);
 
-                Rollback = () => bls.Hero = libManager.HeroAtPosition(pos);
+                Rollback = () => bls.Unit.HeroInstanceEntity = libManager.HeroAtPosition(pos);
                 bls.Hero = Hero.Default;
 
             };
@@ -48,7 +48,7 @@ namespace Assets.Scripts.UI.Library
 
                 success = heroTransfer.Commit(pos, out var hero);
 
-                bls.Hero = hero;
+                bls.Unit.HeroInstanceEntity = hero;
 
                 if (success)
                 {
@@ -65,7 +65,7 @@ namespace Assets.Scripts.UI.Library
             };
             slotDelegate.TransferCleanup = (UIItemSlot s) =>
             {
-                if (heroTransfer.TransferHero.HeroType != HeroType.NA)
+                if (heroTransfer.TransferHero != null)
                     slotDelegate.TransferAbort(s);
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>

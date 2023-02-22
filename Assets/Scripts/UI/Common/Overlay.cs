@@ -1,12 +1,12 @@
+using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
-using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Overlay : MonoBehaviour
+public class Overlay : MonoBehaviour, IBarsAndEffects
 {
     [SerializeField] private EffectsContainer effectsContainer;
     [SerializeField] private Image piercedImage;
@@ -64,15 +64,18 @@ public class Overlay : MonoBehaviour
             effectsContainer.FlashEffect(info.Effect);
     }
 
-    internal void SetBarsEndEffectsInfo(
-        List<BarInfo> barsInfoBattle,
-        Dictionary<DamageEffect, int> effects)
+    public void SetBarsEndEffectsInfo(
+        List<BarInfo> barsInfoBattle = null,
+        Dictionary<DamageEffect, int> effects = null)
     {
-        barsContainer.gameObject.SetActive(true);
-        barsContainer.SetData(barsInfoBattle);
+        if (destroyed)
+            return;
 
-        effectsContainer.gameObject.SetActive(true);
-        effectsContainer.SetEffects(effects);
+        barsContainer.gameObject.SetActive(barsInfoBattle != null);
+        barsContainer.SetData(barsInfoBattle??new());
+
+        effectsContainer.gameObject.SetActive(effects != null);
+        effectsContainer.SetEffects(effects??new());
     }
 
     internal void ResetBarsAndEffects()

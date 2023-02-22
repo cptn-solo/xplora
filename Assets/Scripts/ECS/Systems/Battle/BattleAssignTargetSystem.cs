@@ -10,7 +10,7 @@ namespace Assets.Scripts.ECS.Systems
 
     public class BattleAssignTargetSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
+        private readonly EcsPoolInject<PositionComp> positionPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnPool;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
         private readonly EcsPoolInject<RangedTag> rangedTagPool;
@@ -34,11 +34,9 @@ namespace Assets.Scripts.ECS.Systems
                 throw new Exception("No Attacker");
 
             var isPlayerTeam = playerTeamTagPool.Value.Has(attackerInstanceEntity);
-
-            var targetEntity = -1;
-            Hero targetConfig = default;
-
             var ranged = rangedTagPool.Value.Has(attackerInstanceEntity);
+
+            int targetEntity;
             if (ranged)
             {
                 var filter = isPlayerTeam ?
@@ -79,12 +77,13 @@ namespace Assets.Scripts.ECS.Systems
                     throw new Exception("No Hero Config");
 
                 var heroConfigPool = libWorld.GetPool<Hero>();
-                ref var targetConfigTemp = ref heroConfigPool.Get(targetConfigEntity);
+                ref var targetConfig = ref heroConfigPool.Get(targetConfigEntity);
+                turnInfo.Target = targetConfig;
 
-                targetConfig = targetConfigTemp;
+                ref var positionComp = ref positionPool.Value.Get(targetEntity);
+                turnInfo.TargetPosition = positionComp.Position;
             }
 
-            turnInfo.Target = targetConfig;
             turnInfo.State = targetEntity == -1 ?
                 TurnState.NoTargets : TurnState.TurnPrepared;
         }

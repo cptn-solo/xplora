@@ -4,7 +4,6 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Assets.Scripts.Services
 {
@@ -151,7 +150,7 @@ namespace Assets.Scripts.Services
             {
                 ref var posComp = ref posPool.Get(entity);
                 ref var hero = ref heroPool.Get(entity);
-                if (posComp.Position.Item1 != team.Id && (!aliveOnly || hero.HealthCurrent > 0))
+                if (posComp.Position.Item1 != team.Id)
                     buffer.Add(hero);
             }
 
@@ -162,7 +161,7 @@ namespace Assets.Scripts.Services
 
         }
 
-        private Hero[] GetEcsTeamHeroes(EcsPackedEntityWithWorld teamPackeEntity, bool aliveOnly)
+        private Hero[] GetEcsTeamHeroes(EcsPackedEntityWithWorld teamPackeEntity)
         {
             if (!teamPackeEntity.Unpack(out var world, out var teamEntity))
                 throw new Exception("No Team");
@@ -179,7 +178,7 @@ namespace Assets.Scripts.Services
             {
                 ref var posComp = ref posPool.Get(entity);
                 ref var hero = ref heroPool.Get(entity);
-                if (posComp.Position.Item1 == team.Id && (!aliveOnly || hero.HealthCurrent > 0))
+                if (posComp.Position.Item1 == team.Id)
                     buffer.Add(hero);
             }
 
@@ -187,31 +186,6 @@ namespace Assets.Scripts.Services
             ListPool<Hero>.Add(buffer);
 
             return retval;
-        }
-
-        private void ResetEcsTeamAssets()
-        {
-            var filter = ecsContext.Filter<Team>().End();
-            var teamPool = ecsContext.GetPool<Team>();
-
-            foreach(var entity in filter)
-            {
-                ref var team = ref teamPool.Get(entity);
-                team.Inventory = Team.DefaultInventory();
-            }
-        }
-
-        private void ResetEcsHealthAndEffects()
-        {
-            var heroPool = ecsContext.GetPool<Hero>();
-            var filter = ecsContext.Filter<Hero>().End();
-
-            foreach(var entity in filter)
-            {
-                ref var hero = ref heroPool.Get(entity);
-                hero.HealthCurrent = hero.Health;
-                hero.ActiveEffects = new();
-            }
         }
 
         private Hero GetEcsHeroById(int heroId) =>
@@ -247,15 +221,10 @@ namespace Assets.Scripts.Services
             if (!packedEntity.Unpack(out var world, out var entity))
                 throw new Exception($"No Hero config for id {target.Id}");
 
-            var positionPool = ecsContext.GetPool<PositionComp>();
-            var heroPool = ecsContext.GetPool<Hero>();
+            var positionPool = world.GetPool<PositionComp>();
 
             ref var pos = ref positionPool.Get(entity);
             pos.Position = GetEcsNextFreePosition();
-
-            ref var hero = ref heroPool.Get(entity);
-            hero.HealthCurrent = hero.Health;
-            hero.ActiveEffects = new();
         }
 
 
@@ -277,28 +246,26 @@ namespace Assets.Scripts.Services
             pos.Position = new(1, BattleLine.Front, 0);
         }
 
-        private Hero GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
+        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
         {
-            var heroPool = ecsContext.GetPool<Hero>();
             var positionPool = ecsContext.GetPool<PositionComp>();
             var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
             foreach (var entity in filter)
             {
                 ref var pos = ref positionPool.Get(entity);
                 if (pos.Position.Equals(position))
-                    return heroPool.Get(entity);
+                    return ecsContext.PackEntityWithWorld(entity);
             }
             return default;
         }
 
-        private void MoveEcsHeroToPosition(Hero target, Tuple<int, BattleLine, int> position)
+        private void MoveEcsHeroToPosition(EcsPackedEntityWithWorld packedEntity, Tuple<int, BattleLine, int> position)
         {
-            var packedEntity = HeroConfigEntities[target.Id];
 
             if (!packedEntity.Unpack(out var world, out var entity))
-                throw new Exception($"No Hero config for id {target.Id}");
+                throw new Exception($"No Hero config");
 
-            var positionPool = ecsContext.GetPool<PositionComp>();
+            var positionPool = world.GetPool<PositionComp>();
 
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;

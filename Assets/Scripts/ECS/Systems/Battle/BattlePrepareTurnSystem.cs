@@ -4,7 +4,6 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -12,8 +11,8 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<BattleTurnInfo> turnPool;
         private readonly EcsPoolInject<BattleRoundInfo> roundPool;
-        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
+        private readonly EcsPoolInject<PositionComp> positionPool;
 
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
 
@@ -48,6 +47,9 @@ namespace Assets.Scripts.ECS.Systems
             var heroConfigPool = libWorld.GetPool<Hero>();
             ref var attackerConfig = ref heroConfigPool.Get(heroConfigEntity);
             turnInfo.Attacker = attackerConfig;
+
+            ref var position = ref positionPool.Value.Get(attackerInstanceEntity);
+            turnInfo.AttackerPosition = position.Position;
 
             ref var attackerRef = ref attackerRefPool.Value.Add(turnEntity);
             attackerRef.HeroInstancePackedEntity = world.PackEntityWithWorld(attackerInstanceEntity);

@@ -160,10 +160,10 @@ namespace Assets.Scripts.Services
             }
         }
 
-        private void ProcessEcsBattleHeroUpdate(Hero hero)
+        private void ProcessEcsBattleHeroUpdate(EcsPackedEntityWithWorld heroInstance)
         {
-            if (hero.HealthCurrent > 0)
-                return;
+            //if (hero.HealthCurrent > 0)
+            //    return;
 
             if (!BattleEntity.Unpack(ecsRaidContext, out var battleEntity))
                 return;
@@ -171,8 +171,8 @@ namespace Assets.Scripts.Services
             if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
                 return;
 
-            if (hero.TeamId != libManagementService.PlayerTeam.Id)
-                return;
+            //if (hero.TeamId != libManagementService.PlayerTeam.Id)
+            //    return;
 
             var raidPool = ecsRaidContext.GetPool<RaidComp>();
             ref var raidComp = ref raidPool.Get(raidEntity);
@@ -180,7 +180,7 @@ namespace Assets.Scripts.Services
             var buffer = ListPool<Hero>.Get();
 
             buffer.AddRange(raidComp.PlayerHeroes);
-            buffer.Remove(hero);
+            //buffer.Remove(hero);
 
             raidComp.PlayerHeroes = buffer.ToArray();
 

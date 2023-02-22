@@ -13,7 +13,7 @@ namespace Assets.Scripts.UI.Battle
 
         public int QueueIndex => queueIndex;
         
-        public void InitQueueMember(Hero hero)
+        public void InitQueueMember(RoundSlotInfo? hero)
         {
             queueMember = GetComponentInChildren<QueueMember>();
             queueMember.Hero = hero;

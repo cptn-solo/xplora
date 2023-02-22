@@ -1,8 +1,7 @@
 #if UNITY_EDITOR
-using Assets.Scripts.Services.ConfigDataManagement.Parsers;
-using Assets.Scripts.Data;
 using UnityEditor;
 using UnityEngine;
+using Assets.Scripts.Services;
 
 public class EditModeMenu : EditorWindow
 {

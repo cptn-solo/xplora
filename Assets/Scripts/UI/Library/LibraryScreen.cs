@@ -104,7 +104,7 @@ namespace Assets.Scripts.UI.Library
         private void ShowHeroesLibraryCards()
         {
             foreach (var slot in librarySlots)
-                slot.Hero = libManager.HeroAtPosition(slot.Position);
+                slot.Unit.HeroInstanceEntity = libManager.HeroAtPosition(slot.Position);
         }
 
         private void ShowTeamCards(int teamId)

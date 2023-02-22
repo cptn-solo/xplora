@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Data;
+﻿using Assets.Scripts.Battle;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Inventory;
 using System;
@@ -9,7 +10,7 @@ namespace Assets.Scripts.UI.Battle
 {
     using HeroPosition = Tuple<int, BattleLine, int>;
 
-    public class BattleLineSlot : UIItemSlot
+    public class BattleLineSlot : UIItemSlot, IHeroPosition
     {
         private Hero hero;        
         private RaidMember raidMember;
@@ -28,12 +29,24 @@ namespace Assets.Scripts.UI.Battle
 
         public RaidMember RaidMember => raidMember;
 
-        public HeroPosition Position { get; internal set; }
-
         public override void Put(Transform itemTransform)
         {
+            if (itemTransform == null)
+                return;
+
             base.Put(itemTransform);
             raidMember = itemTransform.GetComponent<RaidMember>();
         }
+
+        #region IHeroPosition
+
+        public HeroPosition Position { get; internal set; }
+
+        public IHeroInstanceEntity Unit => RaidMember;
+
+        public IBarsAndEffects UnitStateView => RaidMember.HeroAnimation.Overlay;
+
+        #endregion
+
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Assets.Scripts.Data;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
+namespace Assets.Scripts.Services
 {
     public delegate ref Hero HeroConfigProcessor(int id);
 
@@ -113,8 +113,6 @@ namespace Assets.Scripts.Services.ConfigDataManagement.Parsers
             hero.Traits[HeroTrait.Scout] = HeroTrait.Scout.Level(val(++rowIndex, cell).ParseAbsoluteValue());
             hero.Traits[HeroTrait.Tidy] = HeroTrait.Tidy.Level(val(++rowIndex, cell).ParseAbsoluteValue());
             hero.Traits[HeroTrait.Soft] = HeroTrait.Soft.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-
-            hero.HealthCurrent = hero.Health;
         }
     }
 }

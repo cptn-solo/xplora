@@ -11,22 +11,9 @@ namespace Assets.Scripts.Services
 
         public ref Team PlayerTeam => ref GetEcsPlayerTeam();
         public ref Team EnemyTeam => ref GetEcsEnemyTeam();
-        public Hero[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity, true);
-        public Hero[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity, true);
+        public Hero[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
+        public Hero[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
         public Hero[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
-
-        public bool PrepareTeamsForBattle(out Hero[] playerHeroes, out Hero[] enemyHeroes)
-        {
-            ResetHealthCurrent();
-
-            playerHeroes = PlayerHeroes;
-            enemyHeroes = EnemyHeroes;
-
-            if (playerHeroes.Length > 0 && enemyHeroes.Length > 0)
-                return true;
-
-            return false;
-        }
 
         public void Init()
         {
@@ -39,15 +26,6 @@ namespace Assets.Scripts.Services
             StopEcsContext();
         }
 
-        internal void ResetHealthCurrent() =>
-            ResetEcsHealthAndEffects();
-
-        internal void ResetTeams()
-        {
-            ResetEcsTeamAssets();
-            ResetEcsHealthAndEffects();
-        }
-
         internal void RetireHero(Hero hero) =>
             RetireEcsHero(hero);
         
@@ -57,10 +35,10 @@ namespace Assets.Scripts.Services
         internal Hero HeroById(int heroId) =>
             GetEcsHeroById(heroId);
 
-        internal Hero HeroAtPosition(Tuple<int, BattleLine, int> position) =>
+        internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>
             GetEcsHeroAtPosition(position);
 
-        internal void MoveHero(Hero hero, Tuple<int, BattleLine, int> pos) =>
+        internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
     }
 }

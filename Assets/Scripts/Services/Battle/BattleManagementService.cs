@@ -7,6 +7,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Services
 {
@@ -184,10 +185,10 @@ namespace Assets.Scripts.Services
                 StopEcsContext();
         }
 
-        internal Hero HeroAtPosition(Tuple<int, BattleLine, int> position) =>
+        internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>
             GetEcsHeroAtPosition(position);
 
-        internal void MoveHero(Hero hero, Tuple<int, BattleLine, int> pos) =>
+        internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
 
     }

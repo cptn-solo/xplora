@@ -5,7 +5,6 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEditor.Experimental.GraphView;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -13,6 +12,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<HPComp> hpCompPool;
         private readonly EcsPoolInject<HealthComp> healthCompPool;
+        private readonly EcsPoolInject<PositionComp> positionPool;
         private readonly EcsPoolInject<EffectsComp> effectsPool;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
@@ -55,17 +55,19 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var hpComp = ref hpCompPool.Value.Get(attackerEntity);
             ref var healthComp = ref healthCompPool.Value.Get(attackerEntity);
+            ref var position = ref positionPool.Value.Get(attackerEntity);
 
-            hpComp.UpdateHealthCurrent(effectDamage, healthComp.Health, out int aDisplay, out int aCurrent);
+            hpComp.UpdateHealthCurrent(effectDamage, healthComp.Value, out int aDisplay, out int aCurrent);
 
             // intermediate turn info, no round turn override to preserve pre-calculated target:
             var effectsInfo = new BattleTurnInfo() {
                 Turn = turnInfo.Turn,
                 Attacker = turnInfo.Attacker,
+                AttackerPosition = position.Position,
                 Damage = effectDamage,
                 AttackerEffects = effs,
                 Lethal = hpComp.HP <= 0,
-                Health = healthComp.Health,
+                Health = healthComp.Value,
                 HealthCurrent = hpComp.HP,
                 Speed = turnInfo.Attacker.Speed, // this should be taken from somewhere else
                 ActiveEffects = effectsComp.ActiveEffects,
