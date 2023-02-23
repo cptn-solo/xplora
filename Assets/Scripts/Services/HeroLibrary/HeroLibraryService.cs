@@ -26,16 +26,7 @@ namespace Assets.Scripts.Services
         {
             StopEcsContext();
         }
-
-        internal void RetireHero(Hero hero) =>
-            RetireEcsHero(hero);
         
-        internal void MoveToEnemyFrontLine(Hero hero) =>
-            MoveEcsEnemyFrontLine(hero);
-
-        internal Hero HeroById(int heroId) =>
-            GetEcsHeroById(heroId);
-
         internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>
             GetEcsHeroAtPosition(position);
 

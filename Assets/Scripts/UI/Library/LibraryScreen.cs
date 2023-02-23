@@ -105,18 +105,6 @@ namespace Assets.Scripts.UI.Library
             SyncWorldAndButton();
         }
 
-        private void ShowTeamCards(int teamId)
-        {
-            var heroes = teamId == 0 ? libManager.PlayerHeroes : libManager.EnemyHeroes;
-            TeamMemberSlot[] slots = teamId == 0 ? playerSlots : enemySlots;
-            for (int i = 0; i < slots.Length; i++)
-            {
-                var slot = slots[i];
-                var hero = i < heroes.Count() ? heroes[i] : Hero.Default;
-                slot.Hero = hero;
-            }
-        }
-
         private void InitSlots<T>(Transform container, T[] outSlots, int teamId) where T: LibrarySlot
         {
             var slots = container.GetComponentsInChildren<T>();
@@ -143,6 +131,7 @@ namespace Assets.Scripts.UI.Library
                     .ToArray())
                     card.Selected = card.PackedEntity.Equals(selectedHero);
         }
+
         private void SyncWorldAndButton()
         {
             var playerHeroes = libManager.PlayerHeroes;

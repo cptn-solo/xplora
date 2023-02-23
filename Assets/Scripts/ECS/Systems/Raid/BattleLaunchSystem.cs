@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
                 if (battleComp.EnemyPackedEntity.Unpack(ecsWorld.Value, out var enemyEntity))
                 {
                     ref var heroComp = ref heroPool.Value.Get(enemyEntity);
-                    raidService.Value.MoveEnemyToFront(heroComp.Hero);
+                    raidService.Value.PrepareEnemyTeamBasedOnHero(heroComp.Hero);
                 }
 
                 foreach (var unitEntity in unitFilter.Value)

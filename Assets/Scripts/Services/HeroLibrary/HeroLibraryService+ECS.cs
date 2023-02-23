@@ -192,64 +192,6 @@ namespace Assets.Scripts.Services
             return retval;
         }
 
-        private Hero GetEcsHeroById(int heroId) =>
-            GetEcsRefHero(heroId);
-
-        private ref Hero GetEcsRefHero(Hero target) =>
-            ref GetEcsRefHero(target.Id);
-
-        private ref Hero GetEcsRefHero(int heroId)
-        {
-            var packedEntity = HeroConfigEntities[heroId];
-
-            if (!packedEntity.Unpack(out var world, out var entity))
-                throw new Exception($"No Hero config for id {heroId}");
-
-            var heroPool = ecsContext.GetPool<Hero>();
-            ref var hero = ref heroPool.Get(entity);
-
-            return ref hero;
-        }
-
-        private void RetireEcsHero(Hero target)
-        {
-            ref var hero = ref GetEcsRefHero(target);
-            RetireEcsRefHero(ref hero);
-        }
-
-        public void RetireEcsRefHero(ref Hero target)
-        {
-            //TODO: revisit to handle clone instead of config itself
-            var packedEntity = HeroConfigEntities[target.Id];
-
-            if (!packedEntity.Unpack(out var world, out var entity))
-                throw new Exception($"No Hero config for id {target.Id}");
-
-            var positionPool = world.GetPool<PositionComp>();
-
-            ref var pos = ref positionPool.Get(entity);
-            pos.Position = GetEcsNextFreePosition();
-        }
-
-
-        private void MoveEcsEnemyFrontLine(Hero target)
-        {
-            ref var hero = ref GetEcsRefHero(target);
-            MoveEcsRefEnemyFrontLine(ref hero);
-        }
-
-        private void MoveEcsRefEnemyFrontLine(ref Hero target)
-        {
-            var packedEntity = HeroConfigEntities[target.Id];
-
-            if (!packedEntity.Unpack(out var world, out var entity))
-                throw new Exception($"No Hero config for id {target.Id}");
-
-            var positionPool = ecsContext.GetPool<PositionComp>();
-            ref var pos = ref positionPool.Get(entity);
-            pos.Position = new(1, BattleLine.Front, 0);
-        }
-
         internal void BindEcsLibraryScreenHeroSlots(IHeroPosition[] buffer)
         {
             //TODO: remember these objects to later attach/track heroes to/with them

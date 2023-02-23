@@ -11,8 +11,10 @@ namespace Assets.Scripts.Services
             ProcessEcsBattleAftermath(won);
         }
 
-        internal void MoveEnemyToFront(Hero hero) =>
-            libManagementService.MoveToEnemyFrontLine(hero);
+        internal void PrepareEnemyTeamBasedOnHero(Hero hero)
+        {
+            throw new NotImplementedException();
+        }
 
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);
