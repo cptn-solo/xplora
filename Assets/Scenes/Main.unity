@@ -239,6 +239,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0db3f070cb9631f4fbd5526cf56b9ccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1030265217 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5667784706327141094, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+    type: 3}
+  m_PrefabInstance: {fileID: 8387124494300482828}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1486173127
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -631,6 +643,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1614290749}
     m_Modifications:
+    - target: {fileID: 8387124494141967333, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: menuButton
+      value: 
+      objectReference: {fileID: 1030265217}
     - target: {fileID: 8387124494141967336, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
         type: 3}
       propertyPath: m_Name

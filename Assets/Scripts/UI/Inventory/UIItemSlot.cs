@@ -51,6 +51,9 @@ namespace Assets.Scripts.UI.Inventory
 
         public virtual void Put(Transform itemTransform)
         {
+            if (itemTransform == null)
+                return;
+
             itemTransform.SetParent(transform);
             itemTransform.localPosition = Vector3.zero;
             canvas = GetComponentInParent<Canvas>();
@@ -111,7 +114,7 @@ namespace Assets.Scripts.UI.Inventory
             }
 
             dragCargo.GetComponent<CanvasGroup>().blocksRaycasts = true;
-            dragCargo.gameObject.SetActive(false);
+            //dragCargo.gameObject.SetActive(false);
             dragCargo = null;
 
             delegateProvider.TransferCleanup(this);

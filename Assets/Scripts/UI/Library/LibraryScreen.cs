@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.UI.Library
 {
@@ -27,7 +28,7 @@ namespace Assets.Scripts.UI.Library
 
         [SerializeField] private UIMenuButton raidButton;
 
-        private Hero selectedHero = Hero.Default;
+        private EcsPackedEntityWithWorld? selectedHero = null;
 
         private bool googleHeroesAvailable = true;
 
@@ -63,6 +64,7 @@ namespace Assets.Scripts.UI.Library
                 button.OnActionButtonClick += OnActionButtonPressed;
             }
 
+            libManager.HeroCardFactory = cardPool.CreateHeroCard;
             libManager.OnDataAvailable += LibManager_OnDataAvailable;
             
             InitSlots(libraryContainer, librarySlots, -1);
@@ -93,18 +95,10 @@ namespace Assets.Scripts.UI.Library
         }
 
         private void LibManager_OnDataAvailable()
-        {            
-            ShowHeroesLibraryCards();
-            ShowTeamCards(libManager.PlayerTeam.Id);
-            ShowTeamCards(libManager.EnemyTeam.Id);
+        {
+            libManager.CreateCards();
 
             SyncWorldAndButton();
-        }
-
-        private void ShowHeroesLibraryCards()
-        {
-            foreach (var slot in librarySlots)
-                slot.Unit.HeroInstanceEntity = libManager.HeroAtPosition(slot.Position);
         }
 
         private void ShowTeamCards(int teamId)
@@ -133,12 +127,17 @@ namespace Assets.Scripts.UI.Library
                 slot.DelegateProvider = slotDelegate;
                 outSlots[i] = slot;
             }
+            libManager.BindEcsLibraryScreenHeroSlots(outSlots);
         }
+
         private void SyncHeroCardSelectionWithHero()
         {
             foreach (var slots in new[] { librarySlots, playerSlots, enemySlots })
-                foreach (var card in slots.Select(x => x.HeroCard).ToArray())
-                    card.Selected = card.Hero.Id == selectedHero.Id;
+                foreach (var card in slots
+                    .Where(x => x.HeroCard != null)
+                    .Select(x => x.HeroCard)
+                    .ToArray())
+                    card.Selected = card.PackedEntity.Equals(selectedHero);
         }
         private void SyncWorldAndButton()
         {
@@ -164,11 +163,12 @@ namespace Assets.Scripts.UI.Library
                         var heroCard = actionTransform.GetComponent<HeroCard>();
                         Debug.Log($"Hero from line #{heroCard.Hero} selected");
 
-                        selectedHero = heroCard.Hero;
+                        selectedHero = heroCard.PackedEntity;
                         SyncHeroCardSelectionWithHero();
                         //ShowHeroInventory(selectedHero);
 
-                        heroDetails.Hero = selectedHero;
+                        heroDetails.PackedEntity = selectedHero;
+                        heroDetails.Update();
                     }
                     break;
                 case Actions.SaveTeamForBattle:

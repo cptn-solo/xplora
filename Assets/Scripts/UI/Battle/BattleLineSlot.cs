@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI.Battle
 {
     using HeroPosition = Tuple<int, BattleLine, int>;
 
-    public class BattleLineSlot : UIItemSlot, IHeroPosition
+    public class BattleLineSlot : UIItemSlot, IHeroPosition, ITransform
     {
         private Hero hero;        
         private RaidMember raidMember;
@@ -29,6 +29,10 @@ namespace Assets.Scripts.UI.Battle
 
         public RaidMember RaidMember => raidMember;
 
+        #region IHeroPosition
+
+        public HeroPosition Position { get; internal set; }
+
         public override void Put(Transform itemTransform)
         {
             if (itemTransform == null)
@@ -38,13 +42,16 @@ namespace Assets.Scripts.UI.Battle
             raidMember = itemTransform.GetComponent<RaidMember>();
         }
 
-        #region IHeroPosition
+        public void Reset()
+        {
+            raidMember = null;
+        }
 
-        public HeroPosition Position { get; internal set; }
+        #endregion
 
-        public IHeroInstanceEntity Unit => RaidMember;
+        #region ITransform
 
-        public IBarsAndEffects UnitStateView => RaidMember.HeroAnimation.Overlay;
+        public Transform Transform => transform;
 
         #endregion
 

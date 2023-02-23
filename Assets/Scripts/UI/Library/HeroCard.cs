@@ -8,7 +8,7 @@ using Leopotam.EcsLite;
 
 namespace Assets.Scripts.UI.Library
 {
-    public class HeroCard : MonoBehaviour, IHeroInstanceEntity
+    public class HeroCard : MonoBehaviour, IEntityView<Hero>
     {
 
         [SerializeField] private Image heroIconImage;
@@ -20,9 +20,6 @@ namespace Assets.Scripts.UI.Library
 
         [SerializeField] private Color acceptingColor;
         [SerializeField] private Color selectedColor;
-
-        public EcsPackedEntityWithWorld? HeroInstanceEntity { get; set; }
-
 
         private Hero hero;
         public Hero Hero
@@ -95,5 +92,17 @@ namespace Assets.Scripts.UI.Library
             normalColor = backgroundImage.color;
         }
 
+        #region IEntityView
+
+        public EcsPackedEntityWithWorld? PackedEntity { get; set; }
+
+        public DataLoadDelegate<Hero> DataLoader { get; set; }
+
+        public void Update() =>
+            Hero = DataLoader(PackedEntity.Value);
+
+        public Transform Transform => transform;
+
+        #endregion
     }
 }

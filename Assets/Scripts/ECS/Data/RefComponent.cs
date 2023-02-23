@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
@@ -48,6 +49,11 @@ namespace Assets.Scripts.ECS.Data
     public struct VisibilityRef
     {
         public IVisibility visibility;
+    }
+
+    public struct EntityViewRef<T>
+    {
+        public IEntityView<T> EntityView;
     }
 
 

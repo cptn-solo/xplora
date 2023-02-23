@@ -23,7 +23,7 @@ namespace Assets.Scripts.UI.Battle
             var raidMemeber = actionTransform.GetComponent<RaidMember>();
             Debug.Log($"Hero from line #{raidMemeber.Hero} selected");
             
-            selectedHero = raidMemeber.HeroInstanceEntity.Value;            
+            selectedHero = raidMemeber.PackedEntity.Value;            
             SyncHeroCardSelectionWithHero();
 
         }
@@ -36,7 +36,7 @@ namespace Assets.Scripts.UI.Battle
                 .Concat(enemyBackSlots);
 
             foreach (var card in slots.Select(x => x.RaidMember).ToArray())
-                card.Selected = card.HeroInstanceEntity.Equals(selectedHero);
+                card.Selected = card.PackedEntity.Equals(selectedHero);
         }
     }
 }

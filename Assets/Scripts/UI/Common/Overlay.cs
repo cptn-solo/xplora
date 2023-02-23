@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Overlay : MonoBehaviour, IBarsAndEffects
+public class Overlay : MonoBehaviour
 {
     [SerializeField] private EffectsContainer effectsContainer;
     [SerializeField] private Image piercedImage;

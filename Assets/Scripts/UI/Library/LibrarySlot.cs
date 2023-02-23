@@ -8,7 +8,7 @@ namespace Assets.Scripts.UI.Library
 {
     using HeroPosition = Tuple<int, BattleLine, int>;
 
-    public class LibrarySlot : UIItemSlot, IHeroPosition
+    public class LibrarySlot : UIItemSlot, IHeroPosition, ITransform
     {
         private Hero hero;
         public Hero Hero
@@ -27,21 +27,33 @@ namespace Assets.Scripts.UI.Library
         private HeroCard heroCard;
         public HeroCard HeroCard => heroCard;
 
-        public override void Put(Transform itemTransform)
-        {
-            base.Put(itemTransform);
-            heroCard = itemTransform.GetComponent<HeroCard>();
-        }
-
         #region IHeroPosition
 
         public HeroPosition Position { get; internal set; }
 
-        public IHeroInstanceEntity Unit => HeroCard;
+        public override void Put(Transform itemTransform)
+        {
+            base.Put(itemTransform);
 
-        public IBarsAndEffects UnitStateView => null;
+            if (itemTransform == null)
+                return;
+
+            heroCard = itemTransform.GetComponent<HeroCard>();
+        }
+
+        public void Reset()
+        {
+            heroCard = null;
+        }
 
         #endregion
+
+        #region ITransform
+
+        public Transform Transform => transform;
+
+        #endregion
+
 
     }
 

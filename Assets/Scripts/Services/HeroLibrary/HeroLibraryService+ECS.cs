@@ -1,4 +1,6 @@
 ﻿using System;
+using Assets.Scripts.Battle;
+using System.Collections.Generic;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
@@ -7,6 +9,8 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.Services
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public partial class HeroLibraryService // ECS
     {
         private EcsWorld ecsContext;
@@ -19,6 +23,8 @@ namespace Assets.Scripts.Services
 
         public EcsPackedEntityWithWorld[] HeroConfigEntities { get; private set; } =
             new EcsPackedEntityWithWorld[0];
+
+        private Dictionary<HeroPosition, IHeroPosition> slots = new();
 
         private void StartEcsContext()
         {
@@ -78,8 +84,6 @@ namespace Assets.Scripts.Services
             HeroConfigEntities = buffer.ToArray();
 
             ListPool<EcsPackedEntityWithWorld>.Add(buffer);
-
-
 
             return ref added;
         }
@@ -246,6 +250,43 @@ namespace Assets.Scripts.Services
             pos.Position = new(1, BattleLine.Front, 0);
         }
 
+        internal void BindEcsLibraryScreenHeroSlots(IHeroPosition[] buffer)
+        {
+            //TODO: remember these objects to later attach/track heroes to/with them
+            foreach (var slot in buffer)
+                if (slots.TryGetValue(slot.Position, out _))
+                    slots[slot.Position] = slot;
+                else slots.Add(slot.Position, slot);
+        }
+
+        internal void CreateCards()
+        {
+            var positionPool = ecsContext.GetPool<PositionComp>();
+            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
+            var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
+            foreach (var entity in filter)
+            {
+                ref var pos = ref positionPool.Get(entity);
+                var slot = slots[pos.Position];
+                var card = HeroCardFactory(ecsContext.PackEntityWithWorld(entity));
+                card.DataLoader = GetDataForPackedEntity<Hero>;
+                slot.Put(card.Transform);
+                card.Update();
+
+                ref var entityViewRef = ref entityViewRefPool.Add(entity);
+                entityViewRef.EntityView = card;
+            }
+
+        }
+
+        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld packed) where T: struct
+        {
+            if (packed.Unpack(out var world, out var entity))
+                return world.GetPool<T>().Get(entity);
+
+            return default;
+        }
+
         private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
         {
             var positionPool = ecsContext.GetPool<PositionComp>();
@@ -270,6 +311,11 @@ namespace Assets.Scripts.Services
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;
 
+            var slot = slots[pos.Position];
+
+            var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
+            ref var entityViewRef = ref entityViewRefPool.Get(entity);
+            slot.Put(entityViewRef.EntityView.Transform);
         }
 
         private void StopEcsContext()
@@ -283,5 +329,6 @@ namespace Assets.Scripts.Services
             ecsContext?.Destroy();
             ecsContext = null;
         }
+
     }
 }

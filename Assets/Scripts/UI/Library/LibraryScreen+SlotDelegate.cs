@@ -1,4 +1,5 @@
 using Assets.Scripts.Data;
+using Assets.Scripts.Battle;
 using Assets.Scripts.UI.Inventory;
 using System;
 using UnityEngine;
@@ -32,32 +33,26 @@ namespace Assets.Scripts.UI.Library
                     pts.Position :
                     new(-1, BattleLine.NA, s.SlotIndex);
 
-                heroTransfer.Begin(bls.Unit.HeroInstanceEntity.Value, pos);
+                Rollback = () => libManager.MoveHero(bls.HeroCard.PackedEntity.Value, pos);
 
-                Rollback = () => bls.Unit.HeroInstanceEntity = libManager.HeroAtPosition(pos);
-                bls.Hero = Hero.Default;
+                heroTransfer.Begin(bls.HeroCard.PackedEntity.Value, pos);
+
+                bls.Reset();
 
             };
             slotDelegate.TransferEnd = (UIItemSlot s) =>
             {
-                var success = false;
                 var bls = s as LibrarySlot;
                 HeroPosition pos = s is TeamMemberSlot pts ?
                     pts.Position :
                     new(-1, BattleLine.NA, s.SlotIndex);
-
-                success = heroTransfer.Commit(pos, out var hero);
-
-                bls.Unit.HeroInstanceEntity = hero;
-
-                if (success)
+                
+                if (heroTransfer.Commit(pos, out var hero) is bool success)
                 {
                     libManager.MoveHero(hero, pos);
                     OnHeroMoved?.Invoke(bls.Hero);
                 }
-
-                if (!success)
-                    Rollback?.Invoke();
+                else Rollback?.Invoke();
 
                 Rollback = null;
 
@@ -70,11 +65,7 @@ namespace Assets.Scripts.UI.Library
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>
             {
-                var success = false;
-                if (s is LibrarySlot bls)
-                    success = heroTransfer.Abort();
-
-                if (success)
+                if (heroTransfer.Abort() is bool success)
                     Rollback?.Invoke();
 
                 Rollback = null;
@@ -85,22 +76,11 @@ namespace Assets.Scripts.UI.Library
 
         private Transform PooledItem(Transform placeholder)
         {
-            if (placeholder == null) // create and bind a new card
-            {
-                var placeholderCard = cardPool.GetHeroCard(
-                    Hero.Default, canvas.transform.localScale)
-                    .transform.GetComponent<HeroCard>();
-                BindHeroCard(placeholderCard); //placeholders are just filled with data on cargo drop
-                return placeholderCard.transform;
-            }
-            else // grab a card from the pool for display purposes
-            {
-                var placeholderCard = placeholder
-                    .transform.GetComponent<HeroCard>();
-                var hero = placeholderCard.Hero;
-                var card = cardPool.GetHeroCard(hero, canvas.transform.localScale);
-                return card.transform;
-            }
+            if (placeholder == null)
+                return null;
+
+            var card = placeholder.GetComponent<HeroCard>();
+            return cardPool.Pooled(card).transform;
         }
 
         private void SlotDelegate_HeroMoved(Hero hero)

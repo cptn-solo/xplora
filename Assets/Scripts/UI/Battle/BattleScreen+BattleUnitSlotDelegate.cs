@@ -24,8 +24,8 @@ namespace Assets.Scripts.UI.Battle
             {
                 if (s is BattleLineSlot bls)
                 {
-                    heroTransfer.Begin(bls.Unit.HeroInstanceEntity.Value, bls.Position);
-                    Rollback = () => bls.Unit.HeroInstanceEntity = battleManager.HeroAtPosition(bls.Position);
+                    heroTransfer.Begin(bls.RaidMember.PackedEntity.Value, bls.Position);
+                    Rollback = () => bls.RaidMember.PackedEntity = battleManager.HeroAtPosition(bls.Position);
                     bls.SetHero(null);
 
                 }
@@ -36,7 +36,7 @@ namespace Assets.Scripts.UI.Battle
                 if (s is BattleLineSlot bls)
                 {
                     success = heroTransfer.Commit(bls.Position, out var hero);
-                    bls.Unit.HeroInstanceEntity = hero;
+                    bls.RaidMember.PackedEntity = hero;
 
                     if (success)
                     {

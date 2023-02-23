@@ -24,7 +24,7 @@ namespace Assets.Scripts.UI.Inventory
             var ha = heroCard.GetComponentInChildren<HeroAnimation>();
             ha.SetOverlay(overlay);
 
-            heroCard.HeroInstanceEntity = heroInstance;
+            heroCard.PackedEntity = heroInstance;
             heroCard.gameObject.SetActive(false);
 
             return heroCard;
