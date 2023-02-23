@@ -279,9 +279,9 @@ namespace Assets.Scripts.Services
 
         }
 
-        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld packed) where T: struct
+        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed) where T: struct
         {
-            if (packed.Unpack(out var world, out var entity))
+            if (packed != null && packed.Value.Unpack(out var world, out var entity))
                 return world.GetPool<T>().Get(entity);
 
             return default;

@@ -46,7 +46,7 @@ public class HeroDetailsHover : MonoBehaviour, IEntityView<Hero>
 
     public void Update()
     {
-        Hero = DataLoader(PackedEntity.Value);
+        Hero = DataLoader(PackedEntity != null ? PackedEntity.Value : null);
     }
 
 

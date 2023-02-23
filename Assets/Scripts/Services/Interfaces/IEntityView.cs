@@ -2,7 +2,7 @@
 
 namespace Assets.Scripts
 {
-    public delegate T DataLoadDelegate<T>(EcsPackedEntityWithWorld entity);
+    public delegate T DataLoadDelegate<T>(EcsPackedEntityWithWorld? entity);
 
     public interface IEntityView<T> : ITransform //RaidMember
     {

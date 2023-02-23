@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Inventory
 {
+
+    public delegate void CardBinder(HeroCard card);
+
     public class HeroCardPool : MonoBehaviour
     {
         [SerializeField] private GameObject heroCardPrefab;
@@ -14,29 +17,35 @@ namespace Assets.Scripts.UI.Inventory
 
         private Canvas canvas;
 
+        public CardBinder CardBinder { get; set; }
+
         private void Start()
         {
             canvas = GetComponentInParent<Canvas>();
         }
 
         public HeroCard CreateHeroCard(
-            EcsPackedEntityWithWorld heroInstance)
+            EcsPackedEntityWithWorld? heroInstance)
         {
             HeroCard heroCard = Instantiate(heroCardPrefab).GetComponent<HeroCard>();
             heroCard.transform.localScale = canvas.transform.localScale;
             heroCard.transform.SetParent(transform);
             heroCard.PackedEntity = heroInstance;
+
+            CardBinder?.Invoke(heroCard);
+
             heroCard.gameObject.SetActive(false);
+
             return heroCard;
         }
         public HeroDetailsHover CreateHeroDetailsHoverCard(
-            EcsPackedEntityWithWorld heroInstance)
+            EcsPackedEntityWithWorld? heroInstance)
         {
             HeroDetailsHover heroCard = Instantiate(heroDetailsPrefab).GetComponent<HeroDetailsHover>();
-            heroCard.PackedEntity = heroInstance;
-            heroCard.gameObject.SetActive(false);
             heroCard.transform.localScale = canvas.transform.localScale;
             heroCard.transform.SetParent(transform);
+            heroCard.PackedEntity = heroInstance;
+            heroCard.gameObject.SetActive(false);
             return heroCard;
         }
 

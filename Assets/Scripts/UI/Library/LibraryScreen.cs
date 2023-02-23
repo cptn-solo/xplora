@@ -64,8 +64,12 @@ namespace Assets.Scripts.UI.Library
                 button.OnActionButtonClick += OnActionButtonPressed;
             }
 
+            heroDetails.DataLoader = libManager.GetDataForPackedEntity<Hero>;
+
             libManager.HeroCardFactory = cardPool.CreateHeroCard;
             libManager.OnDataAvailable += LibManager_OnDataAvailable;
+
+            cardPool.CardBinder = BindHeroCard;
             
             InitSlots(libraryContainer, librarySlots, -1);
             InitSlots(playerTeamContainer, playerSlots, 0);
