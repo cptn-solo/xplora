@@ -10,19 +10,6 @@ namespace Assets.Scripts.UI.Library
 
     public class LibrarySlot : UIItemSlot, IHeroPosition, ITransform
     {
-        private Hero hero;
-        public Hero Hero
-        {
-            get => hero;
-            set
-            {
-                hero = value;
-                if (transform.childCount == 0)
-                    return;
-
-                heroCard.Hero = hero;
-            }
-        }
 
         private HeroCard heroCard;
         public HeroCard HeroCard => heroCard;

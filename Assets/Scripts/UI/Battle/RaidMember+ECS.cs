@@ -12,10 +12,14 @@ namespace Assets.Scripts.UI.Battle
 
         public Transform Transform => transform;
 
-        public void Update()
+        public void UpdateData()
         {
             var hero = DataLoader(PackedEntity.Value);
             SetHero(hero, true);
+        }
+        public void Destroy()
+        {
+            GameObject.Destroy(this);
         }
 
         

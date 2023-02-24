@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleFinalizeTurnSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
+        private readonly EcsPoolInject<GarbageTag> garbageTagPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
 
@@ -45,7 +45,7 @@ namespace Assets.Scripts.ECS.Systems
             roundInfo.QueuedHeroes = buffer.ToArray();
             if (roundInfo.QueuedHeroes.Length == 0)
             {
-                destroyTagPool.Value.Add(roundEntity);
+                garbageTagPool.Value.Add(roundEntity);
 
                 roundInfo.State = RoundState.RoundCompleted;
                 battleService.Value.NotifyRoundEventListeners(roundInfo);
@@ -53,7 +53,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ListPool<RoundSlotInfo>.Add(buffer);
 
-            world.GetPool<DestroyTag>().Add(turnEntity);
+            garbageTagPool.Value.Add(turnEntity);
         }
 
     }

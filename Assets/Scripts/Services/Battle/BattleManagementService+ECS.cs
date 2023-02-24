@@ -13,6 +13,8 @@ using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public partial class BattleManagementService // ECS
     {
         private EcsWorld ecsContext;
@@ -26,6 +28,7 @@ namespace Assets.Scripts.Services
         public EcsPackedEntityWithWorld RoundEntity { get; internal set; } // current round
         public EcsPackedEntityWithWorld TurnEntity { get; internal set; } // current turn
 
+        private Dictionary<HeroPosition, IHeroPosition> slots = new();
 
         private void StartEcsContext()
         {
@@ -226,11 +229,104 @@ namespace Assets.Scripts.Services
 
         #region Battle screen
 
-        internal void BindEcsBattleScreenHeroSlots(List<IHeroPosition> buffer)
+        internal void BindEcsHeroSlots(IHeroPosition[] buffer)
         {
-            //TODO: remember these objects to later attach/track heroes to/with them
+            foreach (var slot in buffer)
+                if (slots.TryGetValue(slot.Position, out _))
+                    slots[slot.Position] = slot;
+                else slots.Add(slot.Position, slot);
         }
 
+        internal delegate void OverlayToCardDelegate(IEntityView<Hero> card, IEntityView<BarsAndEffectsInfo> overlay);
+        internal void CreateCards(OverlayToCardDelegate callback)
+        {
+            var positionPool = ecsContext.GetPool<PositionComp>();
+            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
+            var entityViewOverlayRefPool = ecsContext.GetPool<EntityViewRef<BarsAndEffectsInfo>>();
+            var heroConfigRefPool = ecsContext.GetPool<HeroConfigRefComp>();
+            var filter = ecsContext.Filter<HeroConfigRefComp>().Inc<PositionComp>().End();
+            foreach (var entity in filter)
+            {
+                ref var pos = ref positionPool.Get(entity);
+                var slot = slots[pos.Position];
+
+                var packed = ecsContext.PackEntityWithWorld(entity);
+
+                var card = HeroCardFactory(packed);
+                card.DataLoader = GetHeroConfigForPackedEntity<Hero>;
+                slot.Put(card.Transform);
+                card.UpdateData();
+
+                ref var entityViewRef = ref entityViewRefPool.Add(entity);
+                entityViewRef.EntityView = card;
+
+                var overlay = HeroOverlayFactory(packed);
+                overlay.DataLoader = GetDataForPackedEntity<BarsAndEffectsInfo>;
+                overlay.UpdateData();
+
+                ref var entityViewOverlayRef = ref entityViewOverlayRefPool.Add(entity);
+                entityViewOverlayRef.EntityView = overlay;
+
+                callback?.Invoke(card, overlay);
+
+            }
+        }
+
+        private void UnlinkCardRefs()
+        {
+            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
+            var filter = ecsContext.Filter<EntityViewRef<Hero>>().End();
+            foreach (var entity in filter)
+            {
+                ref var entityViewRef = ref entityViewRefPool.Get(entity);
+                entityViewRef.EntityView = null;
+                entityViewRefPool.Del(entity);
+            }
+        }
+
+        public T GetHeroConfigForPackedEntity<T>(EcsPackedEntityWithWorld? packed)
+            where T : struct
+        {
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return default;
+
+            ref var heroConfigRef = ref world.GetPool<HeroConfigRefComp>().Get(entity);
+
+            if (!heroConfigRef.HeroConfigPackedEntity.Unpack(out var libWorld, out var configEntity))
+                return default;
+
+            ref var heroConfig = ref libWorld.GetPool<T>().Get(configEntity);
+
+            return heroConfig;
+        }
+
+        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed)
+            where T : struct
+        {
+            if (packed != null && packed.Value.Unpack(out var world, out var entity))
+                return world.GetPool<T>().Get(entity);
+
+            return default;
+        }
+
+        internal void EnqueueEntityViewUpdate<T>(EcsPackedEntityWithWorld packedEntity)
+            where T: struct
+        {
+            if (!packedEntity.Unpack(out var world, out var entity))
+                throw new Exception("No entity");
+
+            ref var viewRef = ref world.GetPool<EntityViewRef<T>>().Get(entity);
+            viewRef.EntityView.UpdateData();
+        }
+        internal void EnqueueEntityViewDestroy<T>(EcsPackedEntityWithWorld packedEntity)
+            where T : struct
+        {
+            if (!packedEntity.Unpack(out var world, out var entity))
+                throw new Exception("No entity");
+
+            ref var viewRef = ref world.GetPool<EntityViewRef<T>>().Get(entity);
+            viewRef.EntityView.Destroy();
+        }
 
         private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
         {
@@ -251,7 +347,7 @@ namespace Assets.Scripts.Services
         private void DestroyEcsRounds()
         {
             var filter = ecsContext.Filter<BattleRoundInfo>().End();
-            var destroyTagPool = ecsContext.GetPool<DestroyTag>();
+            var destroyTagPool = ecsContext.GetPool<GarbageTag>();
             foreach (var entity in filter)
                 destroyTagPool.Add(entity);
         }
@@ -261,12 +357,18 @@ namespace Assets.Scripts.Services
             Tuple<int, BattleLine, int> position)
         {
             if (!packedEntity.Unpack(out var world, out var entity))
-                throw new Exception($"No Hero instance");
+                throw new Exception($"No Hero");
 
             var positionPool = world.GetPool<PositionComp>();
 
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;
+
+            var slot = slots[pos.Position];
+
+            var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
+            ref var entityViewRef = ref entityViewRefPool.Get(entity);
+            slot.Put(entityViewRef.EntityView.Transform);
 
         }
 

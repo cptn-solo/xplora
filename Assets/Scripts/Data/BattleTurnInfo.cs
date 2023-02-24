@@ -17,19 +17,6 @@ namespace Assets.Scripts.Data
         public DamageEffect[] TargetEffects { get; set; }
         public DamageEffect[] AttackerEffects { get; set; }
 
-        // effects state carries attackers hp and effects
-        // while other states - targets hp and effects
-        public int HealthCurrent { get; set; }
-        public int Health { get; set; }
-        public int Speed { get; set; }
-
-        public List<BarInfo> BarsInfoBattle => new() {
-            BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, (float)HealthCurrent / Health),
-            BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / Mathf.Max(Speed, 10f)),
-        };
-
-        public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }
-
         // effects
         public bool Lethal { get; set; }
         public bool Critical { get; set; }

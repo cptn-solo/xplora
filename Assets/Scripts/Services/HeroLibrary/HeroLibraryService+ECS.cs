@@ -192,9 +192,8 @@ namespace Assets.Scripts.Services
             return retval;
         }
 
-        internal void BindEcsLibraryScreenHeroSlots(IHeroPosition[] buffer)
+        internal void BindEcsHeroSlots(IHeroPosition[] buffer)
         {
-            //TODO: remember these objects to later attach/track heroes to/with them
             foreach (var slot in buffer)
                 if (slots.TryGetValue(slot.Position, out _))
                     slots[slot.Position] = slot;
@@ -213,7 +212,7 @@ namespace Assets.Scripts.Services
                 var card = HeroCardFactory(ecsContext.PackEntityWithWorld(entity));
                 card.DataLoader = GetDataForPackedEntity<Hero>;
                 slot.Put(card.Transform);
-                card.Update();
+                card.UpdateData();
 
                 ref var entityViewRef = ref entityViewRefPool.Add(entity);
                 entityViewRef.EntityView = card;

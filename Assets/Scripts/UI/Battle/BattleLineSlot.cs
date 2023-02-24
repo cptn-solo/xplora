@@ -2,6 +2,7 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Inventory;
+using Assets.Scripts.UI.Library;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,20 +13,7 @@ namespace Assets.Scripts.UI.Battle
 
     public class BattleLineSlot : UIItemSlot, IHeroPosition, ITransform
     {
-        private Hero hero;        
         private RaidMember raidMember;
-
-        public Hero Hero => hero;
-
-        public void SetHero(Hero? hero, bool isPlayerTeam = false){ 
-            this.hero = hero == null ? default : hero.Value;
-            if (transform.childCount == 0)
-                return;
-
-            raidMember.SetHero(hero, isPlayerTeam);
-        }
-        public void SetBarsAndEffects(List<BarInfo> bars, Dictionary<DamageEffect, int> effects) =>
-            raidMember.SetBarsAndEffects(bars, effects);
 
         public RaidMember RaidMember => raidMember;
 
@@ -35,10 +23,11 @@ namespace Assets.Scripts.UI.Battle
 
         public override void Put(Transform itemTransform)
         {
+            base.Put(itemTransform);
+
             if (itemTransform == null)
                 return;
 
-            base.Put(itemTransform);
             raidMember = itemTransform.GetComponent<RaidMember>();
         }
 

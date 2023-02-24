@@ -52,12 +52,18 @@ namespace Assets.Scripts.UI.Battle
         public void Initialize()
         {
             ResetAnimations();
-            overlay.ResetOverlayInfo();
+
+            if (overlay != null)
+                overlay.ResetOverlayInfo();
+
             initialized = true;
         }
 
         public void HideOverlay()
         {
+            if (overlay == null)
+                return;
+
             overlay.ResetOverlayInfo();
             overlay.ResetBarsAndEffects();
         }

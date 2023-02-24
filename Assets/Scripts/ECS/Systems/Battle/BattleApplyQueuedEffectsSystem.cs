@@ -66,17 +66,17 @@ namespace Assets.Scripts.ECS.Systems
                 AttackerPosition = position.Position,
                 Damage = effectDamage,
                 AttackerEffects = effs,
-                Lethal = hpComp.HP <= 0,
-                Health = healthComp.Value,
-                HealthCurrent = hpComp.HP,
-                Speed = turnInfo.Attacker.Speed, // this should be taken from somewhere else
-                ActiveEffects = effectsComp.ActiveEffects,
+                Lethal = hpComp.Value <= 0,
+                //Health = healthComp.Value,
+                //HealthCurrent = hpComp.HP,
+                //Speed = turnInfo.Attacker.Speed, // this should be taken from somewhere else
+                //ActiveEffects = effectsComp.ActiveEffects,
                 State = TurnState.TurnEffects,
             };
 
             battleService.Value.NotifyTurnEventListeners(effectsInfo);
 
-            if (hpComp.HP > 0)
+            if (hpComp.Value > 0)
                 attackTagPool.Value.Add(turnEntity);
         }
 

@@ -182,7 +182,10 @@ namespace Assets.Scripts.Services
                 StartEcsContext();
 
             if (previous == Screens.Battle)
+            {
+                UnlinkCardRefs();
                 StopEcsContext();
+            }
         }
 
         internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>
@@ -190,6 +193,9 @@ namespace Assets.Scripts.Services
 
         internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
+
+        internal EntityViewFactory<Hero> HeroCardFactory { get; set; }
+        internal EntityViewFactory<BarsAndEffectsInfo> HeroOverlayFactory { get; set; }
 
     }
 }

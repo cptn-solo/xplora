@@ -47,7 +47,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
             turnInfo.State = TurnState.TurnCompleted;
             turnInfo.Lethal = hp <= 0;
-            turnInfo.HealthCurrent = hp;
+            //turnInfo.HealthCurrent = hp;
 
             completeTagPool.Value.Add(turnEntity);
 
@@ -62,7 +62,7 @@ namespace Assets.Scripts.ECS.Systems
                 throw new Exception("No hero instance");
 
             ref var hpComp = ref hpCompPool.Value.Get(heroInstanceEntity);
-            hp = hpComp.HP;
+            hp = hpComp.Value;
             if (hp <= 0)
                 deadTagPool.Value.Add(turnEntity);
         }

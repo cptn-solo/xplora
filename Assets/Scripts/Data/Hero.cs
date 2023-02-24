@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Assets.Scripts.Data
 {
     using AssetDict = Dictionary<int, Asset>;
-
     public partial struct Hero : IEntity
     {
         public override string ToString()

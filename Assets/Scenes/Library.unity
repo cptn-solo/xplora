@@ -3712,7 +3712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef19ec4967bd0ea4a97f34359152cc67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heroCardPrefab: {fileID: 3098798994690606055, guid: 831329e00a658c54d860600582706b04,
+  cardPrefab: {fileID: 3098798994690606055, guid: 831329e00a658c54d860600582706b04,
     type: 3}
   heroDetailsPrefab: {fileID: 3905912016691865442, guid: fd878fdae4a61954eb2de5e637d505bf,
     type: 3}

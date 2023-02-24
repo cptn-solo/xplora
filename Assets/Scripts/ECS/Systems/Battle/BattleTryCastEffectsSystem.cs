@@ -72,9 +72,9 @@ namespace Assets.Scripts.ECS.Systems
 
                     hpComp.UpdateHealthCurrent(turnInfo.ExtraDamage, healthComp.Value, out int aDisplay, out int aCurrent);
 
-                    turnInfo.Health = healthComp.Value;
-                    turnInfo.Speed = turnInfo.Target.Speed; // this should be taken from somewhere else
-                    turnInfo.ActiveEffects = effectsComp.ActiveEffects;
+                    //turnInfo.Health = healthComp.Value;
+                    //turnInfo.Speed = turnInfo.Target.Speed; // this should be taken from somewhere else
+                    //turnInfo.ActiveEffects = effectsComp.ActiveEffects;
                 }
             }
         }

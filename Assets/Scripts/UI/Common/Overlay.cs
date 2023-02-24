@@ -1,12 +1,14 @@
+using Assets.Scripts;
 using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
+using Leopotam.EcsLite;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Overlay : MonoBehaviour
+public class Overlay : MonoBehaviour, IEntityView<BarsAndEffectsInfo>
 {
     [SerializeField] private EffectsContainer effectsContainer;
     [SerializeField] private Image piercedImage;
@@ -86,4 +88,25 @@ public class Overlay : MonoBehaviour
         barsContainer.gameObject.SetActive(false);
         effectsContainer.gameObject.SetActive(false);
     }
+
+    #region IEntityView
+
+    public EcsPackedEntityWithWorld? PackedEntity { get; set; }
+
+    public DataLoadDelegate<BarsAndEffectsInfo> DataLoader { get; set; }
+
+    public Transform Transform => transform;
+
+    public void UpdateData()
+    {
+        var data = DataLoader(PackedEntity.Value);
+        SetBarsEndEffectsInfo(data.BarsInfoBattle, data.ActiveEffects);
+    }
+
+    public void Destroy()
+    {
+        GameObject.Destroy(this);
+    }
+
+    #endregion
 }

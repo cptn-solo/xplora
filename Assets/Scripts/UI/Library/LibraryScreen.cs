@@ -119,7 +119,7 @@ namespace Assets.Scripts.UI.Library
                 slot.DelegateProvider = slotDelegate;
                 outSlots[i] = slot;
             }
-            libManager.BindEcsLibraryScreenHeroSlots(outSlots);
+            libManager.BindEcsHeroSlots(outSlots);
         }
 
         private void SyncHeroCardSelectionWithHero()
@@ -161,7 +161,7 @@ namespace Assets.Scripts.UI.Library
                         //ShowHeroInventory(selectedHero);
 
                         heroDetails.PackedEntity = selectedHero;
-                        heroDetails.Update();
+                        heroDetails.UpdateData();
                     }
                     break;
                 case Actions.SaveTeamForBattle:

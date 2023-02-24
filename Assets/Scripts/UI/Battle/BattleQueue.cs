@@ -12,7 +12,7 @@ namespace Assets.Scripts.UI.Battle
 
         [SerializeField] private RectTransform battleQueuePanel;
 
-        private BattleQueueSlot[] combinedSlots;
+        private BattleQueueSlot[] combinedSlots = new BattleQueueSlot[0];
 
         private bool slotsInitialized;
 

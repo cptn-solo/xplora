@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
         private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
 
-        private readonly EcsFilterInject<Inc<BattleRoundInfo, DestroyTag>> filter;
+        private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> filter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
@@ -25,7 +25,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private void DequeueRound(int roundEntity)
         {
-            if (battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
+            if (!battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
                 throw new Exception("No battle");
 
             ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);

@@ -44,7 +44,7 @@ namespace Assets.Scripts.ECS.Systems
         /// <returns>Round with heroes</returns>
         private void PrepareRound(int roundEntity)
         {
-            if (battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
+            if (!battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
                 throw new Exception("No battle");
 
             ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);

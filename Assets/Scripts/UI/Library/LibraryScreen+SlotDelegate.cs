@@ -11,7 +11,7 @@ namespace Assets.Scripts.UI.Library
 
     public partial class LibraryScreen // Slot Delegate 
     {
-        private event UnityAction<Hero> OnHeroMoved;
+        private event UnityAction OnHeroMoved;
 
         private void InitSlotDelegates()
         {
@@ -50,7 +50,7 @@ namespace Assets.Scripts.UI.Library
                 if (heroTransfer.Commit(pos, out var hero) is bool success)
                 {
                     libManager.MoveHero(hero, pos);
-                    OnHeroMoved?.Invoke(bls.Hero);
+                    OnHeroMoved?.Invoke();
                 }
                 else Rollback?.Invoke();
 
@@ -83,7 +83,7 @@ namespace Assets.Scripts.UI.Library
             return cardPool.Pooled(card).transform;
         }
 
-        private void SlotDelegate_HeroMoved(Hero hero)
+        private void SlotDelegate_HeroMoved()
         {
             SyncHeroCardSelectionWithHero();
             SyncWorldAndButton();

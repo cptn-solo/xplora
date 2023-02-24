@@ -1,5 +1,7 @@
+using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Inventory;
+using Assets.Scripts.UI.Library;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -7,10 +9,11 @@ using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Battle
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     public partial class BattleScreen // Battle Unit Slot Delegate
     {
-        private event UnityAction<Hero> OnHeroMoved;
-        private event UnityAction<Hero> OnHeroUpdated;
+        private event UnityAction OnHeroMoved;
 
         private void InitBattleUnitSlotDelegates()
         {
@@ -18,35 +21,36 @@ namespace Assets.Scripts.UI.Battle
             
             slotDelegate.TransferEnabled = (UIItemSlot s) =>
                 battleManager.CurrentBattle.State != BattleState.BattleInProgress;
-            slotDelegate.Pool = PooledItem;
+            slotDelegate.Pool = (UIItemSlot s) => {
+                if (s is not BattleLineSlot slot)
+                    return null;
+
+                return PooledItem(slot.RaidMember != null ? slot.RaidMember.transform : null);
+            };
             slotDelegate.Validator = CheckSlot;
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>
             {
-                if (s is BattleLineSlot bls)
-                {
-                    heroTransfer.Begin(bls.RaidMember.PackedEntity.Value, bls.Position);
-                    Rollback = () => bls.RaidMember.PackedEntity = battleManager.HeroAtPosition(bls.Position);
-                    bls.SetHero(null);
+                var bls = s as BattleLineSlot;
+                HeroPosition pos = bls.Position;
 
-                }
+                Rollback = () => battleManager.MoveHero(bls.RaidMember.PackedEntity.Value, pos);
+
+                heroTransfer.Begin(bls.RaidMember.PackedEntity.Value, pos);
+
+                bls.Reset();
+
             };
             slotDelegate.TransferEnd = (UIItemSlot s) =>
             {
-                var success = false;
-                if (s is BattleLineSlot bls)
+                var bls = s as BattleLineSlot;
+                HeroPosition pos = bls.Position;
+
+                if (heroTransfer.Commit(pos, out var hero) is bool success)
                 {
-                    success = heroTransfer.Commit(bls.Position, out var hero);
-                    bls.RaidMember.PackedEntity = hero;
-
-                    if (success)
-                    {
-                        battleManager.MoveHero(hero, bls.Position);
-                        OnHeroMoved?.Invoke(bls.Hero);
-                    }
+                    battleManager.MoveHero(hero, pos);
+                    OnHeroMoved?.Invoke();
                 }
-
-                if (!success)
-                    Rollback?.Invoke();
+                else Rollback?.Invoke();
 
                 Rollback = null;
 
@@ -59,15 +63,22 @@ namespace Assets.Scripts.UI.Battle
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>
             {
-                var success = heroTransfer.Abort();
-
-                if (success)
+                if (heroTransfer.Abort() is bool success)
                     Rollback?.Invoke();
 
                 Rollback = null;
 
                 return success;
             };
+        }
+
+        private Transform PooledItem(Transform placeholder)
+        {
+            if (placeholder == null)
+                return null;
+
+            var card = placeholder.GetComponent<RaidMember>();
+            return raidMemberPool.Pooled(card).transform;
         }
 
         private bool CheckSlot(UIItemSlot slot)
@@ -80,12 +91,6 @@ namespace Assets.Scripts.UI.Battle
                     heroTransfer.TeamId == bls.Position.Item1;
             else
                 return false;
-        }
-
-        private Transform PooledItem(UIItemSlot slot)
-        {
-            return slot.transform.childCount == 0 ? null :
-                slot.transform.GetChild(0).transform;
         }
 
         private RaidMember RaidMemberForPosition(Tuple<int, BattleLine, int> position)

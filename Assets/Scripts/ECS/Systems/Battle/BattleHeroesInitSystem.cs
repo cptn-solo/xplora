@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HealthComp> healthPool;
         private readonly EcsPoolInject<HPComp> hpPool;
         private readonly EcsPoolInject<EffectsComp> effectsPool;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
         private readonly EcsPoolInject<EnemyTeamTag> enemyTeamTagPool;
         private readonly EcsPoolInject<PositionComp> positionPool;
@@ -57,6 +58,9 @@ namespace Assets.Scripts.ECS.Systems
 
                 var heroInstanceEntity = battleWorld.NewEntity();
 
+                ref var heroConfigRef = ref heroConfigRefPool.Value.Add(heroInstanceEntity);
+                heroConfigRef.HeroConfigPackedEntity = heroConfigPackedEntity;
+
                 if (libPosition.Position.Item1 == battleInfo.PlayerTeam.Id)
                 {
                     playerTeamTagPool.Value.Add(heroInstanceEntity);
@@ -82,18 +86,23 @@ namespace Assets.Scripts.ECS.Systems
                 else
                     backlineTagPool.Value.Add(heroInstanceEntity);
 
-                ref var speed = ref speedPool.Value.Add(heroInstanceEntity);
-                speed.Value = heroConfig.Speed;
+                ref var speedComp = ref speedPool.Value.Add(heroInstanceEntity);
+                speedComp.Value = heroConfig.Speed;
 
                 ref var healthComp = ref healthPool.Value.Add(heroInstanceEntity);
                 healthComp.Value = heroConfig.Health;
 
                 ref var hpComp = ref hpPool.Value.Add(heroInstanceEntity);
-                hpComp.HP = heroConfig.Health;
+                hpComp.Value = heroConfig.Health;
 
                 ref var effectsComp = ref effectsPool.Value.Add(heroInstanceEntity);
                 effectsComp.ActiveEffects = new();
 
+                ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Add(heroInstanceEntity);
+                barsAndEffectsComp.HealthCurrent = hpComp.Value;
+                barsAndEffectsComp.Health = healthComp.Value;
+                barsAndEffectsComp.Speed = speedComp.Value;
+                barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
 
                 if (heroConfig.Ranged)
                     rangedTagPool.Value.Add(heroInstanceEntity);

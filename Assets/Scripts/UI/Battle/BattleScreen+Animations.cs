@@ -150,11 +150,20 @@ namespace Assets.Scripts.UI.Battle
                             attackerRM.HeroAnimation.Death();
                             audioService.Play(SFX.Named(info.Attacker.SndDied));
                         }, 1f);
-                        EnqueueTurnAnimation(() => attackerRM.SetHero(null));
+                        EnqueueTurnAnimation(() =>
+                        {
+                            var packed = attackerRM.PackedEntity.Value;
+                            battleManager.EnqueueEntityViewDestroy<Hero>(
+                                packed);
+                            battleManager.EnqueueEntityViewDestroy<BarsAndEffectsInfo>(
+                                packed);
+                        });
                     }
 
                     if (!info.Lethal)
-                        EnqueueTurnAnimation(() => attackerRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
+                        EnqueueTurnAnimation(() =>
+                            battleManager.EnqueueEntityViewUpdate<BarsAndEffectsInfo>(
+                                attackerRM.PackedEntity.Value));
 
                     break;
 
@@ -209,7 +218,9 @@ namespace Assets.Scripts.UI.Battle
                     }
 
                     EnqueueTurnAnimation(() => { }, .1f);
-                    EnqueueTurnAnimation(() => targetRM.SetBarsAndEffects(info.BarsInfoBattle, info.ActiveEffects));
+                    EnqueueTurnAnimation(() =>
+                        battleManager.EnqueueEntityViewUpdate<BarsAndEffectsInfo>(
+                            targetRM.PackedEntity.Value));
                     EnqueueTurnAnimation(() => { }, 1f);
 
                     break;

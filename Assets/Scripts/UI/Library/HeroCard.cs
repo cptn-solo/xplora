@@ -98,10 +98,15 @@ namespace Assets.Scripts.UI.Library
 
         public DataLoadDelegate<Hero> DataLoader { get; set; }
 
-        public void Update() =>
+        public void UpdateData() =>
             Hero = DataLoader(PackedEntity.Value);
 
         public Transform Transform => transform;
+
+        public void Destroy()
+        {
+            GameObject.Destroy(this);
+        }
 
         #endregion
     }

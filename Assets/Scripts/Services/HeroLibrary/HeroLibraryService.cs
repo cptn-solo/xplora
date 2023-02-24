@@ -47,9 +47,6 @@ namespace Assets.Scripts.Services
         internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
 
-        public delegate IEntityView<T> EntityViewFactory<T>(EcsPackedEntityWithWorld? packedEntity)
-            where T: struct;
-
         internal EntityViewFactory<Hero> HeroCardFactory { get; set; } 
     }
 }

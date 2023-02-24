@@ -27,7 +27,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Transform enemyBattleGround;
         [SerializeField] private Transform attackerBattleGround;
 
-        [SerializeField] private AssetPool assetPool;
+        [SerializeField] private RaidMemberPool raidMemberPool;
+        [SerializeField] private RaidMemberOverlayPool raidMemberOverlayPool;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
@@ -93,15 +94,25 @@ namespace Assets.Scripts.UI.Battle
 
             InitBattleUnitSlotDelegates(); // drop between slots (both assets and heroes)                        
 
+            battleManager.HeroCardFactory = raidMemberPool.CreateCard;
+            battleManager.HeroOverlayFactory = raidMemberOverlayPool.CreateCard;
+
+            raidMemberPool.CardBinder = BindHeroCard;
+
             InitHeroSlots(playerPartyFront, playerFrontSlots, playerTeamId, BattleLine.Front);
             InitHeroSlots(playerPartyBack, playerBackSlots, playerTeamId, BattleLine.Back);
 
             InitHeroSlots(enemyPartyFront, enemyFrontSlots, enemyTeamId, BattleLine.Front);
             InitHeroSlots(enemyPartyBack, enemyBackSlots, enemyTeamId, BattleLine.Back);
-
-            BindEcsSlots();
-
+           
             initialized = true;
+
+            battleManager.CreateCards((card, overlay) =>
+            {
+                var rm = (RaidMember)card;
+                var ov = (Overlay)overlay;
+                rm.HeroAnimation.SetOverlay(ov);
+            });
 
             UpdateView();
         }
@@ -120,10 +131,11 @@ namespace Assets.Scripts.UI.Battle
         {
             var allSlots = playerFrontSlots.Concat(playerBackSlots).Concat(enemyFrontSlots).Concat(enemyBackSlots);
             foreach (BattleLineSlot slot in allSlots)
-                slot.RaidMember.HeroAnimation.transform.localPosition = Vector3.zero;
+                if (slot.RaidMember != null)
+                    slot.RaidMember.HeroAnimation.transform.localPosition = Vector3.zero;
         }
 
-        private void SlotDelegate_HeroMoved(Hero hero)
+        private void SlotDelegate_HeroMoved()
         {
             SyncHeroCardSelectionWithHero();
             if (battleManager.CanReorderTurns)
@@ -138,6 +150,7 @@ namespace Assets.Scripts.UI.Battle
                 slot.Position = new HeroPosition(teamId, line, slot.SlotIndex);
                 slots[slot.SlotIndex] = slot;
             }
+            battleManager.BindEcsHeroSlots(slots);
         }
     }
 

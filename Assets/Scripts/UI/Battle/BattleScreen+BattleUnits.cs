@@ -2,12 +2,13 @@
 using System.Linq;
 using UnityEngine;
 using Leopotam.EcsLite;
+using Assets.Scripts.UI.Library;
 
 namespace Assets.Scripts.UI.Battle
 {
     public partial class BattleScreen // Battle Units
     {
-        private EcsPackedEntityWithWorld selectedHero;
+        private EcsPackedEntityWithWorld? selectedHero = null;
 
         private void BindHeroCard(RaidMember heroCard)
         {
@@ -27,16 +28,16 @@ namespace Assets.Scripts.UI.Battle
             SyncHeroCardSelectionWithHero();
 
         }
-
+        
         private void SyncHeroCardSelectionWithHero()
         {
-            var slots = playerFrontSlots
-                .Concat(playerBackSlots)
-                .Concat(enemyFrontSlots)
-                .Concat(enemyBackSlots);
-
-            foreach (var card in slots.Select(x => x.RaidMember).ToArray())
-                card.Selected = card.PackedEntity.Equals(selectedHero);
+            foreach (var slots in new[] { playerFrontSlots, playerBackSlots, enemyFrontSlots, enemyBackSlots })
+                foreach (var card in slots
+                    .Where(x => x.RaidMember != null)
+                    .Select(x => x.RaidMember)
+                    .ToArray())
+                    card.Selected = card.PackedEntity.Equals(selectedHero);
         }
+
     }
 }
