@@ -218,7 +218,18 @@ namespace Assets.Scripts.Services
                 ref var entityViewRef = ref entityViewRefPool.Add(entity);
                 entityViewRef.EntityView = card;
             }
+        }
 
+        private void UnlinkCardRefs()
+        {
+            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
+            var filter = ecsContext.Filter<EntityViewRef<Hero>>().End();
+            foreach (var entity in filter)
+            {
+                ref var entityViewRef = ref entityViewRefPool.Get(entity);
+                entityViewRef.EntityView = null;
+                entityViewRefPool.Del(entity);
+            }
         }
 
         public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed) where T: struct

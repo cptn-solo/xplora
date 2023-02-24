@@ -54,7 +54,8 @@ namespace Assets.Scripts
 
         public void Initialize()
         {
-            libManagementService.Init();
+            libManagementService.Init(
+                menuNavigationService);
             libManagementService.LoadData();
 
             battleManagementService.Init(
