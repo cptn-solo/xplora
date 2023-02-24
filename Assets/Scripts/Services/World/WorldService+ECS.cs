@@ -405,9 +405,10 @@ namespace Assets.Scripts.Services
             foreach (var entity in filter1)
                 explorationPool.Del(entity);
 
-            var filter2 = world.Filter<FieldCellComp>().Inc<TerrainTypeComp>().End();
-            foreach (var entity in filter2)
-                terrainTypePool.Del(entity);
+            //TODO: revisit rettain reset for a new raid
+            //var filter2 = world.Filter<FieldCellComp>().Inc<TerrainTypeComp>().End();
+            //foreach (var entity in filter2)
+            //    terrainTypePool.Del(entity);
 
         }
     }
