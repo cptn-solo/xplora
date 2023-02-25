@@ -78,7 +78,6 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             var orderedHeroes = buffer.OrderByDescending(x => x.Speed);
-            ListPool<RoundSlotInfo>.Add(buffer);
 
             Dictionary<int, List<RoundSlotInfo>> speedSlots = new();
             foreach (var hero in orderedHeroes)
@@ -88,6 +87,8 @@ namespace Assets.Scripts.ECS.Systems
                 else
                     speedSlots[hero.Speed] = new List<RoundSlotInfo>() { hero };
             }
+
+            ListPool<RoundSlotInfo>.Add(buffer);
 
             var speedKeys = speedSlots.Keys.OrderByDescending(x => x);
 

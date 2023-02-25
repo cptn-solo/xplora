@@ -16,6 +16,12 @@ namespace Assets.Scripts.UI.Battle
 
         private bool slotsInitialized;
 
+        private void Start()
+        {
+            if (!slotsInitialized)
+                InitSlots();
+        }
+
         internal void ResetQueue()
         {
             foreach (var slot in combinedSlots)
@@ -31,13 +37,6 @@ namespace Assets.Scripts.UI.Battle
                 var queueMember = combinedSlots[idx].QueueMember;
                 queueMember.Hero = heroes[idx];
             }
-        }
-
-        internal void Toggle(bool toggle)
-        {
-            battleQueuePanel.gameObject.SetActive(toggle);
-            if (!slotsInitialized)
-                InitSlots();
         }
 
         internal void InitSlots()

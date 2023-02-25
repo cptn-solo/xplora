@@ -1,5 +1,6 @@
 ﻿using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using Assets.Scripts.ECS;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using UnityEngine;
@@ -371,7 +372,8 @@ namespace Assets.Scripts.Services
             for (int i = 0; i < sCount; i++)
                 segments.Add(i);
 
-            var en = freeCellFilter.GetRawEntities();
+            var en = freeCellFilter.AllEntities();
+
             for (int i = 0; i < sCount; i++)
             {
                 var freeIndex = PickIndex();

@@ -15,7 +15,7 @@ namespace Assets.Scripts.UI.Battle
         public void UpdateData()
         {
             var hero = DataLoader(PackedEntity.Value);
-            SetHero(hero, true);
+            SetHero(hero);
         }
         public void Destroy()
         {

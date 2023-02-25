@@ -213,7 +213,7 @@ namespace Assets.Scripts.Services
 
         private void MakeEcsTurn()
         {
-            if (TurnEntity.Unpack(out var world, out var entity))
+            if (!TurnEntity.Unpack(out var world, out var entity))
                 throw new Exception("No turn");
 
             ecsContext.GetPool<MakeTurnTag>().Add(entity);
@@ -221,7 +221,7 @@ namespace Assets.Scripts.Services
 
         private void SetEcsTurnProcessed()
         {
-            if (TurnEntity.Unpack(out var world, out var entity))
+            if (!TurnEntity.Unpack(out var world, out var entity))
                 throw new Exception("No turn");
 
             ecsContext.GetPool<ProcessedTurnTag>().Add(entity);
@@ -238,9 +238,11 @@ namespace Assets.Scripts.Services
         }
 
         internal delegate void OverlayToCardDelegate(IEntityView<Hero> card, IEntityView<BarsAndEffectsInfo> overlay);
-        internal void CreateCards(OverlayToCardDelegate callback)
+        internal delegate void CardPlayerTeamDelegate(IEntityView<Hero> card, bool isPlayer);
+        internal void CreateCards(OverlayToCardDelegate callback, CardPlayerTeamDelegate assignToPlayer)
         {
             var positionPool = ecsContext.GetPool<PositionComp>();
+            var playerTeamPool = ecsContext.GetPool<PlayerTeamTag>();
             var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
             var entityViewOverlayRefPool = ecsContext.GetPool<EntityViewRef<BarsAndEffectsInfo>>();
             var heroConfigRefPool = ecsContext.GetPool<HeroConfigRefComp>();
@@ -255,6 +257,7 @@ namespace Assets.Scripts.Services
                 var card = HeroCardFactory(packed);
                 card.DataLoader = GetHeroConfigForPackedEntity<Hero>;
                 slot.Put(card.Transform);
+                assignToPlayer(card, playerTeamPool.Has(entity));
                 card.UpdateData();
 
                 ref var entityViewRef = ref entityViewRefPool.Add(entity);

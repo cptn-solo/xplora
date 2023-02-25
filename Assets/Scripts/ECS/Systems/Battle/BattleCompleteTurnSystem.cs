@@ -37,16 +37,14 @@ namespace Assets.Scripts.ECS.Systems
 
         private void CompleteTurn(int turnEntity)
         {
-            MarkDeadHero<AttackerRef>(turnEntity, out _); // lethal for attacker is
+            MarkDeadHero<AttackerRef>(turnEntity); // lethal for attacker is
                                                           // applicable only while
                                                           // applying queued effects
-            MarkDeadHero<TargetRef>(turnEntity, out var hp);
-
-            battleService.Value.NotifyTurnEventListeners(); // sums up the turn aftermath
+            bool lethal = MarkDeadHero<TargetRef>(turnEntity);
 
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
             turnInfo.State = TurnState.TurnCompleted;
-            turnInfo.Lethal = hp <= 0;
+            turnInfo.Lethal = lethal;
             //turnInfo.HealthCurrent = hp;
 
             completeTagPool.Value.Add(turnEntity);
@@ -54,17 +52,23 @@ namespace Assets.Scripts.ECS.Systems
             battleService.Value.NotifyTurnEventListeners(); // sums up the turn aftermath
         }
 
-        private void MarkDeadHero<T>(int turnEntity, out int hp) where T : struct, IPackedWithWorldRef
+        private bool MarkDeadHero<T>(int turnEntity) where T : struct, IPackedWithWorldRef
         {
+            var pool = ecsWorld.Value.GetPool<T>();
+            if (!pool.Has(turnEntity))
+                return false;
 
-            ref var heroInstanceRef = ref ecsWorld.Value.GetPool<T>().Get(turnEntity);
+            ref var heroInstanceRef = ref pool.Get(turnEntity);
             if (!heroInstanceRef.Packed.Unpack(out var world, out var heroInstanceEntity))
                 throw new Exception("No hero instance");
 
             ref var hpComp = ref hpCompPool.Value.Get(heroInstanceEntity);
-            hp = hpComp.Value;
-            if (hp <= 0)
-                deadTagPool.Value.Add(turnEntity);
+            if (hpComp.Value > 0)
+                return false;
+
+            deadTagPool.Value.Add(turnEntity);
+
+            return true;
         }
 
 

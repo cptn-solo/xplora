@@ -81,10 +81,15 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.PrepareTurn:
                     {
                         ResetTurnProcessingQueue();
-                        EnqueueOrAuto(turnInfo);
+                        //EnqueueOrAuto(turnInfo);
                     }
                     break;
                 case TurnState.TurnPrepared:
+                    {
+                        battleQueue.LayoutHeroes(battleManager.QueuedHeroes);
+                        EnqueueOrAuto(turnInfo);
+                        break;
+                    }
                 case TurnState.TurnInProgress:
                 case TurnState.TurnSkipped:
                 case TurnState.TurnEffects:

@@ -43,7 +43,7 @@ namespace Assets.Scripts.UI.Battle
         private Hero hero;
         public Hero Hero => hero;
 
-        public void SetHero(Hero? hero, bool isPlayerTeam = false)
+        public void SetHero(Hero? hero)
         {
             this.hero = hero == null ? default : hero.Value;
             if (hero == null)
@@ -51,7 +51,7 @@ namespace Assets.Scripts.UI.Battle
                 this.gameObject.SetActive(false);
 
                 if (heroAnimation != null)
-                    heroAnimation.SetHero(hero, isPlayerTeam);
+                    heroAnimation.SetHero(hero, IsPlayerTeam);
 
                 return;
             }
@@ -61,12 +61,12 @@ namespace Assets.Scripts.UI.Battle
             ResolveIcons();
             heroNameText.text = hero.Value.Name;
 
-            normalColor = isPlayerTeam ? playerColor : enemyColor;
+            normalColor = IsPlayerTeam ? playerColor : enemyColor;
             backgroundImage.color = normalColor;
 
             if (heroAnimation != null)
             {
-                heroAnimation.SetHero(hero, isPlayerTeam);
+                heroAnimation.SetHero(hero, IsPlayerTeam);
                 heroAnimation.Initialize();
             }
         }
@@ -83,6 +83,9 @@ namespace Assets.Scripts.UI.Battle
                 backgroundImage.color = value ? selectedColor : normalColor;
             }
         }
+
+        public bool IsPlayerTeam { get; internal set; }
+
         private void ResolveIcons()
         {
             ResolveIcon(priAttackImage, Hero.Attack[0]);

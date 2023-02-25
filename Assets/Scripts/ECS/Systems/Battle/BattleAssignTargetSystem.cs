@@ -42,7 +42,7 @@ namespace Assets.Scripts.ECS.Systems
                 var filter = isPlayerTeam ?
                     TeamTagFilter<EnemyTeamTag>(world) :
                     TeamTagFilter<PlayerTeamTag>(world);
-                var targets = filter.GetRawEntities();
+                var targets = filter.AllEntities();
                 targetEntity = targets.Length > 0 ?
                     targets[Random.Range(0, targets.Length)] :
                     -1;
@@ -57,8 +57,8 @@ namespace Assets.Scripts.ECS.Systems
                     TeamTagFilter<EnemyTeamTag, BacklineTag>(world) :
                     TeamTagFilter<PlayerTeamTag, BacklineTag>(world);
 
-                var frontTargets = filterFront.GetRawEntities();
-                var backTargets = filterBack.GetRawEntities();
+                var frontTargets = filterFront.AllEntities();
+                var backTargets = filterBack.AllEntities();
 
                 // TODO: consider range (not yet imported/parsed)
 
