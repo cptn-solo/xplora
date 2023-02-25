@@ -18,7 +18,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
         private readonly EcsPoolInject<TargetRef> targetRefPool;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, AttackTag>> filter;
+        private readonly EcsFilterInject<
+            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, AttackerRef, TargetRef>> filter;
 
         private readonly EcsCustomInject<PlayerPreferencesService> prefs;
         private readonly EcsCustomInject<BattleManagementService> battleService;
@@ -26,10 +27,7 @@ namespace Assets.Scripts.ECS.Systems
         public void Run(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
-            {
                 ProcessAttack(entity);
-                attackTagPool.Value.Del(entity);
-            }
         }
 
         private void ProcessAttack(int turnEntity)

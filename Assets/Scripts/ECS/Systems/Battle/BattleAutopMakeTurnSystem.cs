@@ -10,6 +10,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool;
         private readonly EcsPoolInject<ReadyTurnTag> readyTurnTagPool;
+        private readonly EcsPoolInject<AttackTag> attackTagPool;
 
         private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter;
         private readonly EcsFilterInject<Inc<BattleTurnInfo, ReadyTurnTag>> turnInfoFilter;
@@ -34,6 +35,7 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var entity in turnInfoFilter.Value)
             {
                 makeTurnTagPool.Value.Add(entity);
+                attackTagPool.Value.Add(entity);
                 readyTurnTagPool.Value.Del(entity);
             }
 

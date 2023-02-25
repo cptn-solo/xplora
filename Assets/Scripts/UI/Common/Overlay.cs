@@ -20,8 +20,12 @@ public class Overlay : MonoBehaviour, IEntityView<BarsAndEffectsInfo>
     private Vector3 prevAnchorScale;
     private bool destroyed;
 
-    public void Attach(Transform anchor) =>
+    public void Attach(Transform anchor)
+    {
         this.anchor = anchor;
+        this.gameObject.SetActive(true);
+        ResetOverlayInfo();
+    }
 
     internal void FlashEffect(DamageEffect damageEffect) =>
         effectsContainer.FlashEffect(damageEffect);

@@ -17,6 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
 
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
         private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool;
         private readonly EcsPoolInject<AttackTag> attackTagPool;
 
@@ -59,6 +60,10 @@ namespace Assets.Scripts.ECS.Systems
 
             hpComp.UpdateHealthCurrent(effectDamage, healthComp.Value, out int aDisplay, out int aCurrent);
 
+            ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(attackerEntity);
+            barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
+            barsAndEffectsComp.HealthCurrent = hpComp.Value;
+
             // intermediate turn info, no round turn override to preserve pre-calculated target:
             var effectsInfo = new BattleTurnInfo() {
                 Turn = turnInfo.Turn,
@@ -67,17 +72,13 @@ namespace Assets.Scripts.ECS.Systems
                 Damage = effectDamage,
                 AttackerEffects = effs,
                 Lethal = hpComp.Value <= 0,
-                //Health = healthComp.Value,
-                //HealthCurrent = hpComp.HP,
-                //Speed = turnInfo.Attacker.Speed, // this should be taken from somewhere else
-                //ActiveEffects = effectsComp.ActiveEffects,
                 State = TurnState.TurnEffects,
             };
 
             battleService.Value.NotifyTurnEventListeners(effectsInfo);
 
-            if (hpComp.Value > 0)
-                attackTagPool.Value.Add(turnEntity);
+            if (hpComp.Value <= 0)
+                attackTagPool.Value.Del(turnEntity);
         }
 
 

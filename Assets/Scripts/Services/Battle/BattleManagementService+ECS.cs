@@ -68,6 +68,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
                 .Add(new BattleDealAttackDamageSystem())
+                .DelHere<AttackTag>()
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
                 // with CompletedTurnTag
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play

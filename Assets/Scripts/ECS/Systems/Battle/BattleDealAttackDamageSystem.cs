@@ -17,11 +17,13 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<HPComp> hpCompPool;
         private readonly EcsPoolInject<HealthComp> healthCompPool;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
 
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool;
 
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, DealDamageTag>> filter;
+        private readonly EcsFilterInject<
+            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealDamageTag>> filter;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
         private readonly EcsCustomInject<BattleManagementService> battleService;
@@ -73,6 +75,10 @@ namespace Assets.Scripts.ECS.Systems
             ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
             hpComp.UpdateHealthCurrent(damage, healthComp.Value, out int aDisplay, out int aCurrent);
+
+            ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
+            barsAndEffectsComp.HealthCurrent = hpComp.Value;
+
         }
     }
 }

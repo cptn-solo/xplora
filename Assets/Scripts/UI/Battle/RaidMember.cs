@@ -70,8 +70,6 @@ namespace Assets.Scripts.UI.Battle
                 heroAnimation.Initialize();
             }
         }
-        public void SetBarsAndEffects(List<BarInfo> bars, Dictionary<DamageEffect, int> effects) =>
-            heroAnimation.SetBarsAndEffects(bars, effects);
 
         private bool selected;
         public bool Selected

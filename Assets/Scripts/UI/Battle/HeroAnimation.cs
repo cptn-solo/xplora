@@ -68,9 +68,6 @@ namespace Assets.Scripts.UI.Battle
             overlay.ResetBarsAndEffects();
         }
 
-        internal void SetBarsAndEffects(List<BarInfo> bars, Dictionary<DamageEffect, int> effects) =>
-            overlay.SetBarsEndEffectsInfo(bars, effects);
-
         internal void SetHero(Hero? hero, bool isPlayerTeam = false)
         {
             if (hero == null)

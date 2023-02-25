@@ -19,8 +19,10 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HPComp> hpCompPool;
         private readonly EcsPoolInject<HealthComp> healthCompPool;
         private readonly EcsPoolInject<EffectsComp> effectsPool;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, DealEffectsTag>> filter;
+        private readonly EcsFilterInject<
+            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealEffectsTag>> filter;
 
         private readonly EcsCustomInject<PlayerPreferencesService> prefs;
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
@@ -72,9 +74,9 @@ namespace Assets.Scripts.ECS.Systems
 
                     hpComp.UpdateHealthCurrent(turnInfo.ExtraDamage, healthComp.Value, out int aDisplay, out int aCurrent);
 
-                    //turnInfo.Health = healthComp.Value;
-                    //turnInfo.Speed = turnInfo.Target.Speed; // this should be taken from somewhere else
-                    //turnInfo.ActiveEffects = effectsComp.ActiveEffects;
+                    ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
+                    barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
+                    barsAndEffectsComp.HealthCurrent = hpComp.Value;
                 }
             }
         }

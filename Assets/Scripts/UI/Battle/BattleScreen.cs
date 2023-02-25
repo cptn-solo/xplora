@@ -107,16 +107,18 @@ namespace Assets.Scripts.UI.Battle
            
             initialized = true;
 
-            battleManager.CreateCards((card, overlay) =>
-            {
-                var rm = (RaidMember)card;
-                var ov = (Overlay)overlay;
-                rm.HeroAnimation.SetOverlay(ov);
-            }, (card, isPlayer) =>
-            {
-                var rm = (RaidMember)card;
-                rm.IsPlayerTeam = isPlayer;
-            });
+            battleManager.CreateCards(
+                (card, overlay) =>
+                {
+                    var rm = (RaidMember)card;
+                    var ov = (Overlay)overlay;
+                    rm.HeroAnimation.SetOverlay(ov);
+                },
+                (card, isPlayer) =>
+                {
+                    var rm = (RaidMember)card;
+                    rm.IsPlayerTeam = isPlayer;
+                });
 
             UpdateView();
         }

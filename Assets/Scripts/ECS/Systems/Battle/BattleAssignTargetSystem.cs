@@ -13,6 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<PositionComp> positionPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnPool;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
+        private readonly EcsPoolInject<TargetRef> targetRefPool;
         private readonly EcsPoolInject<RangedTag> rangedTagPool;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
@@ -82,6 +83,9 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var positionComp = ref positionPool.Value.Get(targetEntity);
                 turnInfo.TargetPosition = positionComp.Position;
+
+                ref var targetRef = ref targetRefPool.Value.Add(turnEntity);
+                targetRef.HeroInstancePackedEntity = world.PackEntityWithWorld(targetEntity);
             }
 
             turnInfo.State = targetEntity == -1 ?

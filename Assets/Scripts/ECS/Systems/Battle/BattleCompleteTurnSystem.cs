@@ -43,10 +43,14 @@ namespace Assets.Scripts.ECS.Systems
             bool lethal = MarkDeadHero<TargetRef>(turnEntity);
 
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
-            turnInfo.State = TurnState.TurnCompleted;
             turnInfo.Lethal = lethal;
             //turnInfo.HealthCurrent = hp;
 
+            battleService.Value.NotifyTurnEventListeners(); // inprogress - will queue
+                                                            // attack / damage
+                                                            // animations
+
+            turnInfo.State = TurnState.TurnCompleted;
             completeTagPool.Value.Add(turnEntity);
 
             battleService.Value.NotifyTurnEventListeners(); // sums up the turn aftermath

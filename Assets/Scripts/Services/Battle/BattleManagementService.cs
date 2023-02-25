@@ -25,9 +25,6 @@ namespace Assets.Scripts.Services
 
         public BattleMode PlayMode { get; set; } = BattleMode.NA;
 
-        //private bool retreatBattleRunning;
-        private readonly int minRoundsQueue = 4;
-
         public ref BattleInfo CurrentBattle => ref GetEcsCurrentBattle();
         public ref BattleRoundInfo CurrentRound => ref GetEcsCurrentRound();
         public ref BattleTurnInfo CurrentTurn => ref GetEcsCurrentTurn();
