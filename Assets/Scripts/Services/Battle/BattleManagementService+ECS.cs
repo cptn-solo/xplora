@@ -77,7 +77,8 @@ namespace Assets.Scripts.Services
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
                 // dequeue fired items
-                .Add(new BattleDequeueDiedHeroesSystem())
+                .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
+                .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
                 .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
                 .Add(new BattleTerminationSystem()) // will navigate from the battle screen stopping context

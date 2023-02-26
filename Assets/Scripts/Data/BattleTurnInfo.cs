@@ -32,12 +32,14 @@ namespace Assets.Scripts.Data
                 $">>> {Target}";
 
             var attackerEff = "";
-            foreach (var ef in AttackerEffects)
-                attackerEff += $"+{ef}";
+            if (AttackerEffects != null)
+                foreach (var ef in AttackerEffects)
+                    attackerEff += $"+{ef}";
 
             var targetEff = "";
-            foreach (var ef in TargetEffects)
-                targetEff += $"+{ef}";
+            if (TargetEffects != null)
+                foreach (var ef in TargetEffects)
+                    targetEff += $"+{ef}";
 
             if (targetEff.Length > 0 && ExtraDamage > 0)
                 targetEff += $"{-ExtraDamage}";

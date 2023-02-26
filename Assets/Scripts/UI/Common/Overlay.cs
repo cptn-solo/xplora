@@ -109,7 +109,7 @@ public class Overlay : MonoBehaviour, IEntityView<BarsAndEffectsInfo>
 
     public void Destroy()
     {
-        GameObject.Destroy(this);
+        GameObject.Destroy(this.gameObject);
     }
 
     #endregion

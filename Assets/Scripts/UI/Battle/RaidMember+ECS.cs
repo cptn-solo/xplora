@@ -19,7 +19,7 @@ namespace Assets.Scripts.UI.Battle
         }
         public void Destroy()
         {
-            GameObject.Destroy(this);
+            GameObject.Destroy(this.gameObject);
         }
 
         

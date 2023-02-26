@@ -105,7 +105,7 @@ namespace Assets.Scripts.UI.Library
 
         public void Destroy()
         {
-            GameObject.Destroy(this);
+            GameObject.Destroy(this.gameObject);
         }
 
         #endregion
