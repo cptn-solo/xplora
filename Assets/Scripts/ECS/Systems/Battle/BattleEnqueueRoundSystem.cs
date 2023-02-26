@@ -18,7 +18,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
         private readonly EcsPoolInject<DraftTag> draftTagPool;
         
-        private readonly EcsFilterInject<Inc<BattleInfo, RoundShortageTag>> battleFilter;
+        private readonly EcsFilterInject<
+            Inc<BattleInfo, RoundShortageTag>,
+            Exc<BattleCompletedTag>> battleFilter;
         private readonly EcsFilterInject<Inc<BattleRoundInfo>> roundInfoFilter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;

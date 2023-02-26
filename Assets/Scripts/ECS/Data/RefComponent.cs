@@ -3,6 +3,7 @@ using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -146,7 +147,19 @@ namespace Assets.Scripts.ECS.Data
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi
-   
+
+    public struct DelayTimerComp<T>
+    {
+        public float DelayUntill;
+
+        public bool Ready =>
+            Time.time >= DelayUntill;
+
+        public void SetDelayFromNow(float delaySec)
+        {
+            DelayUntill = Time.time + delaySec;
+        }
+    }
 
     #endregion
 

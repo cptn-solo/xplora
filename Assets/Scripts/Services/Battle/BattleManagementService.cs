@@ -92,6 +92,7 @@ namespace Assets.Scripts.Services
         {            
             DestroyEcsRounds();
         }
+        public delegate void BattleCompleteDelegate(bool won);
 
         internal void OnBattleComplete(bool won)
         {
@@ -180,7 +181,8 @@ namespace Assets.Scripts.Services
 
             if (previous == Screens.Battle)
             {
-                UnlinkCardRefs();
+                UnlinkCardRefs<Hero>();
+                UnlinkCardRefs<BarsAndEffectsInfo>();
                 StopEcsContext();
             }
         }

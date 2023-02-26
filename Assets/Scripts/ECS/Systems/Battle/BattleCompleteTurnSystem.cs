@@ -70,7 +70,7 @@ namespace Assets.Scripts.ECS.Systems
             if (hpComp.Value > 0)
                 return false;
 
-            deadTagPool.Value.Add(turnEntity);
+            deadTagPool.Value.Add(heroInstanceEntity);
 
             return true;
         }

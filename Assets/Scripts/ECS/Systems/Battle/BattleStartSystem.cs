@@ -10,7 +10,9 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsFilterInject<Inc<BattleInfo>, Exc<BattleInProgressTag>> filter;
+        private readonly EcsFilterInject<
+            Inc<BattleInfo>,
+            Exc<BattleInProgressTag, BattleCompletedTag>> filter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 

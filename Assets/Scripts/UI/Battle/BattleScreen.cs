@@ -125,9 +125,9 @@ namespace Assets.Scripts.UI.Battle
 
         private void UpdateView()
         {
-            if (battleManager.CurrentRound.State == RoundState.RoundPrepared)
-                battleQueue.LayoutHeroes(
-                    battleManager.QueuedHeroes);
+            //if (battleManager.CurrentRound.State == RoundState.RoundPrepared)
+            //    battleQueue.LayoutHeroes(
+            //        battleManager.QueuedHeroes);
 
             UpdateActionButtons();
             ResetBattlefieldPositions();

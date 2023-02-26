@@ -14,7 +14,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<WinnerTag> winnerTagPool;
         private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
         
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> filter;
+        private readonly EcsFilterInject<
+            Inc<BattleInfo, BattleInProgressTag>,
+            Exc<WinnerTag>> filter;
         private readonly EcsFilterInject<Inc<PlayerTeamTag>, Exc<DeadTag>> playerHeroes;
         private readonly EcsFilterInject<Inc<EnemyTeamTag>, Exc<DeadTag>> enemyHeroes;
 

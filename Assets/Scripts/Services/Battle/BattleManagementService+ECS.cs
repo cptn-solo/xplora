@@ -50,6 +50,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleRetreatSystem()) // check if battle is retreated (canceled 
                 .Add(new BattleWinCheckSystem()) // check if battle is already won 
                 .Add(new BattleCompleteSystem()) // report won/retreated battle
+                .Add(new BattleNotifyResultsSystem()) // if complete will notify UI and schedule battle shutdown
                 // with battle in progress tag
                 .Add(new BattleEnqueueRoundSystem()) // check queue length and add if needed
                 .Add(new BattlePrepareRoundSystem()) // prepare added round (heroes queue)
@@ -63,7 +64,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleMarkTurnReadySystem()) // marks ready turns for autoplay
                 .DelHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
-                // with MakeTurnTag
+                // with MakeTurnTag, AttackTag
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
@@ -77,6 +78,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDequeueDiedHeroesSystem())
                 .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
+                .Add(new BattleTerminationSystem()) // will navigate from the battle screen stopping context
 
 #if UNITY_EDITOR
         .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
@@ -89,8 +91,10 @@ namespace Assets.Scripts.Services
             StartCoroutine(BattleEcsRunloopCoroutine());
         }
 
-        private void StopEcsContext()
+        public void StopEcsContext()
         {
+            PlayMode = BattleMode.NA;
+
             StopAllCoroutines();
 
             ecsSystems?.Destroy();
@@ -276,10 +280,10 @@ namespace Assets.Scripts.Services
             }
         }
 
-        private void UnlinkCardRefs()
+        private void UnlinkCardRefs<T>()
         {
-            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
-            var filter = ecsContext.Filter<EntityViewRef<Hero>>().End();
+            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<T>>();
+            var filter = ecsContext.Filter<EntityViewRef<T>>().End();
             foreach (var entity in filter)
             {
                 ref var entityViewRef = ref entityViewRefPool.Get(entity);
