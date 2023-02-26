@@ -10,9 +10,11 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
         private readonly EcsPoolInject<WinnerTag> winnerTagPool;
-        private readonly EcsPoolInject<RetreatTag> retreatTagPool;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> filter;
+
+        private readonly EcsFilterInject<
+            Inc<BattleInfo, RetreatTag>,
+            Exc<WinnerTag>> filter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
@@ -29,17 +31,17 @@ namespace Assets.Scripts.ECS.Systems
         {
             ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
 
-            if (battleInfo.State == BattleState.BattleStarted ||
-                battleInfo.State == BattleState.BattleInProgress)
-            {
-                battleInfo.SetWinnerTeamId(battleInfo.EnemyTeam.Id);
+            if (battleInfo.State switch {
+                BattleState.TeamsPrepared => false,
+                BattleState.BattleStarted => false,
+                BattleState.BattleInProgress => false,
+                _ => true })
+                return;
 
-                battleInProgressTagPool.Value.Del(battleEntity);
-                winnerTagPool.Value.Add(battleEntity);
-                retreatTagPool.Value.Add(battleEntity);
+            battleInfo.SetWinnerTeamId(battleInfo.EnemyTeam.Id);
 
-                //yield return new WaitForSeconds(2.0f);
-            }
+            battleInProgressTagPool.Value.Del(battleEntity);
+            winnerTagPool.Value.Add(battleEntity);
         }
     }
 }

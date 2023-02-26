@@ -105,6 +105,7 @@ namespace Assets.Scripts.Services
         internal void RetreatBattle()
         {
             PlayMode = BattleMode.NA;
+            RetreatEcsBattle();
         }
 
         internal void BeginBattle()

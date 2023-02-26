@@ -30,6 +30,8 @@ namespace Assets.Scripts.Services
 
         private Dictionary<HeroPosition, IHeroPosition> slots = new();
 
+        public HeroPosition[] BattleFieldSlotsPositions => slots.Keys.ToArray();
+
         private void StartEcsContext()
         {
             PlayMode = BattleMode.NA;
@@ -132,6 +134,17 @@ namespace Assets.Scripts.Services
             ref var attackerConfig = ref libWorld.GetPool<Hero>().Get(configEntity);
 
             return ref attackerConfig;
+        }
+
+        private void RetreatEcsBattle()
+        {
+            if (!BattleEntity.Unpack(out var world, out var entity))
+                throw new Exception("No Battle");
+
+            var pool = world.GetPool<RetreatTag>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);
         }
 
         private ref BattleInfo GetEcsCurrentBattle()
