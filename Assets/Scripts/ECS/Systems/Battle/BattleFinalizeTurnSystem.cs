@@ -12,6 +12,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<GarbageTag> garbageTagPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
+        private readonly EcsPoolInject<ProcessedHeroTag> processedHeroPool;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
+        private readonly EcsPoolInject<TargetRef> targetRefPool;
 
         private readonly EcsFilterInject<Inc<BattleTurnInfo, ProcessedTurnTag>> filter;
 
@@ -29,6 +32,17 @@ namespace Assets.Scripts.ECS.Systems
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
             turnInfo.State = TurnState.TurnProcessed;
             battleService.Value.NotifyTurnEventListeners(turnInfo);
+
+            if (attackerRefPool.Value.Has(turnEntity))
+            {
+                ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
+                if (attackerRef.HeroInstancePackedEntity.Unpack(out _, out var attackerInstanceEntity))
+                    processedHeroPool.Value.Add(attackerInstanceEntity);
+
+                ref var targetRef = ref targetRefPool.Value.Get(turnEntity);
+                if (targetRef.HeroInstancePackedEntity.Unpack(out _, out var targetInstanceEntity))
+                    processedHeroPool.Value.Add(targetInstanceEntity);
+            }
 
             var buffer = ListPool<RoundSlotInfo>.Get();
 

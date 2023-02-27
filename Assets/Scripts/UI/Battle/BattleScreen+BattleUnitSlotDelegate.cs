@@ -33,7 +33,9 @@ namespace Assets.Scripts.UI.Battle
                 var bls = s as BattleLineSlot;
                 HeroPosition pos = bls.Position;
 
-                Rollback = () => battleManager.MoveHero(bls.RaidMember.PackedEntity.Value, pos);
+                var packed = bls.RaidMember.PackedEntity.Value;
+
+                Rollback = () => battleManager.MoveHero(packed, pos);
 
                 heroTransfer.Begin(bls.RaidMember.PackedEntity.Value, pos);
 

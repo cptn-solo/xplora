@@ -33,7 +33,9 @@ namespace Assets.Scripts.UI.Library
                     pts.Position :
                     new(-1, BattleLine.NA, s.SlotIndex);
 
-                Rollback = () => libManager.MoveHero(bls.HeroCard.PackedEntity.Value, pos);
+                var packed = bls.HeroCard.PackedEntity.Value;
+
+                Rollback = () => libManager.MoveHero(packed, pos);
 
                 heroTransfer.Begin(bls.HeroCard.PackedEntity.Value, pos);
 

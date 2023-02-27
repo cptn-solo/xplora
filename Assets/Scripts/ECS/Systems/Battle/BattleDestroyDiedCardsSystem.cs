@@ -14,15 +14,13 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<EntityViewRef<Hero>,
                 EntityViewRef<BarsAndEffectsInfo>,
+                ProcessedHeroTag,
                 RetiredTag>> filter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
         public void Run(IEcsSystems systems)
         {
-            if (battleService.Value.PlayMode != BattleMode.Fastforward)
-                return;
-
             foreach (var entity in filter.Value)
             {
                 ref var overlayEntityViewRef = ref overlayViewRefPool.Value.Get(entity);
