@@ -1,4 +1,6 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using System;
+using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
@@ -15,8 +17,11 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
         private readonly EcsFilterInject<Inc<UnitRef>> unitFilter;
+        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp>> teamHeroesFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService;
+        private readonly EcsCustomInject<BattleManagementService> battleService;
 
         public void Run(IEcsSystems systems)
         {
@@ -27,7 +32,23 @@ namespace Assets.Scripts.ECS.Systems
                 if (battleComp.EnemyPackedEntity.Unpack(ecsWorld.Value, out var enemyEntity))
                 {
                     ref var heroComp = ref heroPool.Value.Get(enemyEntity);
-                    raidService.Value.PrepareEnemyTeamBasedOnHero(heroComp.Hero);
+
+                    if (!heroComp.Packed.Unpack(out var libWorld, out var libEntity))
+                        throw new Exception("No Hero config");
+
+                    var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
+
+                    foreach (var teamMemberEntity in teamHeroesFilter.Value)
+                        buffer.Add(ecsWorld.Value.PackEntityWithWorld(teamMemberEntity));
+
+                    var enemyWrappedHeroes = libraryService.Value.WrapForBattle(new[] { heroComp.Packed });
+
+                    battleService.Value.RequestBattle(
+                        buffer.ToArray(),
+                        enemyWrappedHeroes);
+
+                    ListPool<EcsPackedEntityWithWorld>.Add(buffer);
+
                 }
 
                 foreach (var unitEntity in unitFilter.Value)

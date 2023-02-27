@@ -69,7 +69,7 @@ namespace Assets.Scripts.Services
             {
 
                 dialog.Dismiss();
-                //TODO: apply event result for button idx
+                // apply event result for button idx
 
                 var selectedOption = currentEventInfo.Value.BonusOptions[idx];
 
@@ -78,7 +78,13 @@ namespace Assets.Scripts.Services
                     case 0:// permanent boost
                         {
                             //1. update hero in the library
+                            libManagementService.BoostSpecOption(
+                                currentEventInfo.Value.EventHero,
+                                selectedOption.SpecOption,
+                                selectedOption.Factor);
+
                             //2. update hero in the raid entity
+                            // redundant if Raid references lib hero config
                         }
                         break;
                     case 1:// next battle boost
@@ -86,12 +92,23 @@ namespace Assets.Scripts.Services
                             //1. add bonus field to hero struct
                             //2. update bonus field in hero in the library
                             //3. implement bonus field handling in battle manager (including reset after the battle)
+                            BoostEcsNextBattleSpecOption(
+                                currentEventInfo.Value.EventHero,
+                                selectedOption.SpecOption,
+                                selectedOption.Factor);
 
                             if (currentEventInfo.Value.BonusOptions.Length > idx + 1)
                             {
                                 var additionalOption = currentEventInfo.Value.BonusOptions[idx + 1];
                                 //1. increment hero trait in the library
+                                libManagementService.BoostTraitOption(
+                                    currentEventInfo.Value.EventHero,
+                                    additionalOption.TraitOption,
+                                    additionalOption.Factor);
+
                                 //2. increment hero trait in the raid entity
+                                // redundant if Raid references lib hero config
+
                             }
                         }
                         break;
@@ -102,7 +119,6 @@ namespace Assets.Scripts.Services
                 currentEventInfo = null;
             }
         }
-
     }
 
 }

@@ -35,6 +35,18 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
 
     }
+
+
+    /// <summary>
+    /// To be attached to a battle hero instance to track back damage and such for the raid
+    /// </summary>
+    public struct HeroInstanceOriginRefComp : IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
+        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+
+    }
+
     public struct BattleTurnRefComp
     {
         public EcsPackedEntity TurnPackedEntity { get; internal set; }

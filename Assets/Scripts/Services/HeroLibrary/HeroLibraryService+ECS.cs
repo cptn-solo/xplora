@@ -6,9 +6,12 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using Google.Apis.Sheets.v4.Data;
 
 namespace Assets.Scripts.Services
 {
+    using static UnityEngine.ParticleSystem;
+    using static Zenject.SignalSubscription;
     using HeroPosition = Tuple<int, BattleLine, int>;
 
     public partial class HeroLibraryService // ECS
@@ -57,7 +60,7 @@ namespace Assets.Scripts.Services
             var heroPool = ecsContext.GetPool<Hero>();
             var filter = ecsContext.Filter<Hero>().End();
 
-            foreach(var existingEntity in filter)
+            foreach (var existingEntity in filter)
             {
                 ref var existing = ref heroPool.Get(existingEntity);
                 if (existing.Id == idx)
@@ -102,8 +105,8 @@ namespace Assets.Scripts.Services
             }
             buffer.Sort();
             var idx = buffer.Count;
-            for(int i = 0; i < buffer.Count; i++)
-                if (buffer[i]> i)
+            for (int i = 0; i < buffer.Count; i++)
+                if (buffer[i] > i)
                 {
                     idx = i;
                     break;
@@ -111,7 +114,7 @@ namespace Assets.Scripts.Services
 
             ListPool<int>.Add(buffer);
 
-            return new (-1, BattleLine.NA, idx);
+            return new(-1, BattleLine.NA, idx);
 
         }
 
@@ -137,7 +140,7 @@ namespace Assets.Scripts.Services
             return ref team;
 
         }
-        private Hero[] GetEcsNotInTeamHeroes(EcsPackedEntityWithWorld teamPackedEntity, bool aliveOnly)
+        private EcsPackedEntityWithWorld[] GetEcsNotInTeamHeroes(EcsPackedEntityWithWorld teamPackedEntity, bool aliveOnly)
         {
             if (!teamPackedEntity.Unpack(out var world, out var teamEntity))
                 throw new Exception("No Team");
@@ -147,25 +150,23 @@ namespace Assets.Scripts.Services
 
             var filter = world.Filter<Hero>().Inc<PositionComp>().End();
             var posPool = world.GetPool<PositionComp>();
-            var heroPool = world.GetPool<Hero>();
-            var buffer = ListPool<Hero>.Get();
+            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
             foreach (var entity in filter)
             {
                 ref var posComp = ref posPool.Get(entity);
-                ref var hero = ref heroPool.Get(entity);
                 if (posComp.Position.Item1 != team.Id)
-                    buffer.Add(hero);
+                    buffer.Add(world.PackEntityWithWorld(entity));
             }
 
             var retval = buffer.ToArray();
-            ListPool<Hero>.Add(buffer);
+            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
             return retval;
 
         }
 
-        private Hero[] GetEcsTeamHeroes(EcsPackedEntityWithWorld teamPackeEntity)
+        private EcsPackedEntityWithWorld[] GetEcsTeamHeroes(EcsPackedEntityWithWorld teamPackeEntity)
         {
             if (!teamPackeEntity.Unpack(out var world, out var teamEntity))
                 throw new Exception("No Team");
@@ -175,19 +176,17 @@ namespace Assets.Scripts.Services
 
             var filter = world.Filter<Hero>().Inc<PositionComp>().End();
             var posPool = world.GetPool<PositionComp>();
-            var heroPool = world.GetPool<Hero>();
-            var buffer = ListPool<Hero>.Get();
+            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
-            foreach(var entity in filter)
+            foreach (var entity in filter)
             {
                 ref var posComp = ref posPool.Get(entity);
-                ref var hero = ref heroPool.Get(entity);
                 if (posComp.Position.Item1 == team.Id)
-                    buffer.Add(hero);
+                    buffer.Add(world.PackEntityWithWorld(entity));
             }
 
             var retval = buffer.ToArray();
-            ListPool<Hero>.Add(buffer);
+            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
             return retval;
         }
@@ -231,7 +230,7 @@ namespace Assets.Scripts.Services
             }
         }
 
-        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed) where T: struct
+        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed) where T : struct
         {
             if (packed != null && packed.Value.Unpack(out var world, out var entity))
                 return world.GetPool<T>().Get(entity);
@@ -282,5 +281,105 @@ namespace Assets.Scripts.Services
             ecsContext = null;
         }
 
+        internal void BoostSpecOption(Hero eventHero, SpecOption specOption, int factor)
+        {
+            var packed = HeroConfigEntities[eventHero.Id];
+            if (!packed.Unpack(out var world, out var entity))
+                throw new Exception("No Hero Config");
+
+            var heroConfigPool = world.GetPool<Hero>();
+            ref var heroConfig = ref heroConfigPool.Get(entity);
+
+            switch (specOption)
+            {
+                case SpecOption.DamageRange:
+                    heroConfig.DamageMin += factor;
+                    heroConfig.DamageMax += factor;
+                    break;
+                case SpecOption.DefenceRate:
+                    heroConfig.DefenceRate += factor;
+                    break;
+                case SpecOption.AccuracyRate:
+                    heroConfig.AccuracyRate += factor;
+                    break;
+                case SpecOption.DodgeRate:
+                    heroConfig.DodgeRate += factor;
+                    break;
+                case SpecOption.Health:
+                    heroConfig.Health += factor;
+                    break;
+                case SpecOption.Speed:
+                    heroConfig.Speed += factor;
+                    break;
+                case SpecOption.UnlimitedStaminaTag: //NA for permanent boost
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        internal void BoostTraitOption(Hero eventHero, HeroTrait traitOption, int factor)
+        {
+            var packed = HeroConfigEntities[eventHero.Id];
+            if (!packed.Unpack(out var world, out var entity))
+                throw new Exception("No Hero Config");
+
+            var heroConfigPool = world.GetPool<Hero>();
+            ref var heroConfig = ref heroConfigPool.Get(entity);
+
+            switch (traitOption)
+            {
+                case HeroTrait.Hidden:
+                case HeroTrait.Purist:
+                case HeroTrait.Shrumer:
+                case HeroTrait.Scout:
+                case HeroTrait.Tidy:
+                case HeroTrait.Soft:
+                    {
+                        var val = heroConfig.Traits[traitOption];
+                        val.Level += factor;
+                        heroConfig.Traits[traitOption] = val;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public EcsPackedEntityWithWorld[] WrapForBattle(EcsPackedEntityWithWorld[] heroes)
+        {
+            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
+
+            foreach(var packed in heroes)
+            {
+                if (!packed.Unpack(out var world, out var configEntity))
+                    throw new Exception("No Hero config");
+
+                var entity = world.NewEntity();
+
+                ref var configRef = ref world.GetPool<HeroConfigRefComp>().Add(entity);
+                configRef.HeroConfigPackedEntity = packed;
+
+                ref var heroConfig = ref world.GetPool<Hero>().Get(configEntity);
+
+                ref var speedComp = ref world.GetPool<SpeedComp>().Add(entity);
+                speedComp.Value = heroConfig.Speed;
+
+                ref var healthComp = ref world.GetPool<HealthComp>().Add(entity);
+                healthComp.Value = heroConfig.Health;
+
+                ref var hpComp = ref world.GetPool<HPComp>().Add(entity);
+                hpComp.Value = heroConfig.Health;
+
+                buffer.Add(world.PackEntityWithWorld(entity));
+            }
+
+            var retval = buffer.ToArray();
+
+            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
+
+            return retval;
+        }
     }
 }

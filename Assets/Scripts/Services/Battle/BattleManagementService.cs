@@ -17,13 +17,26 @@ namespace Assets.Scripts.Services
         private HeroLibraryService libraryManager;
         private PlayerPreferencesService prefs;
         private MenuNavigationService nav;
-        private RaidService raidService;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
         public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;
+        public event UnityAction<bool> OnBattleComplete;
 
         public BattleMode PlayMode { get; set; } = BattleMode.NA;
+
+        internal EntityViewFactory<Hero> HeroCardFactory { get; set; }
+        internal EntityViewFactory<BarsAndEffectsInfo> HeroOverlayFactory { get; set; }
+
+        /// <summary>
+        /// Must have HeroConfigRefComp attached
+        /// </summary>
+        public EcsPackedEntityWithWorld[] PlayerTeamPackedEntities { get; set; }
+
+        /// <summary>
+        /// Must have HeroConfigRefComp attached
+        /// </summary>
+        public EcsPackedEntityWithWorld[] EnemyTeamPackedEntities { get; set; }
 
         public ref BattleInfo CurrentBattle => ref GetEcsCurrentBattle();
         public ref BattleRoundInfo CurrentRound => ref GetEcsCurrentRound();
@@ -44,12 +57,7 @@ namespace Assets.Scripts.Services
         public bool CanStartBattle =>
             CurrentBattle.State switch
             {
-                BattleState.TeamsPrepared => 
-                CurrentRound.State switch
-                {
-                    RoundState.RoundPrepared => true,
-                    _ => false
-                },
+                BattleState.TeamsPrepared => true,
                 _ => false
             };
 
@@ -92,13 +100,12 @@ namespace Assets.Scripts.Services
         {            
             DestroyEcsRounds();
         }
-        public delegate void BattleCompleteDelegate(bool won);
 
-        internal void OnBattleComplete(bool won)
+        internal void NotiifyBattleComplete(bool won)
         {
-            if (raidService.State == RaidState.InBattle)
-                raidService.ProcessAftermath(won);
-            else
+            if (OnBattleComplete != null)
+                OnBattleComplete.Invoke(won);
+            else 
                 nav.NavigateToScreen(Screens.HeroesLibrary);
         }
 
@@ -162,12 +169,10 @@ namespace Assets.Scripts.Services
         internal void Init(
             PlayerPreferencesService playerPreferencesService,
             HeroLibraryService libManagementService,
-            MenuNavigationService menuNavigationService,
-            RaidService raidService)
+            MenuNavigationService menuNavigationService)
         {
             this.libraryManager = libManagementService;
             this.nav = menuNavigationService;
-            this.raidService = raidService;
             this.prefs = playerPreferencesService;
 
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
@@ -177,8 +182,8 @@ namespace Assets.Scripts.Services
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens previous, Screens current)
         {
-            if (current == Screens.Battle)
-                StartEcsContext();
+            //if (current == Screens.Battle)
+            //    StartEcsContext();
 
             if (previous == Screens.Battle)
             {
@@ -194,8 +199,12 @@ namespace Assets.Scripts.Services
         internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
 
-        internal EntityViewFactory<Hero> HeroCardFactory { get; set; }
-        internal EntityViewFactory<BarsAndEffectsInfo> HeroOverlayFactory { get; set; }
-
+        internal void RequestBattle(
+            EcsPackedEntityWithWorld[] playerTeam,
+            EcsPackedEntityWithWorld[] enemyTeam)
+        {
+            PlayerTeamPackedEntities = playerTeam;
+            EnemyTeamPackedEntities = enemyTeam;
+        }
     }
 }

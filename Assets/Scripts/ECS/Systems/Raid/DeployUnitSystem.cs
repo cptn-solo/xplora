@@ -3,6 +3,8 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Assets.Scripts.Services;
 using UnityEngine.LowLevel;
+using System;
+using Assets.Scripts.Data;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -34,8 +36,13 @@ namespace Assets.Scripts.ECS.Systems
                     raidService.Value.PlayerDeploymentCallback :
                     raidService.Value.OpponentDeploymentCallback;
 
+                if (!heroComp.Packed.Unpack(out var libWorld, out var libEntity))
+                    throw new Exception("No Hero config");
+
+                var hero = libWorld.GetPool<Hero>().Get(libEntity);
+
                 ref var unitRef = ref unitPool.Value.Add(entity);
-                unitRef.Unit = callback(cellComp.CellIndex, heroComp.Hero);
+                unitRef.Unit = callback(cellComp.CellIndex, hero);
             }
 
             if (producing)

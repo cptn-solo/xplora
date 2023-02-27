@@ -38,7 +38,10 @@ namespace Assets.Scripts.ECS.Systems
                 ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
                 if (attackerRef.HeroInstancePackedEntity.Unpack(out _, out var attackerInstanceEntity))
                     processedHeroPool.Value.Add(attackerInstanceEntity);
+            }
 
+            if (targetRefPool.Value.Has(turnEntity))
+            {
                 ref var targetRef = ref targetRefPool.Value.Get(turnEntity);
                 if (targetRef.HeroInstancePackedEntity.Unpack(out _, out var targetInstanceEntity))
                     processedHeroPool.Value.Add(targetInstanceEntity);

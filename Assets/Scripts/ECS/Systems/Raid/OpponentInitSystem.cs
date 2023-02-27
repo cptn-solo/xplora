@@ -22,7 +22,10 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            foreach (var opponentHero in raidComp.OpponentHeroes)
+            // each opponent hero for now has only one instance in the raid.
+            // this can be revisited to add several instances for each opponent config available
+            // for the raid
+            foreach (var opponentHero in raidComp.OpponentHeroConfigs)
             {
                 var opponentEntity = ecsWorld.Value.NewEntity();
                 ref var opponentComp = ref opponentPool.Value.Add(opponentEntity);

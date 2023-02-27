@@ -6,15 +6,8 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService // Battle
     {
-        internal void ProcessAftermath(bool won)
-        {
+        internal void ProcessAftermath(bool won) =>
             ProcessEcsBattleAftermath(won);
-        }
-
-        internal void PrepareEnemyTeamBasedOnHero(Hero hero)
-        {
-            throw new NotImplementedException();
-        }
 
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);

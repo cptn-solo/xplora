@@ -61,8 +61,7 @@ namespace Assets.Scripts
             battleManagementService.Init(
                 playerPrefsService,
                 libManagementService,
-                menuNavigationService,
-                raidService);
+                menuNavigationService);
             
             audioPlaybackService.Init(
                 menuNavigationService);
@@ -70,6 +69,7 @@ namespace Assets.Scripts
             raidService.Init(
                 menuNavigationService,
                 libManagementService,
+                battleManagementService,
                 worldService);
 
             worldService.Init(

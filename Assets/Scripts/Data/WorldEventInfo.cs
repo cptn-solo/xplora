@@ -6,6 +6,7 @@ namespace Assets.Scripts.Data
 {
     public struct WorldEventInfo
     {
+        public Hero EventHero { get; internal set; }
         public string IconName { get; internal set; } // with path
         public string EventTitle { get; internal set; }
         public string EventText { get; internal set; }
@@ -171,6 +172,7 @@ namespace Assets.Scripts.Data
 
             var info = new WorldEventInfo()
             {
+                EventHero = hero,
                 EventTitle = $"{config.Name} ({level})",
                 EventText = EventTextGenerator(level, hero.Name, config.Attribute),
                 IconName = hero.IconName,

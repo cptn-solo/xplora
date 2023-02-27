@@ -32,7 +32,7 @@ namespace Assets.Scripts.Services
 
         public HeroPosition[] BattleFieldSlotsPositions => slots.Keys.ToArray();
 
-        private void StartEcsContext()
+        public void StartEcsContext()
         {
             PlayMode = BattleMode.NA;
 
@@ -42,6 +42,7 @@ namespace Assets.Scripts.Services
             ecsInitSystems
                 .Add(new BattleInitSystem())
                 .Add(new BattleHeroesInitSystem())
+                .Add(new BattleHeroInstanceInit())
                 .Inject(this)
                 .Inject(libraryManager)
                 .Init();
@@ -76,6 +77,7 @@ namespace Assets.Scripts.Services
                 // with CompletedTurnTag
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
+                .Add(new BattleReportUpdatedHeros()) // reports data back to the battle requester (raid)
                 // dequeue fired items
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards

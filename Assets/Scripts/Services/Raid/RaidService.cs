@@ -11,6 +11,7 @@ namespace Assets.Scripts.Services
     public partial class RaidService : MonoBehaviour
     {
         private HeroLibraryService libManagementService;
+        private BattleManagementService battleManagementService;
         private MenuNavigationService menuNavigationService;
         private WorldService worldService;
 
@@ -24,6 +25,7 @@ namespace Assets.Scripts.Services
         public void Init(
             MenuNavigationService menuNavigationService,
             HeroLibraryService libManagementService,
+            BattleManagementService battleManagementService,
             WorldService worldService)
         {
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
@@ -32,11 +34,18 @@ namespace Assets.Scripts.Services
             worldService.OnTerrainProduced += WorldService_OnTerrainProduced;
             worldService.OnCellVisibilityChanged += WorldService_OnCellVisibilityChanged;
             worldService.CoordBeforeSelector = WorldCoordBeforeSelect;
+
             this.worldService = worldService;
             this.menuNavigationService = menuNavigationService;
             this.libManagementService = libManagementService;
+            this.battleManagementService = battleManagementService;
 
             State = RaidState.NA;
+        }
+
+        private void BattleManagementService_OnBattleComplete(bool won)
+        {
+            ProcessEcsBattleAftermath(won);
         }
 
         private void WorldService_OnCellVisibilityChanged(int cellIndex, bool visible)
@@ -71,7 +80,10 @@ namespace Assets.Scripts.Services
             Screens previous, Screens current)
         {
             if (current == Screens.Raid)
+            {
+                battleManagementService.OnBattleComplete += BattleManagementService_OnBattleComplete;
                 StartEcsRaidContext();
+            }
 
             if (previous == Screens.Raid)
             {
@@ -79,7 +91,10 @@ namespace Assets.Scripts.Services
                 State = RaidState.NA;
 
                 if (current != Screens.Battle)
+                {
+                    battleManagementService.OnBattleComplete -= BattleManagementService_OnBattleComplete;
                     MarkEcsWorldRaidForTeardown();
+                }
                 else
                     State = RaidState.InBattle;
             }
@@ -89,22 +104,6 @@ namespace Assets.Scripts.Services
         private void MenuNavigationService_OnNavigationToScreenComplete(
             Screens current)
         {
-        }
-
-        /// <summary>
-        /// Called from ecs during initialization
-        /// </summary>
-        /// <param name="playerHeroes"></param>
-        /// <param name="opponentHeroes"></param>
-        /// <returns></returns>
-        public bool AssignPlayerAndEnemies(
-            out Hero[] playerHeroes,
-            out Hero[] opponentHeroes)
-        {
-            playerHeroes = libManagementService.PlayerHeroes;
-            opponentHeroes = libManagementService.NonPlayerTeamHeroes;
-
-            return playerHeroes.Length > 0;
         }
 
         /// <summary>

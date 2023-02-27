@@ -107,6 +107,8 @@ namespace Assets.Scripts.UI.Battle
            
             initialized = true;
 
+            battleManager.StartEcsContext();
+
             battleManager.CreateCards(
                 (card, overlay) =>
                 {

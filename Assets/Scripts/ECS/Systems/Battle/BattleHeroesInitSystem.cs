@@ -6,32 +6,22 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
 using System.Linq;
+using UnityEditor.Sprites;
 
 namespace Assets.Scripts.ECS.Systems
 {
+    using static Zenject.SignalSubscription;
     using HeroPosition = Tuple<int, BattleLine, int>;
     using Random = UnityEngine.Random;
 
     public class BattleHeroesInitSystem : IEcsInitSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool;
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
-        private readonly EcsPoolInject<HealthComp> healthPool;
-        private readonly EcsPoolInject<HPComp> hpPool;
-        private readonly EcsPoolInject<EffectsComp> effectsPool;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
+        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
         private readonly EcsPoolInject<EnemyTeamTag> enemyTeamTagPool;
         private readonly EcsPoolInject<PositionComp> positionPool;
-        private readonly EcsPoolInject<SpeedComp> speedPool;
-        private readonly EcsPoolInject<FrontlineTag> frontlineTagPool;
-        private readonly EcsPoolInject<BacklineTag> backlineTagPool;        
-        private readonly EcsPoolInject<RangedTag> rangedTagPool;        
-        private readonly EcsPoolInject<NameComp> namePool;
-        private readonly EcsPoolInject<IconName> iconNamePool;
-        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool;
-        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
@@ -45,13 +35,100 @@ namespace Assets.Scripts.ECS.Systems
             battleInfo.State = BattleState.PrepareTeams;
             battleService.Value.NotifyBattleEventListeners(battleInfo);
 
-            EcsPackedEntityWithWorld? lastUsedEnemyConfig = null;
+            #region Player team:
+
+            var playerTeamId = battleInfo.PlayerTeam.Id;
+            var playerPosBuffer = ListPool<HeroPosition>.Get();
+            playerPosBuffer.AddRange(battleService.Value.BattleFieldSlotsPositions.
+                Where(x => x.Item1 == playerTeamId));
+
+            EcsPackedEntityWithWorld[] playerConfigs = battleService.Value.PlayerTeamPackedEntities;
+                //GetHeroConfigsForTeam(playerTeamId);
+
+            foreach (var packed in playerConfigs)
+            {
+                var sourcePosition = playerPosBuffer[0];
+
+                AddHeroBattleInstance<PlayerTeamTag>(battleWorld, packed, sourcePosition);
+
+                playerPosBuffer.RemoveAt(0);
+            }
+
+            ListPool<HeroPosition>.Add(playerPosBuffer);
+
+            #endregion
+
+            #region Enemy team:
 
             var enemyTeamId = battleInfo.EnemyTeam.Id;
-            var posBuffer = ListPool<HeroPosition>.Get();
-            posBuffer.AddRange(battleService.Value.BattleFieldSlotsPositions.
+            var enemyPosBuffer = ListPool<HeroPosition>.Get();
+            enemyPosBuffer.AddRange(battleService.Value.BattleFieldSlotsPositions.
                 Where(x => x.Item1 == enemyTeamId));
+            EcsPackedEntityWithWorld[] enemyConfigs = battleService.Value.EnemyTeamPackedEntities;
+                //GetHeroConfigsForTeam(enemyTeamId);
 
+            EcsPackedEntityWithWorld? lastUsedEnemyConfig = null;
+
+            foreach (var packed in enemyConfigs)
+            {
+                var sourcePosition = enemyPosBuffer[0];
+
+                AddHeroBattleInstance<EnemyTeamTag>(battleWorld, packed, sourcePosition);
+
+                lastUsedEnemyConfig = packed;
+
+                enemyPosBuffer.RemoveAt(0);
+            }
+
+            if (battleWorld.Filter<EnemyTeamTag>().End().GetEntitiesCount() is int enemyTeamCount &&
+                enemyTeamCount > 0 &&
+                battleWorld.Filter<PlayerTeamTag>().End().GetEntitiesCount() is int playerTeamCount &&
+                playerTeamCount > 0)
+            {
+                for (int i = 0; i < Random.Range(0, enemyPosBuffer.Count + 1); i++)
+                {
+                    var pos = enemyPosBuffer[Random.Range(0, enemyPosBuffer.Count)];
+
+                    AddHeroBattleInstance<EnemyTeamTag>(battleWorld, lastUsedEnemyConfig.Value, pos);
+
+                    enemyPosBuffer.Remove(pos);
+                }
+            }
+
+            ListPool<HeroPosition>.Add(enemyPosBuffer);
+
+            #endregion
+        }
+
+        private void AddHeroBattleInstance<T>(EcsWorld battleWorld,
+            EcsPackedEntityWithWorld packed, HeroPosition sourcePosition)
+            where T: struct
+        {
+            var entity = battleWorld.NewEntity();
+
+            ref var positionComp = ref positionPool.Value.Add(entity);
+            positionComp.Position = sourcePosition;
+
+            battleWorld.GetPool<T>().Add(entity);
+
+            // remember hero instance origin (raid or library)
+            // to update HP and use bonuses from raid
+            ref var origin = ref heroInstanceOriginRefPool.Value.Add(entity);
+            origin.HeroInstancePackedEntity = packed;
+
+            // getting hero config ref from the origin
+            if (!packed.Unpack(out var originWorld, out var originEntity))
+                throw new Exception("No Source Hero");
+
+            ref var originConfigRefComp = ref originWorld.GetPool<HeroConfigRefComp>().Get(originEntity);
+            ref var configRefComp = ref heroConfigRefPool.Value.Add(entity);
+            configRefComp.HeroConfigPackedEntity = originConfigRefComp.Packed;
+        }
+
+        private EcsPackedEntityWithWorld[] GetHeroConfigsForTeam(int teamId)
+        {
+            var teamConfigs = ListPool<EcsPackedEntityWithWorld>.Get();
+            
             foreach (var heroConfigPackedEntity in libraryService.Value.HeroConfigEntities)
             {
                 //clone hero config into a new entity in the battle context
@@ -62,111 +139,18 @@ namespace Assets.Scripts.ECS.Systems
                 var libPositionPool = libWorld.GetPool<PositionComp>();
                 ref var libPosition = ref libPositionPool.Get(heroConfigEntity);
 
-                if (libPosition.Position.Item1 == -1)
-                {
-                    continue;
-                }
-                else if (libPosition.Position.Item1 == battleInfo.PlayerTeam.Id)
-                {
-                    InitBattleHeroInstance<PlayerTeamTag>(
-                        battleWorld, battleInfo, heroConfigPackedEntity, libPosition.Position);
-                }
-                else
-                {
-                    InitBattleHeroInstance<EnemyTeamTag>(
-                        battleWorld, battleInfo, heroConfigPackedEntity, libPosition.Position);
-                    lastUsedEnemyConfig = heroConfigPackedEntity;
-
-                    posBuffer.Remove(libPosition.Position);
-                }
+                HeroPosition sourcePosition = libPosition.Position;
+                if (sourcePosition.Item1 == teamId)
+                    teamConfigs.Add(heroConfigPackedEntity);
             }
 
-            if (battleWorld.Filter<EnemyTeamTag>().End().GetEntitiesCount() is int enemyTeamCount &&
-                enemyTeamCount > 0 &&
-                battleWorld.Filter<PlayerTeamTag>().End().GetEntitiesCount() is int playerTeamCount &&
-                playerTeamCount > 0)
-            {
-                battleInfo.State = BattleState.TeamsPrepared;
-                battleService.Value.NotifyBattleEventListeners(battleInfo);
+            var retval = teamConfigs.ToArray();
 
-                roundShortageTagPool.Value.Add(battleEntity); // to create 1st rounds
-            }
+            ListPool<EcsPackedEntityWithWorld>.Add(teamConfigs);
 
-            if (battleInfo.State == BattleState.TeamsPrepared)
-            {
-                for (int i = 0; i < Random.Range(0, posBuffer.Count + 1); i++)
-                {
-                    var pos = posBuffer[Random.Range(0, posBuffer.Count)];
-                    InitBattleHeroInstance<EnemyTeamTag>(
-                        battleWorld, battleInfo, lastUsedEnemyConfig.Value, pos);
-                    posBuffer.Remove(pos);
-                }
-            }
-
-
-            ListPool<HeroPosition>.Add(posBuffer);
+            return retval;
         }
 
-        private void InitBattleHeroInstance<T>(
-            EcsWorld battleWorld,
-            BattleInfo battleInfo,
-            EcsPackedEntityWithWorld heroConfigPackedEntity,
-            HeroPosition sourcePosition) where T: struct
-        {
 
-            if (!heroConfigPackedEntity.Unpack(out var libWorld, out var heroConfigEntity))
-                throw new Exception("No Hero");
-
-            var heroInstanceEntity = battleWorld.NewEntity();
-
-            ref var heroConfigRef = ref heroConfigRefPool.Value.Add(heroInstanceEntity);
-            heroConfigRef.HeroConfigPackedEntity = heroConfigPackedEntity;
-
-            battleWorld.GetPool<T>().Add(heroInstanceEntity);
-
-            ref var heroInstanceRef = ref heroInstanceRefPool.Value.Add(heroInstanceEntity);
-            heroInstanceRef.HeroInstancePackedEntity = battleWorld.PackEntityWithWorld(heroInstanceEntity);
-
-            var libHeroPool = libWorld.GetPool<Hero>();
-            ref var heroConfig = ref libHeroPool.Get(heroConfigEntity);
-
-            ref var position = ref positionPool.Value.Add(heroInstanceEntity);
-            position.Position = sourcePosition;
-
-            if (position.Position.Item2 == BattleLine.Front)
-                frontlineTagPool.Value.Add(heroInstanceEntity);
-            else
-                backlineTagPool.Value.Add(heroInstanceEntity);
-
-            ref var speedComp = ref speedPool.Value.Add(heroInstanceEntity);
-            speedComp.Value = heroConfig.Speed;
-
-            ref var healthComp = ref healthPool.Value.Add(heroInstanceEntity);
-            healthComp.Value = heroConfig.Health;
-
-            ref var hpComp = ref hpPool.Value.Add(heroInstanceEntity);
-            hpComp.Value = heroConfig.Health;
-
-            ref var effectsComp = ref effectsPool.Value.Add(heroInstanceEntity);
-            effectsComp.ActiveEffects = new();
-
-            ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Add(heroInstanceEntity);
-            barsAndEffectsComp.HealthCurrent = hpComp.Value;
-            barsAndEffectsComp.Health = healthComp.Value;
-            barsAndEffectsComp.Speed = speedComp.Value;
-            barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
-
-            if (heroConfig.Ranged)
-                rangedTagPool.Value.Add(heroInstanceEntity);
-
-            ref var nameComp = ref namePool.Value.Add(heroInstanceEntity);
-            nameComp.Name = heroConfig.Name;
-
-            ref var iconNameComp = ref iconNamePool.Value.Add(heroInstanceEntity);
-            iconNameComp.Name = heroConfig.IconName;
-
-            ref var idleSpriteNameComp = ref idleSpriteNamePool.Value.Add(heroInstanceEntity);
-            idleSpriteNameComp.Name = heroConfig.IdleSpriteName;
-        }
     }
 }

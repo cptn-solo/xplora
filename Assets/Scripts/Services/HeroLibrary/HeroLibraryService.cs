@@ -15,9 +15,9 @@ namespace Assets.Scripts.Services
 
         public ref Team PlayerTeam => ref GetEcsPlayerTeam();
         public ref Team EnemyTeam => ref GetEcsEnemyTeam();
-        public Hero[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
-        public Hero[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
-        public Hero[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
+        public EcsPackedEntityWithWorld[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
+        public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
+        public EcsPackedEntityWithWorld[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
 
         public void Init(MenuNavigationService menuNavigationService)
         {

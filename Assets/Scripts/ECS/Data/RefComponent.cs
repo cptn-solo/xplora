@@ -70,8 +70,8 @@ namespace Assets.Scripts.ECS.Data
 
     public struct RaidComp
     {
-        public Hero[] PlayerHeroes { get; internal set; }
-        public Hero[] OpponentHeroes { get; internal set; }
+        public EcsPackedEntityWithWorld[] PlayerHeroConfigs { get; internal set; }
+        public EcsPackedEntityWithWorld[] OpponentHeroConfigs { get; internal set; }
     }
 
     public struct BattleAftermathComp
@@ -87,9 +87,11 @@ namespace Assets.Scripts.ECS.Data
     {
     }
 
-    public struct HeroComp
+    public struct HeroComp : IPackedWithWorldRef
     {
-        public Hero Hero { get; internal set; }
+        public EcsPackedEntityWithWorld Hero { get; internal set; }
+
+        public EcsPackedEntityWithWorld Packed => Hero;
     }
     public struct TeamComp { } // temp: reference to a team of heroes
     public struct StaminaComp { } // can be filled and drained
