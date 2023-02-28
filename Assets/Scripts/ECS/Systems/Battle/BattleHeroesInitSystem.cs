@@ -43,7 +43,6 @@ namespace Assets.Scripts.ECS.Systems
                 Where(x => x.Item1 == playerTeamId));
 
             EcsPackedEntityWithWorld[] playerConfigs = battleService.Value.PlayerTeamPackedEntities;
-                //GetHeroConfigsForTeam(playerTeamId);
 
             foreach (var packed in playerConfigs)
             {
@@ -65,9 +64,6 @@ namespace Assets.Scripts.ECS.Systems
             enemyPosBuffer.AddRange(battleService.Value.BattleFieldSlotsPositions.
                 Where(x => x.Item1 == enemyTeamId));
             EcsPackedEntityWithWorld[] enemyConfigs = battleService.Value.EnemyTeamPackedEntities;
-                //GetHeroConfigsForTeam(enemyTeamId);
-
-            EcsPackedEntityWithWorld? lastUsedEnemyConfig = null;
 
             foreach (var packed in enemyConfigs)
             {
@@ -75,24 +71,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 AddHeroBattleInstance<EnemyTeamTag>(battleWorld, packed, sourcePosition);
 
-                lastUsedEnemyConfig = packed;
-
                 enemyPosBuffer.RemoveAt(0);
-            }
-
-            if (battleWorld.Filter<EnemyTeamTag>().End().GetEntitiesCount() is int enemyTeamCount &&
-                enemyTeamCount > 0 &&
-                battleWorld.Filter<PlayerTeamTag>().End().GetEntitiesCount() is int playerTeamCount &&
-                playerTeamCount > 0)
-            {
-                for (int i = 0; i < Random.Range(0, enemyPosBuffer.Count + 1); i++)
-                {
-                    var pos = enemyPosBuffer[Random.Range(0, enemyPosBuffer.Count)];
-
-                    AddHeroBattleInstance<EnemyTeamTag>(battleWorld, lastUsedEnemyConfig.Value, pos);
-
-                    enemyPosBuffer.Remove(pos);
-                }
             }
 
             ListPool<HeroPosition>.Add(enemyPosBuffer);
@@ -124,33 +103,5 @@ namespace Assets.Scripts.ECS.Systems
             ref var configRefComp = ref heroConfigRefPool.Value.Add(entity);
             configRefComp.HeroConfigPackedEntity = originConfigRefComp.Packed;
         }
-
-        private EcsPackedEntityWithWorld[] GetHeroConfigsForTeam(int teamId)
-        {
-            var teamConfigs = ListPool<EcsPackedEntityWithWorld>.Get();
-            
-            foreach (var heroConfigPackedEntity in libraryService.Value.HeroConfigEntities)
-            {
-                //clone hero config into a new entity in the battle context
-                //so we could use same config for several enemies for example
-                if (!heroConfigPackedEntity.Unpack(out var libWorld, out var heroConfigEntity))
-                    throw new Exception("No Hero");
-
-                var libPositionPool = libWorld.GetPool<PositionComp>();
-                ref var libPosition = ref libPositionPool.Get(heroConfigEntity);
-
-                HeroPosition sourcePosition = libPosition.Position;
-                if (sourcePosition.Item1 == teamId)
-                    teamConfigs.Add(heroConfigPackedEntity);
-            }
-
-            var retval = teamConfigs.ToArray();
-
-            ListPool<EcsPackedEntityWithWorld>.Add(teamConfigs);
-
-            return retval;
-        }
-
-
     }
 }

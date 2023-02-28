@@ -206,6 +206,16 @@ namespace Assets.Scripts.Services
             var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
             foreach (var entity in filter)
             {
+                if (!entityViewRefPool.Has(entity))
+                    entityViewRefPool.Add(entity);
+
+                ref var entityViewRef = ref entityViewRefPool.Get(entity);
+                if (entityViewRef.EntityView != null)
+                {
+                    entityViewRef.EntityView.UpdateData();
+                    continue;
+                }
+
                 ref var pos = ref positionPool.Get(entity);
                 var slot = slots[pos.Position];
                 var card = HeroCardFactory(ecsContext.PackEntityWithWorld(entity));
@@ -213,7 +223,6 @@ namespace Assets.Scripts.Services
                 slot.Put(card.Transform);
                 card.UpdateData();
 
-                ref var entityViewRef = ref entityViewRefPool.Add(entity);
                 entityViewRef.EntityView = card;
             }
         }
@@ -347,32 +356,36 @@ namespace Assets.Scripts.Services
             }
         }
 
-        public EcsPackedEntityWithWorld[] WrapForBattle(EcsPackedEntityWithWorld[] heroes)
+        public EcsPackedEntityWithWorld[] WrapForBattle(
+            EcsPackedEntityWithWorld[] heroes, EcsWorld targetWorld = null)
         {
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
+
+            if (targetWorld == null)
+                targetWorld = ecsContext;
 
             foreach(var packed in heroes)
             {
                 if (!packed.Unpack(out var world, out var configEntity))
                     throw new Exception("No Hero config");
 
-                var entity = world.NewEntity();
+                var entity = targetWorld.NewEntity();
 
-                ref var configRef = ref world.GetPool<HeroConfigRefComp>().Add(entity);
+                ref var configRef = ref targetWorld.GetPool<HeroConfigRefComp>().Add(entity);
                 configRef.HeroConfigPackedEntity = packed;
 
                 ref var heroConfig = ref world.GetPool<Hero>().Get(configEntity);
 
-                ref var speedComp = ref world.GetPool<SpeedComp>().Add(entity);
+                ref var speedComp = ref targetWorld.GetPool<SpeedComp>().Add(entity);
                 speedComp.Value = heroConfig.Speed;
 
-                ref var healthComp = ref world.GetPool<HealthComp>().Add(entity);
+                ref var healthComp = ref targetWorld.GetPool<HealthComp>().Add(entity);
                 healthComp.Value = heroConfig.Health;
 
-                ref var hpComp = ref world.GetPool<HPComp>().Add(entity);
+                ref var hpComp = ref targetWorld.GetPool<HPComp>().Add(entity);
                 hpComp.Value = heroConfig.Health;
 
-                buffer.Add(world.PackEntityWithWorld(entity));
+                buffer.Add(targetWorld.PackEntityWithWorld(entity));
             }
 
             var retval = buffer.ToArray();

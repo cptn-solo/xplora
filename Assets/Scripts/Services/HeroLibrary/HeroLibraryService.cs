@@ -10,6 +10,7 @@ namespace Assets.Scripts.Services
     public partial class HeroLibraryService : MonoBehaviour
     {
         private MenuNavigationService menuNavigationService;
+        private BattleManagementService battleManagementService;
 
         public DamageTypesLibrary DamageTypesLibrary => damageTypesLib;
 
@@ -19,28 +20,39 @@ namespace Assets.Scripts.Services
         public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
         public EcsPackedEntityWithWorld[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
 
-        public void Init(MenuNavigationService menuNavigationService)
+        public void Init(
+            MenuNavigationService menuNavigationService,
+            BattleManagementService battleManagementService)
         {
             StartEcsContext();
             InitConfigLoading();
 
             this.menuNavigationService = menuNavigationService;
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
+
+            this.battleManagementService = battleManagementService;
+            battleManagementService.OnBattleComplete += BattleManagementService_OnBattleComplete;
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens current, Screens prev)
         {
             if (prev == Screens.HeroesLibrary)
-                UnlinkCardRefs();            
+                UnlinkCardRefs();
+        }
+
+        private void BattleManagementService_OnBattleComplete(bool arg0)
+        {
+            
         }
 
         private void OnDestroy()
         {
             StopEcsContext();
             menuNavigationService.OnBeforeNavigateToScreen -= MenuNavigationService_OnBeforeNavigateToScreen;
+            battleManagementService.OnBattleComplete -= BattleManagementService_OnBattleComplete;
         }
-        
+
         internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>
             GetEcsHeroAtPosition(position);
 

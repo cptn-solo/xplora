@@ -48,7 +48,6 @@ namespace Assets.Scripts.World
 
         private void Pointer_canceled(UnityEngine.InputSystem.InputAction.CallbackContext obj)
         {
-            Debug.Log($"Pointer_canceled");
         }
 
         private void Pointer_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)

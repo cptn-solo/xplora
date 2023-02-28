@@ -166,8 +166,10 @@ namespace Assets.Scripts.UI.Library
                     break;
                 case Actions.SaveTeamForBattle:
                     {
-                        battleManager.PlayerTeamPackedEntities = libManager.WrapForBattle(libManager.PlayerHeroes);
-                        battleManager.EnemyTeamPackedEntities = libManager.WrapForBattle(libManager.EnemyHeroes);
+                        battleManager.PlayerTeamPackedEntities =
+                            libManager.WrapForBattle(libManager.PlayerHeroes);
+                        battleManager.EnemyTeamPackedEntities =
+                            libManager.WrapForBattle(libManager.EnemyHeroes);
                         nav.NavigateToScreen(Screens.Battle);
                     }
                     break;

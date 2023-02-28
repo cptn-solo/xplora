@@ -36,7 +36,6 @@ namespace Assets.Scripts.World
                 cellHighlightingId,
                 cellVector
             );
-            Debug.Log($"UpdateCellHighlightData {cellVector}");
         }
 
         public void HighlightCellAtCoordinates(

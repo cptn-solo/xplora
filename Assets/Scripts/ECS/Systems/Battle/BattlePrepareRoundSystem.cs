@@ -59,7 +59,7 @@ namespace Assets.Scripts.ECS.Systems
             {
                 if (!heroInstance.HeroInstancePackedEntity.Unpack(
                     out _, out var heroInstanceEntity))
-                    continue;
+                    throw new Exception("No Hero instance");
 
                 ref var heroInstanceRef = ref heroInstanceRefPool.Value.Get(heroInstanceEntity);
 
@@ -76,6 +76,9 @@ namespace Assets.Scripts.ECS.Systems
                 };
                 buffer.Add(slotInfo);
             }
+
+            if (buffer.Count == 0)
+                throw new Exception("No heroes for round queue");
 
             var orderedHeroes = buffer.OrderByDescending(x => x.Speed);
 
@@ -108,6 +111,9 @@ namespace Assets.Scripts.ECS.Systems
             roundInfo.QueuedHeroes = queue.ToArray();
 
             ListPool<RoundSlotInfo>.Add(queue);
+
+            if (roundInfo.QueuedHeroes.Length == 0)
+                throw new Exception("No heroes for prepared round queue");
 
             roundInfo.State = RoundState.RoundPrepared;
 

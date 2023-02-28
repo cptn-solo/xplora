@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HPComp> hpPool;
 
         private readonly EcsFilterInject<
-            Inc<PlayerTeamTag, HeroInstanceOriginRefComp, ProcessedHeroTag>> filter;
+            Inc<HeroInstanceOriginRefComp, ProcessedHeroTag>> filter;
 
         public void Run(IEcsSystems systems)
         {
@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 if (deadTagPool.Value.Has(entity))
                 {
-                    originWorld.DelEntity(entity);
+                    originWorld.DelEntity(originEntity);
                     continue;
                 }
 

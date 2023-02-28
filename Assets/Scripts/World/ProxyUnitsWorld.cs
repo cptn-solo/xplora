@@ -31,10 +31,10 @@ namespace Assets.Scripts.World
             raidService.UnitSpawner = null;
         }
 
-        private Unit UnitSpawner(Vector3 pos, Hero hero, UnitSpawnerCallback onSpawned) {
+        private Unit UnitSpawner(Vector3 pos, Hero hero, bool isPlayer, UnitSpawnerCallback onSpawned) {
             var unit = Instantiate(unitPrefab, pos, Quaternion.identity, transform).GetComponent<Unit>();
             
-            unit.SetHero(hero);
+            unit.SetHero(hero, isPlayer);
 
             onSpawned?.Invoke();
 

@@ -6,28 +6,6 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleNotifyResultsSystem : IEcsRunSystem
-    {
-        private readonly EcsPoolInject<DelayTimerComp<WinnerTag>> delayPool;
-        private readonly EcsFilterInject<Inc<DelayTimerComp<WinnerTag>>> filter;
-
-        private readonly EcsCustomInject<BattleManagementService> battleService;
-
-        public void Run(IEcsSystems systems)
-        {
-            foreach (var entity in filter.Value)
-            {
-                ref var delayComp = ref delayPool.Value.Get(entity);
-                if (!delayComp.Ready)
-                    continue;
-
-                battleService.Value.NotifyBattleEventListeners();
-
-                delayPool.Value.Del(entity);
-            }
-        }
-
-    }
     public class BattleCompleteSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
@@ -60,10 +38,10 @@ namespace Assets.Scripts.ECS.Systems
             destroyTagPool.Value.Add(battleEntity);
 
             ref var delayWinner = ref delayWinnerPool.Value.Add(battleEntity);
-            delayWinner.SetDelayFromNow(3);
+            delayWinner.SetDelayFromNow(1.5f);
 
             ref var delayDestroy = ref delayDestroyPool.Value.Add(battleEntity);
-            delayDestroy.SetDelayFromNow(5);
+            delayDestroy.SetDelayFromNow(3f);
         }
     }
 }

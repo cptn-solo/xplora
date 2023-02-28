@@ -52,6 +52,8 @@ namespace Assets.Scripts.ECS.Systems
                             playerCellComp.CellIndex = opponentCellComp.CellIndex;
                         }
 
+                        aftermathPool.Value.Del(battleEntity);
+
                         ecsWorld.Value.DelEntity(battleEntity);
 
                         raidService.Value.FinalizeWonBattle();

@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -150,17 +150,21 @@ namespace Assets.Scripts.ECS.Data
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi
 
-    public struct DelayTimerComp<T>
+    public struct DummyBuff : IIntValue
     {
-        public float DelayUntill;
+        public int Value { get; set; }
+    }
 
-        public bool Ready =>
-            Time.time >= DelayUntill;
+    public struct BuffComp<T> : IIntValue
+    {
+        public int Value { get; set; }
+        public int Usages { get; set; }
+    }
 
-        public void SetDelayFromNow(float delaySec)
-        {
-            DelayUntill = Time.time + delaySec;
-        }
+    public struct DamageRangeComp
+    {
+        public int Max { get; set; }
+        public int Min { get; set; }
     }
 
     #endregion

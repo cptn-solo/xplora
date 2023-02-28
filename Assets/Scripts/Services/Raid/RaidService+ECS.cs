@@ -6,6 +6,9 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
 using System;
+using UnityEngine;
+using Random = UnityEngine.Random;
+//using Google.Apis.Sheets.v4.Data;
 
 namespace Assets.Scripts.Services
 {
@@ -18,16 +21,26 @@ namespace Assets.Scripts.Services
         public EcsPackedEntity PlayerEntity { get; set; }
         public EcsPackedEntity WorldEntity { get; set; }
         public EcsPackedEntity RaidEntity { get; set; }
-        public EcsPackedEntity BattleEntity { get; set; }
+        public EcsPackedEntity? BattleEntity { get; set; } = null;
 
-        private Hero[] GetActiveTeamMembers()
+        private bool GetActiveTeamMemberForTrait(HeroTrait trait,
+            out Hero? eventHero,
+            out EcsPackedEntityWithWorld? eventHeroEntity,
+            out int maxLevel)
         {
+
+            eventHero = null;
+            eventHeroEntity = null;
+            maxLevel = 0;
+
             if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
-                return new Hero[0];
+                return false;
 
             var filter = ecsRaidContext.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
             var heroConfigRefPool = ecsRaidContext.GetPool<HeroConfigRefComp>();
-            var buffer = ListPool<Hero>.Get();
+
+            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
+            var maxedHeroes = ListPool<Hero>.Get();
 
             foreach (var entity in filter)
             {
@@ -35,11 +48,29 @@ namespace Assets.Scripts.Services
                 if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
                     throw new Exception("No Hero config");
 
-                buffer.Add(libWorld.GetPool<Hero>().Get(libEntity));
-            }
-            var retval = buffer.ToArray();
+                ref var hero = ref libWorld.GetPool<Hero>().Get(libEntity);
 
-            ListPool<Hero>.Add(buffer);
+                if (hero.Traits.TryGetValue(trait, out var traitInfo) &&
+                    traitInfo.Level > 0 &&
+                    traitInfo.Level >= maxLevel)
+                {
+                    maxLevel = traitInfo.Level;
+                    maxedHeroes.Add(hero);
+                    buffer.Add(ecsRaidContext.PackEntityWithWorld(entity));
+                }
+            }
+            if (maxedHeroes.Count > 0)
+            {
+                var idx = Random.Range(0, maxedHeroes.Count);
+                eventHero = maxedHeroes[idx];
+                eventHeroEntity = buffer[idx];
+            }
+
+            ListPool<Hero>.Add(maxedHeroes);
+
+            var retval = buffer.Count > 0;
+
+            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
             return retval;
         }
@@ -61,6 +92,8 @@ namespace Assets.Scripts.Services
                 .Init();
 
             ecsRunSystems
+
+                .Add(new PlayerTeamUpdateSystem()) // bufs
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
                 .Add(new OutOfPowerSystem())
@@ -193,20 +226,14 @@ namespace Assets.Scripts.Services
         }
 
         private void ProcessEcsDeathInBattle()
-        {
-            if (!BattleEntity.Unpack(ecsRaidContext, out var battleEntity))
-                return;
-
+        {            
             if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
                 return;
-
 
             if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
                 return;
 
             var heroPool = ecsRaidContext.GetPool<HeroComp>();
-            ref var heroComp = ref heroPool.Get(playerEntity);
-
             var filter = ecsRaidContext.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
 
             if (filter.GetEntitiesCount() == 0)
@@ -234,6 +261,11 @@ namespace Assets.Scripts.Services
             var bestSpeed = heroBuffer.ToArray().HeroBestBySpeed(out var idx);
             var bestSpeedPacked = heroPackedBuffer[idx];
 
+            if (!heroPool.Has(playerEntity))
+                heroPool.Add(playerEntity);
+
+            ref var heroComp = ref heroPool.Get(playerEntity);
+
             heroComp.Hero = bestSpeedPacked;
 
             ListPool<EcsPackedEntityWithWorld>.Add(heroPackedBuffer);
@@ -243,14 +275,21 @@ namespace Assets.Scripts.Services
 
         private void ProcessEcsBattleAftermath(bool won)
         {
-            if (!BattleEntity.Unpack(ecsRaidContext, out var battleEntity))
+            Debug.Log($"ProcessEcsBattleAftermath {won}");
+
+            if (BattleEntity == null || !BattleEntity.Value.Unpack(ecsRaidContext, out var battleEntity))
+            {
+                menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
                 return;
+            }
 
             ProcessEcsDeathInBattle();
 
             var aftermathPool = ecsRaidContext.GetPool<BattleAftermathComp>();
             ref var aftermathComp = ref aftermathPool.Add(battleEntity);
             aftermathComp.Won = won;
+
+            BattleEntity = null;
         }
 
         private void VisitEcsCellId(int cellId = -1)
@@ -266,13 +305,18 @@ namespace Assets.Scripts.Services
             }
 
             var visitPool = ecsRaidContext.GetPool<VisitCellComp>();
-            ref var visitComp = ref visitPool.Add(playerEntity);
+
+            if (!visitPool.Has(playerEntity))
+                visitPool.Add(playerEntity);
+
+            ref var visitComp = ref visitPool.Get(playerEntity);
             visitComp.CellIndex = cellId;
         }
 
         private bool CheckEcsRaidForBattle()
         {
-            if (BattleEntity.Unpack(ecsRaidContext, out var battleEntity) &&
+            if (BattleEntity != null &&
+                BattleEntity.Value.Unpack(ecsRaidContext, out var battleEntity) &&
                 ecsRaidContext.GetPool<BattleComp>().Has(battleEntity))
                 return true;
 
@@ -318,6 +362,20 @@ namespace Assets.Scripts.Services
 
             return true;
         }
+        private void TryCastEcsTerrainEvent(TerrainEventConfig eventConfig,
+            Hero eventHero, EcsPackedEntityWithWorld eventHeroEntity, int maxLevel)
+        {
+            if (!(5 + (maxLevel * 5)).RatedRandomBool())
+            {
+                Debug.Log($"Missed Event: {eventConfig}");
+                return;
+            }
+
+            currentEventInfo = WorldEventInfo.Create(eventConfig,
+                eventHero, eventHeroEntity, maxLevel);
+
+            dialog.SetEventInfo(currentEventInfo.Value);
+        }
 
         private void InitiateEcsWorldBattle(EcsPackedEntity enemyPackedEntity)
         {
@@ -341,15 +399,68 @@ namespace Assets.Scripts.Services
             if (RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
                 ecsRaidContext.DelEntity(raidEntity);
         }
-
-        private void BoostEcsNextBattleSpecOption(Hero eventHero, SpecOption specOption, int factor)
+        private void BoostEcsTeamMemberSpecOption(
+            EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
         {
-            //TODO: Add Spec Option Boost for the next battle
+            libManagementService.BoostSpecOption(
+                currentEventInfo.Value.EventHero,
+                specOption,
+                factor);
+
+            if (!heroEntity.Unpack(out var world, out var entity))
+                throw new Exception("No Hero instance");
+
+            var pool = world.GetPool<UpdateTag>();
+            if (!pool.Has(entity))
+                pool.Add(entity);
+        }
+
+        private void BoostEcsNextBattleSpecOption(
+            EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
+        {
+            // TODO: Add Spec Option Boost for the next battle
             //1. pick player team hero for eventHero
             if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
                 throw new Exception("No Raid");
 
-            var raidInfoPool = ecsRaidContext.GetPool<RaidComp>();
+            if (!heroEntity.Unpack(out var world, out var entity))
+                throw new Exception("No Hero instance");
+
+            switch (specOption)
+            {
+                case SpecOption.DamageRange:
+                    {
+                        //buff*=2
+                        var pool = world.GetPool<BuffComp<DamageRangeComp>>();
+                        if (!pool.Has(entity))
+                            pool.Add(entity);
+
+                        ref var buff = ref pool.Get(entity);
+                        buff.Value += factor;
+                    }
+                    break;
+                case SpecOption.Health:
+                    {
+
+                        //hp = max(health, hp*=2)
+                        var healthPool = world.GetPool<HealthComp>();
+                        ref var healthComp = ref healthPool.Get(entity);
+
+                        var hpPool = world.GetPool<HPComp>();
+                        ref var hpComp = ref hpPool.Get(entity);
+
+                        hpComp.Value = Mathf.Min(healthComp.Value, hpComp.Value * 2);
+                    
+                    }
+                    break;
+                case SpecOption.DefenceRate:
+                case SpecOption.AccuracyRate:
+                case SpecOption.DodgeRate:
+                case SpecOption.Speed:
+                case SpecOption.UnlimitedStaminaTag:
+                default:
+                    break;
+            }
 
             //2. add boostComponent of specOption to the raid hero entitity instance
             // 

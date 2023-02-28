@@ -40,6 +40,8 @@ namespace Assets.Scripts.Services
             this.libManagementService = libManagementService;
             this.battleManagementService = battleManagementService;
 
+            battleManagementService.OnBattleComplete += BattleManagementService_OnBattleComplete;
+
             State = RaidState.NA;
         }
 
@@ -80,22 +82,14 @@ namespace Assets.Scripts.Services
             Screens previous, Screens current)
         {
             if (current == Screens.Raid)
-            {
-                battleManagementService.OnBattleComplete += BattleManagementService_OnBattleComplete;
                 StartEcsRaidContext();
-            }
 
             if (previous == Screens.Raid)
             {
                 worldService.PlayerUnit = null;
                 State = RaidState.NA;
 
-                if (current != Screens.Battle)
-                {
-                    battleManagementService.OnBattleComplete -= BattleManagementService_OnBattleComplete;
-                    MarkEcsWorldRaidForTeardown();
-                }
-                else
+                if (current == Screens.Battle)
                     State = RaidState.InBattle;
             }
 
@@ -118,7 +112,7 @@ namespace Assets.Scripts.Services
             var coord = worldService.CellCoordinatesResolver(cellId);
             var pos = worldService.WorldPositionResolver(coord);
 
-            var playerUnit = UnitSpawner?.Invoke(pos, hero, null);
+            var playerUnit = UnitSpawner?.Invoke(pos, hero, true, null) ;
             playerUnit.SetInitialCoordinates(coord);
 
             OnUnitSpawned?.Invoke(playerUnit, true);
@@ -143,7 +137,7 @@ namespace Assets.Scripts.Services
             var coord = worldService.CellCoordinatesResolver(cellId);
             var pos = worldService.WorldPositionResolver(coord);
 
-            var enemyUnit = UnitSpawner?.Invoke(pos, hero, null);
+            var enemyUnit = UnitSpawner?.Invoke(pos, hero, false, null);
 
             OnUnitSpawned?.Invoke(enemyUnit, false);
 

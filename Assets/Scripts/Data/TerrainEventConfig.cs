@@ -58,6 +58,10 @@
         public TerrainAttribute Attribute { get; private set; }
         public HeroTrait Trait { get; private set; }
         public string Name { get; private set; }
+        public override string ToString()
+        {
+            return $"{Attribute} {Trait} {Name}";
+        }
 
         /// <summary>
         /// Expected:

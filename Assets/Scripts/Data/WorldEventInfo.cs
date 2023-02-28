@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Leopotam.EcsLite;
 using UnityEngine;
 
 namespace Assets.Scripts.Data
@@ -7,6 +8,7 @@ namespace Assets.Scripts.Data
     public struct WorldEventInfo
     {
         public Hero EventHero { get; internal set; }
+        public EcsPackedEntityWithWorld HeroEntity { get; internal set; }
         public string IconName { get; internal set; } // with path
         public string EventTitle { get; internal set; }
         public string EventText { get; internal set; }
@@ -130,7 +132,8 @@ namespace Assets.Scripts.Data
             return retval;
         }
 
-        internal static WorldEventInfo Create(TerrainEventConfig config, Hero hero, int level)
+        internal static WorldEventInfo Create(TerrainEventConfig config,
+            Hero hero, EcsPackedEntityWithWorld heroEntity, int level)
         {
             var buttonBonuses = ListPool<BonusOptionConfig>.Get();
 
@@ -173,6 +176,7 @@ namespace Assets.Scripts.Data
             var info = new WorldEventInfo()
             {
                 EventHero = hero,
+                HeroEntity = heroEntity,
                 EventTitle = $"{config.Name} ({level})",
                 EventText = EventTextGenerator(level, hero.Name, config.Attribute),
                 IconName = hero.IconName,

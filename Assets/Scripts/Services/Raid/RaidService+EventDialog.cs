@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Data;
+﻿using System;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI;
 using UnityEngine;
 
@@ -23,44 +24,17 @@ namespace Assets.Scripts.Services
 
         private void ProcessTerrainAttribute(TerrainAttribute attribute)
         {
-            var playerHeroes = GetActiveTeamMembers();
-
-            if (playerHeroes.Length == 0)
+            if (dialog == null)
                 return;
 
             //NB: for now it is 1:1 mapping, can be extended later
             var eventConfig = worldService.TerrainEventsLibrary.TerrainEvents[attribute];
-            var maxedHeroes = ListPool<Hero>.Get();
-            var maxLevel = 0;
 
-            Hero eventHero = default;
-
-            foreach (var hero in playerHeroes)
-            {
-                if (hero.Traits.TryGetValue(eventConfig.Trait, out var traitInfo) &&
-                    traitInfo.Level > maxLevel)
-                {
-                    maxLevel = traitInfo.Level;
-                    maxedHeroes.Add(hero);
-                }
-            }
-            if (maxedHeroes.Count > 0)
-                eventHero = maxedHeroes[Random.Range(0, maxedHeroes.Count)];
-
-            ListPool<Hero>.Add(maxedHeroes);
-
-            if (dialog == null || eventHero.HeroType == HeroType.NA)
+            if (!GetActiveTeamMemberForTrait(eventConfig.Trait,
+                out var hero, out var heroEntity, out var maxLevel))
                 return;
 
-            ShowEvent(eventConfig, eventHero, maxLevel);
-        }
-
-        private void ShowEvent(TerrainEventConfig eventConfig, Hero eventHero, int maxLevel)
-        {
-            currentEventInfo = WorldEventInfo.Create(eventConfig, eventHero, maxLevel);
-
-            dialog.SetEventInfo(currentEventInfo.Value);
-
+            TryCastEcsTerrainEvent(eventConfig, hero.Value, heroEntity.Value, maxLevel);
         }
 
         internal void OnEventAction<T>(int idx) where T : struct
@@ -77,14 +51,10 @@ namespace Assets.Scripts.Services
                 {
                     case 0:// permanent boost
                         {
-                            //1. update hero in the library
-                            libManagementService.BoostSpecOption(
-                                currentEventInfo.Value.EventHero,
+                            BoostEcsTeamMemberSpecOption(
+                                currentEventInfo.Value.HeroEntity,
                                 selectedOption.SpecOption,
                                 selectedOption.Factor);
-
-                            //2. update hero in the raid entity
-                            // redundant if Raid references lib hero config
                         }
                         break;
                     case 1:// next battle boost
@@ -93,7 +63,7 @@ namespace Assets.Scripts.Services
                             //2. update bonus field in hero in the library
                             //3. implement bonus field handling in battle manager (including reset after the battle)
                             BoostEcsNextBattleSpecOption(
-                                currentEventInfo.Value.EventHero,
+                                currentEventInfo.Value.HeroEntity,
                                 selectedOption.SpecOption,
                                 selectedOption.Factor);
 

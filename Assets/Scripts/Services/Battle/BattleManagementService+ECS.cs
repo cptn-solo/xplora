@@ -82,6 +82,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
                 .DelHere<ProcessedHeroTag>()
+                .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
                 .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
                 .Add(new BattleTerminationSystem()) // will navigate from the battle screen stopping context

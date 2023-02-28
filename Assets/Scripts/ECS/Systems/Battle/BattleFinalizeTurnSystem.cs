@@ -47,12 +47,12 @@ namespace Assets.Scripts.ECS.Systems
                     processedHeroPool.Value.Add(targetInstanceEntity);
             }
 
-            var buffer = ListPool<RoundSlotInfo>.Get();
-
             if (!battleService.Value.RoundEntity.Unpack(out var world, out var roundEntity))
                 throw new Exception("No round");
 
             ref var roundInfo = ref roundInfoPool.Value.Get(roundEntity);
+
+            var buffer = ListPool<RoundSlotInfo>.Get();
 
             buffer.AddRange(roundInfo.QueuedHeroes);
 
@@ -60,13 +60,6 @@ namespace Assets.Scripts.ECS.Systems
                 buffer.RemoveAt(0);
 
             roundInfo.QueuedHeroes = buffer.ToArray();
-            if (roundInfo.QueuedHeroes.Length == 0)
-            {
-                garbageTagPool.Value.Add(roundEntity);
-
-                roundInfo.State = RoundState.RoundCompleted;
-                battleService.Value.NotifyRoundEventListeners(roundInfo);
-            }
 
             ListPool<RoundSlotInfo>.Add(buffer);
 

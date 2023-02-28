@@ -12,8 +12,10 @@ namespace Assets.Scripts.World
         private Hero hero;
         private HexCoordinates coordinates;
         private HexCoordinates targetCoord;
-        private bool isMoving;
 
+        private bool isMoving;
+        private bool isPlayer;
+         
         public Hero Hero => hero;
         public HexCoordinates CurrentCoord => coordinates;
 
@@ -43,10 +45,11 @@ namespace Assets.Scripts.World
             coordinates = initialCoordinates;
         }
 
-        public void SetHero(Hero hero)
+        public void SetHero(Hero hero, bool isPlayer)
         {
             this.hero = hero;
-            unitAnimation.SetHero(hero);
+            this.isPlayer = isPlayer;
+            unitAnimation.SetHero(hero, isPlayer);
         }
 
         internal void SetMoveTargetCoordinates(HexCoordinates targetCoord)

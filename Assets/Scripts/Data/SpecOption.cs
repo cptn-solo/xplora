@@ -14,6 +14,7 @@
         DodgeRate = 400,
         Health = 500,
         Speed = 600,
-        UnlimitedStaminaTag = 700, // not present in Hero fields
+        UnlimitedStaminaTag = 700, // not present in Hero fields (dynamic)
+        HP = 800, // not present in Hero fields (dynamic)
     }
 }

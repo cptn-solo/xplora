@@ -40,6 +40,10 @@ namespace Assets.Scripts.ECS.Systems
 
             ListPool<EcsPackedEntity>.Add(buffer);
 
+            if (battleInfo.QueuedRounds.Length > 0 &&
+                battleInfo.QueuedRounds[0].Unpack(world, out roundEntity))
+                battleService.Value.RoundEntity = world.PackEntityWithWorld(roundEntity);
+
             if (!roundShortageTagPool.Value.Has(battleEntity))
                 roundShortageTagPool.Value.Add(battleEntity);
         }

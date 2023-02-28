@@ -101,14 +101,6 @@ namespace Assets.Scripts.Services
             DestroyEcsRounds();
         }
 
-        internal void NotiifyBattleComplete(bool won)
-        {
-            if (OnBattleComplete != null)
-                OnBattleComplete.Invoke(won);
-            else 
-                nav.NavigateToScreen(Screens.HeroesLibrary);
-        }
-
         internal void RetreatBattle()
         {
             PlayMode = BattleMode.NA;
@@ -146,6 +138,11 @@ namespace Assets.Scripts.Services
             MakeEcsTurn();
         }
 
+        internal void NotiifyBattleComplete(bool won)
+        {
+            OnBattleComplete?.Invoke(won);
+        }
+
         public void NotifyBattleEventListeners(BattleInfo? info = null)
         {
             OnBattleEvent?.Invoke(info??CurrentBattle);
@@ -167,9 +164,9 @@ namespace Assets.Scripts.Services
         }
         
         internal void Init(
+            MenuNavigationService menuNavigationService,
             PlayerPreferencesService playerPreferencesService,
-            HeroLibraryService libManagementService,
-            MenuNavigationService menuNavigationService)
+            HeroLibraryService libManagementService)
         {
             this.libraryManager = libManagementService;
             this.nav = menuNavigationService;

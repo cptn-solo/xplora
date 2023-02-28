@@ -8,6 +8,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class PlayerInitSystem : IEcsInitSystem
     {
         private readonly EcsWorldInject ecsWorld;

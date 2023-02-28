@@ -4,6 +4,8 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -36,18 +38,25 @@ namespace Assets.Scripts.ECS.Systems
                     if (!heroComp.Packed.Unpack(out var libWorld, out var libEntity))
                         throw new Exception("No Hero config");
 
-                    var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
+                    var playerBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
                     foreach (var teamMemberEntity in teamHeroesFilter.Value)
-                        buffer.Add(ecsWorld.Value.PackEntityWithWorld(teamMemberEntity));
+                        playerBuffer.Add(ecsWorld.Value.PackEntityWithWorld(teamMemberEntity));
 
-                    var enemyWrappedHeroes = libraryService.Value.WrapForBattle(new[] { heroComp.Packed });
+                    var enemyBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
+
+                    for (int i = 0; i < Random.Range(0, 8); i++)
+                        enemyBuffer.Add(heroComp.Packed);
+
+                    var enemyWrappedHeroes = libraryService.Value.WrapForBattle(
+                        enemyBuffer.ToArray(), ecsWorld.Value);
 
                     battleService.Value.RequestBattle(
-                        buffer.ToArray(),
+                        playerBuffer.ToArray(),
                         enemyWrappedHeroes);
 
-                    ListPool<EcsPackedEntityWithWorld>.Add(buffer);
+                    ListPool<EcsPackedEntityWithWorld>.Add(playerBuffer);
+                    ListPool<EcsPackedEntityWithWorld>.Add(enemyBuffer);
 
                 }
 

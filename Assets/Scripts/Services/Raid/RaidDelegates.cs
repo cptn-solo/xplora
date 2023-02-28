@@ -19,7 +19,7 @@ namespace Assets.Scripts.Services
     /// <param name="pos">World position for the unit to be spawned at</param>
     /// <param name="hero">Hero structure for the unit to be constructed with</param>
     /// <returns>A unit representing a hero in the world</returns>
-    public delegate Unit UnitSpawner(Vector3 pos, Hero hero, UnitSpawnerCallback onSpawned);
+    public delegate Unit UnitSpawner(Vector3 pos, Hero hero, bool isPlayer, UnitSpawnerCallback onSpawned);
 
     public delegate UnitOverlay UnitOverlaySpawner(Transform anchor);
 }

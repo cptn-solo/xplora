@@ -8,7 +8,7 @@ namespace Assets.Scripts.World
     {
         private const string AnimBoolRun = "run";
 
-        internal void SetHero(Hero hero)
+        internal void SetHero(Hero hero, bool isPlayer)
         {
             if (hero.HeroType == HeroType.NA)
             {
@@ -16,7 +16,7 @@ namespace Assets.Scripts.World
             }
             else
             {
-                if (Random.Range(0,2) == 0)
+                if (!isPlayer)
                 {
                     var lr = transform.localRotation;
                     lr.y = 180f;

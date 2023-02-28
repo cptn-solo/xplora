@@ -55,13 +55,14 @@ namespace Assets.Scripts
         public void Initialize()
         {
             libManagementService.Init(
-                menuNavigationService);
+                menuNavigationService,
+                battleManagementService);
             libManagementService.LoadData();
 
             battleManagementService.Init(
+                menuNavigationService,
                 playerPrefsService,
-                libManagementService,
-                menuNavigationService);
+                libManagementService);
             
             audioPlaybackService.Init(
                 menuNavigationService);
