@@ -6,7 +6,6 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
 using System.Linq;
-using UnityEditor.Sprites;
 
 namespace Assets.Scripts.ECS.Systems
 {

@@ -5,7 +5,6 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
-using UnityEditor.Experimental.GraphView;
 
 namespace Assets.Scripts.ECS.Systems
 {
