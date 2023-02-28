@@ -16,9 +16,13 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DrainComp> drainPool;
         private readonly EcsPoolInject<VisitCellComp> visitPool;
         private readonly EcsPoolInject<RetireTag> retirePool;
+        private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool;
+        private readonly EcsPoolInject<BuffComp<DamageRangeComp>> damageBuffPool;
+
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
         private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;
+        private readonly EcsFilterInject<Inc<BuffComp<DamageRangeComp>>> damageBuffFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
 
@@ -29,6 +33,10 @@ namespace Assets.Scripts.ECS.Systems
                 ref var aftermathComp = ref aftermathPool.Value.Get(battleEntity);
                 if (aftermathComp.Won)
                 {
+                    // clear battle buffs
+                    foreach (var buffedEntity in damageBuffFilter.Value)
+                        damageBuffPool.Value.Del(buffedEntity);
+
                     // tag opponent for delete from ecs and library
                     ref var battleComp = ref battlePool.Value.Get(battleEntity);
                     if (battleComp.EnemyPackedEntity.Unpack(
@@ -47,7 +55,13 @@ namespace Assets.Scripts.ECS.Systems
                                 drainPool.Value.Add(playerEntity);
 
                             ref var drainComp = ref drainPool.Value.Get(playerEntity);
-                            drainComp.Value += 20;
+
+                            drainComp.Value += 10; // for cell transition
+
+                            if (staminaBuffPool.Value.Has(playerEntity))
+                                staminaBuffPool.Value.Del(playerEntity);
+                            else
+                                drainComp.Value += 10; // for battle (if no buff)
 
                             playerCellComp.CellIndex = opponentCellComp.CellIndex;
                         }

@@ -1,11 +1,15 @@
 using Assets.Scripts.Services;
+using Assets.Scripts.UI.Data;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
+using Zenject;
 
 namespace Assets.Scripts.World
 {
     public class CellHighlighter : MonoBehaviour
     {
+        [Inject] private readonly AudioPlaybackService audioService;
+
         static readonly int cellHighlightingId =
             Shader.PropertyToID("_CellHighlighting");
 
@@ -50,6 +54,8 @@ namespace Assets.Scripts.World
             {
                 var coord = (HexCoordinates)coordinates;
                 UpdateCoordHighlightData(coord.HexX, coord.HexZ);
+
+                audioService.Play(CommonSoundEvent.FieldCellHover.SoundForEvent());
             }
         }
 

@@ -12,6 +12,7 @@ namespace Assets.Scripts.Services
     {
         private HeroLibraryService libManagementService;
         private BattleManagementService battleManagementService;
+        private AudioPlaybackService audioService;
         private MenuNavigationService menuNavigationService;
         private WorldService worldService;
 
@@ -26,7 +27,8 @@ namespace Assets.Scripts.Services
             MenuNavigationService menuNavigationService,
             HeroLibraryService libManagementService,
             BattleManagementService battleManagementService,
-            WorldService worldService)
+            WorldService worldService,
+            AudioPlaybackService audioService)
         {
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
             menuNavigationService.OnNavigationToScreenComplete += MenuNavigationService_OnNavigationToScreenComplete;
@@ -39,6 +41,7 @@ namespace Assets.Scripts.Services
             this.menuNavigationService = menuNavigationService;
             this.libManagementService = libManagementService;
             this.battleManagementService = battleManagementService;
+            this.audioService = audioService;
 
             battleManagementService.OnBattleComplete += BattleManagementService_OnBattleComplete;
 

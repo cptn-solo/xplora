@@ -2,23 +2,18 @@
 {
     public struct SFX
     {
-        public string FileName { get; private set; }
-        public bool Loop { get; private set; }
-        public bool IsMusic { get; private set; }
+        public string FileName { get; set; }
+        public bool Loop { get;  set; }
+        public bool IsMusic { get; set; }
+        public float VolumeScale { get; set; }
 
         #region Sounds
 
-        public static SFX Enumed(CommonSoundEvent evt)
-        {
-            SFX ret = default;
-            ret.FileName = SoundUtils.FileForCSE(evt);
-            return ret;
-        }
-
-        public static SFX Named(string name)
+        public static SFX Named(string name, float volume = 1f)
         {
             SFX ret = default;
             ret.FileName = name;
+            ret.VolumeScale = volume;
             return ret;
         }
 
@@ -27,22 +22,16 @@
         #region Music
 
         public static SFX MainTheme =>
-            ThemeForEvent(CommonSoundEvent.Battle);
+            CommonSoundEvent.Battle.ThemeForEvent();
         public static SFX LibraryTheme =>
-            ThemeForEvent(CommonSoundEvent.HeroLibrary);
+            CommonSoundEvent.HeroLibrary.ThemeForEvent();
         public static SFX WinTheme =>
-            ThemeForEvent(CommonSoundEvent.BattleWon);
+            CommonSoundEvent.BattleWon.ThemeForEvent();
         public static SFX LooseTheme =>
-            ThemeForEvent(CommonSoundEvent.BattleLost);
+            CommonSoundEvent.BattleLost.ThemeForEvent();
+        public static SFX RaidTheme =>
+            CommonSoundEvent.Raid.ThemeForEvent();
 
-        public static SFX ThemeForEvent(CommonSoundEvent evt)
-        {
-            SFX ret = default;
-            ret.FileName = SoundUtils.FileForCSE(evt);
-            ret.IsMusic = true;
-            ret.Loop = true;
-            return ret;
-        }
         #endregion
     }
 }

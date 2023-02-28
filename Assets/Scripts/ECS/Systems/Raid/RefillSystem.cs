@@ -1,4 +1,6 @@
 ﻿using Assets.Scripts.ECS.Data;
+using Assets.Scripts.UI.Data;
+using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
@@ -15,6 +17,8 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<RefillComp, PowerComp>> refillFilter;
 
+        private readonly EcsCustomInject<AudioPlaybackService> audioService;
+
         public void Run(IEcsSystems systems)
         {
             foreach(var entity in refillFilter.Value)
@@ -24,6 +28,8 @@ namespace Assets.Scripts.ECS.Systems
 
                 //TODO: implement partial refill
                 powerComp.CurrentValue = powerComp.InitialValue;
+
+                audioService.Value.Play(CommonSoundEvent.StaminaSource.SoundForEvent());
 
                 if (!updateTagPool.Value.Has(entity))
                     updateTagPool.Value.Add(entity);

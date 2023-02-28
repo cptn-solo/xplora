@@ -18,6 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HPComp> hpCompPool;
         private readonly EcsPoolInject<HealthComp> healthCompPool;
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
+        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool;
 
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool;
 
@@ -46,6 +47,12 @@ namespace Assets.Scripts.ECS.Systems
             ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
             ref var targetRef = ref targetRefPool.Value.Get(turnEntity);
 
+            if (!attackerRef.HeroInstancePackedEntity.Unpack(out var world, out var attackerEntity))
+                throw new Exception("No Attacker entity");
+
+            if (!targetRef.HeroInstancePackedEntity.Unpack(out _, out var targetEntity))
+                throw new Exception("No Target entity");
+
             ref var attackerConfig = ref battleService.Value.GetHeroConfig(attackerRef.HeroInstancePackedEntity);
             ref var targetConfig = ref battleService.Value.GetHeroConfig(targetRef.HeroInstancePackedEntity);
 
@@ -57,7 +64,9 @@ namespace Assets.Scripts.ECS.Systems
                 shield = (int)(config.ShieldUseFactor / 100f * shield);
             }
 
-            var rawDamage = prefs.Value.DisableRNGToggle ? attackerConfig.DamageMax : attackerConfig.RandomDamage;
+            ref var damageRangeComp = ref damageRangeCompPool.Value.Get(attackerEntity);
+
+            var rawDamage = prefs.Value.DisableRNGToggle ? damageRangeComp.Max : damageRangeComp.RandomDamage;
             var criticalDamage = !prefs.Value.DisableRNGToggle && attackerConfig.RandomCriticalHit;
 
             int damage = rawDamage;
@@ -67,9 +76,6 @@ namespace Assets.Scripts.ECS.Systems
 
             turnInfo.Damage += damage;
             turnInfo.Critical = criticalDamage;
-
-            if (!targetRef.HeroInstancePackedEntity.Unpack(out var world, out var targetEntity))
-                throw new Exception("No target");
 
             ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
             ref var healthComp = ref healthCompPool.Value.Get(targetEntity);

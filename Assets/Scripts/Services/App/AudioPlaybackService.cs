@@ -116,6 +116,7 @@ namespace Assets.Scripts.Services
                 case Screens.Hub:
                     break;
                 case Screens.Raid:
+                    Play(SFX.RaidTheme);
                     break;
                 case Screens.Missions:
                     break;

@@ -19,6 +19,6 @@ namespace Assets.Scripts
                 soundsDict.Add(clip.name, clip);
         }
         public void SoundEventHandler(SFX sfx) =>
-            audioSource.PlayOneShot(soundsDict[sfx.FileName]);
+            audioSource.PlayOneShot(soundsDict[sfx.FileName], sfx.VolumeScale);
     }
 }

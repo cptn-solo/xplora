@@ -4,6 +4,7 @@ using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -23,6 +24,7 @@ namespace Assets.Scripts.ECS.Data
     public struct NonPassableTag { } // for terrain
 
     public struct VisibilityUpdateTag { }
+    public struct NoStaminaDrainBuffTag { }
 
     #endregion
 
@@ -165,6 +167,9 @@ namespace Assets.Scripts.ECS.Data
     {
         public int Max { get; set; }
         public int Min { get; set; }
+
+        public int RandomDamage => UnityEngine.Random.Range(Min, Max + 1);
+
     }
 
     #endregion

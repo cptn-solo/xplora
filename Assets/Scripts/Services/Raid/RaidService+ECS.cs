@@ -128,6 +128,7 @@ namespace Assets.Scripts.Services
                 .Inject(worldService)
                 .Inject(battleManagementService)
                 .Inject(libManagementService)
+                .Inject(audioService)
                 .Init();
 
         }
@@ -453,11 +454,20 @@ namespace Assets.Scripts.Services
                     
                     }
                     break;
+                case SpecOption.UnlimitedStaminaTag:
+                    {
+                        var pool = world.GetPool<BuffComp<NoStaminaDrainBuffTag>>();
+                        if (!PlayerEntity.Unpack(world, out var playerEntity))
+                            throw new Exception("No Player entity");
+
+                        if (!pool.Has(playerEntity))
+                            pool.Add(playerEntity);
+                    }
+                    break;
                 case SpecOption.DefenceRate:
                 case SpecOption.AccuracyRate:
                 case SpecOption.DodgeRate:
                 case SpecOption.Speed:
-                case SpecOption.UnlimitedStaminaTag:
                 default:
                     break;
             }

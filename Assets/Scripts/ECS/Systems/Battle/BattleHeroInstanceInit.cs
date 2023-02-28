@@ -14,6 +14,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
         private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool;
         private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool;
+        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool;
         private readonly EcsPoolInject<SpeedComp> speedPool;
         private readonly EcsPoolInject<FrontlineTag> frontlineTagPool;
         private readonly EcsPoolInject<BacklineTag> backlineTagPool;
@@ -85,6 +86,20 @@ namespace Assets.Scripts.ECS.Systems
             ref var speedComp = ref speedPool.Value.Add(heroInstanceEntity);
             ref var speedCompOrigin = ref originWorld.GetPool<SpeedComp>().Get(originEntity);
             speedComp.Value = speedCompOrigin.Value;
+
+            ref var damageRangeComp = ref damageRangeCompPool.Value.Add(heroInstanceEntity);
+
+            damageRangeComp.Min = heroConfig.DamageMin;
+            damageRangeComp.Max = heroConfig.DamageMax;
+
+            var damageRangeBuffPool = originWorld.GetPool<BuffComp<DamageRangeComp>>();
+
+            if (damageRangeBuffPool.Has(originEntity))
+            {
+                ref var damageBuff = ref damageRangeBuffPool.Get(originEntity);
+                damageRangeComp.Min *= damageBuff.Value / 100;
+                damageRangeComp.Max *= damageBuff.Value / 100;
+            }
 
             ref var healthComp = ref healthPool.Value.Add(heroInstanceEntity);
             ref var healthCompOrigin = ref originWorld.GetPool<HealthComp>().Get(originEntity);

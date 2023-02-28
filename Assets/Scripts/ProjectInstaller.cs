@@ -71,7 +71,8 @@ namespace Assets.Scripts
                 menuNavigationService,
                 libManagementService,
                 battleManagementService,
-                worldService);
+                worldService,
+                audioPlaybackService);
 
             worldService.Init(
                 menuNavigationService);

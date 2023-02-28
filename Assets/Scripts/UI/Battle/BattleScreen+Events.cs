@@ -30,9 +30,9 @@ namespace Assets.Scripts.UI.Battle
                     ToggleHeroCards(true);
                     
                     if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.PlayerTeam.Id)
-                        audioService.Play(SFX.Enumed(CommonSoundEvent.BattleWon));
+                        audioService.Play(CommonSoundEvent.BattleWon.SoundForEvent());
                     else if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.EnemyTeam.Id)
-                        audioService.Play(SFX.Enumed(CommonSoundEvent.BattleLost));                    
+                        audioService.Play(CommonSoundEvent.BattleLost.SoundForEvent());                    
 
                     UpdateView();
 

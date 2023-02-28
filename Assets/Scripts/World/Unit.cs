@@ -1,13 +1,18 @@
+using Assets.Scripts.Services;
 using Assets.Scripts.Data;
+using Assets.Scripts.UI.Data;
 using Assets.Scripts.World.HexMap;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using Zenject;
 
 namespace Assets.Scripts.World
 {
     public class Unit : MonoBehaviour
     {
+        [Inject] private readonly AudioPlaybackService audioService;
+
         private UnitAnimation unitAnimation;
         private Hero hero;
         private HexCoordinates coordinates;
@@ -87,6 +92,9 @@ namespace Assets.Scripts.World
             Flip(dir.x < 0);
 
             unitAnimation.Run(true);
+
+            audioService.Play(CommonSoundEvent.FootSteps.SoundForEvent());
+
             while (isMoving)
             {
                 var maxDistance = Hero.Speed * speedFactor * Time.deltaTime;
