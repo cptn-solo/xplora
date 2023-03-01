@@ -12,7 +12,7 @@ using Leopotam.EcsLite;
 namespace Assets.Scripts.Services
 {
 
-    public partial class BattleManagementService : MonoBehaviour
+    public partial class BattleManagementService : BaseEcsService
     {
         private HeroLibraryService libraryManager;
         private PlayerPreferencesService prefs;

@@ -14,9 +14,6 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService // ECS
     {
-        private EcsWorld ecsRaidContext = null;
-        private IEcsSystems ecsRunSystems = null;
-        private IEcsSystems ecsInitSystems = null;
 
         public EcsPackedEntity PlayerEntity { get; set; }
         public EcsPackedEntity WorldEntity { get; set; }
@@ -33,11 +30,11 @@ namespace Assets.Scripts.Services
             eventHeroEntity = null;
             maxLevel = 0;
 
-            if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
+            if (!RaidEntity.Unpack(ecsWorld, out var raidEntity))
                 return false;
 
-            var filter = ecsRaidContext.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
-            var heroConfigRefPool = ecsRaidContext.GetPool<HeroConfigRefComp>();
+            var filter = ecsWorld.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
+            var heroConfigRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
 
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
             var maxedHeroes = ListPool<Hero>.Get();
@@ -56,7 +53,7 @@ namespace Assets.Scripts.Services
                 {
                     maxLevel = traitInfo.Level;
                     maxedHeroes.Add(hero);
-                    buffer.Add(ecsRaidContext.PackEntityWithWorld(entity));
+                    buffer.Add(ecsWorld.PackEntityWithWorld(entity));
                 }
             }
             if (maxedHeroes.Count > 0)
@@ -77,11 +74,11 @@ namespace Assets.Scripts.Services
         /// <summary>
         /// Run before new raid, not after return from the battle/event
         /// </summary>
-        private void InitEcsRaidContext()
+        private void InitEcsWorld()
         {
-            ecsRaidContext = new EcsWorld();
-            ecsInitSystems = new EcsSystems(ecsRaidContext);
-            ecsRunSystems = new EcsSystems(ecsRaidContext);
+            ecsWorld = new EcsWorld();
+            ecsInitSystems = new EcsSystems(ecsWorld);
+            ecsRunSystems = new EcsSystems(ecsWorld);
 
             ecsInitSystems
                 .Add(new RaidInitSystem())
@@ -92,12 +89,17 @@ namespace Assets.Scripts.Services
                 .Init();
 
             ecsRunSystems
-
+                .Add(new PlayerTeamCardsSpawnSystem())
+                .Add(new PlayerTeamCardsUnlinkSystem()) // unlink despawned cards
+                .Add(new PlayerTeamMemberRetireSystem())
                 .Add(new PlayerTeamUpdateSystem()) // bufs
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
                 .Add(new OutOfPowerSystem())
+                // with BattleAftermathComp:
+                .Add(new ProcessTeamMemberDeath())
                 .Add(new BattleAftermathSystem())
+                .DelHere<BattleAftermathComp>()
                 .Add(new RemoveWorldPoiSystem())
                 .Add(new RaidTeardownSystem())
                 .Add(new RetireEnemySystem())
@@ -135,7 +137,7 @@ namespace Assets.Scripts.Services
         /// <summary>
         /// Run on raid completion (return to the library after raid was lost)
         /// </summary>
-        private void DestroyEcsRaidContext()
+        private void DestroyecsWorld()
         {
             ecsRunSystems?.Destroy();
             ecsRunSystems = null;
@@ -143,19 +145,19 @@ namespace Assets.Scripts.Services
             ecsInitSystems?.Destroy();
             ecsInitSystems = null;
 
-            ecsRaidContext?.Destroy();
-            ecsRaidContext = null;
+            ecsWorld?.Destroy();
+            ecsWorld = null;
         }
 
-        private void StartEcsRaidContext()
+        private void StartEcsWorld()
         {
-            if (ecsRaidContext == null)
-                InitEcsRaidContext();
+            if (ecsWorld == null)
+                InitEcsWorld();
 
             raidRunloopCoroutine ??= StartCoroutine(RaidRunloopCoroutine());
         }
 
-        internal void StopEcsRaidContext()
+        internal void StopEcsWorld()
         {
             runLoopActive = false;
 
@@ -164,18 +166,20 @@ namespace Assets.Scripts.Services
 
             raidRunloopCoroutine = null;
 
-            if (ecsRaidContext != null)
-                DestroyEcsRaidContext();
+            if (ecsWorld != null)
+                DestroyecsWorld();
+
+            menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
         }
 
         private void DestroyEcsWorldUnits(int cellIndex)
         {
-            var destroyPool = ecsRaidContext.GetPool<DestroyTag>();
-            var unitRefPool = ecsRaidContext.GetPool<UnitRef>();
+            var destroyPool = ecsWorld.GetPool<DestroyTag>();
+            var unitRefPool = ecsWorld.GetPool<UnitRef>();
 
             if (worldService.TryGetPoi<OpponentComp>(cellIndex, out var opponentPackedEntity) &&
                 opponentPackedEntity.Unpack(out var world, out var opponentEntity) &&
-                world == ecsRaidContext)
+                world == ecsWorld)
             {
                 if (unitRefPool.Has(opponentEntity) &&
                     !destroyPool.Has(opponentEntity))
@@ -203,11 +207,11 @@ namespace Assets.Scripts.Services
         {
             State = Data.RaidState.AwaitingUnits;
 
-            var producePool = ecsRaidContext.GetPool<ProduceTag>();
-            var unitRefPool = ecsRaidContext.GetPool<UnitRef>();
+            var producePool = ecsWorld.GetPool<ProduceTag>();
+            var unitRefPool = ecsWorld.GetPool<UnitRef>();
 
-            var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
-            if (PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
+            var cellPool = ecsWorld.GetPool<FieldCellComp>();
+            if (PlayerEntity.Unpack(ecsWorld, out var playerEntity))
             {
                 ref var cellComp = ref cellPool.Get(playerEntity);
                 if (cellComp.CellIndex == cellIndex &&
@@ -218,75 +222,46 @@ namespace Assets.Scripts.Services
 
             if (worldService.TryGetPoi<OpponentComp>(cellIndex, out var opponentPackedEntity) &&
                 opponentPackedEntity.Unpack(out var world, out var opponentEntity) &&
-                world == ecsRaidContext)
+                world == ecsWorld)
             {
                 if (!unitRefPool.Has(opponentEntity) &&
                     !producePool.Has(opponentEntity))
                     producePool.Add(opponentEntity);
             }
         }
+        public TeamMemberInfo GetTeamMemberInfoForPackedEntity(EcsPackedEntityWithWorld? packed)
+        {
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return default;
 
-        private void ProcessEcsDeathInBattle()
-        {            
-            if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
-                return;
+            ref var heroConfigRef = ref world.GetPool<HeroConfigRefComp>().Get(entity);
 
-            if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
-                return;
+            if (!heroConfigRef.HeroConfigPackedEntity.Unpack(out var libWorld, out var configEntity))
+                return default;
 
-            var heroPool = ecsRaidContext.GetPool<HeroComp>();
-            var filter = ecsRaidContext.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
+            ref var heroConfig = ref libWorld.GetPool<Hero>().Get(configEntity);
 
-            if (filter.GetEntitiesCount() == 0)
+            var retval = new TeamMemberInfo()
             {
-                heroPool.Del(playerEntity);
-                return;
-            }
-
-            var heroBuffer = ListPool<Hero>.Get();
-            var heroPackedBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
-
-            foreach (var heroInstanceEntity in filter)
-            {
-                var heroConfigRefPool = ecsRaidContext.GetPool<HeroConfigRefComp>();
-                ref var heroConfigRef = ref heroConfigRefPool.Get(heroInstanceEntity);
-
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero Config");
-
-                var heroConfigPool = libWorld.GetPool<Hero>();
-                ref var heroConfig = ref heroConfigPool.Get(libEntity);
-                heroBuffer.Add(heroConfig);
-                heroPackedBuffer.Add(heroConfigRef.Packed);
-            }
-            var bestSpeed = heroBuffer.ToArray().HeroBestBySpeed(out var idx);
-            var bestSpeedPacked = heroPackedBuffer[idx];
-
-            if (!heroPool.Has(playerEntity))
-                heroPool.Add(playerEntity);
-
-            ref var heroComp = ref heroPool.Get(playerEntity);
-
-            heroComp.Hero = bestSpeedPacked;
-
-            ListPool<EcsPackedEntityWithWorld>.Add(heroPackedBuffer);
-            ListPool<Hero>.Add(heroBuffer);
-
+                HeroName = heroConfig.Name,
+                IconName = heroConfig.IconName,
+                IdleSpriteName = heroConfig.IdleSpriteName,
+                Speed = heroConfig.Speed // probably redundant
+            };
+            return retval;
         }
-
+        
         private void ProcessEcsBattleAftermath(bool won)
         {
             Debug.Log($"ProcessEcsBattleAftermath {won}");
 
-            if (BattleEntity == null || !BattleEntity.Value.Unpack(ecsRaidContext, out var battleEntity))
+            if (BattleEntity == null || !BattleEntity.Value.Unpack(ecsWorld, out var battleEntity))
             {
                 menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
                 return;
             }
 
-            ProcessEcsDeathInBattle();
-
-            var aftermathPool = ecsRaidContext.GetPool<BattleAftermathComp>();
+            var aftermathPool = ecsWorld.GetPool<BattleAftermathComp>();
             ref var aftermathComp = ref aftermathPool.Add(battleEntity);
             aftermathComp.Won = won;
 
@@ -295,17 +270,17 @@ namespace Assets.Scripts.Services
 
         private void VisitEcsCellId(int cellId = -1)
         {
-            if (!PlayerEntity.Unpack(ecsRaidContext, out var playerEntity))
+            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
                 return;
 
             if (cellId == -1) // 1st appearance in the world after lib/battle
             {
-                var cellPool = ecsRaidContext.GetPool<FieldCellComp>();
+                var cellPool = ecsWorld.GetPool<FieldCellComp>();
                 ref var cellComp = ref cellPool.Get(playerEntity);
                 cellId = cellComp.CellIndex;
             }
 
-            var visitPool = ecsRaidContext.GetPool<VisitCellComp>();
+            var visitPool = ecsWorld.GetPool<VisitCellComp>();
 
             if (!visitPool.Has(playerEntity))
                 visitPool.Add(playerEntity);
@@ -317,8 +292,8 @@ namespace Assets.Scripts.Services
         private bool CheckEcsRaidForBattle()
         {
             if (BattleEntity != null &&
-                BattleEntity.Value.Unpack(ecsRaidContext, out var battleEntity) &&
-                ecsRaidContext.GetPool<BattleComp>().Has(battleEntity))
+                BattleEntity.Value.Unpack(ecsWorld, out var battleEntity) &&
+                ecsWorld.GetPool<BattleComp>().Has(battleEntity))
                 return true;
 
             return false;
@@ -336,10 +311,10 @@ namespace Assets.Scripts.Services
                 return false;
 
             if (!packedEntity.Unpack(out var sourceWorld, out var entity) ||
-                sourceWorld != ecsRaidContext)
+                sourceWorld != ecsWorld)
                 return false;
             
-            enemyEntity = ecsRaidContext.PackEntity(entity);
+            enemyEntity = ecsWorld.PackEntity(entity);
 
             var heroPool = sourceWorld.GetPool<HeroComp>();
             ref var heroComp = ref heroPool.Get(entity);
@@ -380,25 +355,25 @@ namespace Assets.Scripts.Services
 
         private void InitiateEcsWorldBattle(EcsPackedEntity enemyPackedEntity)
         {
-            if (!enemyPackedEntity.Unpack(ecsRaidContext, out var enemyEntity))
+            if (!enemyPackedEntity.Unpack(ecsWorld, out var enemyEntity))
                 return;
 
-            var battlePool = ecsRaidContext.GetPool<BattleComp>();
-            var draftPool = ecsRaidContext.GetPool<DraftTag>();
-            var battleEntity = ecsRaidContext.NewEntity();
+            var battlePool = ecsWorld.GetPool<BattleComp>();
+            var draftPool = ecsWorld.GetPool<DraftTag>();
+            var battleEntity = ecsWorld.NewEntity();
 
             ref var battleComp = ref battlePool.Add(battleEntity);
-            battleComp.EnemyPackedEntity = ecsRaidContext.PackEntity(enemyEntity);
+            battleComp.EnemyPackedEntity = ecsWorld.PackEntity(enemyEntity);
 
             draftPool.Add(battleEntity);
 
-            BattleEntity = ecsRaidContext.PackEntity(battleEntity);
+            BattleEntity = ecsWorld.PackEntity(battleEntity);
         }
 
         private void MarkEcsWorldRaidForTeardown()
         {
-            if (RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
-                ecsRaidContext.DelEntity(raidEntity);
+            if (RaidEntity.Unpack(ecsWorld, out var raidEntity))
+                ecsWorld.DelEntity(raidEntity);
         }
         private void BoostEcsTeamMemberSpecOption(
             EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
@@ -421,7 +396,7 @@ namespace Assets.Scripts.Services
         {
             // TODO: Add Spec Option Boost for the next battle
             //1. pick player team hero for eventHero
-            if (!RaidEntity.Unpack(ecsRaidContext, out var raidEntity))
+            if (!RaidEntity.Unpack(ecsWorld, out var raidEntity))
                 throw new Exception("No Raid");
 
             if (!heroEntity.Unpack(out var world, out var entity))

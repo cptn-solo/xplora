@@ -66,7 +66,7 @@ namespace Assets.Scripts.UI.Library
 
             heroDetails.DataLoader = libManager.GetDataForPackedEntity<Hero>;
 
-            libManager.HeroCardFactory = cardPool.CreateHeroCard;
+            libManager.HeroCardFactory = cardPool.CreateCard;
             libManager.OnDataAvailable += LibManager_OnDataAvailable;
 
             cardPool.CardBinder = BindHeroCard;

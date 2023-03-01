@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Scripts.ECS;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Inventory;
@@ -10,7 +11,8 @@ using Asset = Assets.Scripts.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public partial class BattleUnit : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+    public partial class BattleUnit : BaseEntityView<Hero>,
+        IDropHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image priAttackImage;
         [SerializeField] private Image secAttackImage;

@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         {
             if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out _))
             {
-                raidService.Value.StopEcsRaidContext();
+                raidService.Value.StopEcsWorld();
                 worldService.Value.ResetEcsTerrain();
             }
         }

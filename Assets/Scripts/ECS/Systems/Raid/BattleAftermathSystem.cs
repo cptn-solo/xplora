@@ -1,11 +1,11 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using System.Security.Principal;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     public class BattleAftermathSystem : IEcsRunSystem
     {
         private readonly EcsWorldInject ecsWorld;
@@ -15,6 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<DrainComp> drainPool;
         private readonly EcsPoolInject<VisitCellComp> visitPool;
+        private readonly EcsPoolInject<GarbageTag> garbagePool;
         private readonly EcsPoolInject<RetireTag> retirePool;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool;
         private readonly EcsPoolInject<BuffComp<DamageRangeComp>> damageBuffPool;
@@ -66,9 +67,7 @@ namespace Assets.Scripts.ECS.Systems
                             playerCellComp.CellIndex = opponentCellComp.CellIndex;
                         }
 
-                        aftermathPool.Value.Del(battleEntity);
-
-                        ecsWorld.Value.DelEntity(battleEntity);
+                        garbagePool.Value.Add(battleEntity);
 
                         raidService.Value.FinalizeWonBattle();
                     }

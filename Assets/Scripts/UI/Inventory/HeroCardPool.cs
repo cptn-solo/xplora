@@ -11,11 +11,6 @@ namespace Assets.Scripts.UI.Inventory
     {
         [SerializeField] private GameObject heroDetailsPrefab;
 
-        public HeroCard CreateHeroCard(
-            EcsPackedEntityWithWorld? heroInstance)
-        {            
-            return base.CreateCard(heroInstance);
-        }
         public HeroDetailsHover CreateHeroDetailsHoverCard(
             EcsPackedEntityWithWorld? heroInstance)
         {

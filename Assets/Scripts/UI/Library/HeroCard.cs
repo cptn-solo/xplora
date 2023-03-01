@@ -1,14 +1,14 @@
-﻿using Assets.Scripts.UI.Common;
+﻿using Assets.Scripts.ECS;
+using Assets.Scripts.UI.Common;
 using Assets.Scripts.Data;
 using Assets.Scripts.Battle;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Leopotam.EcsLite;
 
 namespace Assets.Scripts.UI.Library
 {
-    public class HeroCard : MonoBehaviour, IEntityView<Hero>
+    public class HeroCard : BaseEntityView<Hero>
     {
 
         [SerializeField] private Image heroIconImage;
@@ -94,19 +94,8 @@ namespace Assets.Scripts.UI.Library
 
         #region IEntityView
 
-        public EcsPackedEntityWithWorld? PackedEntity { get; set; }
-
-        public DataLoadDelegate<Hero> DataLoader { get; set; }
-
-        public void UpdateData() =>
+        public override void UpdateData() =>
             Hero = DataLoader(PackedEntity.Value);
-
-        public Transform Transform => transform;
-
-        public void Destroy()
-        {
-            GameObject.Destroy(this.gameObject);
-        }
 
         #endregion
     }

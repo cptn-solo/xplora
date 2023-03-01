@@ -8,7 +8,7 @@ using System;
 
 namespace Assets.Scripts.Services
 {
-    public partial class RaidService : MonoBehaviour
+    public partial class RaidService : BaseEcsService
     {
         private HeroLibraryService libManagementService;
         private BattleManagementService battleManagementService;
@@ -22,6 +22,8 @@ namespace Assets.Scripts.Services
         public UnitOverlaySpawner UnitOverlaySpawner { get; internal set; }
 
         public event UnityAction<Unit, bool> OnUnitSpawned;
+
+        internal EntityViewFactory<TeamMemberInfo> TeamMemberFactory { get; set; } = null;
 
         public void Init(
             MenuNavigationService menuNavigationService,
@@ -78,14 +80,13 @@ namespace Assets.Scripts.Services
         internal void FinalizeRaid()
         {
             MarkEcsWorldRaidForTeardown();
-            menuNavigationService.NavigateToScreen(Screens.HeroesLibrary);
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens previous, Screens current)
         {
             if (current == Screens.Raid)
-                StartEcsRaidContext();
+                StartEcsWorld();
 
             if (previous == Screens.Raid)
             {
@@ -202,7 +203,7 @@ namespace Assets.Scripts.Services
 
         private void OnDestroy()
         {
-            StopEcsRaidContext();
+            StopEcsWorld();
         }
     }
 

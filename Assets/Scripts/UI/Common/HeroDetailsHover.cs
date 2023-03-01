@@ -1,12 +1,12 @@
+using Assets.Scripts.ECS;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.Data;
 using Assets.Scripts.Battle;
 using TMPro;
 using UnityEngine;
-using Leopotam.EcsLite;
 using Assets.Scripts;
 
-public class HeroDetailsHover : MonoBehaviour, IEntityView<Hero>
+public class HeroDetailsHover : BaseEntityView<Hero>
 {
     [SerializeField] private TextMeshProUGUI heroNameText;
     [SerializeField] private BarsContainer barsContainer;
@@ -40,20 +40,9 @@ public class HeroDetailsHover : MonoBehaviour, IEntityView<Hero>
 
     #region IEntityView
 
-    public EcsPackedEntityWithWorld? PackedEntity { get; set; }
-
-    public DataLoadDelegate<Hero> DataLoader { get; set; }
-
-    public void UpdateData()
+    public override void UpdateData()
     {
         Hero = DataLoader(PackedEntity != null ? PackedEntity.Value : null);
-    }
-
-    public Transform Transform => transform;
-
-    public void Destroy()
-    {
-        GameObject.Destroy(this.gameObject);
     }
 
     #endregion

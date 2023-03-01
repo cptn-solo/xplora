@@ -59,6 +59,11 @@ namespace Assets.Scripts.ECS.Data
         public IEntityView<T> EntityView;
     }
 
+    public struct TransformRef<T>
+    {
+        public Transform Transform;
+    }
+
 
     #endregion
 
