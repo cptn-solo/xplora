@@ -10,7 +10,7 @@ using Asset = Assets.Scripts.Data.Asset;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public partial class RaidMember : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+    public partial class BattleUnit : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image priAttackImage;
         [SerializeField] private Image secAttackImage;

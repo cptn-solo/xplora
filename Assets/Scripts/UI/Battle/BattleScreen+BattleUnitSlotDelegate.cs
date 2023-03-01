@@ -25,7 +25,7 @@ namespace Assets.Scripts.UI.Battle
                 if (s is not BattleLineSlot slot)
                     return null;
 
-                return PooledItem(slot.RaidMember != null ? slot.RaidMember.transform : null);
+                return PooledItem(slot.BattleUnit != null ? slot.BattleUnit.transform : null);
             };
             slotDelegate.Validator = CheckSlot;
             slotDelegate.TransferStart = (UIItemSlot s, Transform t) =>
@@ -33,11 +33,11 @@ namespace Assets.Scripts.UI.Battle
                 var bls = s as BattleLineSlot;
                 HeroPosition pos = bls.Position;
 
-                var packed = bls.RaidMember.PackedEntity.Value;
+                var packed = bls.BattleUnit.PackedEntity.Value;
 
                 Rollback = () => battleManager.MoveHero(packed, pos);
 
-                heroTransfer.Begin(bls.RaidMember.PackedEntity.Value, pos);
+                heroTransfer.Begin(bls.BattleUnit.PackedEntity.Value, pos);
 
                 bls.Reset();
 
@@ -79,8 +79,8 @@ namespace Assets.Scripts.UI.Battle
             if (placeholder == null)
                 return null;
 
-            var card = placeholder.GetComponent<RaidMember>();
-            return raidMemberPool.Pooled(card).transform;
+            var card = placeholder.GetComponent<BattleUnit>();
+            return battleUnitPool.Pooled(card).transform;
         }
 
         private bool CheckSlot(UIItemSlot slot)
@@ -95,14 +95,14 @@ namespace Assets.Scripts.UI.Battle
                 return false;
         }
 
-        private RaidMember RaidMemberForPosition(Tuple<int, BattleLine, int> position)
+        private BattleUnit BattleUnitForPosition(Tuple<int, BattleLine, int> position)
         {
             var slots = (position.Item1 == playerTeamId) ?
                 playerFrontSlots.Concat(playerBackSlots) :
                 enemyFrontSlots.Concat(enemyBackSlots);
 
             var rm = slots.Where(x => x.Position.Equals(position))
-                .Select(x => x.RaidMember).FirstOrDefault();
+                .Select(x => x.BattleUnit).FirstOrDefault();
 
             return rm;
 

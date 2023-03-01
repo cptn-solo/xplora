@@ -96,11 +96,11 @@ namespace Assets.Scripts.UI.Battle
             var attackerPos = attackerBattleGround.position;
 
             var attackerRM =
-                RaidMemberForPosition(info.AttackerPosition);
+                BattleUnitForPosition(info.AttackerPosition);
             var targetRM = 
                 info.State == TurnState.TurnSkipped ||
                 info.State == TurnState.TurnEffects ? null :
-                RaidMemberForPosition(info.TargetPosition);
+                BattleUnitForPosition(info.TargetPosition);
 
             if (targetRM != null)
                 attackerPos.y = targetRM.transform.position.y;
@@ -266,7 +266,7 @@ namespace Assets.Scripts.UI.Battle
             }            
         }
 
-        private void EnqueueEffects(DamageEffect[] effects, RaidMember rm, int extraDamage = 0)
+        private void EnqueueEffects(DamageEffect[] effects, BattleUnit rm, int extraDamage = 0)
         {
             foreach (var effect in effects)
             {

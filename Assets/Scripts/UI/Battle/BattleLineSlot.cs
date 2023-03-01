@@ -13,9 +13,9 @@ namespace Assets.Scripts.UI.Battle
 
     public class BattleLineSlot : UIItemSlot, IHeroPosition, ITransform
     {
-        private RaidMember raidMember;
+        private BattleUnit battleUnit;
 
-        public RaidMember RaidMember => raidMember;
+        public BattleUnit BattleUnit => battleUnit;
 
         #region IHeroPosition
 
@@ -28,12 +28,12 @@ namespace Assets.Scripts.UI.Battle
             if (itemTransform == null)
                 return;
 
-            raidMember = itemTransform.GetComponent<RaidMember>();
+            battleUnit = itemTransform.GetComponent<BattleUnit>();
         }
 
         public void Reset()
         {
-            raidMember = null;
+            battleUnit = null;
         }
 
         #endregion

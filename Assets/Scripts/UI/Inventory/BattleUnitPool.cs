@@ -5,12 +5,12 @@ using Assets.Scripts.Data;
 
 namespace Assets.Scripts.UI.Inventory
 {
-    public class RaidMemberPool : BaseCardPool<RaidMember, Hero>
+    public class BattleUnitPool : BaseCardPool<BattleUnit, Hero>
     {        
-        public RaidMember CreateRaidMember(
+        public BattleUnit CreateBattleUnit(
             EcsPackedEntityWithWorld heroInstance)
         {
-            RaidMember heroCard = base.CreateCard(heroInstance);
+            BattleUnit heroCard = base.CreateCard(heroInstance);
 
             //Overlay overlay = Instantiate(overlayPrefab).GetComponent<Overlay>();
             //overlay.transform.localScale = scale;

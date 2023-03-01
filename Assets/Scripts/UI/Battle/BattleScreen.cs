@@ -27,8 +27,8 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Transform enemyBattleGround;
         [SerializeField] private Transform attackerBattleGround;
 
-        [SerializeField] private RaidMemberPool raidMemberPool;
-        [SerializeField] private RaidMemberOverlayPool raidMemberOverlayPool;
+        [SerializeField] private BattleUnitPool battleUnitPool;
+        [SerializeField] private BattleUnitOverlayPool battleUnitOverlayPool;
 
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
@@ -94,10 +94,10 @@ namespace Assets.Scripts.UI.Battle
 
             InitBattleUnitSlotDelegates(); // drop between slots (both assets and heroes)                        
 
-            battleManager.HeroCardFactory = raidMemberPool.CreateCard;
-            battleManager.HeroOverlayFactory = raidMemberOverlayPool.CreateCard;
+            battleManager.HeroCardFactory = battleUnitPool.CreateCard;
+            battleManager.HeroOverlayFactory = battleUnitOverlayPool.CreateCard;
 
-            raidMemberPool.CardBinder = BindHeroCard;
+            battleUnitPool.CardBinder = BindHeroCard;
 
             InitHeroSlots(playerPartyFront, playerFrontSlots, playerTeamId, BattleLine.Front);
             InitHeroSlots(playerPartyBack, playerBackSlots, playerTeamId, BattleLine.Back);
@@ -112,13 +112,13 @@ namespace Assets.Scripts.UI.Battle
             battleManager.CreateCards(
                 (card, overlay) =>
                 {
-                    var rm = (RaidMember)card;
+                    var rm = (BattleUnit)card;
                     var ov = (Overlay)overlay;
                     rm.HeroAnimation.SetOverlay(ov);
                 },
                 (card, isPlayer) =>
                 {
-                    var rm = (RaidMember)card;
+                    var rm = (BattleUnit)card;
                     rm.IsPlayerTeam = isPlayer;
                 });
 
@@ -139,8 +139,8 @@ namespace Assets.Scripts.UI.Battle
         {
             var allSlots = playerFrontSlots.Concat(playerBackSlots).Concat(enemyFrontSlots).Concat(enemyBackSlots);
             foreach (BattleLineSlot slot in allSlots)
-                if (slot.RaidMember != null)
-                    slot.RaidMember.HeroAnimation.transform.localPosition = Vector3.zero;
+                if (slot.BattleUnit != null)
+                    slot.BattleUnit.HeroAnimation.transform.localPosition = Vector3.zero;
         }
 
         private void SlotDelegate_HeroMoved()

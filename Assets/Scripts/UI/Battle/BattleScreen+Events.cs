@@ -53,8 +53,8 @@ namespace Assets.Scripts.UI.Battle
             foreach (BattleLineSlot slot in allSlots)
             {
                 slot.ToggleVisual(toggle);
-                if (slot.RaidMember != null)
-                    slot.RaidMember.ToggleInfoDisplay(toggle);
+                if (slot.BattleUnit != null)
+                    slot.BattleUnit.ToggleInfoDisplay(toggle);
             }
         }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public partial class RaidMember : IEntityView<Hero>// ECS
+    public partial class BattleUnit : IEntityView<Hero>// ECS
     {
         public EcsPackedEntityWithWorld? PackedEntity { get; set; }
         public DataLoadDelegate<Hero> DataLoader { get; set; }

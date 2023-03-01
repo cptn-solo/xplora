@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI.Battle
     {
         private EcsPackedEntityWithWorld? selectedHero = null;
 
-        private void BindHeroCard(RaidMember heroCard)
+        private void BindHeroCard(BattleUnit heroCard)
         {
             heroCard.DelegateProvider = heroDelegate;
 
@@ -21,7 +21,7 @@ namespace Assets.Scripts.UI.Battle
 
         private void HeroSelected(Actions action, Transform actionTransform)
         {
-            var raidMemeber = actionTransform.GetComponent<RaidMember>();
+            var raidMemeber = actionTransform.GetComponent<BattleUnit>();
             Debug.Log($"Hero from line #{raidMemeber.Hero} selected");
             
             selectedHero = raidMemeber.PackedEntity.Value;            
@@ -33,8 +33,8 @@ namespace Assets.Scripts.UI.Battle
         {
             foreach (var slots in new[] { playerFrontSlots, playerBackSlots, enemyFrontSlots, enemyBackSlots })
                 foreach (var card in slots
-                    .Where(x => x.RaidMember != null)
-                    .Select(x => x.RaidMember)
+                    .Where(x => x.BattleUnit != null)
+                    .Select(x => x.BattleUnit)
                     .ToArray())
                     card.Selected = card.PackedEntity.Equals(selectedHero);
         }

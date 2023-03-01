@@ -14596,8 +14596,8 @@ MonoBehaviour:
   playerBattleGround: {fileID: 1527859548}
   enemyBattleGround: {fileID: 857479691}
   attackerBattleGround: {fileID: 1840567694}
-  raidMemberPool: {fileID: 1537874112}
-  raidMemberOverlayPool: {fileID: 482016627}
+  battleUnitPool: {fileID: 1537874112}
+  battleUnitOverlayPool: {fileID: 482016627}
 --- !u!114 &4268022336551642649
 MonoBehaviour:
   m_ObjectHideFlags: 0

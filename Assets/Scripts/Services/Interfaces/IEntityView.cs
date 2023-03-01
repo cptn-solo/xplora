@@ -6,7 +6,7 @@ namespace Assets.Scripts
     public delegate IEntityView<T> EntityViewFactory<T>(EcsPackedEntityWithWorld? packedEntity)
         where T : struct;
 
-    public interface IEntityView<T> : ITransform //RaidMember
+    public interface IEntityView<T> : ITransform //BattleUnit, Overlay, etc.
     {
         public EcsPackedEntityWithWorld? PackedEntity { get; set; }
         public DataLoadDelegate<T> DataLoader { get; set; }
