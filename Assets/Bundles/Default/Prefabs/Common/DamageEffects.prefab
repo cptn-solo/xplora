@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 2552526524804550934}
   - component: {fileID: 3230756373627086922}
   m_Layer: 5
-  m_Name: Effects
+  m_Name: DamageEffects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

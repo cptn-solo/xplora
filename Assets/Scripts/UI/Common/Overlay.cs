@@ -43,6 +43,8 @@ public class Overlay : BaseEntityView<BarsAndEffectsInfo>
     {
         destroyed = true;
         anchor = null;
+
+        OnGameObjectDestroy();
     }
 
     private void Update()
@@ -71,14 +73,14 @@ public class Overlay : BaseEntityView<BarsAndEffectsInfo>
     }
 
     public void SetBarsEndEffectsInfo(
-        List<BarInfo> barsInfoBattle = null,
+        BarInfo[] barsInfoBattle = null,
         Dictionary<DamageEffect, int> effects = null)
     {
         if (destroyed)
             return;
 
         barsContainer.gameObject.SetActive(barsInfoBattle != null);
-        barsContainer.SetData(barsInfoBattle??new());
+        barsContainer.SetData(barsInfoBattle??new BarInfo[0]);
 
         effectsContainer.gameObject.SetActive(effects != null);
         effectsContainer.SetEffects(effects??new());

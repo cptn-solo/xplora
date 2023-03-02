@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.UI.Common;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.UI.Common;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -53,8 +54,7 @@ namespace Assets.Scripts.World
             overlayText.text = text;
         }
 
-        internal void SetBarsInfo(
-            List<BarInfo> barsInfo)
+        internal void SetBarsInfo(BarInfo[] barsInfo)
         {
             barsContainer.gameObject.SetActive(true);
             barsContainer.SetData(barsInfo);

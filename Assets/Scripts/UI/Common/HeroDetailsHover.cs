@@ -38,6 +38,10 @@ public class HeroDetailsHover : BaseEntityView<Hero>
         Hero = Hero.Default;
     }
 
+    private void OnDestroy()
+    {
+        OnGameObjectDestroy();
+    }
     #region IEntityView
 
     public override void UpdateData()

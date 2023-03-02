@@ -5,7 +5,7 @@ using Zenject;
 
 namespace Assets.Scripts.World
 {
-    public partial class TeamMembersContainer : MonoBehaviour, ITransform
+    public partial class TeamMembersContainer : MonoBehaviour, ITransform<Team>
     {
         private RaidService raidService;
 
@@ -18,9 +18,14 @@ namespace Assets.Scripts.World
             this.raidService = raidService;
         }
 
-        private void OnDestroy()
+        public void OnGameObjectDestroy()
         {
             raidService.UnregisterTransformRef<Team>(this);
+        }
+
+        private void OnDestroy()
+        {
+            OnGameObjectDestroy();
         }
     }
 }

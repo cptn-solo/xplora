@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.UI.Common
+namespace Assets.Scripts.Data
 {
     public struct BarInfo
     {

@@ -60,14 +60,16 @@ namespace Assets.Scripts.Data
         #endregion
 
         #region Bars Info
-        private List<BarInfo> barsInfo;
-        public List<BarInfo> BarsInfo
+        private BarInfo[] barsInfo;
+        private BarInfo[] barsInfoShort;
+
+        public BarInfo[] BarsInfo
         {
             get
             {
                 if (barsInfo == null)
                 {
-                    var list = new List<BarInfo>
+                    barsInfo = new BarInfo[]
                     {
                         BarInfo.EmptyBarInfo(0, $"HP: {Health}", Color.red, Health / Mathf.Max(Health, 100f)),
                         BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / Mathf.Max(Speed, 10f)),
@@ -77,12 +79,27 @@ namespace Assets.Scripts.Data
                         BarInfo.EmptyBarInfo(5, $"Dodge: {DodgeRate}%", Color.white, DodgeRate / Mathf.Max(DodgeRate, 50f)),
                         BarInfo.EmptyBarInfo(6, $"Critical Hit: {CriticalHitRate}%", Color.black, CriticalHitRate / Mathf.Max(CriticalHitRate, 10f)),
                     };
-                    barsInfo = list;
+                    barsInfoShort = new BarInfo[]
+                    {
+                        BarInfo.EmptyBarInfo(0, $"HP: {Health}", Color.red, Health / Mathf.Max(Health, 100f)),
+                        BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / Mathf.Max(Speed, 10f)),
+                    };
                 }
                 return barsInfo;
             }
         }
-        public List<BarInfo> BarsInfoShort => BarsInfo.GetRange(0, 2);
+        public BarInfo[] BarsInfoShort {
+            get {
+                if (BarsInfo.Length > 0)
+                    return barsInfoShort;
+                else return new BarInfo[0];
+            }
+        }
+        public void ResetBarsInfo()
+        {
+            barsInfo = null;
+            barsInfoShort = null;
+        }
 
         #endregion
 

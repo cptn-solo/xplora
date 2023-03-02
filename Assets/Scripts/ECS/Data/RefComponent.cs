@@ -26,6 +26,10 @@ namespace Assets.Scripts.ECS.Data
     public struct VisibilityUpdateTag { }
     public struct NoStaminaDrainBuffTag { }
 
+    public struct UpdateHPTag { }
+    public struct UpdateBuffsTag<T> { }
+    public struct DebuffTag<T> { }
+
     #endregion
 
     #region Refs
@@ -57,6 +61,11 @@ namespace Assets.Scripts.ECS.Data
     public struct EntityViewRef<T>
     {
         public IEntityView<T> EntityView;
+    }
+
+    public struct ItemsContainerRef<T>
+    {
+        public IItemsContainer<T> Container;        
     }
 
     public struct TransformRef<T>
@@ -166,6 +175,8 @@ namespace Assets.Scripts.ECS.Data
     {
         public int Value { get; set; }
         public int Usages { get; set; }
+        public Color IconColor { get; set; }
+        public BundleIcon Icon { get; set; }
     }
 
     public struct DamageRangeComp

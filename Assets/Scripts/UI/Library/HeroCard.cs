@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Library
 {
-    public class HeroCard : BaseEntityView<Hero>
+    public partial class HeroCard : BaseEntityView<Hero>
     {
 
         [SerializeField] private Image heroIconImage;
@@ -92,6 +92,10 @@ namespace Assets.Scripts.UI.Library
             normalColor = backgroundImage.color;
         }
 
+        private void OnDestroy()
+        {
+            OnGameObjectDestroy();
+        }
         #region IEntityView
 
         public override void UpdateData() =>

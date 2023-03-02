@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.UI.Common;
+using Assets.Scripts.Data;
 using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Data
 
     public struct PowerComp
     {
-        private List<BarInfo> barsInfo;
+        private BarInfo[] barsInfo;
         private int currentValue;
 
         public int InitialValue { get; internal set; }
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Data
                     (float)currentValue / InitialValue;
                 var color = relativeValue > .5f ?
                     UnityEngine.Color.green : UnityEngine.Color.red;
-                barsInfo = new() {
+                barsInfo = new BarInfo[] {
                     BarInfo.EmptyBarInfo(
                         0,
                         $"Stamina:{currentValue}",
@@ -33,7 +33,7 @@ namespace Assets.Scripts.ECS.Data
                 };
             }
         }
-        public List<BarInfo> BarsInfo => barsInfo;
+        public BarInfo[] BarsInfo => barsInfo;
     } // value based on stamina
 }
 

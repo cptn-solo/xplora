@@ -164,5 +164,10 @@ namespace Assets.Scripts.UI.Battle
         private void SetNormalStyle() =>
             backgroundImage.color = Selected ? selectedColor : normalColor;
 
+        private void OnDestroy()
+        {
+            OnGameObjectDestroy();
+        }
+
     }
 }

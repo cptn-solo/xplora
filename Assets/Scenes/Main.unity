@@ -643,6 +643,56 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1614290749}
     m_Modifications:
+    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 52.99994
+      objectReference: {fileID: 0}
+    - target: {fileID: 3331619085101500085, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -84
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387124493101718939, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387124493101718939, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387124493101718939, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387124493101718939, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 53
+      objectReference: {fileID: 0}
+    - target: {fileID: 8387124493101718939, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 87
+      objectReference: {fileID: 0}
     - target: {fileID: 8387124494141967333, guid: 6ea333b7ab1d8404bba1183ac9cb16cf,
         type: 3}
       propertyPath: menuButton

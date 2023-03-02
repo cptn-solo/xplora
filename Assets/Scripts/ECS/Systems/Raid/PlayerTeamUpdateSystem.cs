@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
@@ -9,6 +10,7 @@ namespace Assets.Scripts.ECS.Systems
     public class PlayerTeamUpdateSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<UpdateTag> updateTagPool;
+        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool;
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
         private readonly EcsPoolInject<SpeedComp> speedCompPool;
         private readonly EcsPoolInject<HealthComp> healthCompPool;
@@ -18,7 +20,6 @@ namespace Assets.Scripts.ECS.Systems
 
         public void Run(IEcsSystems systems)
         {
-
             foreach (var playerTeamMemberEntity in filter.Value)
             {
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Get(playerTeamMemberEntity);
@@ -38,6 +39,7 @@ namespace Assets.Scripts.ECS.Systems
                 //hpComp.Value = heroConfig.Health;
 
                 updateTagPool.Value.Del(playerTeamMemberEntity);
+                updateHPTagPool.Value.Add(playerTeamMemberEntity);
             }
         }
     }

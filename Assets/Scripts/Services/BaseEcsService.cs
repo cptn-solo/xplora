@@ -12,7 +12,7 @@ namespace Assets.Scripts.Services
         protected IEcsSystems ecsRunSystems { get; set; }
         protected IEcsSystems ecsInitSystems { get; set; }
 
-        internal void RegisterTransformRef<T>(ITransform transformRefOrigin)
+        internal void RegisterTransformRef<T>(ITransform<T> transformRefOrigin)
         {
             if (ecsWorld == null)
                 return;

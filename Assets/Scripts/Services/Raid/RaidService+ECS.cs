@@ -95,10 +95,14 @@ namespace Assets.Scripts.Services
                 .Add(new PlayerTeamUpdateSystem()) // bufs
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
+                .Add(new PlayerTeamUpdateHPSystem()) //HP update on team cards
+                .Add(new PlayerTeamUpdateBufSystem<DamageRangeComp>()) //Buf icons update on team cards
+                //.DelHere<UpdateHPTag>()
                 .Add(new OutOfPowerSystem())
                 // with BattleAftermathComp:
                 .Add(new ProcessTeamMemberDeath())
                 .Add(new BattleAftermathSystem())
+                .Add(new PlayerTeamUpdateDebufSystem<DamageRangeComp>()) //remove buff and icons update on team cards
                 .DelHere<BattleAftermathComp>()
                 .Add(new RemoveWorldPoiSystem())
                 .Add(new RaidTeardownSystem())
@@ -375,6 +379,7 @@ namespace Assets.Scripts.Services
             if (RaidEntity.Unpack(ecsWorld, out var raidEntity))
                 ecsWorld.DelEntity(raidEntity);
         }
+
         private void BoostEcsTeamMemberSpecOption(
             EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
         {
@@ -406,18 +411,24 @@ namespace Assets.Scripts.Services
             {
                 case SpecOption.DamageRange:
                     {
+                        var updatePool = world.GetPool<UpdateBuffsTag<DamageRangeComp>>();
                         //buff*=2
                         var pool = world.GetPool<BuffComp<DamageRangeComp>>();
                         if (!pool.Has(entity))
                             pool.Add(entity);
 
                         ref var buff = ref pool.Get(entity);
-                        buff.Value += factor;
+                        buff.Value += ((buff.Value == 0 ? 100 : 0) + factor);
+                        buff.Icon = BundleIcon.ShieldCrossed;
+                        buff.IconColor = Color.cyan;
+
+                        if (!updatePool.Has(entity))
+                            updatePool.Add(entity);
                     }
                     break;
                 case SpecOption.Health:
                     {
-
+                        var updatePool = world.GetPool<UpdateHPTag>();
                         //hp = max(health, hp*=2)
                         var healthPool = world.GetPool<HealthComp>();
                         ref var healthComp = ref healthPool.Get(entity);
@@ -426,7 +437,9 @@ namespace Assets.Scripts.Services
                         ref var hpComp = ref hpPool.Get(entity);
 
                         hpComp.Value = Mathf.Min(healthComp.Value, hpComp.Value * 2);
-                    
+
+                        if (!updatePool.Has(entity))
+                            updatePool.Add(entity);
                     }
                     break;
                 case SpecOption.UnlimitedStaminaTag:

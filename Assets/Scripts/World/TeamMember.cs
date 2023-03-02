@@ -72,5 +72,10 @@ namespace Assets.Scripts.World
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
         }
+
+        private void OnDestroy()
+        {
+            OnGameObjectDestroy();
+        }
     }
 }

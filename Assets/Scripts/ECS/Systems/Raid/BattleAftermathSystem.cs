@@ -18,8 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<GarbageTag> garbagePool;
         private readonly EcsPoolInject<RetireTag> retirePool;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool;
-        private readonly EcsPoolInject<BuffComp<DamageRangeComp>> damageBuffPool;
-
+        private readonly EcsPoolInject<DebuffTag<DamageRangeComp>> debuffTagPool;        
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
         private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;
@@ -36,7 +35,8 @@ namespace Assets.Scripts.ECS.Systems
                 {
                     // clear battle buffs
                     foreach (var buffedEntity in damageBuffFilter.Value)
-                        damageBuffPool.Value.Del(buffedEntity);
+                        if (!debuffTagPool.Value.Has(buffedEntity))
+                            debuffTagPool.Value.Add(buffedEntity);
 
                     // tag opponent for delete from ecs and library
                     ref var battleComp = ref battlePool.Value.Get(battleEntity);

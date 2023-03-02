@@ -12,7 +12,7 @@ namespace Assets.Scripts.Data
         public int Health { get; set; }
         public int Speed { get; set; }
 
-        public List<BarInfo> BarsInfoBattle => new() {
+        public BarInfo[] BarsInfoBattle => new BarInfo[] {
             BarInfo.EmptyBarInfo(0, $"HP: {HealthCurrent}", Color.red, (float)HealthCurrent / Health),
             BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", null, Speed / Mathf.Max(Speed, 10f)),
         };

@@ -12,6 +12,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<EntityViewRef<TeamMemberInfo>> pool;
         private readonly EcsPoolInject<TransformRef<Team>> containerPool;
+        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool;
 
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, HeroConfigRefComp>,
@@ -42,10 +43,13 @@ namespace Assets.Scripts.ECS.Systems
                             .Invoke(ecsWorld.Value.PackEntityWithWorld(entity));
                     card.DataLoader = raidService.Value.GetTeamMemberInfoForPackedEntity;
                     card.Transform.SetParent(containerRef.Transform);
-                    card.Transform.localRotation = containerRef.Transform.localRotation;
                     card.UpdateData();
 
                     entityViewRef.EntityView = card;
+
+                    updateHPTagPool.Value.Add(entity);
+
+
                 }
             }
 

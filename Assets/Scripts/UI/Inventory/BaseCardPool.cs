@@ -14,11 +14,6 @@ namespace Assets.Scripts.UI.Inventory
 
         public CardBinder<T> CardBinder { get; set; }
 
-        private void Start()
-        {
-            canvas = GetComponentInParent<Canvas>();
-        }
-
         public T Pooled(T card)
         {
             card.Transform.SetParent(transform);
@@ -28,9 +23,12 @@ namespace Assets.Scripts.UI.Inventory
         public T CreateCard(
             EcsPackedEntityWithWorld? packedInstanceEntity)
         {
+            var canvas = GetComponentInParent<Canvas>();
+
             T card = Instantiate(cardPrefab).GetComponent<T>();
             card.Transform.localScale = canvas.transform.localScale;
             card.Transform.SetParent(transform);
+            card.Transform.localRotation = Quaternion.identity;
             card.PackedEntity = packedInstanceEntity;
 
             CardBinder?.Invoke(card);

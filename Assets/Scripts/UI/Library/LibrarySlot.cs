@@ -38,6 +38,10 @@ namespace Assets.Scripts.UI.Library
         #region ITransform
 
         public Transform Transform => transform;
+        public void OnGameObjectDestroy()
+        {
+            //Nothing to do here, handled by service
+        }
 
         #endregion
 

@@ -42,6 +42,12 @@ namespace Assets.Scripts.UI.Battle
 
         public Transform Transform => transform;
 
+        public void OnGameObjectDestroy()
+        {
+            // Nothing to do here
+        }
+
+
         #endregion
 
     }

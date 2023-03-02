@@ -8,4 +8,5 @@
         public string IconName { get; internal set; }
         public string IdleSpriteName { get; internal set; }
     }
+
 }
