@@ -38,7 +38,8 @@ namespace Assets.Scripts.ECS.Systems
             ref var battleInfo = ref battleInfoPool.Value.Get(entity);
 
             battleService.Value.NotiifyBattleComplete(
-                battleInfo.WinnerTeamId == battleInfo.PlayerTeam.Id);
+                battleInfo.WinnerTeamId == battleInfo.PlayerTeam.Id,
+                battleInfo.PotAssets);
         }
     }
 }

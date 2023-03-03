@@ -15,6 +15,7 @@ namespace Assets.Scripts.Data
 
         public AssetType AssetType;
         public string IconName;
+        public BundleIcon IconCode;
         public string Name;
         public int Id => id;
 

@@ -7,6 +7,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class BattleHeroInstanceInit : IEcsInitSystem
     {
         private readonly EcsPoolInject<PositionComp> positionPool;

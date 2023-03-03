@@ -21,7 +21,7 @@ namespace Assets.Scripts.Services
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
         public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;
-        public event UnityAction<bool> OnBattleComplete;
+        public event UnityAction<bool, Asset[]> OnBattleComplete;
 
         public BattleMode PlayMode { get; set; } = BattleMode.NA;
 
@@ -138,9 +138,9 @@ namespace Assets.Scripts.Services
             MakeEcsTurn();
         }
 
-        internal void NotiifyBattleComplete(bool won)
+        internal void NotiifyBattleComplete(bool won, Asset[] potAssets)
         {
-            OnBattleComplete?.Invoke(won);
+            OnBattleComplete?.Invoke(won, potAssets);
         }
 
         public void NotifyBattleEventListeners(BattleInfo? info = null)

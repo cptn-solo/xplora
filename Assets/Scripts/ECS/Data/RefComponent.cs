@@ -27,6 +27,7 @@ namespace Assets.Scripts.ECS.Data
     public struct NoStaminaDrainBuffTag { }
 
     public struct UpdateHPTag { }
+    public struct UpdateAssetBalanceTag { }
     public struct UpdateBuffsTag<T> { }
     public struct DebuffTag<T> { }
 
@@ -88,11 +89,14 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntityWithWorld[] PlayerHeroConfigs { get; internal set; }
         public EcsPackedEntityWithWorld[] OpponentHeroConfigs { get; internal set; }
+        public Asset[] Assets { get; set; }
     }
+
 
     public struct BattleAftermathComp
     {
         public bool Won { get; internal set; }
+        public Asset[] Trophy { get; internal set; }
     }
 
     public struct PlayerComp

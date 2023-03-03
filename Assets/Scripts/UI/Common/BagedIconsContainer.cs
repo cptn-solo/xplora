@@ -47,6 +47,7 @@ namespace Assets.Scripts.UI.Common
             icon.gameObject.transform.localScale = canvas.transform.localScale;
             icon.gameObject.transform.SetParent(transform);
             icon.gameObject.transform.localPosition = Vector3.zero;
+            icon.gameObject.transform.localRotation = Quaternion.identity;
 
             icons.Add(info.Icon, icon);
 

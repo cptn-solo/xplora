@@ -1,4 +1,5 @@
 using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
@@ -10,6 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<Team> teamPool;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
 
@@ -20,6 +22,9 @@ namespace Assets.Scripts.ECS.Systems
             ref Team playerTeam = ref teamPool.Value.Add(playerTeamEntity);
             playerTeam.Id = 0;
             playerTeam.Name = "Player";
+            playerTeam.Assets = new Asset[0];
+
+            updatePool.Value.Add(playerTeamEntity);
 
             libraryService.Value.PlayerTeamEntity = ecsWorld.Value.PackEntityWithWorld(playerTeamEntity);
 

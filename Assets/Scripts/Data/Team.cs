@@ -6,6 +6,8 @@ namespace Assets.Scripts.Data
 
     public struct Team : IEntity
     {
+        public Asset[] Assets { get; set; } // keeps balances
+
         public override string ToString()
         {
             return $"Команда {Id}: {Name}" ;
@@ -23,7 +25,7 @@ namespace Assets.Scripts.Data
 
         public int Id { get; internal set; }
         public string Name { get; internal set; }
-        public AssetDict Inventory { get; internal set; }
+        public AssetDict Inventory { get; internal set; } // legacy, remove
 
         #region Assets
         public int GiveAsset(Asset asset, int index = -1) =>

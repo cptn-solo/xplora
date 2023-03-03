@@ -5,14 +5,49 @@ using System;
 
 namespace Assets.Scripts.Services
 {
-    public class BaseEcsService : MonoBehaviour
+    public partial class BaseEcsService : MonoBehaviour, IEcsService
     {
         protected EcsWorld ecsWorld { get; set; }
 
         protected IEcsSystems ecsRunSystems { get; set; }
         protected IEcsSystems ecsInitSystems { get; set; }
 
-        internal void RegisterTransformRef<T>(ITransform<T> transformRefOrigin)
+        public void RegisterEntityView<T>(
+            IEntityView<T> entityView)
+            where T : struct
+        {
+            var entity = ecsWorld.NewEntity();
+            RegisterEntityView<T>(entityView, ecsWorld.PackEntityWithWorld(entity));
+        }
+        public void RegisterEntityView<T>(
+            IEntityView<T> entityView, EcsPackedEntity packedEntity)
+            where T : struct
+        {
+            if (!packedEntity.Unpack(ecsWorld, out var entity))
+                throw new Exception("No Entity");
+
+            RegisterEntityView<T>(entityView, ecsWorld.PackEntityWithWorld(entity));
+        }
+
+        public void RegisterEntityView<T>(
+            IEntityView<T> entityView, EcsPackedEntityWithWorld packedEntity)
+            where T: struct
+        {
+            if (!packedEntity.Unpack(out var world, out var entity))
+                throw new Exception("No Entity");
+
+            entityView.PackedEntity = packedEntity;
+            entityView.DataLoader = GetDataForPackedEntity<T>;
+
+            var pool = world.GetPool<EntityViewRef<T>>();
+            if (!pool.Has(entity))
+                pool.Add(entity);
+
+            ref var entityViewRef = ref pool.Get(entity);
+            entityViewRef.EntityView = entityView;
+        }
+
+        public void RegisterTransformRef<T>(ITransform<T> transformRefOrigin)
         {
             if (ecsWorld == null)
                 return;
@@ -22,7 +57,7 @@ namespace Assets.Scripts.Services
             transformRef.Transform = transformRefOrigin.Transform;
         }
 
-        internal void UnregisterTransformRef<T>(ITransform transformRefOrigin)
+        public void UnregisterTransformRef<T>(ITransform transformRefOrigin)
         {
             if (ecsWorld == null)
                 return;

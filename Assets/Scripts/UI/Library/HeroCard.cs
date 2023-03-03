@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Library
 {
+
     public partial class HeroCard : BaseEntityView<Hero>
     {
 

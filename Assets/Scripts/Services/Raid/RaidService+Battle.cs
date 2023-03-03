@@ -6,9 +6,6 @@ namespace Assets.Scripts.Services
 {
     public partial class RaidService // Battle
     {
-        internal void ProcessAftermath(bool won) =>
-            ProcessEcsBattleAftermath(won);
-
         internal void StartBattle() =>
             menuNavigationService.NavigateToScreen(Screens.Battle);
 

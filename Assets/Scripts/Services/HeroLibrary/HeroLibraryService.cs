@@ -4,10 +4,11 @@ using Leopotam.EcsLite;
 using System;
 using Assets.Scripts.Battle;
 using Assets.Scripts.UI.Data;
+using Assets.Scripts.ECS.Data;
 
 namespace Assets.Scripts.Services
 {
-    public partial class HeroLibraryService : MonoBehaviour
+    public partial class HeroLibraryService : BaseEcsService
     {
         private MenuNavigationService menuNavigationService;
         private BattleManagementService battleManagementService;
@@ -38,12 +39,48 @@ namespace Assets.Scripts.Services
             Screens current, Screens prev)
         {
             if (prev == Screens.HeroesLibrary)
-                UnlinkCardRefs();
+                UnlinkCardRefs<Hero>();
         }
 
-        private void BattleManagementService_OnBattleComplete(bool arg0)
+        private void BattleManagementService_OnBattleComplete(bool won, Asset[] pot)
         {
+            if (!won)
+                return;
+
+            if (!PlayerTeamEntity.Unpack(out var world, out var entity))
+                return;
             
+            var buffer = ListPool<Asset>.Get();
+            ref var team = ref PlayerTeam;
+
+            buffer.AddRange(team.Assets);
+
+            foreach (var trophy in pot)
+            {
+                if (buffer.FindIndex(x => x.AssetType == trophy.AssetType) is var idx &&
+                    idx >= 0)
+                {
+                    var val = buffer[idx];
+                    val.Count += trophy.Count;
+                    buffer[idx] = val;
+                }
+                else
+                {
+                    buffer.Add(new Asset()
+                    {
+                        AssetType = trophy.AssetType,
+                        Count = trophy.Count
+                    });
+                }
+            }
+
+            team.Assets = buffer.ToArray();
+
+            ListPool<Asset>.Add(buffer);
+
+            var pool = ecsWorld.GetPool<UpdateAssetBalanceTag>();
+            if (!pool.Has(entity))
+                pool.Add(entity);
         }
 
         private void OnDestroy()

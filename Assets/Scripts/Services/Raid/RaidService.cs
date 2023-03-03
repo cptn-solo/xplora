@@ -50,9 +50,9 @@ namespace Assets.Scripts.Services
             State = RaidState.NA;
         }
 
-        private void BattleManagementService_OnBattleComplete(bool won)
+        private void BattleManagementService_OnBattleComplete(bool won, Asset[] pot)
         {
-            ProcessEcsBattleAftermath(won);
+            ProcessEcsBattleAftermath(won, pot);
         }
 
         private void WorldService_OnCellVisibilityChanged(int cellIndex, bool visible)

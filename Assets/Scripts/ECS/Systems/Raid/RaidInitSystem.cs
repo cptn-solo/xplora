@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Data;
@@ -13,6 +14,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<RaidComp> raidPool;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updateBalancePool;
 
         private readonly EcsCustomInject<RaidService> raidService;
 
@@ -27,6 +29,18 @@ namespace Assets.Scripts.ECS.Systems
             ref var raidComp = ref raidPool.Value.Add(raidEntity);
             raidComp.PlayerHeroConfigs = playerHeroes;
             raidComp.OpponentHeroConfigs = opponentHeroes;
+
+            raidComp.Assets = new Asset[]
+            {
+                new Asset()
+                {
+                    AssetType = AssetType.Money,
+                    IconCode = BundleIcon.SnowFlake,
+                    Count = 0
+                }
+            };
+
+            updateBalancePool.Value.Add(raidEntity);
 
             raidService.Value.RaidEntity = ecsWorld.Value.PackEntity(raidEntity);
         }

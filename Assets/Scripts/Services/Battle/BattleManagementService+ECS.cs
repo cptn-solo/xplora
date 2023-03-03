@@ -17,8 +17,6 @@ namespace Assets.Scripts.Services
 
     public partial class BattleManagementService // ECS
     {
-        private readonly WaitForSeconds TickTimer = new(.2f);
-
         public EcsPackedEntityWithWorld BattleEntity { get; internal set; } //current battle
         public EcsPackedEntityWithWorld RoundEntity { get; internal set; } // current round
         public EcsPackedEntityWithWorld TurnEntity { get; internal set; } // current turn
@@ -29,6 +27,8 @@ namespace Assets.Scripts.Services
 
         public void StartEcsContext()
         {
+            TickTimer = new(.2f);
+
             PlayMode = BattleMode.NA;
 
             ecsWorld = new EcsWorld();
@@ -38,6 +38,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleInitSystem())
                 .Add(new BattleHeroesInitSystem())
                 .Add(new BattleHeroInstanceInit())
+                .Add(new BattlePotInitSystem())
                 .Inject(this)
                 .Inject(libraryManager)
                 .Init();
@@ -90,14 +91,14 @@ namespace Assets.Scripts.Services
                 .Inject(prefs)
                 .Init();
 
-            StartCoroutine(BattleEcsRunloopCoroutine());
+            runloopCoroutine ??= StartCoroutine(RunloopCoroutine());
         }
 
         public void StopEcsContext()
         {
             PlayMode = BattleMode.NA;
 
-            StopAllCoroutines();
+            StopRunloopCoroutine();
 
             ecsRunSystems?.Destroy();
             ecsRunSystems = null;
@@ -109,14 +110,6 @@ namespace Assets.Scripts.Services
             ecsWorld = null;
         }
 
-        private IEnumerator BattleEcsRunloopCoroutine()
-        {
-            while (true)
-            {
-                ecsRunSystems.Run();
-                yield return TickTimer;
-            }
-        }
 
         public HeroInstanceRefComp[] PlayerHeroes => GetEcsPlayerHeroes();
         public HeroInstanceRefComp[] EnemyHeroes => GetEcsEnemyHeroes();

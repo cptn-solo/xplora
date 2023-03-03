@@ -16,11 +16,6 @@ namespace Assets.Scripts.Services
 
     public partial class HeroLibraryService // ECS
     {
-        private EcsWorld ecsContext;
-
-        private IEcsSystems ecsInitSystems;
-        private IEcsSystems ecsSystems;
-
         public EcsPackedEntityWithWorld PlayerTeamEntity { get; internal set; }
         public EcsPackedEntityWithWorld EnemyTeamEntity { get; internal set; }
 
@@ -31,16 +26,17 @@ namespace Assets.Scripts.Services
 
         private void StartEcsContext()
         {
-            ecsContext = new EcsWorld();
+            ecsWorld = new EcsWorld();
 
-            ecsInitSystems = new EcsSystems(ecsContext);
+            ecsInitSystems = new EcsSystems(ecsWorld);
             ecsInitSystems
                 .Add(new TeamInitSystem())
                 .Inject(this)
                 .Init();
 
-            ecsSystems = new EcsSystems(ecsContext);
-            ecsSystems
+            ecsRunSystems = new EcsSystems(ecsWorld);
+            ecsRunSystems
+                .Add(new LibraryBalanceUpdateSystem())
                 .Add(new GarbageCollectorSystem())
 
 #if UNITY_EDITOR
@@ -48,6 +44,22 @@ namespace Assets.Scripts.Services
 #endif
                 .Inject(this)
                 .Init();
+
+            runloopCoroutine ??= StartCoroutine(RunloopCoroutine());
+        }
+
+        private void StopEcsContext()
+        {
+            StopRunloopCoroutine();
+
+            ecsRunSystems?.Destroy();
+            ecsRunSystems = null;
+
+            ecsInitSystems?.Destroy();
+            ecsInitSystems = null;
+
+            ecsWorld?.Destroy();
+            ecsWorld = null;
         }
 
         /// <summary>
@@ -57,8 +69,8 @@ namespace Assets.Scripts.Services
         /// <returns>reference to a struct attached as a component to an ecs entity</returns>
         private ref Hero ProcessEcsHeroConfig(int idx)
         {
-            var heroPool = ecsContext.GetPool<Hero>();
-            var filter = ecsContext.Filter<Hero>().End();
+            var heroPool = ecsWorld.GetPool<Hero>();
+            var filter = ecsWorld.Filter<Hero>().End();
 
             foreach (var existingEntity in filter)
             {
@@ -67,7 +79,7 @@ namespace Assets.Scripts.Services
                     return ref existing;
             }
 
-            var addedEntity = ecsContext.NewEntity();
+            var addedEntity = ecsWorld.NewEntity();
             ref var added = ref heroPool.Add(addedEntity);
             added.Id = idx;
             added.HeroType = HeroType.Human;
@@ -76,14 +88,14 @@ namespace Assets.Scripts.Services
             added.Attack = Hero.DefaultAttack();
             added.Defence = Hero.DefaultDefence();
 
-            var positionPool = ecsContext.GetPool<PositionComp>();
+            var positionPool = ecsWorld.GetPool<PositionComp>();
             ref var positionComp = ref positionPool.Add(addedEntity);
             positionComp.Position = GetEcsNextFreePosition();
 
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
             buffer.AddRange(HeroConfigEntities);
-            buffer.Add(ecsContext.PackEntityWithWorld(addedEntity));
+            buffer.Add(ecsWorld.PackEntityWithWorld(addedEntity));
             HeroConfigEntities = buffer.ToArray();
 
             ListPool<EcsPackedEntityWithWorld>.Add(buffer);
@@ -95,8 +107,8 @@ namespace Assets.Scripts.Services
         {
             var buffer = ListPool<int>.Get();
 
-            var positionPool = ecsContext.GetPool<PositionComp>();
-            var filter = ecsContext.Filter<PositionComp>().End();
+            var positionPool = ecsWorld.GetPool<PositionComp>();
+            var filter = ecsWorld.Filter<PositionComp>().End();
             foreach (var entity in filter)
             {
                 ref var positionComp = ref positionPool.Get(entity);
@@ -201,9 +213,9 @@ namespace Assets.Scripts.Services
 
         internal void CreateCards()
         {
-            var positionPool = ecsContext.GetPool<PositionComp>();
-            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
-            var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
+            var positionPool = ecsWorld.GetPool<PositionComp>();
+            var entityViewRefPool = ecsWorld.GetPool<EntityViewRef<Hero>>();
+            var filter = ecsWorld.Filter<Hero>().Inc<PositionComp>().End();
             foreach (var entity in filter)
             {
                 if (!entityViewRefPool.Has(entity))
@@ -218,7 +230,7 @@ namespace Assets.Scripts.Services
 
                 ref var pos = ref positionPool.Get(entity);
                 var slot = slots[pos.Position];
-                var card = HeroCardFactory(ecsContext.PackEntityWithWorld(entity));
+                var card = HeroCardFactory(ecsWorld.PackEntityWithWorld(entity));
                 card.DataLoader = GetDataForPackedEntity<Hero>;
                 slot.Put(card.Transform);
                 card.UpdateData();
@@ -227,35 +239,16 @@ namespace Assets.Scripts.Services
             }
         }
 
-        private void UnlinkCardRefs()
-        {
-            var entityViewRefPool = ecsContext.GetPool<EntityViewRef<Hero>>();
-            var filter = ecsContext.Filter<EntityViewRef<Hero>>().End();
-            foreach (var entity in filter)
-            {
-                ref var entityViewRef = ref entityViewRefPool.Get(entity);
-                entityViewRef.EntityView = null;
-                entityViewRefPool.Del(entity);
-            }
-        }
-
-        public T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed) where T : struct
-        {
-            if (packed != null && packed.Value.Unpack(out var world, out var entity))
-                return world.GetPool<T>().Get(entity);
-
-            return default;
-        }
 
         private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
         {
-            var positionPool = ecsContext.GetPool<PositionComp>();
-            var filter = ecsContext.Filter<Hero>().Inc<PositionComp>().End();
+            var positionPool = ecsWorld.GetPool<PositionComp>();
+            var filter = ecsWorld.Filter<Hero>().Inc<PositionComp>().End();
             foreach (var entity in filter)
             {
                 ref var pos = ref positionPool.Get(entity);
                 if (pos.Position.Equals(position))
-                    return ecsContext.PackEntityWithWorld(entity);
+                    return ecsWorld.PackEntityWithWorld(entity);
             }
             return default;
         }
@@ -276,18 +269,6 @@ namespace Assets.Scripts.Services
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
             ref var entityViewRef = ref entityViewRefPool.Get(entity);
             slot.Put(entityViewRef.EntityView.Transform);
-        }
-
-        private void StopEcsContext()
-        {
-            ecsSystems?.Destroy();
-            ecsSystems = null;
-
-            ecsInitSystems?.Destroy();
-            ecsInitSystems = null;
-
-            ecsContext?.Destroy();
-            ecsContext = null;
         }
 
         internal void BoostSpecOption(Hero eventHero, SpecOption specOption, int factor)
@@ -362,7 +343,7 @@ namespace Assets.Scripts.Services
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
             if (targetWorld == null)
-                targetWorld = ecsContext;
+                targetWorld = ecsWorld;
 
             foreach(var packed in heroes)
             {

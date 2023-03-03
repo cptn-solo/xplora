@@ -102,6 +102,8 @@ namespace Assets.Scripts.Services
                 // with BattleAftermathComp:
                 .Add(new ProcessTeamMemberDeath())
                 .Add(new BattleAftermathSystem())
+                .Add(new BattleTrophyCounterSystem())
+                .Add(new RaidBalanceUpdateSystem())
                 .Add(new PlayerTeamUpdateDebufSystem<DamageRangeComp>()) //remove buff and icons update on team cards
                 .DelHere<BattleAftermathComp>()
                 .Add(new RemoveWorldPoiSystem())
@@ -158,17 +160,12 @@ namespace Assets.Scripts.Services
             if (ecsWorld == null)
                 InitEcsWorld();
 
-            raidRunloopCoroutine ??= StartCoroutine(RaidRunloopCoroutine());
+            runloopCoroutine ??= StartCoroutine(RunloopCoroutine());
         }
 
         internal void StopEcsWorld()
         {
-            runLoopActive = false;
-
-            if (raidRunloopCoroutine != null)
-                StopCoroutine(raidRunloopCoroutine);
-
-            raidRunloopCoroutine = null;
+            StopRunloopCoroutine();
 
             if (ecsWorld != null)
                 DestroyecsWorld();
@@ -255,7 +252,7 @@ namespace Assets.Scripts.Services
             return retval;
         }
         
-        private void ProcessEcsBattleAftermath(bool won)
+        private void ProcessEcsBattleAftermath(bool won, Asset[] pot)
         {
             Debug.Log($"ProcessEcsBattleAftermath {won}");
 
@@ -268,6 +265,7 @@ namespace Assets.Scripts.Services
             var aftermathPool = ecsWorld.GetPool<BattleAftermathComp>();
             ref var aftermathComp = ref aftermathPool.Add(battleEntity);
             aftermathComp.Won = won;
+            aftermathComp.Trophy = pot;
 
             BattleEntity = null;
         }
