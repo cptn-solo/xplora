@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
             if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
                 return;
 
-            if (!raidService.Value.PlayerEntity.Unpack(ecsWorld.Value, out var playerEntity))
+            if (!raidService.Value.PlayerEntity.Unpack(out _, out var playerEntity))
                 return;
 
             var heroPool = ecsWorld.Value.GetPool<HeroComp>();

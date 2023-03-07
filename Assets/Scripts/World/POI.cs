@@ -13,19 +13,17 @@ namespace Assets.Scripts.World
 
         [SerializeField] private Transform visual;
 
-        private void Awake()
-        {
+        private void Awake() =>
             poiAnimation = GetComponentInChildren<PoiAnimation>();
-        }
 
-        public void SetInitialCoordinates(HexCoordinates initialCoordinates)
-        {
+        public void SetInitialCoordinates(HexCoordinates initialCoordinates) =>
             coordinates = initialCoordinates;
-        }
 
-        internal void Toggle(bool toggle)
-        {
+        internal void Toggle(bool toggle) =>
             poiAnimation.SetActive(toggle);
-        }
+
+        internal void SetupAnimator<T>() =>
+            poiAnimation.SetRuntimeAnimator<T>();
+        
     }
 }

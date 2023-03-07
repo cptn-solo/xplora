@@ -15,62 +15,11 @@ namespace Assets.Scripts.Services
     public partial class RaidService // ECS
     {
 
-        public EcsPackedEntity PlayerEntity { get; set; }
+        public EcsPackedEntityWithWorld PlayerEntity { get; set; }
         public EcsPackedEntity WorldEntity { get; set; }
         public EcsPackedEntity RaidEntity { get; set; }
         public EcsPackedEntity? BattleEntity { get; set; } = null;
-
-        private bool GetActiveTeamMemberForTrait(HeroTrait trait,
-            out Hero? eventHero,
-            out EcsPackedEntityWithWorld? eventHeroEntity,
-            out int maxLevel)
-        {
-
-            eventHero = null;
-            eventHeroEntity = null;
-            maxLevel = 0;
-
-            if (!RaidEntity.Unpack(ecsWorld, out var raidEntity))
-                return false;
-
-            var filter = ecsWorld.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
-            var heroConfigRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
-
-            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
-            var maxedHeroes = ListPool<Hero>.Get();
-
-            foreach (var entity in filter)
-            {
-                ref var heroConfigRef = ref heroConfigRefPool.Get(entity);
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero config");
-
-                ref var hero = ref libWorld.GetPool<Hero>().Get(libEntity);
-
-                if (hero.Traits.TryGetValue(trait, out var traitInfo) &&
-                    traitInfo.Level > 0 &&
-                    traitInfo.Level >= maxLevel)
-                {
-                    maxLevel = traitInfo.Level;
-                    maxedHeroes.Add(hero);
-                    buffer.Add(ecsWorld.PackEntityWithWorld(entity));
-                }
-            }
-            if (maxedHeroes.Count > 0)
-            {
-                var idx = Random.Range(0, maxedHeroes.Count);
-                eventHero = maxedHeroes[idx];
-                eventHeroEntity = buffer[idx];
-            }
-
-            ListPool<Hero>.Add(maxedHeroes);
-
-            var retval = buffer.Count > 0;
-
-            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
-
-            return retval;
-        }
+        
         /// <summary>
         /// Run before new raid, not after return from the battle/event
         /// </summary>
@@ -97,7 +46,7 @@ namespace Assets.Scripts.Services
                 .Add(new PlayerPositionSystem())
                 .Add(new PlayerTeamUpdateHPSystem()) //HP update on team cards
                 .Add(new PlayerTeamUpdateBufSystem<DamageRangeComp>()) //Buf icons update on team cards
-                //.DelHere<UpdateHPTag>()
+                                                                       //.DelHere<UpdateHPTag>()
                 .Add(new OutOfPowerSystem())
                 // with BattleAftermathComp:
                 .Add(new ProcessTeamMemberDeath())
@@ -110,12 +59,17 @@ namespace Assets.Scripts.Services
                 .Add(new RaidTeardownSystem())
                 .Add(new RetireEnemySystem())
                 .Add(new RetirePlayerSystem())
-                .Add(new MoveSightSystem())
+                .Add(new MoveToCellSystem())
+                .DelHere<VisitCellComp>()
                 .Add(new DeployUnitSystem())
                 .Add(new DeployUnitOverlaySystem())
                 .DelHere<ProduceTag>()
-                .Add(new VisitSystem())
-                .DelHere<VisitCellComp>()
+                .Add(new VisitPowerSourceSystem())
+                .Add(new VisitTerrainAttributeSystem())
+                .DelHere<VisitedComp<OpponentComp>>()
+                .DelHere<VisitedComp<PowerSourceComp>>()
+                .DelHere<VisitedComp<WatchTowerComp>>()
+                .DelHere<VisitedComp<TerrainAttributeComp>>()
                 .Add(new RefillSystem())
                 .DelHere<RefillComp>()
                 .Add(new DrainSystem())
@@ -212,7 +166,7 @@ namespace Assets.Scripts.Services
             var unitRefPool = ecsWorld.GetPool<UnitRef>();
 
             var cellPool = ecsWorld.GetPool<FieldCellComp>();
-            if (PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+            if (PlayerEntity.Unpack(out _, out var playerEntity))
             {
                 ref var cellComp = ref cellPool.Get(playerEntity);
                 if (cellComp.CellIndex == cellIndex &&
@@ -272,7 +226,7 @@ namespace Assets.Scripts.Services
 
         private void VisitEcsCellId(int cellId = -1)
         {
-            if (!PlayerEntity.Unpack(ecsWorld, out var playerEntity))
+            if (!PlayerEntity.Unpack(out _, out var playerEntity))
                 return;
 
             if (cellId == -1) // 1st appearance in the world after lib/battle
@@ -327,32 +281,6 @@ namespace Assets.Scripts.Services
             enemyHero = libWorld.GetPool<Hero>().Get(libEntity);
 
             return true;
-        }
-
-        private bool CheckEcsWorldForAttributes(
-            int cellId,
-            out TerrainAttribute attribute)
-        {
-            attribute = TerrainAttribute.NA;
-
-            if (!worldService.TryGetAttribute(cellId, out attribute))
-                return false;
-
-            return true;
-        }
-        private void TryCastEcsTerrainEvent(TerrainEventConfig eventConfig,
-            Hero eventHero, EcsPackedEntityWithWorld eventHeroEntity, int maxLevel)
-        {
-            if (!(5 + (maxLevel * 5)).RatedRandomBool())
-            {
-                Debug.Log($"Missed Event: {eventConfig}");
-                return;
-            }
-
-            currentEventInfo = WorldEventInfo.Create(eventConfig,
-                eventHero, eventHeroEntity, maxLevel);
-
-            dialog.SetEventInfo(currentEventInfo.Value);
         }
 
         private void InitiateEcsWorldBattle(EcsPackedEntity enemyPackedEntity)
@@ -443,7 +371,7 @@ namespace Assets.Scripts.Services
                 case SpecOption.UnlimitedStaminaTag:
                     {
                         var pool = world.GetPool<BuffComp<NoStaminaDrainBuffTag>>();
-                        if (!PlayerEntity.Unpack(world, out var playerEntity))
+                        if (!PlayerEntity.Unpack(out _, out var playerEntity))
                             throw new Exception("No Player entity");
 
                         if (!pool.Has(playerEntity))

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.World
 {
-    public class UnitOverlay : MonoBehaviour
+    public class UnitOverlay : MonoBehaviour, IEntityViewChild
     {
         [SerializeField] private TextMeshProUGUI overlayText;
         [SerializeField] private BarsContainer barsContainer;
@@ -66,6 +66,16 @@ namespace Assets.Scripts.World
                 return;
 
             barsContainer.gameObject.SetActive(false);
+        }
+
+        public void AttachToEntityView()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void DetachFromEntityView()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

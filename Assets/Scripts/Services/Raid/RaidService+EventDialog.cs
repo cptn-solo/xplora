@@ -1,6 +1,7 @@
 ﻿using System;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI;
+using Leopotam.EcsLite;
 using UnityEngine;
 
 namespace Assets.Scripts.Services
@@ -8,6 +9,8 @@ namespace Assets.Scripts.Services
     public partial class RaidService // Event Dialog
     {
         private IEventDialog<WorldEventInfo> dialog;
+        public IEventDialog<WorldEventInfo> Dialog => dialog;
+
         private WorldEventInfo? currentEventInfo;
 
         internal void RegisterEventDialog<T>(IEventDialog<T> dialog) where T : struct
@@ -22,19 +25,19 @@ namespace Assets.Scripts.Services
                 this.dialog = null;
         }
 
-        private void ProcessTerrainAttribute(TerrainAttribute attribute)
+        internal void TryCastEcsTerrainEvent(TerrainEventConfig eventConfig,
+            Hero eventHero, EcsPackedEntityWithWorld eventHeroEntity, int maxLevel)
         {
-            if (dialog == null)
+            if (!(5 + (maxLevel * 5)).RatedRandomBool())
+            {
+                Debug.Log($"Missed Event: {eventConfig}");
                 return;
+            }
 
-            //NB: for now it is 1:1 mapping, can be extended later
-            var eventConfig = worldService.TerrainEventsLibrary.TerrainEvents[attribute];
+            currentEventInfo = WorldEventInfo.Create(eventConfig,
+                eventHero, eventHeroEntity, maxLevel);
 
-            if (!GetActiveTeamMemberForTrait(eventConfig.Trait,
-                out var hero, out var heroEntity, out var maxLevel))
-                return;
-
-            TryCastEcsTerrainEvent(eventConfig, hero.Value, heroEntity.Value, maxLevel);
+            dialog.SetEventInfo(currentEventInfo.Value);
         }
 
         internal void OnEventAction<T>(int idx) where T : struct

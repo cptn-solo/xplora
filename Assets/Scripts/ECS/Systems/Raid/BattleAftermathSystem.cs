@@ -48,7 +48,7 @@ namespace Assets.Scripts.ECS.Systems
 
                         // tag player for move to the opponent's cell
                         if (raidService.Value.PlayerEntity.Unpack(
-                            ecsWorld.Value, out var playerEntity))
+                            out _, out var playerEntity))
                         {
                             ref var opponentCellComp = ref cellPool.Value.Get(opponentEntity);
                             ref var playerCellComp = ref cellPool.Value.Get(playerEntity);

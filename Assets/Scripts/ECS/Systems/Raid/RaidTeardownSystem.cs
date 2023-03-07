@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
                 return;
 
             if (raidService.Value.PlayerEntity.Unpack(
-                ecsWorld.Value, out var playerEntity))
+                out _, out var playerEntity))
                 retirePool.Value.Add(playerEntity);
 
             foreach (var opponentEntity in opponentFilter.Value)

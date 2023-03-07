@@ -4,13 +4,14 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class UpdatePowerSourceSystem : IEcsRunSystem
+    public class UpdateWorldPoiSystem<T> : IEcsRunSystem
+        where T: struct
     {
         private readonly EcsPoolInject<PoiRef> poiRefPool;
-        private readonly EcsPoolInject<OutOfPowerTag> oopTagPool;
+        private readonly EcsPoolInject<UsedTag> usedTagPool;
 
         private readonly EcsFilterInject<
-            Inc<UpdateTag, PowerSourceComp, PoiRef>> updateFilter;
+            Inc<T, UpdateTag, PoiRef>> updateFilter;
 
         public void Run(IEcsSystems systems)
         {
@@ -18,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var poiRef = ref poiRefPool.Value.Get(entity);
 
-                poiRef.Poi.Toggle(!oopTagPool.Value.Has(entity));
+                poiRef.Poi.Toggle(!usedTagPool.Value.Has(entity));
             }
         }
     }

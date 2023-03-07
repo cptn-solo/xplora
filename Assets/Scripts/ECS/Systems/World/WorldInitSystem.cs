@@ -23,8 +23,16 @@ namespace Assets.Scripts.ECS.Systems
             worldComp.CellPackedEntities =
                 new EcsPackedEntity[worldService.Value.CellCount];
 
+            var cellCount = worldService.Value.CellCount;
+
             worldComp.PowerSourceCount = (int)Mathf.Pow(
-                Mathf.Sqrt((int)worldService.Value.CellCount) * .1f, 2);
+                Mathf.Sqrt(cellCount) * .1f, 2);
+
+            worldComp.HPSourceCount = (int)Mathf.Pow(
+                Mathf.Sqrt(cellCount) * .075f, 2);
+
+            worldComp.WatchTowerCount = (int)Mathf.Pow(
+                Mathf.Sqrt(cellCount) * .05f, 2);
 
             worldService.Value.SetWorldEntity(ecsWorld.Value.PackEntityWithWorld(entity));
         }

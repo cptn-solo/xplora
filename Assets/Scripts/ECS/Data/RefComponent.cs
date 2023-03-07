@@ -18,6 +18,7 @@ namespace Assets.Scripts.ECS.Data
     public struct GarbageTag { }
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
+    public struct UsedTag { }
 
     public struct VisibleTag { } // for units and terrain
     public struct ExploredTag { } // for terrain
@@ -83,6 +84,19 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntity[] CellPackedEntities;
         public int PowerSourceCount { get; internal set; }
+        public int HPSourceCount { get; internal set; }
+        public int WatchTowerCount { get; internal set; }
+
+        internal int POICountForType<T>()
+        {
+            if (typeof(T) == typeof(PowerSourceComp))
+                return PowerSourceCount;
+            else if (typeof(T) == typeof(HPSourceComp))
+                return HPSourceCount;
+            else if (typeof(T) == typeof(WatchTowerComp))
+                return WatchTowerCount;
+            else return 0;
+        }
     }
 
     public struct RaidComp
@@ -119,11 +133,23 @@ namespace Assets.Scripts.ECS.Data
         public int Range { get; internal set; }
     }
     public struct PowerSourceComp { } // 
-    public struct SpringComp { } // kind of powersource
+    public struct HPSourceComp { } // 
+    public struct WatchTowerComp { } //  
 
     public struct VisitCellComp {
         public int CellIndex { get; internal set; }
     } // triggers systems aware of player being visiting a cell
+
+    public struct VisitorComp: IPackedWithWorldRef {
+        public EcsPackedEntityWithWorld Packed { get; set; }
+        public int PrefCellIndex { get; set; }
+        public int NextCellIndex { get; set; }
+    }
+
+    public struct VisitedComp<T> where T: struct
+    {
+        public T Info;
+    }
 
     public struct RefillComp
     {

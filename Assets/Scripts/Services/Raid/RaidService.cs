@@ -95,6 +95,7 @@ namespace Assets.Scripts.Services
 
                 if (current == Screens.Battle)
                     State = RaidState.InBattle;
+                else FinalizeRaid();
             }
 
         }
@@ -186,9 +187,6 @@ namespace Assets.Scripts.Services
                 worldService.SetAimToCoordinates(null);
 
                 VisitEcsCellId(cellId);
-
-                if (CheckEcsWorldForAttributes(cellId, out var attribute))
-                    ProcessTerrainAttribute(attribute);
 
                 callback?.Invoke();
             }

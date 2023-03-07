@@ -5,15 +5,16 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class MoveSightSystem : IEcsRunSystem
+    public class MoveToCellSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool;
         private readonly EcsPoolInject<VisitCellComp> visitPool;
-        private readonly EcsPoolInject<SightRangeComp> sightRangePool;
+        private readonly EcsPoolInject<DrainComp> drainPool;
 
-        private readonly EcsFilterInject<Inc<SightRangeComp, FieldCellComp, VisitCellComp>> visitFilter;
+        private readonly EcsFilterInject<Inc<FieldCellComp, VisitCellComp>> visitFilter;
 
         private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<RaidService> raidService;
 
         public void Run(IEcsSystems systems)
         {
@@ -25,9 +26,13 @@ namespace Assets.Scripts.ECS.Systems
                 ref var visitComp = ref visitPool.Value.Get(entity);
                 var nextCellId = visitComp.CellIndex;
 
-                ref var sightRange = ref sightRangePool.Value.Get(entity);
+                if (!drainPool.Value.Has(entity))
+                    drainPool.Value.Add(entity);
 
-                worldService.Value.UpdateVisibilityInRange(oldCellId, nextCellId, sightRange.Range);
+                ref var drainComp = ref drainPool.Value.Get(entity);
+                drainComp.Value += 10;
+
+                worldService.Value.VisitWorldCell(oldCellId, nextCellId, raidService.Value.PlayerEntity);
             }
         }
     }

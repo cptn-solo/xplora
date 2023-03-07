@@ -15,6 +15,8 @@ namespace Assets.Scripts.Services
         [SerializeField] private int height = 50;
 
         public int CellCount => width * height;
+        public int WorldWidth => width;
+        public int WorldHeight => height;
 
         private WorldState worldState = WorldState.NA;
 

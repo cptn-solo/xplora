@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using Leopotam.EcsLite.ExtendedSystems;
 using Assets.Scripts.World.HexMap;
 using Assets.Scripts.Data;
+using System;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Services
 {
@@ -32,23 +34,33 @@ namespace Assets.Scripts.Services
                 .Add(new TerrainInitSystem())
                 .Add(new TerrainTypesInitSystem())
                 .Add(new TerrainAttributesInitSystem())
-                .Add(new WorldPowerSourceInitSystem())
-                .Add(new WorldPoiInitSystem())
+                .Add(new WorldPoiInitSystem<PowerSourceComp>())
+                .Add(new WorldPoiInitSystem<HPSourceComp>())
+                .Add(new WorldPoiInitSystem<WatchTowerComp>())
                 .Inject(this)
                 .Init();
 
             ecsSystems = new EcsSystems(ecsWorld);
             ecsSystems
                 .Add(new TerrainGenerationSystem())
+                .Add(new WorldProcessVisitorSystem<OpponentComp>())
+                .Add(new WorldProcessPowerSourceVisitorSystem()) // checks for stamina
+                .Add(new WorldProcessVisitorSystem<HPSourceComp>())
+                .Add(new WorldProcessVisitorSystem<WatchTowerComp>())
+                .Add(new WorldProcessVisitorSystem<TerrainAttributeComp>())
+                .Add(new WorldPrepareVisibilityUpdateSystem())
+                .DelHere<VisitorComp>()
                 .Add(new WorldVisibilityUpdateSystem())
                 .Add(new WorldOutOfSightSystem())
                 .Add(new WorldInSightSystem())
                 .DelHere<VisibilityUpdateTag>()
-                .Add(new DeployPoiSystem())
+                .Add(new DeployPoiSystem<PowerSourceComp>())
+                .Add(new DeployPoiSystem<HPSourceComp>())
+                .Add(new DeployPoiSystem<WatchTowerComp>())
                 .DelHere<ProduceTag>()
-                .Add(new DrainSystem())
-                .DelHere<DrainComp>()
-                .Add(new UpdatePowerSourceSystem())
+                .Add(new UpdateWorldPoiSystem<PowerSourceComp>())
+                .Add(new UpdateWorldPoiSystem<HPSourceComp>())
+                .Add(new UpdateWorldPoiSystem<WatchTowerComp>())
                 .DelHere<UpdateTag>()
                 .Add(new TerrainDestructionSystem())
                 .Add(new DestroyPoiSystem())
@@ -123,22 +135,6 @@ namespace Assets.Scripts.Services
                 destroyTagPool.Add(entity);
         }
 
-        internal bool TryGetAttribute(int cellIndex, out TerrainAttribute attribute)
-        {
-            attribute = TerrainAttribute.NA;
-
-            if (!TryGetCellEntity(cellIndex, out var cellEntity, out var world))
-                return false;
-
-            var attributePool = world.GetPool<TerrainAttributeComp>();
-            if (!attributePool.Has(cellEntity))
-                return false;
-
-            ref var attributeComp = ref attributePool.Get(cellEntity);
-            attribute = attributeComp.TerrainAttribute;
-
-            return true;
-        }
 
         /// <summary>
         /// Adds world reference to POI entity with world it belongs to
@@ -243,89 +239,19 @@ namespace Assets.Scripts.Services
             return true;
         }
 
-        internal void UpdateVisibilityInRange(int prevCellIndex, int nextCellIndex, int range)
+        internal void VisitWorldCell(int prevCellIndex, int nextCellIndex, EcsPackedEntityWithWorld visitorEntity)
         {
             if (!TryGetCellEntity(nextCellIndex, out var cellEntity, out var world))
                 return;
 
-            var coordNext = CellCoordinatesResolver(nextCellIndex);
-            var rangeCoordNext = coordNext.RangeFromCoordinates(range, new Vector4(width, height));
-
-            var toHide = ListPool<HexCoordinates>.Get();
-            var toShow = ListPool<HexCoordinates>.Get();
-
-            toShow.AddRange(rangeCoordNext);
-
-            if (prevCellIndex >= 0 &&
-                prevCellIndex != nextCellIndex &&
-                TryGetCellEntity(prevCellIndex, out var cellEntityPrev, out var _))
-            {
-                var coordPrev = CellCoordinatesResolver(prevCellIndex);
-                var rangeCoordPrev = coordPrev.RangeFromCoordinates(range, new Vector4(width, height));
-
-                toHide.AddRange(rangeCoordPrev);
-
-                foreach (var check in rangeCoordNext)
-                    toHide.Remove(check);
-
-                foreach (var check in rangeCoordPrev)
-                    toShow.Remove(check);
-            }
-
-            var visibilityUpdateTagPool = world.GetPool<VisibilityUpdateTag>();
-            var visibilityRefPool = world.GetPool<VisibilityRef>();
-            var visibleTagPool = world.GetPool<VisibleTag>();
-            var exploredTagPool = world.GetPool<ExploredTag>();
-
-            foreach (var refCoord in toHide)
-            {
-                var refIndex = CellIndexResolver(refCoord);
-
-                if (!TryGetCellEntity(refIndex, out var refCellEntity, out var _))
-                    continue;
-
-                if (!visibilityRefPool.Has(refCellEntity))
-                    continue;
-
-                ref var visibilityRef = ref visibilityRefPool.Get(refCellEntity);
-                visibilityRef.visibility.DecreaseVisibility();
-
-                if (visibleTagPool.Has(refCellEntity))
-                    visibleTagPool.Del(refCellEntity);
-
-                if (!visibilityUpdateTagPool.Has(refCellEntity))
-                    visibilityUpdateTagPool.Add(refCellEntity);
-            }
-
-
-            foreach (var refCoord in toShow)
-            {
-                var refIndex = CellIndexResolver(refCoord);
-
-                if (!TryGetCellEntity(refIndex, out var refCellEntity, out var _))
-                    continue;
-
-                if (!visibilityRefPool.Has(refCellEntity))
-                    continue;
-
-                ref var visibilityRef = ref visibilityRefPool.Get(refCellEntity);
-                visibilityRef.visibility.IncreaseVisibility();
-
-                if (!visibleTagPool.Has(refCellEntity))
-                    visibleTagPool.Add(refCellEntity);
-
-                if (!exploredTagPool.Has(refCellEntity))
-                    exploredTagPool.Add(refCellEntity); // will stay explored after hide
-
-                if (!visibilityUpdateTagPool.Has(refCellEntity))
-                    visibilityUpdateTagPool.Add(refCellEntity);
-            }
-
-            ListPool<HexCoordinates>.Add(toHide);
-            ListPool<HexCoordinates>.Add(toShow);
+            var visitPool = world.GetPool<VisitorComp>();
+            ref var visitComp = ref visitPool.Add(cellEntity);
+            visitComp.Packed = visitorEntity;
+            visitComp.PrefCellIndex = prevCellIndex;
+            visitComp.NextCellIndex = nextCellIndex;
         }
 
-        private bool TryGetCellEntity(int cellIndex, out int entity, out EcsWorld world)
+        internal bool TryGetCellEntity(int cellIndex, out int entity, out EcsWorld world)
         {
             entity = -1;
             world = null;

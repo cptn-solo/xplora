@@ -97,7 +97,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ListPool<Hero>.Add(heroBuffer);
 
-            raidService.Value.PlayerEntity = ecsWorld.Value.PackEntity(entity);
+            raidService.Value.PlayerEntity = ecsWorld.Value.PackEntityWithWorld(entity);
         }
     }
 }

@@ -13,11 +13,12 @@ namespace Assets.Scripts.UI
         private ApplicationSettingsScreen appSettingsScreen;
         private bool pauseBetweenScenes;
         
-        [Inject] private readonly MenuNavigationService nav;
+        private MenuNavigationService nav;
 
         [Inject]
         public void Construct(MenuNavigationService nav)
         {
+            this.nav = nav;
             nav.UIManager = this;
         }
 
