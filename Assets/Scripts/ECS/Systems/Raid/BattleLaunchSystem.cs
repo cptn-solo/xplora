@@ -18,7 +18,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
-        private readonly EcsFilterInject<Inc<UnitRef>> unitFilter;
+        private readonly EcsFilterInject<Inc<EntityViewRef<Hero>>> unitFilter;
+        private readonly EcsFilterInject<Inc<EntityViewRef<bool>>> overlayFilter;
         private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp>> teamHeroesFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
@@ -62,6 +63,10 @@ namespace Assets.Scripts.ECS.Systems
 
                 foreach (var unitEntity in unitFilter.Value)
                     destroyTagPool.Value.Add(unitEntity);
+
+                //same entity as unit but for clarity let's address it as overlayEntity
+                foreach (var overlayEntity in overlayFilter.Value) 
+                    destroyTagPool.Value.Add(overlayEntity);
 
                 raidService.Value.StartBattle();
             }

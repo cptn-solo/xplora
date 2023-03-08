@@ -7,8 +7,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
-    public class BattleHeroInstanceInit : IEcsInitSystem
+    public class BattleHeroInstanceInit : IEcsRunSystem
     {
         private readonly EcsPoolInject<PositionComp> positionPool;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
@@ -28,38 +27,45 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<IconName> iconNamePool;
         private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool;
         private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
+        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftBattleTagPool;
+        private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool;
 
-        private readonly EcsFilterInject<Inc<PositionComp>> filter;
+        private readonly EcsFilterInject<Inc<PositionComp, DraftTag<Hero>>> filter;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> battleFilter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
-        public void Init(IEcsSystems systems)
+        public void Run(IEcsSystems systems)
         {
             if (!battleService.Value.BattleEntity.Unpack(out var battleWorld, out var battleEntity))
                 return;
 
-            ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
+            if (battleFilter.Value.GetEntitiesCount() == 0)
+                return;
 
             foreach (var entity in filter.Value)
             {
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Get(entity);
 
                 InitBattleHeroInstance(
-                    entity, battleWorld, battleInfo, heroConfigRef.HeroConfigPackedEntity);                
+                    entity, battleWorld, heroConfigRef.HeroConfigPackedEntity);
+
+                draftHeroTagPool.Value.Del(entity);
             }
 
+            ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
             battleInfo.State = BattleState.TeamsPrepared;
 
             roundShortageTagPool.Value.Add(battleEntity); // to create 1st rounds
 
             battleService.Value.NotifyBattleEventListeners(battleInfo);
 
+            draftBattleTagPool.Value.Del(battleEntity);
         }
 
         private void InitBattleHeroInstance(
             int heroInstanceEntity,
             EcsWorld battleWorld,
-            BattleInfo battleInfo,
             EcsPackedEntityWithWorld heroConfigPackedEntity)
         {
 

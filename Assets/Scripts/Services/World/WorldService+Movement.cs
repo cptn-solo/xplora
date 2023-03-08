@@ -1,12 +1,10 @@
-﻿using System;
-using Assets.Scripts.Data;
-using Assets.Scripts.World;
+﻿using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
-    public partial class WorldService
+    public partial class WorldService // Movement
     {
         private HexCoordinates? currentAim;
         private HexDirection hexDir;

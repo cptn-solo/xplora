@@ -1,10 +1,11 @@
 ﻿using System;
+using Assets.Scripts.ECS;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 
 namespace Assets.Scripts.World
 {
-    public class POI : MonoBehaviour
+    public partial class POI : BaseEntityView<bool>
     {
         private PoiAnimation poiAnimation;
         private HexCoordinates coordinates;
@@ -24,6 +25,9 @@ namespace Assets.Scripts.World
 
         internal void SetupAnimator<T>() =>
             poiAnimation.SetRuntimeAnimator<T>();
-        
+
+        private void OnDestroy() =>
+            OnGameObjectDestroy();
+
     }
 }

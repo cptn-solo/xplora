@@ -6,10 +6,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using Zenject;
+using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.World
 {
-    public class Unit : MonoBehaviour
+    public class Unit : BaseEntityView<Hero>
     {
         [Inject] private readonly AudioPlaybackService audioService;
 
@@ -19,7 +20,6 @@ namespace Assets.Scripts.World
         private HexCoordinates targetCoord;
 
         private bool isMoving;
-        private bool isPlayer;
          
         public Hero Hero => hero;
         public HexCoordinates CurrentCoord => coordinates;
@@ -53,7 +53,6 @@ namespace Assets.Scripts.World
         public void SetHero(Hero hero, bool isPlayer)
         {
             this.hero = hero;
-            this.isPlayer = isPlayer;
             unitAnimation.SetHero(hero, isPlayer);
         }
 

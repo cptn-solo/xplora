@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Battle;
@@ -9,7 +8,6 @@ using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
-using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
@@ -21,9 +19,6 @@ namespace Assets.Scripts.Services
         public EcsPackedEntityWithWorld RoundEntity { get; internal set; } // current round
         public EcsPackedEntityWithWorld TurnEntity { get; internal set; } // current turn
 
-        private Dictionary<HeroPosition, IHeroPosition> slots = new();
-
-        public HeroPosition[] BattleFieldSlotsPositions => slots.Keys.ToArray();
 
         public void StartEcsContext()
         {
@@ -36,15 +31,17 @@ namespace Assets.Scripts.Services
             ecsInitSystems = new EcsSystems(ecsWorld);
             ecsInitSystems
                 .Add(new BattleInitSystem())
-                .Add(new BattleHeroesInitSystem())
-                .Add(new BattleHeroInstanceInit())
-                .Add(new BattlePotInitSystem())
                 .Inject(this)
                 .Inject(libraryManager)
                 .Init();
 
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
+                .Add(new BattleHeroesInitSystem())
+                .Add(new BattleHeroInstanceInit())
+                .Add(new BattlePotInitSystem())
+                .Add(new BattleDeployHeroesSystem())
+                .Add(new BattleDeployHeroOverlaysSystem())
                 .Add(new BattleStartSystem()) // looks for playmode and a battle and starts it
                 .Add(new BattleRetreatSystem()) // check if battle is retreated (canceled 
                 .Add(new BattleWinCheckSystem()) // check if battle is already won 
@@ -227,7 +224,7 @@ namespace Assets.Scripts.Services
             if (!TurnEntity.Unpack(out var world, out var entity))
                 throw new Exception("No turn");
 
-            ecsWorld.GetPool<MakeTurnTag>().Add(entity);
+            world.GetPool<MakeTurnTag>().Add(entity);
         }
 
         private void SetEcsTurnProcessed()
@@ -235,56 +232,20 @@ namespace Assets.Scripts.Services
             if (!TurnEntity.Unpack(out var world, out var entity))
                 throw new Exception("No turn");
 
-            ecsWorld.GetPool<ProcessedTurnTag>().Add(entity);
+            world.GetPool<ProcessedTurnTag>().Add(entity);
         }
 
         #region Battle screen
 
-        internal void BindEcsHeroSlots(IHeroPosition[] buffer)
+        internal void BindEcsHeroSlots(Dictionary<HeroPosition, IHeroPosition> slots)
         {
-            foreach (var slot in buffer)
-                if (slots.TryGetValue(slot.Position, out _))
-                    slots[slot.Position] = slot;
-                else slots.Add(slot.Position, slot);
+            if (!BattleEntity.Unpack(out var world, out var entity))
+                throw new Exception("No battle");
+
+            ref var battleField = ref world.GetPool<BattleFieldComp>().Add(entity);
+            battleField.Slots = slots;
         }
 
-        internal delegate void OverlayToCardDelegate(IEntityView<Hero> card, IEntityView<BarsAndEffectsInfo> overlay);
-        internal delegate void CardPlayerTeamDelegate(IEntityView<Hero> card, bool isPlayer);
-        internal void CreateCards(OverlayToCardDelegate callback, CardPlayerTeamDelegate assignToPlayer)
-        {
-            var positionPool = ecsWorld.GetPool<PositionComp>();
-            var playerTeamPool = ecsWorld.GetPool<PlayerTeamTag>();
-            var entityViewRefPool = ecsWorld.GetPool<EntityViewRef<Hero>>();
-            var entityViewOverlayRefPool = ecsWorld.GetPool<EntityViewRef<BarsAndEffectsInfo>>();
-            var heroConfigRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
-            var filter = ecsWorld.Filter<HeroConfigRefComp>().Inc<PositionComp>().End();
-            foreach (var entity in filter)
-            {
-                ref var pos = ref positionPool.Get(entity);
-                var slot = slots[pos.Position];
-
-                var packed = ecsWorld.PackEntityWithWorld(entity);
-
-                var card = HeroCardFactory(packed);
-                card.DataLoader = GetHeroConfigForPackedEntity<Hero>;
-                slot.Put(card.Transform);
-                assignToPlayer(card, playerTeamPool.Has(entity));
-                card.UpdateData();
-
-                ref var entityViewRef = ref entityViewRefPool.Add(entity);
-                entityViewRef.EntityView = card;
-
-                var overlay = HeroOverlayFactory(packed);
-                overlay.DataLoader = GetDataForPackedEntity<BarsAndEffectsInfo>;
-                overlay.UpdateData();
-
-                ref var entityViewOverlayRef = ref entityViewOverlayRefPool.Add(entity);
-                entityViewOverlayRef.EntityView = overlay;
-
-                callback?.Invoke(card, overlay);
-
-            }
-        }
 
         public T GetHeroConfigForPackedEntity<T>(EcsPackedEntityWithWorld? packed)
             where T : struct
@@ -302,7 +263,7 @@ namespace Assets.Scripts.Services
             return heroConfig;
         }
 
-        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
+        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(HeroPosition position)
         {
             var positionPool = ecsWorld.GetPool<PositionComp>();
             var filter = ecsWorld.Filter<Hero>().Inc<PositionComp>().End();
@@ -328,17 +289,22 @@ namespace Assets.Scripts.Services
 
         private void MoveEcsHeroToPosition(
             EcsPackedEntityWithWorld packedEntity,
-            Tuple<int, BattleLine, int> position)
+            HeroPosition position)
         {
             if (!packedEntity.Unpack(out var world, out var entity))
                 throw new Exception($"No Hero");
+
+            if (!BattleEntity.Unpack(out var battleWorld, out var battleEntity))
+                throw new Exception("No battle");
+
+            ref var battleField = ref battleWorld.GetPool<BattleFieldComp>().Get(battleEntity);
 
             var positionPool = world.GetPool<PositionComp>();
 
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;
 
-            var slot = slots[pos.Position];
+            var slot = battleField.Slots[pos.Position];
 
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
             ref var entityViewRef = ref entityViewRefPool.Get(entity);

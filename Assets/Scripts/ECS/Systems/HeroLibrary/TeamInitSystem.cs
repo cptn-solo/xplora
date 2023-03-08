@@ -6,6 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class TeamInitSystem : IEcsInitSystem
     {
         private readonly EcsWorldInject ecsWorld;

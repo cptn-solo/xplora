@@ -5,7 +5,7 @@ using System;
 
 namespace Assets.Scripts.Services
 {
-    public partial class BaseEcsService : MonoBehaviour, IEcsService
+    public partial class BaseEcsService : MonoBehaviour
     {
         protected EcsWorld ecsWorld { get; set; }
 
@@ -78,18 +78,6 @@ namespace Assets.Scripts.Services
 
         }
 
-        internal void UnlinkCardRefs<T>()
-        {
-            var entityViewRefPool = ecsWorld.GetPool<EntityViewRef<T>>();
-            var filter = ecsWorld.Filter<EntityViewRef<T>>().End();
-
-            foreach (var entity in filter)
-            {
-                ref var entityViewRef = ref entityViewRefPool.Get(entity);
-                entityViewRef.EntityView = null;
-                entityViewRefPool.Del(entity);
-            }
-        }
 
         internal T GetDataForPackedEntity<T>(EcsPackedEntityWithWorld? packed)
             where T : struct

@@ -11,7 +11,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<
             Inc<VisibilityUpdateTag, FieldCellComp, VisibleTag, POIComp, WorldPoiTag>,
-            Exc<PoiRef, ProduceTag>> filter;
+            Exc<EntityViewRef<bool>, ProduceTag>> filter;
 
         public void Run(IEcsSystems systems)
         {

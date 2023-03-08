@@ -51,8 +51,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07fa5ee2872b64678865eca545ba8a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overlayText: {fileID: 3475721437126270986}
-  barsContainer: {fileID: 9105767758519596012}
 --- !u!1 &7730920484093447769
 GameObject:
   m_ObjectHideFlags: 0
@@ -70,7 +68,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &821579092238129107
 RectTransform:
   m_ObjectHideFlags: 0
@@ -319,15 +317,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7724496828715597744}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9105767758519596012 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -7679548341625385892, guid: 0e55301815ea2d14096c766276995017,
-    type: 3}
-  m_PrefabInstance: {fileID: 7724496828715597744}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e941af0ad2f99a042be45470f078ce0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

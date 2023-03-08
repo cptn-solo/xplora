@@ -3,38 +3,55 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Assets.Scripts.Services;
 using Assets.Scripts.World;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
     public class DeployPoiSystem<T> : IEcsRunSystem
         where T: struct
     {
+        private readonly EcsWorldInject ecsWorld;
+
         private readonly EcsPoolInject<UpdateTag> updateTagPool;
         private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<PoiRef> poiRefPool;
+        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool;
         private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
+
+        private readonly EcsPoolInject<EntityViewFactoryRef<bool>> factoryRefPool;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<bool>>> factoryRefFilter;
 
         private readonly EcsFilterInject<
             Inc<T, ProduceTag, WorldPoiTag, FieldCellComp>,
-            Exc<PoiRef>> produceTagFilter;
+            Exc<EntityViewRef<bool>>> produceTagFilter;
 
         private readonly EcsCustomInject<WorldService> worldService;
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var entity in produceTagFilter.Value)
+            foreach (var factoryEntity in factoryRefFilter.Value)
             {
-                ref var cellComp = ref cellPool.Value.Get(entity);
+                ref var factoryRef = ref factoryRefPool.Value.Get(factoryEntity);
 
-                DeployWorldPoi callback = worldService.Value.POIDeploymentCallback;
+                foreach (var entity in produceTagFilter.Value)
+                {
+                    ref var cellComp = ref cellPool.Value.Get(entity);
 
-                ref var poiRef = ref poiRefPool.Value.Add(entity);
-                poiRef.Poi = callback(cellComp.CellIndex);
-                poiRef.Poi.SetupAnimator<T>();
-                poiRef.Poi.Toggle(true);
+                    var entityView = (POI)factoryRef.FactoryRef(ecsWorld.Value.PackEntityWithWorld(entity));
 
-                updateTagPool.Value.Add(entity);
+                    var coord = worldService.Value.CellCoordinatesResolver(cellComp.CellIndex);
+                    var pos = worldService.Value.WorldPositionResolver(coord);
+
+                    entityView.Transform.SetPositionAndRotation(pos, Quaternion.identity);
+                    entityView.SetupAnimator<T>();
+                    entityView.Toggle(true);
+
+                    ref var poiRef = ref poiRefPool.Value.Add(entity);
+                    poiRef.EntityView = entityView;
+
+                    updateTagPool.Value.Add(entity);
+                }
             }
+
         }
     }
 }

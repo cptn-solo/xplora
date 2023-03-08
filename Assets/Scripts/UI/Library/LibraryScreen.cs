@@ -3,10 +3,10 @@ using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
 using System;
-using System.Linq;
 using UnityEngine;
 using Zenject;
-using Leopotam.EcsLite;
+using Assets.Scripts.Battle;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.UI.Library
 {
@@ -14,10 +14,19 @@ namespace Assets.Scripts.UI.Library
 
     public partial class LibraryScreen : MenuScreen
     {
-        [Inject] private readonly HeroLibraryService libManager;
         [Inject] private readonly BattleManagementService battleManager;
         [Inject] private readonly MenuNavigationService nav;
-        
+
+        private HeroLibraryService libManager;
+
+        [Inject]
+        public void Construct(HeroLibraryService libManager)
+        {
+            this.libManager = libManager;
+            libManager.OnDataAvailable += LibManager_OnDataAvailable;
+
+        }
+
         [SerializeField] private Transform libraryContainer;
         [SerializeField] private Transform playerTeamContainer;
         [SerializeField] private Transform enemyTeamContainer;
@@ -28,20 +37,7 @@ namespace Assets.Scripts.UI.Library
 
         [SerializeField] private UIMenuButton raidButton;
 
-        private EcsPackedEntityWithWorld? selectedHero = null;
-
         private bool googleHeroesAvailable = true;
-
-        private readonly LibrarySlot[] librarySlots = new LibrarySlot[24];
-        private readonly PlayerTeamSlot[] playerSlots = new PlayerTeamSlot[4];
-        private readonly EnemyTeamSlot[] enemySlots = new EnemyTeamSlot[4];
-
-        private SlotDelegateProvider slotDelegate = default;
-        private bool initialized;
-        private readonly HeroTransfer heroTransfer = new();
-
-        delegate void TransferRollback();
-        TransferRollback Rollback { get; set; }// initialised on transaction start
 
         protected override void OnBeforeStart()
         {
@@ -64,48 +60,23 @@ namespace Assets.Scripts.UI.Library
                 button.OnActionButtonClick += OnActionButtonPressed;
             }
 
-            heroDetails.DataLoader = libManager.GetDataForPackedEntity<Hero>;
-
-            libManager.HeroCardFactory = cardPool.CreateCard;
-            libManager.OnDataAvailable += LibManager_OnDataAvailable;
-
             cardPool.CardBinder = BindHeroCard;
-            
-            InitSlots(libraryContainer, librarySlots, -1);
-            InitSlots(playerTeamContainer, playerSlots, 0);
-            InitSlots(enemyTeamContainer, enemySlots, 1);
 
+            var slots = new Dictionary<HeroPosition, IHeroPosition>();
 
-            initialized = true;
-            
-            if (libManager.DataAvailable)
-                LibManager_OnDataAvailable();
-        }
+            InitSlots<LibrarySlot>(slots, libraryContainer, -1);
+            InitSlots<PlayerTeamSlot>(slots, playerTeamContainer, 0);
+            InitSlots<EnemyTeamSlot>(slots, enemyTeamContainer, 1);
 
-        protected override void OnBeforeEnable()
-        {
-            if (initialized)
-            {
-                libManager.OnDataAvailable += LibManager_OnDataAvailable;
-
-                if (libManager.DataAvailable)
-                    LibManager_OnDataAvailable();
-            }
-        }
-
-        protected override void OnBeforeDisable()
-        {
-            libManager.OnDataAvailable -= LibManager_OnDataAvailable;
+            libManager.BindEcsHeroSlots(slots);            
         }
 
         private void LibManager_OnDataAvailable()
         {
-            libManager.CreateCards();
-
             SyncWorldAndButton();
         }
 
-        private void InitSlots<T>(Transform container, T[] outSlots, int teamId) where T: LibrarySlot
+        private void InitSlots<T>(Dictionary<HeroPosition, IHeroPosition> dict, Transform container, int teamId) where T: LibrarySlot
         {
             var slots = container.GetComponentsInChildren<T>();
             for (int i = 0; i < slots.Length; i++)
@@ -117,19 +88,8 @@ namespace Assets.Scripts.UI.Library
                 slot.Position = new HeroPosition(teamId, line, i); 
                 slot.SlotIndex = i;
                 slot.DelegateProvider = slotDelegate;
-                outSlots[i] = slot;
+                dict.Add(slot.Position, slot);
             }
-            libManager.BindEcsHeroSlots(outSlots);
-        }
-
-        private void SyncHeroCardSelectionWithHero()
-        {
-            foreach (var slots in new[] { librarySlots, playerSlots, enemySlots })
-                foreach (var card in slots
-                    .Where(x => x.HeroCard != null)
-                    .Select(x => x.HeroCard)
-                    .ToArray())
-                    card.Selected = card.PackedEntity.Equals(selectedHero);
         }
 
         private void SyncWorldAndButton()
@@ -146,6 +106,11 @@ namespace Assets.Scripts.UI.Library
             actionButton.OnActionButtonClick += OnActionButtonPressed;
         }
 
+        protected override void OnBeforeDestroy()
+        {
+            libManager.DestroyEcsLibraryField();
+            libManager.OnDataAvailable -= LibManager_OnDataAvailable;
+        }
 
         private void OnActionButtonPressed(Actions action, Transform actionTransform)
         {
@@ -156,12 +121,7 @@ namespace Assets.Scripts.UI.Library
                         var heroCard = actionTransform.GetComponent<HeroCard>();
                         Debug.Log($"Hero from line #{heroCard.Hero} selected");
 
-                        selectedHero = heroCard.PackedEntity;
-                        SyncHeroCardSelectionWithHero();
-                        //ShowHeroInventory(selectedHero);
-
-                        heroDetails.PackedEntity = selectedHero;
-                        heroDetails.UpdateData();
+                        libManager.SetEcsSelectedHero(heroCard.PackedEntity);
                     }
                     break;
                 case Actions.SaveTeamForBattle:

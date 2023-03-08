@@ -9,7 +9,7 @@ namespace Assets.Scripts.Services
     public delegate void DestroyUnitsCallback();
 
     public delegate bool LibraryActionWithHero(Hero hero);
-    public delegate Unit DeployWorldUnit(int cellId, Hero hero);
+    public delegate void DeployWorldUnit(Unit unit, int cellId);
     public delegate UnitOverlay DeployWorldUnitOverlay(Unit unit);
 
 

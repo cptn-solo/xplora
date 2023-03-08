@@ -1,12 +1,7 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using UnityEngine.Events;
-using Random = UnityEngine.Random;
 using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Services
@@ -16,7 +11,6 @@ namespace Assets.Scripts.Services
     {
         private HeroLibraryService libraryManager;
         private PlayerPreferencesService prefs;
-        private MenuNavigationService nav;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
@@ -24,9 +18,6 @@ namespace Assets.Scripts.Services
         public event UnityAction<bool, Asset[]> OnBattleComplete;
 
         public BattleMode PlayMode { get; set; } = BattleMode.NA;
-
-        internal EntityViewFactory<Hero> HeroCardFactory { get; set; }
-        internal EntityViewFactory<BarsAndEffectsInfo> HeroOverlayFactory { get; set; }
 
         /// <summary>
         /// Must have HeroConfigRefComp attached
@@ -169,7 +160,6 @@ namespace Assets.Scripts.Services
             HeroLibraryService libManagementService)
         {
             this.libraryManager = libManagementService;
-            this.nav = menuNavigationService;
             this.prefs = playerPreferencesService;
 
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
@@ -179,15 +169,11 @@ namespace Assets.Scripts.Services
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens previous, Screens current)
         {
-            //if (current == Screens.Battle)
-            //    StartEcsContext();
+            if (current == Screens.Battle)
+                StartEcsContext();
 
             if (previous == Screens.Battle)
-            {
-                UnlinkCardRefs<Hero>();
-                UnlinkCardRefs<BarsAndEffectsInfo>();
                 StopEcsContext();
-            }
         }
 
         internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>

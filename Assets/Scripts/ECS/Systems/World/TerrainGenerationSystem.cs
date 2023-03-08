@@ -1,11 +1,8 @@
-﻿using Assets.Scripts.Data;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Assets.Scripts.World;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.ECS.Systems
 {

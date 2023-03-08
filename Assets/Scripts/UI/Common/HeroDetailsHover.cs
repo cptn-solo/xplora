@@ -1,15 +1,20 @@
+using Assets.Scripts.Services;
 using Assets.Scripts.ECS;
-using Assets.Scripts.UI.Common;
 using Assets.Scripts.Data;
-using Assets.Scripts.Battle;
 using TMPro;
 using UnityEngine;
-using Assets.Scripts;
+using Zenject;
+using Assets.Scripts.ECS.Data;
 
-public class HeroDetailsHover : BaseEntityView<Hero>
+public class HeroDetailsHover : BaseEntityView<SelectedTag<Hero>>
 {
     [SerializeField] private TextMeshProUGUI heroNameText;
-    [SerializeField] private BarsContainer barsContainer;
+
+    [Inject]
+    public void Construct(HeroLibraryService libraryService)
+    {
+        libraryService.RegisterEntityView(this);
+    }    
 
     private Hero hero;
     public Hero Hero
@@ -28,7 +33,6 @@ public class HeroDetailsHover : BaseEntityView<Hero>
 
             heroNameText.text = hero.Name;
 
-            barsContainer.SetData(hero.BarsInfo);
         }
     }
 
@@ -42,13 +46,4 @@ public class HeroDetailsHover : BaseEntityView<Hero>
     {
         OnGameObjectDestroy();
     }
-    #region IEntityView
-
-    public override void UpdateData()
-    {
-        Hero = DataLoader(PackedEntity != null ? PackedEntity.Value : null);
-    }
-
-    #endregion
-
 }

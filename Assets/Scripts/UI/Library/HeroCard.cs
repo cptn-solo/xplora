@@ -71,17 +71,6 @@ namespace Assets.Scripts.UI.Library
             }
         }
 
-        private void ResolveIcon(Image image, Asset asset)
-        {
-            image.sprite = null;
-            image.enabled = false;
-            if (asset.AssetType != AssetType.NA && asset.IconName != null)
-            {
-                image.sprite = SpriteForResourceName(asset.IconName);
-                image.enabled = true;
-            }
-        }
-
         private Sprite SpriteForResourceName(string iconName)
         {
             var icon = Resources.Load<Sprite>(iconName);

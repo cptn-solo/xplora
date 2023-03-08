@@ -3349,6 +3349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 482016626}
   - component: {fileID: 482016627}
+  - component: {fileID: 482016628}
   m_Layer: 5
   m_Name: AssetPool
   m_TagString: Untagged
@@ -3390,6 +3391,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 4744941177101426547, guid: 6b054b416ed4c93498273470dc045dd7,
     type: 3}
+--- !u!114 &482016628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 482016625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _containerSource: 1
 --- !u!1001 &492441708
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14589,6 +14603,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   screen: 600
+  battleUnitPool: {fileID: 1537874112}
   playerPartyFront: {fileID: 835273173}
   playerPartyBack: {fileID: 521577675}
   enemyPartyFront: {fileID: 647292458}
@@ -14596,8 +14611,6 @@ MonoBehaviour:
   playerBattleGround: {fileID: 1527859548}
   enemyBattleGround: {fileID: 857479691}
   attackerBattleGround: {fileID: 1840567694}
-  battleUnitPool: {fileID: 1537874112}
-  battleUnitOverlayPool: {fileID: 482016627}
 --- !u!114 &4268022336551642649
 MonoBehaviour:
   m_ObjectHideFlags: 0

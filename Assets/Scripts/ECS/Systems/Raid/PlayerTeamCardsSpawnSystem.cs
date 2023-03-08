@@ -14,6 +14,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<TransformRef<Team>> containerPool;
         private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool;
 
+        private readonly EcsPoolInject<EntityViewFactoryRef<TeamMemberInfo>> factoryPool;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<TeamMemberInfo>>> factoryFilter;
+
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, HeroConfigRefComp>,
             Exc<EntityViewRef<TeamMemberInfo>>> filter;
@@ -25,31 +28,31 @@ namespace Assets.Scripts.ECS.Systems
 
         public void Run(IEcsSystems systems)
         {
-            if (raidService.Value.TeamMemberFactory == null)
-                return;
-
             if (containerFilter.Value.GetEntitiesCount() == 0)
                 return;
 
-            foreach (var containerEntity in containerFilter.Value)
+            foreach (var factoryEntity in factoryFilter.Value)
             {
-                ref var containerRef = ref containerPool.Value.Get(containerEntity);
+                ref var factoryRef = ref factoryPool.Value.Get(factoryEntity);
 
-                foreach (var entity in filter.Value)
+                foreach (var containerEntity in containerFilter.Value)
                 {
-                    ref var entityViewRef = ref pool.Value.Add(entity);
-                    var card = 
-                        raidService.Value.TeamMemberFactory
-                            .Invoke(ecsWorld.Value.PackEntityWithWorld(entity));
-                    card.DataLoader = raidService.Value.GetTeamMemberInfoForPackedEntity;
-                    card.Transform.SetParent(containerRef.Transform);
-                    card.UpdateData();
+                    ref var containerRef = ref containerPool.Value.Get(containerEntity);
 
-                    entityViewRef.EntityView = card;
+                    foreach (var entity in filter.Value)
+                    {
+                        ref var entityViewRef = ref pool.Value.Add(entity);
+                        var card =
+                            factoryRef
+                                .FactoryRef(ecsWorld.Value.PackEntityWithWorld(entity));
+                        card.DataLoader = raidService.Value.GetTeamMemberInfoForPackedEntity;
+                        card.Transform.SetParent(containerRef.Transform);
+                        card.UpdateData();
 
-                    updateHPTagPool.Value.Add(entity);
+                        entityViewRef.EntityView = card;
 
-
+                        updateHPTagPool.Value.Add(entity);
+                    }
                 }
             }
 

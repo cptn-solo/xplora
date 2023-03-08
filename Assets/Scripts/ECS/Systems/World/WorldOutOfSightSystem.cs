@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
         private readonly EcsFilterInject<
-            Inc<VisibilityUpdateTag, FieldCellComp, PoiRef, WorldPoiTag>,
+            Inc<VisibilityUpdateTag, FieldCellComp, EntityViewRef<bool>, WorldPoiTag>,
             Exc<VisibleTag, DestroyTag>> filter;
 
         public void Run(IEcsSystems systems)

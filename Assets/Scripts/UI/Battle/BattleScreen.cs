@@ -1,7 +1,9 @@
-﻿using Assets.Scripts.Data;
+﻿using Assets.Scripts.Battle;
+using Assets.Scripts.Data;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Inventory;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -27,17 +29,13 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Transform enemyBattleGround;
         [SerializeField] private Transform attackerBattleGround;
 
-        [SerializeField] private BattleUnitPool battleUnitPool;
-        [SerializeField] private BattleUnitOverlayPool battleUnitOverlayPool;
-
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] enemyFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] enemyBackSlots = new BattleLineSlot[4];
 
         private SlotDelegateProvider slotDelegate = default;
-        private HeroDelegateProvider heroDelegate = default;
-
+        
         private readonly HeroTransfer heroTransfer = new();
 
         private bool initialized;
@@ -94,43 +92,22 @@ namespace Assets.Scripts.UI.Battle
 
             InitBattleUnitSlotDelegates(); // drop between slots (both assets and heroes)                        
 
-            battleManager.HeroCardFactory = battleUnitPool.CreateCard;
-            battleManager.HeroOverlayFactory = battleUnitOverlayPool.CreateCard;
+            var slots = new Dictionary<HeroPosition, IHeroPosition>();
 
-            battleUnitPool.CardBinder = BindHeroCard;
+            InitHeroSlots(slots, playerPartyFront, playerFrontSlots, playerTeamId, BattleLine.Front);
+            InitHeroSlots(slots, playerPartyBack, playerBackSlots, playerTeamId, BattleLine.Back);
+            InitHeroSlots(slots, enemyPartyFront, enemyFrontSlots, enemyTeamId, BattleLine.Front);
+            InitHeroSlots(slots, enemyPartyBack, enemyBackSlots, enemyTeamId, BattleLine.Back);
 
-            InitHeroSlots(playerPartyFront, playerFrontSlots, playerTeamId, BattleLine.Front);
-            InitHeroSlots(playerPartyBack, playerBackSlots, playerTeamId, BattleLine.Back);
+            battleManager.BindEcsHeroSlots(slots);
 
-            InitHeroSlots(enemyPartyFront, enemyFrontSlots, enemyTeamId, BattleLine.Front);
-            InitHeroSlots(enemyPartyBack, enemyBackSlots, enemyTeamId, BattleLine.Back);
-           
             initialized = true;
-
-            battleManager.StartEcsContext();
-
-            battleManager.CreateCards(
-                (card, overlay) =>
-                {
-                    var rm = (BattleUnit)card;
-                    var ov = (Overlay)overlay;
-                    rm.HeroAnimation.SetOverlay(ov);
-                },
-                (card, isPlayer) =>
-                {
-                    var rm = (BattleUnit)card;
-                    rm.IsPlayerTeam = isPlayer;
-                });
 
             UpdateView();
         }
 
         private void UpdateView()
         {
-            //if (battleManager.CurrentRound.State == RoundState.RoundPrepared)
-            //    battleQueue.LayoutHeroes(
-            //        battleManager.QueuedHeroes);
-
             UpdateActionButtons();
             ResetBattlefieldPositions();
         }
@@ -145,20 +122,20 @@ namespace Assets.Scripts.UI.Battle
 
         private void SlotDelegate_HeroMoved()
         {
-            SyncHeroCardSelectionWithHero();
             if (battleManager.CanReorderTurns)
                 battleManager.ResetBattle();
         }
 
-        private void InitHeroSlots(Transform containerTransform, BattleLineSlot[] slots, int teamId, BattleLine line)
+        private void InitHeroSlots(Dictionary<HeroPosition, IHeroPosition> dict,
+            Transform containerTransform, BattleLineSlot[] slots, int teamId, BattleLine line)
         {
             foreach (var slot in containerTransform.GetComponentsInChildren<BattleLineSlot>())
             {
                 slot.DelegateProvider = slotDelegate;
                 slot.Position = new HeroPosition(teamId, line, slot.SlotIndex);
                 slots[slot.SlotIndex] = slot;
+                dict.Add(slot.Position, slot);
             }
-            battleManager.BindEcsHeroSlots(slots);
         }
     }
 

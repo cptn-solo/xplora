@@ -26,7 +26,7 @@ namespace Assets.Scripts.Services
             damageConfigLoader = new(DamageTypesLibrary, NotifyIfAllDataAvailable);
         }
 
-        private void NotifyIfAllDataAvailable()
+        public void NotifyIfAllDataAvailable()
         {
             if (DataAvailable)
                 OnDataAvailable?.Invoke();

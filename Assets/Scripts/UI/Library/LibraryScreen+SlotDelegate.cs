@@ -1,5 +1,4 @@
 using Assets.Scripts.Data;
-using Assets.Scripts.Battle;
 using Assets.Scripts.UI.Inventory;
 using System;
 using UnityEngine;
@@ -12,6 +11,12 @@ namespace Assets.Scripts.UI.Library
     public partial class LibraryScreen // Slot Delegate 
     {
         private event UnityAction OnHeroMoved;
+        private SlotDelegateProvider slotDelegate = default;
+        private readonly HeroTransfer heroTransfer = new();
+
+        delegate void TransferRollback();
+        TransferRollback Rollback { get; set; }// initialised on transaction start
+
 
         private void InitSlotDelegates()
         {
@@ -87,7 +92,6 @@ namespace Assets.Scripts.UI.Library
 
         private void SlotDelegate_HeroMoved()
         {
-            SyncHeroCardSelectionWithHero();
             SyncWorldAndButton();
         }
     }

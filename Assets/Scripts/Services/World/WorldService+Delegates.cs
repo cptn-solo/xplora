@@ -1,11 +1,7 @@
-﻿using Assets.Scripts.UI.Data;
-using System;
-using UnityEngine;
-
-namespace Assets.Scripts.Services
+﻿namespace Assets.Scripts.Services
 {
 
-    public partial class WorldService
+    public partial class WorldService // Delegates
     {
         public HexCoordResolver CoordResolver { get; internal set; }
         public CellCoordinatesResolver CellCoordinatesResolver { get; internal set; }
@@ -16,7 +12,5 @@ namespace Assets.Scripts.Services
         public HexCoordAccessor CoordBeforeSelector { get; internal set; }
 
         public TerrainProducer TerrainProducer { get; internal set; }
-
-        public PoiSpawner PoiSpawner { get; internal set; }
     }
 }

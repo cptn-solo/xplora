@@ -1,14 +1,12 @@
 ﻿using Assets.Scripts.Data;
-using Assets.Scripts.ECS.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.World;
 using UnityEngine;
 using UnityEngine.Events;
-using Zenject;
 
 namespace Assets.Scripts.Services
-{    
-    public partial class WorldService : MonoBehaviour
+{
+    public partial class WorldService : BaseEcsService
     {
 
         [SerializeField] private int width = 50;
@@ -17,10 +15,8 @@ namespace Assets.Scripts.Services
         public int CellCount => width * height;
         public int WorldWidth => width;
         public int WorldHeight => height;
-
-        private WorldState worldState = WorldState.NA;
-
-        public WorldState WorldState => worldState;
+       
+        public WorldState WorldState { get; set; } = WorldState.NA;
 
         public event UnityAction OnTerrainProduced;
         public event UnityAction<int, bool> OnCellVisibilityChanged;
@@ -28,12 +24,12 @@ namespace Assets.Scripts.Services
 
         internal void GenerateTerrain(CellProducerCallback cellCallback)
         {
-            worldState = WorldState.TerrainBeingGenerated;
+            WorldState = WorldState.TerrainBeingGenerated;
 
             TerrainProducer?.Invoke(width, height,
                 cellCallback,
-                () => { 
-                    worldState = WorldState.SceneReady;
+                () => {
+                    WorldState = WorldState.SceneReady;
                     // DeployEcsWorldPoi(); // now relies on visibility
                     OnTerrainProduced?.Invoke();
                 });
@@ -41,7 +37,7 @@ namespace Assets.Scripts.Services
 
         internal void CellVisibilityUpdated(int cellId, IVisibility visibilityRef, bool visible)
         {
-            if (WorldState != Scripts.Data.WorldState.SceneReady)
+            if (WorldState != WorldState.SceneReady)
                 return;
 
             if (visible)
@@ -56,31 +52,8 @@ namespace Assets.Scripts.Services
         {
             DestroyEcsWorldPoi();
 
-            worldState = WorldState.NA;
+            WorldState = WorldState.NA;
         }
-
-        /// <summary>
-        /// Called from ecs to actually deploy POI
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <returns></returns>
-        internal POI POIDeploymentCallback(int cellId)
-        {
-            var coord = CellCoordinatesResolver(cellId);
-            var pos = WorldPositionResolver(coord);
-
-            var poi = PoiSpawner?.Invoke(pos, null);
-
-            return poi;
-        }
-
-        internal void PoiDestroyCallback(POI poi)
-        {
-            // NB: return to pool maybe
-            if (worldState == WorldState.SceneReady)
-                GameObject.Destroy(poi.gameObject);
-        }
-
 
         internal void Init(
             MenuNavigationService menuNavigationService)
@@ -96,17 +69,17 @@ namespace Assets.Scripts.Services
         private void WorldService_OnDataAvailable()
         {
             StartEcsWorldContext();
-            worldRunloopCoroutine ??= StartCoroutine(WorldStateLoopCoroutine());
+            runloopCoroutine ??= StartCoroutine(RunloopCoroutine());
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens previous, Screens current)
         {
             if (current == Screens.Raid)
-                worldState = WorldState.AwaitingTerrain;
+                WorldState = WorldState.AwaitingTerrain;
 
             if (previous == Screens.Raid)
-                worldState = WorldState.AwaitingTerrainDestruction;
+                WorldState = WorldState.AwaitingTerrainDestruction;
         }
 
         private void MenuNavigationService_OnNavigationToScreenComplete(
@@ -116,9 +89,8 @@ namespace Assets.Scripts.Services
 
         private void OnDestroy()
         {
+            StopRunloopCoroutine();
             StopEcsWorldContext();
-            if (worldRunloopCoroutine != null)
-                StopCoroutine(worldRunloopCoroutine);
 
             OnDataAvailable -= WorldService_OnDataAvailable;
 

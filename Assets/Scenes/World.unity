@@ -237,6 +237,8 @@ GameObject:
   - component: {fileID: 296088657}
   - component: {fileID: 296088656}
   - component: {fileID: 296088655}
+  - component: {fileID: 296088659}
+  - component: {fileID: 296088658}
   m_Layer: 0
   m_Name: WorldOverlay
   m_TagString: Untagged
@@ -327,6 +329,33 @@ Canvas:
   m_SortingLayerID: 692041559
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &296088658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296088653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _containerSource: 1
+--- !u!114 &296088659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296088653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e81f1d52cdd1043358a561dcd6686dda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardPrefab: {fileID: 4744941177101426547, guid: 9a0584a5e46cf44c4a0f8db839d77275,
+    type: 3}
 --- !u!1 &624527045
 GameObject:
   m_ObjectHideFlags: 0
@@ -566,11 +595,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18547229d5ee43049bb0e3be1d587fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitPrefab: {fileID: 3605851402388267574, guid: cadb5571c5ceceb4198f563765db74d9,
+  cardPrefab: {fileID: 3605851402388267574, guid: cadb5571c5ceceb4198f563765db74d9,
     type: 3}
-  overlayPrefab: {fileID: 4744941177101426547, guid: 9a0584a5e46cf44c4a0f8db839d77275,
-    type: 3}
-  overlayParent: {fileID: 296088654}
 --- !u!114 &918467838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,7 +622,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0077a91977f894a1fb19f5b47ea69a50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poiPrefab: {fileID: 3605851402388267574, guid: 121ed492c3ec34b708d6487f759005b1,
+  cardPrefab: {fileID: 3605851402388267574, guid: 121ed492c3ec34b708d6487f759005b1,
     type: 3}
 --- !u!224 &934691476 stripped
 RectTransform:
@@ -891,7 +917,6 @@ GameObject:
   - component: {fileID: 1213211070}
   - component: {fileID: 1213211069}
   - component: {fileID: 1213211072}
-  - component: {fileID: 1213211073}
   m_Layer: 0
   m_Name: Team
   m_TagString: Untagged
@@ -996,19 +1021,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe85f14ffebff4c7aa68323e72320547, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1213211073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1213211067}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _containerSource: 1
 --- !u!1 &1386842142
 GameObject:
   m_ObjectHideFlags: 0

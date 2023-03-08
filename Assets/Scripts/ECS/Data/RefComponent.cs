@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.World;
@@ -8,14 +9,20 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
+    using HeroPosition = Tuple<int, BattleLine, int>;
+
     #region Tags
 
     public struct DraftTag { }
+    public struct DraftTag<T> { }
     public struct ProduceTag { }
     public struct UpdateTag { }
+    public struct UpdateTag<T> { }
     public struct RetireTag { }
     public struct DestroyTag { }
     public struct GarbageTag { }
+    public struct SelectedTag { }
+    public struct SelectedTag<T> { }
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
     public struct UsedTag { }
@@ -35,21 +42,12 @@ namespace Assets.Scripts.ECS.Data
     #endregion
 
     #region Refs
-    public struct UnitRef
-    {
-        public Unit Unit { get; internal set; }
-    }
 
-    public struct PoiRef
+    public struct EntityViewFactoryRef<T>
+        where T: struct
     {
-        public POI Poi { get; internal set; }
+        public EntityViewFactory<T> FactoryRef;
     }
-
-    public struct UnitOverlayRef
-    {
-        public UnitOverlay Overlay;
-    }
-
     public struct PackedEntityRef
     {
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
@@ -75,29 +73,9 @@ namespace Assets.Scripts.ECS.Data
         public Transform Transform;
     }
 
+#endregion
 
-    #endregion
-
-
-    #region Comps
-    public struct WorldComp
-    {
-        public EcsPackedEntity[] CellPackedEntities;
-        public int PowerSourceCount { get; internal set; }
-        public int HPSourceCount { get; internal set; }
-        public int WatchTowerCount { get; internal set; }
-
-        internal int POICountForType<T>()
-        {
-            if (typeof(T) == typeof(PowerSourceComp))
-                return PowerSourceCount;
-            else if (typeof(T) == typeof(HPSourceComp))
-                return HPSourceCount;
-            else if (typeof(T) == typeof(WatchTowerComp))
-                return WatchTowerCount;
-            else return 0;
-        }
-    }
+#region Comps
 
     public struct RaidComp
     {
@@ -106,6 +84,10 @@ namespace Assets.Scripts.ECS.Data
         public Asset[] Assets { get; set; }
     }
 
+    public struct BattlePotComp
+    {
+        public Asset[] PotAssets { get; set; } // the winner takes it all
+    }
 
     public struct BattleAftermathComp
     {
@@ -142,7 +124,7 @@ namespace Assets.Scripts.ECS.Data
 
     public struct VisitorComp: IPackedWithWorldRef {
         public EcsPackedEntityWithWorld Packed { get; set; }
-        public int PrefCellIndex { get; set; }
+        public int PrevCellIndex { get; set; }
         public int NextCellIndex { get; set; }
     }
 
@@ -189,7 +171,18 @@ namespace Assets.Scripts.ECS.Data
         /// <summary>
         /// team id + battle line + slot index 
         /// </summary>
-        public Tuple<int, BattleLine, int> Position { get; set; }
+        public HeroPosition Position { get; set; }
+    }
+
+    public struct LibraryFieldComp
+    {
+        public Dictionary<HeroPosition, IHeroPosition> Slots { get; set; }
+        public HeroPosition[] SlotPositions => Slots.Keys.ToArray();
+    }
+
+    public struct BattleFieldComp {
+        public Dictionary<HeroPosition, IHeroPosition> Slots { get; set; }
+        public HeroPosition[] SlotPositions => Slots.Keys.ToArray();
     }
 
     public struct HostileComp { } // hostile unit/poi

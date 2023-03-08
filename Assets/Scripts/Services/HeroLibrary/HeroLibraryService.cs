@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using Assets.Scripts.Data;
+﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
 using System;
-using Assets.Scripts.Battle;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.ECS.Data;
 
@@ -17,6 +15,7 @@ namespace Assets.Scripts.Services
 
         public ref Team PlayerTeam => ref GetEcsPlayerTeam();
         public ref Team EnemyTeam => ref GetEcsEnemyTeam();
+
         public EcsPackedEntityWithWorld[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
         public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
         public EcsPackedEntityWithWorld[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
@@ -38,8 +37,6 @@ namespace Assets.Scripts.Services
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens current, Screens prev)
         {
-            if (prev == Screens.HeroesLibrary)
-                UnlinkCardRefs<Hero>();
         }
 
         private void BattleManagementService_OnBattleComplete(bool won, Asset[] pot)
@@ -95,7 +92,5 @@ namespace Assets.Scripts.Services
 
         internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
             MoveEcsHeroToPosition(hero, pos);
-
-        internal EntityViewFactory<Hero> HeroCardFactory { get; set; } 
     }
 }

@@ -15,6 +15,8 @@ namespace Assets.Scripts.UI.Battle
     {
         private event UnityAction OnHeroMoved;
 
+        [SerializeField] private BattleUnitPool battleUnitPool;
+
         private void InitBattleUnitSlotDelegates()
         {
             OnHeroMoved += SlotDelegate_HeroMoved;

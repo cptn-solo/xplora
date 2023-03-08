@@ -28,7 +28,7 @@ namespace Assets.Scripts.ECS.Systems
                 var sightPool = world.GetPool<SightRangeComp>();
                 ref var sightRange = ref sightPool.Get(visitorEntity);
 
-                UpdateVisibilityInRange(visitor.PrefCellIndex, visitor.NextCellIndex, sightRange.Range);
+                UpdateVisibilityInRange(visitor.PrevCellIndex, visitor.NextCellIndex, sightRange.Range);
             }
         }
 

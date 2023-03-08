@@ -39,7 +39,6 @@ namespace Assets.Scripts.Services
 
             ecsRunSystems
                 .Add(new PlayerTeamCardsSpawnSystem())
-                .Add(new PlayerTeamCardsUnlinkSystem()) // unlink despawned cards
                 .Add(new PlayerTeamMemberRetireSystem())
                 .Add(new PlayerTeamUpdateSystem()) // bufs
                 .Add(new OpponentPositionSystem())
@@ -130,7 +129,7 @@ namespace Assets.Scripts.Services
         private void DestroyEcsWorldUnits(int cellIndex)
         {
             var destroyPool = ecsWorld.GetPool<DestroyTag>();
-            var unitRefPool = ecsWorld.GetPool<UnitRef>();
+            var unitRefPool = ecsWorld.GetPool<EntityViewRef<Hero>>();
 
             if (worldService.TryGetPoi<OpponentComp>(cellIndex, out var opponentPackedEntity) &&
                 opponentPackedEntity.Unpack(out var world, out var opponentEntity) &&
@@ -163,7 +162,7 @@ namespace Assets.Scripts.Services
             State = Data.RaidState.AwaitingUnits;
 
             var producePool = ecsWorld.GetPool<ProduceTag>();
-            var unitRefPool = ecsWorld.GetPool<UnitRef>();
+            var unitRefPool = ecsWorld.GetPool<EntityViewRef<Hero>>();
 
             var cellPool = ecsWorld.GetPool<FieldCellComp>();
             if (PlayerEntity.Unpack(out _, out var playerEntity))

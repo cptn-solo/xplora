@@ -6,23 +6,20 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using Google.Apis.Sheets.v4.Data;
 
 namespace Assets.Scripts.Services
 {
-    using static UnityEngine.ParticleSystem;
-    using static Zenject.SignalSubscription;
     using HeroPosition = Tuple<int, BattleLine, int>;
 
     public partial class HeroLibraryService // ECS
     {
+        public EcsPackedEntityWithWorld LibraryEntity { get; internal set; }
         public EcsPackedEntityWithWorld PlayerTeamEntity { get; internal set; }
         public EcsPackedEntityWithWorld EnemyTeamEntity { get; internal set; }
 
         public EcsPackedEntityWithWorld[] HeroConfigEntities { get; private set; } =
             new EcsPackedEntityWithWorld[0];
 
-        private Dictionary<HeroPosition, IHeroPosition> slots = new();
 
         private void StartEcsContext()
         {
@@ -30,12 +27,16 @@ namespace Assets.Scripts.Services
 
             ecsInitSystems = new EcsSystems(ecsWorld);
             ecsInitSystems
+                .Add(new LibraryInitSystem())
                 .Add(new TeamInitSystem())
                 .Inject(this)
                 .Init();
 
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
+                .Add(new LibraryDeployCardsSystem())
+                .Add(new LibraryUpdateCardSelectionSystem())
+                .Add(new LibraryUpdateCardsSystem())
                 .Add(new LibraryBalanceUpdateSystem())
                 .Add(new GarbageCollectorSystem())
 
@@ -72,11 +73,18 @@ namespace Assets.Scripts.Services
             var heroPool = ecsWorld.GetPool<Hero>();
             var filter = ecsWorld.Filter<Hero>().End();
 
+            EcsPool<UpdateTag> updateTagPool = ecsWorld.GetPool<UpdateTag>();
+
             foreach (var existingEntity in filter)
             {
                 ref var existing = ref heroPool.Get(existingEntity);
                 if (existing.Id == idx)
+                {
+                    if (!updateTagPool.Has(existingEntity))
+                        updateTagPool.Add(existingEntity);
+
                     return ref existing;
+                }
             }
 
             var addedEntity = ecsWorld.NewEntity();
@@ -100,10 +108,13 @@ namespace Assets.Scripts.Services
 
             ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
+            if (!updateTagPool.Has(addedEntity))
+                updateTagPool.Add(addedEntity);
+
             return ref added;
         }
 
-        private Tuple<int, BattleLine, int> GetEcsNextFreePosition()
+        private HeroPosition GetEcsNextFreePosition()
         {
             var buffer = ListPool<int>.Get();
 
@@ -203,44 +214,17 @@ namespace Assets.Scripts.Services
             return retval;
         }
 
-        internal void BindEcsHeroSlots(IHeroPosition[] buffer)
+        internal void BindEcsHeroSlots(Dictionary<HeroPosition, IHeroPosition> slots)
         {
-            foreach (var slot in buffer)
-                if (slots.TryGetValue(slot.Position, out _))
-                    slots[slot.Position] = slot;
-                else slots.Add(slot.Position, slot);
-        }
+            if (!LibraryEntity.Unpack(out var world, out var entity))
+                throw new Exception("No battle");
 
-        internal void CreateCards()
-        {
-            var positionPool = ecsWorld.GetPool<PositionComp>();
-            var entityViewRefPool = ecsWorld.GetPool<EntityViewRef<Hero>>();
-            var filter = ecsWorld.Filter<Hero>().Inc<PositionComp>().End();
-            foreach (var entity in filter)
-            {
-                if (!entityViewRefPool.Has(entity))
-                    entityViewRefPool.Add(entity);
-
-                ref var entityViewRef = ref entityViewRefPool.Get(entity);
-                if (entityViewRef.EntityView != null)
-                {
-                    entityViewRef.EntityView.UpdateData();
-                    continue;
-                }
-
-                ref var pos = ref positionPool.Get(entity);
-                var slot = slots[pos.Position];
-                var card = HeroCardFactory(ecsWorld.PackEntityWithWorld(entity));
-                card.DataLoader = GetDataForPackedEntity<Hero>;
-                slot.Put(card.Transform);
-                card.UpdateData();
-
-                entityViewRef.EntityView = card;
-            }
+            ref var battleField = ref world.GetPool<LibraryFieldComp>().Add(entity);
+            battleField.Slots = slots;
         }
 
 
-        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(Tuple<int, BattleLine, int> position)
+        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(HeroPosition position)
         {
             var positionPool = ecsWorld.GetPool<PositionComp>();
             var filter = ecsWorld.Filter<Hero>().Inc<PositionComp>().End();
@@ -253,10 +237,15 @@ namespace Assets.Scripts.Services
             return default;
         }
 
-        private void MoveEcsHeroToPosition(EcsPackedEntityWithWorld packedEntity, Tuple<int, BattleLine, int> position)
+        private void MoveEcsHeroToPosition(EcsPackedEntityWithWorld packedEntity, HeroPosition position)
         {
 
-            if (!packedEntity.Unpack(out var world, out var entity))
+            if (!LibraryEntity.Unpack(out var world, out var libEntity))
+                throw new Exception("No battle");
+
+            ref var libraryFiled = ref world.GetPool<LibraryFieldComp>().Get(libEntity);
+
+            if (!packedEntity.Unpack(out _, out var entity))
                 throw new Exception($"No Hero config");
 
             var positionPool = world.GetPool<PositionComp>();
@@ -264,7 +253,7 @@ namespace Assets.Scripts.Services
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;
 
-            var slot = slots[pos.Position];
+            var slot = libraryFiled.Slots[pos.Position];
 
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
             ref var entityViewRef = ref entityViewRefPool.Get(entity);
@@ -374,6 +363,28 @@ namespace Assets.Scripts.Services
             ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
             return retval;
+        }
+
+        internal void SetEcsSelectedHero(EcsPackedEntityWithWorld? packedEntity)
+        {
+            if (packedEntity == null || !packedEntity.Value.Unpack(out var world, out var entity))
+                return;
+
+            var pool = world.GetPool<UpdateTag<SelectedTag>>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);            
+        }
+
+        internal void DestroyEcsLibraryField()
+        {
+            if (!LibraryEntity.Unpack(out var world, out var entity))
+                throw new Exception("No library");
+
+            var pool = world.GetPool<LibraryFieldComp>();
+
+            if (pool.Has(entity))
+                pool.Del(entity);
         }
     }
 }

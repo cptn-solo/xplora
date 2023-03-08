@@ -4,41 +4,45 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 using System.Linq;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    using static Zenject.SignalSubscription;
     using HeroPosition = Tuple<int, BattleLine, int>;
-    using Random = UnityEngine.Random;
 
-    public class BattleHeroesInitSystem : IEcsInitSystem
+    public class BattleHeroesInitSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftBattleTagPool;
+        private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool;
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
         private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool;
-        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
-        private readonly EcsPoolInject<EnemyTeamTag> enemyTeamTagPool;
         private readonly EcsPoolInject<PositionComp> positionPool;
+        private readonly EcsPoolInject<BattleFieldComp> battleFieldPool;
+
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> filter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
 
-        public void Init(IEcsSystems systems)
+        public void Run(IEcsSystems systems)
         {
             if (!battleService.Value.BattleEntity.Unpack(out var battleWorld, out var battleEntity))
                 return;
 
-            ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
+            if (filter.Value.GetEntitiesCount() == 0)
+                return;
+
+            ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);            
             battleInfo.State = BattleState.PrepareTeams;
             battleService.Value.NotifyBattleEventListeners(battleInfo);
+
+            ref var battleField = ref battleFieldPool.Value.Get(battleEntity);
 
             #region Player team:
 
             var playerTeamId = battleInfo.PlayerTeam.Id;
             var playerPosBuffer = ListPool<HeroPosition>.Get();
-            playerPosBuffer.AddRange(battleService.Value.BattleFieldSlotsPositions.
+            playerPosBuffer.AddRange(battleField.SlotPositions.
                 Where(x => x.Item1 == playerTeamId));
 
             EcsPackedEntityWithWorld[] playerConfigs = battleService.Value.PlayerTeamPackedEntities;
@@ -60,7 +64,7 @@ namespace Assets.Scripts.ECS.Systems
 
             var enemyTeamId = battleInfo.EnemyTeam.Id;
             var enemyPosBuffer = ListPool<HeroPosition>.Get();
-            enemyPosBuffer.AddRange(battleService.Value.BattleFieldSlotsPositions.
+            enemyPosBuffer.AddRange(battleField.SlotPositions.
                 Where(x => x.Item1 == enemyTeamId));
             EcsPackedEntityWithWorld[] enemyConfigs = battleService.Value.EnemyTeamPackedEntities;
 
@@ -83,6 +87,8 @@ namespace Assets.Scripts.ECS.Systems
             where T: struct
         {
             var entity = battleWorld.NewEntity();
+
+            draftHeroTagPool.Value.Add(entity);
 
             ref var positionComp = ref positionPool.Value.Add(entity);
             positionComp.Position = sourcePosition;

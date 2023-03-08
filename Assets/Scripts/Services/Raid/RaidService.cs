@@ -18,12 +18,7 @@ namespace Assets.Scripts.Services
 
         public RaidState State { get; internal set; }
 
-        public UnitSpawner UnitSpawner { get; internal set; }
-        public UnitOverlaySpawner UnitOverlaySpawner { get; internal set; }
-
         public event UnityAction<Unit, bool> OnUnitSpawned;
-
-        internal EntityViewFactory<TeamMemberInfo> TeamMemberFactory { get; set; } = null;
 
         public void Init(
             MenuNavigationService menuNavigationService,
@@ -105,62 +100,30 @@ namespace Assets.Scripts.Services
         {
         }
 
-        /// <summary>
-        /// Called from ecs to actually deploy unit being registered with
-        /// the opponent
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="hero"></param>
-        /// <returns></returns>
-        internal Unit PlayerDeploymentCallback(int cellId, Hero hero)
+        internal void PlayerDeploymentCallback(Unit playerUnit, int cellId)
         {
             var coord = worldService.CellCoordinatesResolver(cellId);
             var pos = worldService.WorldPositionResolver(coord);
 
-            var playerUnit = UnitSpawner?.Invoke(pos, hero, true, null) ;
             playerUnit.SetInitialCoordinates(coord);
+            playerUnit.Transform.SetPositionAndRotation(pos, Quaternion.identity);
 
             OnUnitSpawned?.Invoke(playerUnit, true);
 
             playerUnit.OnArrivedToCoordinates += PlayerUnit_OnArrivedToCoordinates;
 
             worldService.PlayerUnit = playerUnit;
-
-            return playerUnit;
-
         }
 
-        /// <summary>
-        /// Called from ecs to actually deploy unit being registered with
-        /// the opponent
-        /// </summary>
-        /// <param name="cellId"></param>
-        /// <param name="hero"></param>
-        /// <returns></returns>
-        internal Unit OpponentDeploymentCallback(int cellId, Hero hero)
+        internal void OpponentDeploymentCallback(Unit enemyUnit, int cellId)
         {
             var coord = worldService.CellCoordinatesResolver(cellId);
             var pos = worldService.WorldPositionResolver(coord);
 
-            var enemyUnit = UnitSpawner?.Invoke(pos, hero, false, null);
-
+            enemyUnit.Transform.SetPositionAndRotation(pos, Quaternion.identity);
             OnUnitSpawned?.Invoke(enemyUnit, false);
-
-            return enemyUnit;
         }
-
-        internal void UnitDestroyCallback(Unit unit)
-        {
-            if (unit == worldService.PlayerUnit)
-            {
-                worldService.PlayerUnit = null;
-                Debug.Log("UnitDestroyCallback player unit destroyed");
-            }
-
-            if (worldService.WorldState == WorldState.SceneReady)
-                GameObject.Destroy(unit.gameObject);
-        }
-
+        
         private void WorldCoordBeforeSelect(
             HexCoordinates? coordinates,
             HexCoordAccessorCallback callback = null)

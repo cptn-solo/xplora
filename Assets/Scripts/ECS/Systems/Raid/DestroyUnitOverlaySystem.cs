@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
@@ -6,9 +7,9 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DestroyUnitOverlaySystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<UnitOverlayRef> overlayPool;
+        private readonly EcsPoolInject<EntityViewRef<BarsInfo>> overlayPool;
 
-        private readonly EcsFilterInject<Inc<DestroyTag, UnitOverlayRef>> destroyTagFilter;
+        private readonly EcsFilterInject<Inc<DestroyTag, EntityViewRef<BarsInfo>>> destroyTagFilter;
 
         public void Run(IEcsSystems systems)
         {
@@ -16,8 +17,8 @@ namespace Assets.Scripts.ECS.Systems
             {
 
                 ref var overlayRef = ref overlayPool.Value.Get(entity);
-                overlayRef.Overlay.ResetBars();
-                overlayRef.Overlay.ResetOverlayInfo();
+                overlayRef.EntityView.Destroy();
+                overlayRef.EntityView = null;
 
                 overlayPool.Value.Del(entity);
             }

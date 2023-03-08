@@ -11,6 +11,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftTagPool;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
         private readonly EcsCustomInject<HeroLibraryService> libraryService;
@@ -18,6 +19,8 @@ namespace Assets.Scripts.ECS.Systems
         public void Init(IEcsSystems systems)
         {
             var entity = ecsWorld.Value.NewEntity();
+
+            draftTagPool.Value.Add(entity);
 
             ref var battle = ref battleInfoPool.Value.Add(entity);
             battle.LastRoundNumber = -1;

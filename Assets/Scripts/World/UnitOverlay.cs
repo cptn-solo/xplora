@@ -1,40 +1,28 @@
 ﻿using Assets.Scripts.Data;
-using Assets.Scripts.UI.Common;
-using System.Collections.Generic;
-using TMPro;
+using Assets.Scripts.ECS;
 using UnityEngine;
 
 namespace Assets.Scripts.World
 {
-    public class UnitOverlay : MonoBehaviour, IEntityViewChild
+    public class UnitOverlay : BaseEntityView<BarsInfo>
     {
-        [SerializeField] private TextMeshProUGUI overlayText;
-        [SerializeField] private BarsContainer barsContainer;
-
         private Transform anchor;
         private Vector3 prevAnchorScale;
-        private bool destroyed;
 
         public void Attach(Transform anchor) =>
             this.anchor = anchor;
 
-        internal void ResetOverlayInfo()
-        {
-            if (destroyed)
-                return;
-
-            overlayText.text = "";
-        }
         private void OnDestroy()
         {
-            destroyed = true;
             anchor = null;
+            OnGameObjectDestroy();
         }
 
         private void Update()
         {
             if (anchor == null)
                 return;
+
             var pos = anchor.transform.position;
             var ray = Camera.main.ScreenPointToRay(pos);
             var overlayPos = pos + (ray.direction * -1) * 10f;
@@ -46,36 +34,6 @@ namespace Assets.Scripts.World
                 transform.localScale *= anchor.transform.localScale.x / prevAnchorScale.x;
 
             prevAnchorScale = anchor.localScale;
-
-        }
-
-        internal void SetOverlayText(string text)
-        {
-            overlayText.text = text;
-        }
-
-        internal void SetBarsInfo(BarInfo[] barsInfo)
-        {
-            barsContainer.gameObject.SetActive(true);
-            barsContainer.SetData(barsInfo);
-        }
-
-        internal void ResetBars()
-        {
-            if (destroyed)
-                return;
-
-            barsContainer.gameObject.SetActive(false);
-        }
-
-        public void AttachToEntityView()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void DetachFromEntityView()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

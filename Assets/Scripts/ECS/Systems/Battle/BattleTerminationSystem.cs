@@ -9,10 +9,12 @@ namespace Assets.Scripts.ECS.Systems
     public class BattleTerminationSystem : IEcsPostRunSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattlePotComp> battlePotPool;
+
         private readonly EcsPoolInject<DelayTimerComp<DestroyTag>> delayPool;
 
         private readonly EcsFilterInject<
-            Inc<BattleInfo, DelayTimerComp<DestroyTag>>> filter;
+            Inc<BattleInfo, BattlePotComp, DelayTimerComp<DestroyTag>>> filter;
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
@@ -36,10 +38,10 @@ namespace Assets.Scripts.ECS.Systems
         private void TerminateBattle(int entity)
         {
             ref var battleInfo = ref battleInfoPool.Value.Get(entity);
-
+            ref var battlePot = ref battlePotPool.Value.Get(entity);
             battleService.Value.NotiifyBattleComplete(
                 battleInfo.WinnerTeamId == battleInfo.PlayerTeam.Id,
-                battleInfo.PotAssets);
+                battlePot.PotAssets);
         }
     }
 }

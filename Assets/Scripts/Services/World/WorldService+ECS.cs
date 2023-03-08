@@ -3,22 +3,14 @@ using Leopotam.EcsLite.Di;
 using Assets.Scripts.ECS;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
-using UnityEngine;
 using System.Collections.Generic;
 using Leopotam.EcsLite.ExtendedSystems;
-using Assets.Scripts.World.HexMap;
-using Assets.Scripts.Data;
-using System;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Services
 {
-    public partial class WorldService // ECS
+    public partial class WorldService  // ECS
     {
-        private EcsWorld ecsWorld;
-        private IEcsSystems ecsInitSystems;
-        private IEcsSystems ecsSystems;
-
         internal EcsPackedEntityWithWorld WorldEntity { get; private set; }
 
         internal void SetWorldEntity(EcsPackedEntityWithWorld entity) =>
@@ -40,8 +32,9 @@ namespace Assets.Scripts.Services
                 .Inject(this)
                 .Init();
 
-            ecsSystems = new EcsSystems(ecsWorld);
-            ecsSystems
+            ecsRunSystems = new EcsSystems(ecsWorld);
+            ecsRunSystems
+                .Add(new PresenceMonitorSystem())
                 .Add(new TerrainGenerationSystem())
                 .Add(new WorldProcessVisitorSystem<OpponentComp>())
                 .Add(new WorldProcessPowerSourceVisitorSystem()) // checks for stamina
@@ -76,30 +69,14 @@ namespace Assets.Scripts.Services
 
         private void StopEcsWorldContext()
         {
-            ecsSystems?.Destroy();
-            ecsSystems = null;
+            ecsRunSystems?.Destroy();
+            ecsRunSystems = null;
 
             ecsInitSystems?.Destroy();
             ecsInitSystems = null;
 
             ecsWorld?.Destroy();
             ecsWorld = null;
-        }
-
-        private void ProduceEcsWorld()
-        {
-            if (!WorldEntity.Unpack(out var world, out var worldEntity))
-                return;
-
-            world.GetPool<ProduceTag>().Add(worldEntity);
-        }
-
-        private void DestroyEcsWorld()
-        {
-            if (!WorldEntity.Unpack(out var world, out var worldEntity))
-                return;
-
-            world.GetPool<DestroyTag>().Add(worldEntity);
         }
 
         private bool CheckEcsWorldIfReachable(int cellId)
@@ -121,13 +98,13 @@ namespace Assets.Scripts.Services
 
         private void DestroyEcsWorldPoi()
         {
-            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+            if (!WorldEntity.Unpack(out var world, out _))
                 return;
 
             var destroyTagPool = world.GetPool<DestroyTag>();
             var deployedPoiFilter = world
                 .Filter<WorldPoiTag>()
-                .Inc<PoiRef>()
+                .Inc<EntityViewRef<bool>>()
                 .Exc<DestroyTag>()
                 .End();
 
@@ -247,7 +224,7 @@ namespace Assets.Scripts.Services
             var visitPool = world.GetPool<VisitorComp>();
             ref var visitComp = ref visitPool.Add(cellEntity);
             visitComp.Packed = visitorEntity;
-            visitComp.PrefCellIndex = prevCellIndex;
+            visitComp.PrevCellIndex = prevCellIndex;
             visitComp.NextCellIndex = nextCellIndex;
         }
 

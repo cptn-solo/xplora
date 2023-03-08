@@ -1,18 +1,43 @@
-﻿using Leopotam.EcsLite;
+﻿using Assets.Scripts.Services;
+using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace Assets.Scripts.UI.Inventory
 {
     public delegate void CardBinder<T>(T card);
 
-    public class BaseCardPool<T, E> : MonoBehaviour
+    public class BaseCardPool<T, E> : BaseCardPool<IEcsService, T, E>
+        where T : MonoBehaviour, ITransform, IEntityView<E>
+        where E : struct
+    {
+
+    }
+    public class BaseCardPool<S, T, E> : MonoBehaviour
         where T: MonoBehaviour, ITransform, IEntityView<E>
+        where E: struct
+        where S: IEcsService
     {
         [SerializeField] protected GameObject cardPrefab;
 
         protected Canvas canvas;
 
         public CardBinder<T> CardBinder { get; set; }
+
+        protected S ecsService;
+
+
+        [Inject]
+        public void Construct(S ecsService)
+        {
+            this.ecsService = ecsService;
+            ecsService.RegisterEntityViewFactory(CreateCard);
+        }
+
+        private void OnDestroy()
+        {
+            ecsService.UnregisterEntityViewFactory<E>();
+        }
 
         public T Pooled(T card)
         {
@@ -32,8 +57,6 @@ namespace Assets.Scripts.UI.Inventory
             card.PackedEntity = packedInstanceEntity;
 
             CardBinder?.Invoke(card);
-
-            card.Transform.gameObject.SetActive(false);
 
             return card;
         }

@@ -1,6 +1,4 @@
-using Assets.Scripts;
 using Assets.Scripts.ECS;
-using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
 using System.Collections.Generic;

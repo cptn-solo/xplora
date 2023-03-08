@@ -6,12 +6,15 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattlePotInitSystem : IEcsInitSystem
+    public class BattlePotInitSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool;
         private readonly EcsPoolInject<HPComp> hpPool;
-        private readonly EcsPoolInject<EnemyTeamTag> enemyTagPool;
-        private readonly EcsPoolInject<PlayerTeamTag> playerTagPool;
+        private readonly EcsPoolInject<BattlePotComp> battlePotPool;
+
+        private readonly EcsFilterInject<
+            Inc<BattleInfo, BattleFieldComp>,
+            Exc<DraftTag<BattleInfo>, BattlePotComp>> battleFilter;
 
         private readonly EcsFilterInject<
             Inc<HPComp, EnemyTeamTag>> enemyFilter;
@@ -21,9 +24,12 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService;
 
-        public void Init(IEcsSystems systems)
+        public void Run(IEcsSystems systems)
         {
             if (!battleService.Value.BattleEntity.Unpack(out var battleWorld, out var battleEntity))
+                return;
+
+            if (battleFilter.Value.GetEntitiesCount() == 0)
                 return;
 
             ref var battleInfo = ref battleInfoPool.Value.Get(battleEntity);
@@ -44,7 +50,8 @@ namespace Assets.Scripts.ECS.Systems
             var koeff = (float)enemyHP / playerHP;
             var potValue = (int)(koeff * enemyHP);
 
-            battleInfo.PotAssets = new Asset[] {
+            ref var pot = ref battlePotPool.Value.Add(battleEntity);
+            pot.PotAssets = new Asset[] {
                 new Asset(){
                     AssetType = AssetType.Money,
                     Count = potValue
