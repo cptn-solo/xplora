@@ -131,6 +131,14 @@ namespace Assets.Scripts.ECS.Data
         public int NextCellIndex { get; set; }
     }
 
+    public struct ActiveTraitHeroComp<T>
+    {
+        public EcsPackedEntityWithWorld PackedHeroInstanceEntity { get; set; }
+        public Hero Hero { get; set; }
+        public int MaxLevel { get; set; }
+        public HeroTrait Trait { get; set; }
+    }
+
     public struct VisitedComp<T> where T: struct
     {
         public T Info;

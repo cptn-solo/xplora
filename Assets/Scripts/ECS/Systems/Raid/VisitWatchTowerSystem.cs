@@ -9,6 +9,8 @@ namespace Assets.Scripts.ECS.Systems
     public class VisitWatchTowerSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<FieldCellComp> fieldCellPool;
+        private readonly EcsPoolInject<
+            ActiveTraitHeroComp<TerrainAttributeComp>> traitHeroPool;
 
         private readonly EcsFilterInject<
             Inc<PlayerComp, FieldCellComp, VisitedComp<WatchTowerComp>>> visitFilter;
@@ -22,7 +24,14 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var fieldCell = ref fieldCellPool.Value.Get(entity);
 
-                worldService.Value.UnveilCellsInRange(fieldCell.CellIndex, 5);
+                var range = 5;
+                if (traitHeroPool.Value.Has(entity))
+                {
+                    ref var traitHero = ref traitHeroPool.Value.Get(entity);
+                    range += traitHero.MaxLevel;
+                }
+
+                worldService.Value.UnveilCellsInRange(fieldCell.CellIndex, range);
                 audioService.Value.Play(CommonSoundEvent.WatchTower.SoundForEvent());
             }
         }
