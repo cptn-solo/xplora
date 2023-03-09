@@ -14,6 +14,7 @@ namespace Assets.Scripts.UI.Data
         FootSteps = 700,
         StaminaSource = 800,
         HPSource = 900,
+        WatchTower = 1000,
     }
 
     public static class SoundUtils
@@ -35,6 +36,7 @@ namespace Assets.Scripts.UI.Data
                 CommonSoundEvent.FootSteps => "run",
                 CommonSoundEvent.StaminaSource => "stamina_source",
                 CommonSoundEvent.HPSource => "hp_source",
+                CommonSoundEvent.WatchTower => "observation",
                 _ => ""
             };
 

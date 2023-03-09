@@ -9,7 +9,8 @@ using System.Linq;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class WorldPrepareVisibilityUpdateSystem : IEcsRunSystem
+
+    public class WorldVisitorSightUpdateSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<VisitorComp> visitorPool;
 
@@ -29,11 +30,11 @@ namespace Assets.Scripts.ECS.Systems
                 var sightPool = world.GetPool<SightRangeComp>();
                 ref var sightRange = ref sightPool.Get(visitorEntity);
 
-                UpdateVisibilityInRange(visitor.PrevCellIndex, visitor.NextCellIndex, sightRange.Range);
+                PrepareVisibilityUpdate(visitor.PrevCellIndex, visitor.NextCellIndex, sightRange.Range);
             }
         }
 
-        internal void UpdateVisibilityInRange(int prevCellIndex, int nextCellIndex, int range)
+        internal void PrepareVisibilityUpdate(int prevCellIndex, int nextCellIndex, int range)
         {
             if (!worldService.Value.TryGetCellEntity(nextCellIndex, out var cellEntity, out var world))
                 return;
@@ -62,56 +63,25 @@ namespace Assets.Scripts.ECS.Systems
                 toShow.AddRange(rangeCoordNext);
             }
 
-            var visibilityUpdateTagPool = world.GetPool<VisibilityUpdateTag>();
-            var visibilityRefPool = world.GetPool<VisibilityRef>();
-            var visibleTagPool = world.GetPool<VisibleTag>();
-            var exploredTagPool = world.GetPool<ExploredTag>();
-
-            var th = 0;
+            var veilTagPool = world.GetPool<VeilCellsTag>();
             foreach (var refIndex in toHide)
             {
                 if (!worldService.Value.TryGetCellEntity(refIndex, out var refCellEntity, out var _))
                     continue;
 
-                if (!visibilityRefPool.Has(refCellEntity))
-                    continue;
-
-                ref var visibilityRef = ref visibilityRefPool.Get(refCellEntity);
-                visibilityRef.visibility.DecreaseVisibility();
-
-                if (visibleTagPool.Has(refCellEntity))
-                    visibleTagPool.Del(refCellEntity);
-
-                if (!visibilityUpdateTagPool.Has(refCellEntity))
-                    visibilityUpdateTagPool.Add(refCellEntity);
-                th++;
+                if (!veilTagPool.Has(refCellEntity))
+                    veilTagPool.Add(refCellEntity);
             }
 
-            var ts = 0;
+            var unveilTagPool = world.GetPool<UnveilCellsTag>();
             foreach (var refIndex in toShow)
             {
                 if (!worldService.Value.TryGetCellEntity(refIndex, out var refCellEntity, out var _))
                     continue;
 
-                if (!visibilityRefPool.Has(refCellEntity))
-                    continue;
-
-                ref var visibilityRef = ref visibilityRefPool.Get(refCellEntity);
-                visibilityRef.visibility.IncreaseVisibility();
-
-                if (!visibleTagPool.Has(refCellEntity))
-                    visibleTagPool.Add(refCellEntity);
-
-                if (!exploredTagPool.Has(refCellEntity))
-                    exploredTagPool.Add(refCellEntity); // will stay explored after hide
-
-                if (!visibilityUpdateTagPool.Has(refCellEntity))
-                    visibilityUpdateTagPool.Add(refCellEntity);
-
-                ts++;
+                if (!unveilTagPool.Has(refCellEntity))
+                    unveilTagPool.Add(refCellEntity);
             }
-
-            Debug.Log($"toHide: {th}/{toHide.Count} {ts}/{toShow.Count}");
 
             ListPool<int>.Add(toHide);
             ListPool<int>.Add(toShow);

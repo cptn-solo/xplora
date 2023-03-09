@@ -6,6 +6,8 @@ using Assets.Scripts.ECS.Systems;
 using System.Collections.Generic;
 using Leopotam.EcsLite.ExtendedSystems;
 using Random = UnityEngine.Random;
+using Assets.Scripts.World.HexMap;
+using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
@@ -41,8 +43,12 @@ namespace Assets.Scripts.Services
                 .Add(new WorldProcessVisitorSystem<HPSourceComp>())
                 .Add(new WorldProcessVisitorSystem<WatchTowerComp>())
                 .Add(new WorldProcessVisitorSystem<TerrainAttributeComp>())
-                .Add(new WorldPrepareVisibilityUpdateSystem())
+                .Add(new WorldVisitorSightUpdateSystem())
                 .DelHere<VisitorComp>()
+                .Add(new WorldVeilFieldCellsSystem())
+                .DelHere<VeilCellsTag>()
+                .Add(new WorldUnveilFieldCellsSystem())
+                .DelHere<UnveilCellsTag>()
                 .Add(new WorldVisibilityUpdateSystem())
                 .Add(new WorldOutOfSightSystem())
                 .Add(new WorldInSightSystem())
@@ -315,6 +321,26 @@ namespace Assets.Scripts.Services
             //foreach (var entity in filter2)
             //    terrainTypePool.Del(entity);
 
+        }
+
+        internal void UnveilCellsInRange(int cellIndex, int range)
+        {
+            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+                return;
+
+            var pool = world.GetPool<UnveilCellsTag>();
+
+            var coordinates = CellCoordinatesResolver(cellIndex);
+            coordinates.RangeFromCoordinates(range, new Vector4(width, height), out var rangeCellIndexes);
+
+            foreach (var idx in rangeCellIndexes)
+            {
+                if (!TryGetCellEntity(idx, out var entity, out _))
+                    continue;
+
+                if (!pool.Has(entity))
+                    pool.Add(entity);
+            }
         }
     }
 

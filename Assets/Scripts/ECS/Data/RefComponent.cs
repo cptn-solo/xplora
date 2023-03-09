@@ -27,6 +27,9 @@ namespace Assets.Scripts.ECS.Data
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
     public struct UsedTag { }
 
+    public struct UnveilCellsTag { } // marker for cells to unhide contents of
+    public struct VeilCellsTag { } // marker for cells to unhide contents of
+
     public struct VisibleTag { } // for units and terrain
     public struct ExploredTag { } // for terrain
     public struct NonPassableTag { } // for terrain

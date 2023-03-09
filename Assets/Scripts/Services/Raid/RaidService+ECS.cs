@@ -65,6 +65,7 @@ namespace Assets.Scripts.Services
                 .DelHere<ProduceTag>()
                 .Add(new VisitPowerSourceSystem())
                 .Add(new VisitHPSourceSystem())
+                .Add(new VisitWatchTowerSystem())
                 .Add(new VisitTerrainAttributeSystem())
                 .DelHere<VisitedComp<OpponentComp>>()
                 .DelHere<VisitedComp<HPSourceComp>>()
@@ -303,7 +304,7 @@ namespace Assets.Scripts.Services
 
         private void MarkEcsWorldRaidForTeardown()
         {
-            if (RaidEntity.Unpack(ecsWorld, out var raidEntity))
+            if (ecsWorld != null && RaidEntity.Unpack(ecsWorld, out var raidEntity))
                 ecsWorld.DelEntity(raidEntity);
         }
 
