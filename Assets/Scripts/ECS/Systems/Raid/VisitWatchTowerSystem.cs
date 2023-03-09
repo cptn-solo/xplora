@@ -10,7 +10,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<FieldCellComp> fieldCellPool;
         private readonly EcsPoolInject<
-            ActiveTraitHeroComp<TerrainAttributeComp>> traitHeroPool;
+            ActiveTraitHeroComp<WatchTowerComp>> traitHeroPool;
 
         private readonly EcsFilterInject<
             Inc<PlayerComp, FieldCellComp, VisitedComp<WatchTowerComp>>> visitFilter;

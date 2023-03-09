@@ -63,6 +63,8 @@ namespace Assets.Scripts.Services
                 .Add(new DeployUnitSystem())
                 .Add(new DeployUnitOverlaySystem())
                 .DelHere<ProduceTag>()
+                .Add(new PickTeamMemberForWatchTowerEvent())
+                .Add(new PickTeamMemberForTerrainAttributeEvent())
                 .Add(new VisitPowerSourceSystem())
                 .Add(new VisitHPSourceSystem())
                 .Add(new VisitWatchTowerSystem())
