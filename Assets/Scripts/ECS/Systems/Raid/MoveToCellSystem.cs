@@ -32,6 +32,8 @@ namespace Assets.Scripts.ECS.Systems
                 ref var drainComp = ref drainPool.Value.Get(entity);
                 drainComp.Value += 10;
 
+                cellComp.CellIndex = nextCellId;
+
                 worldService.Value.VisitWorldCell(oldCellId, nextCellId, raidService.Value.PlayerEntity);
             }
         }

@@ -154,12 +154,11 @@ namespace Assets.Scripts.World.HexMap
         }
         public int CellIndexForCoordinates(HexCoordinates coordinates)
         {
-            int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-            return index;
+            return coordinates.CellIndexForCoordinates(width);
         }
         public HexCell CellForCoordinates(HexCoordinates coordinates)
         {
-            int index = CellIndexForCoordinates(coordinates);
+            int index = coordinates.CellIndexForCoordinates(width);
             HexCell cell = cells[index];
             return cell;
         }

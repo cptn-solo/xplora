@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var entity in destroyTagFilter.Value)
             {
                 ref var poiRef = ref poiRefPool.Value.Get(entity);
+                poiRef.EntityView.Destroy();
                 poiRef.EntityView = null;
 
                 poiRefPool.Value.Del(entity);

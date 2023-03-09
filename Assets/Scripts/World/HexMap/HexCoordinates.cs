@@ -49,20 +49,6 @@ namespace Assets.Scripts.World.HexMap
                 return -X - Z;
             }
         }
-        /// <summary>
-        /// Determine distance between this and another set of coordinates.
-        /// Takes <see cref="HexMetrics.Wrapping"/> into account.
-        /// </summary>
-        /// <param name="other">Coordinate to determine distance to.</param>
-        /// <returns>Distance in cells.</returns>
-        public int DistanceTo(HexCoordinates other)
-        {
-            int xy =
-                (x < other.x ? other.x - x : x - other.x) +
-                (Y < other.Y ? other.Y - Y : Y - other.Y);            
-
-            return (xy + (z < other.z ? other.z - z : z - other.z)) / 2;
-        }
 
         public static HexCoordinates FromOffsetCoordinates(int x, int z)
         {

@@ -5,6 +5,7 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
 using System;
+using System.Linq;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -41,27 +42,24 @@ namespace Assets.Scripts.ECS.Systems
             var height = worldService.Value.WorldHeight;
 
             var coordNext = worldService.Value.CellCoordinatesResolver(nextCellIndex);
-            var rangeCoordNext = coordNext.RangeFromCoordinates(range, new Vector4(width, height));
+            coordNext.RangeFromCoordinates(range, new Vector4(width, height), out var rangeCoordNext);
 
-            var toHide = ListPool<HexCoordinates>.Get();
-            var toShow = ListPool<HexCoordinates>.Get();
-
-            toShow.AddRange(rangeCoordNext);
+            var toHide = ListPool<int>.Get();
+            var toShow = ListPool<int>.Get();
 
             if (prevCellIndex >= 0 &&
                 prevCellIndex != nextCellIndex &&
                 worldService.Value.TryGetCellEntity(prevCellIndex, out var cellEntityPrev, out var _))
             {
                 var coordPrev = worldService.Value.CellCoordinatesResolver(prevCellIndex);
-                var rangeCoordPrev = coordPrev.RangeFromCoordinates(range, new Vector4(width, height));
+                coordPrev.RangeFromCoordinates(range, new Vector4(width, height), out var rangeCoordPrev);
 
-                toHide.AddRange(rangeCoordPrev);
-
-                foreach (var check in rangeCoordNext)
-                    toHide.Remove(check);
-
-                foreach (var check in rangeCoordPrev)
-                    toShow.Remove(check);
+                toHide.AddRange(rangeCoordPrev.Except(rangeCoordNext));
+                toShow.AddRange(rangeCoordNext.Except(rangeCoordPrev));
+            }
+            else
+            {
+                toShow.AddRange(rangeCoordNext);
             }
 
             var visibilityUpdateTagPool = world.GetPool<VisibilityUpdateTag>();
@@ -69,10 +67,9 @@ namespace Assets.Scripts.ECS.Systems
             var visibleTagPool = world.GetPool<VisibleTag>();
             var exploredTagPool = world.GetPool<ExploredTag>();
 
-            foreach (var refCoord in toHide)
+            var th = 0;
+            foreach (var refIndex in toHide)
             {
-                var refIndex = worldService.Value.CellIndexResolver(refCoord);
-
                 if (!worldService.Value.TryGetCellEntity(refIndex, out var refCellEntity, out var _))
                     continue;
 
@@ -87,13 +84,12 @@ namespace Assets.Scripts.ECS.Systems
 
                 if (!visibilityUpdateTagPool.Has(refCellEntity))
                     visibilityUpdateTagPool.Add(refCellEntity);
+                th++;
             }
 
-
-            foreach (var refCoord in toShow)
+            var ts = 0;
+            foreach (var refIndex in toShow)
             {
-                var refIndex = worldService.Value.CellIndexResolver(refCoord);
-
                 if (!worldService.Value.TryGetCellEntity(refIndex, out var refCellEntity, out var _))
                     continue;
 
@@ -111,10 +107,14 @@ namespace Assets.Scripts.ECS.Systems
 
                 if (!visibilityUpdateTagPool.Has(refCellEntity))
                     visibilityUpdateTagPool.Add(refCellEntity);
+
+                ts++;
             }
 
-            ListPool<HexCoordinates>.Add(toHide);
-            ListPool<HexCoordinates>.Add(toShow);
+            Debug.Log($"toHide: {th}/{toHide.Count} {ts}/{toShow.Count}");
+
+            ListPool<int>.Add(toHide);
+            ListPool<int>.Add(toShow);
         }
 
     }
