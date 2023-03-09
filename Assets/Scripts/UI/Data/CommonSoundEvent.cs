@@ -13,6 +13,7 @@ namespace Assets.Scripts.UI.Data
         FieldCellHover = 600,
         FootSteps = 700,
         StaminaSource = 800,
+        HPSource = 900,
     }
 
     public static class SoundUtils
@@ -33,6 +34,7 @@ namespace Assets.Scripts.UI.Data
                 CommonSoundEvent.FieldCellHover => "cupclick",
                 CommonSoundEvent.FootSteps => "run",
                 CommonSoundEvent.StaminaSource => "stamina_source",
+                CommonSoundEvent.HPSource => "hp_source",
                 _ => ""
             };
 

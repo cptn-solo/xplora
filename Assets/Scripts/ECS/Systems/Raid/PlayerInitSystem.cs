@@ -92,7 +92,7 @@ namespace Assets.Scripts.ECS.Systems
                 healthComp.Value = heroConfig.Health;
 
                 ref var hpComp = ref hpCompPool.Value.Add(playerTeamMemberEntity);
-                hpComp.Value = heroConfig.Health;
+                hpComp.Value = (int)(heroConfig.Health / 2);
             }
 
             ListPool<Hero>.Add(heroBuffer);
