@@ -18,6 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<T> psPool;
         private readonly EcsPoolInject<POIComp> poiPool;
         private readonly EcsPoolInject<WorldPoiTag> worldPoiTagPool;
+        private readonly EcsPoolInject<TerrainAttributeComp> terrainAttributePool;
 
         private readonly EcsFilterInject<Inc<FieldCellComp>, Exc<POIComp>> freeCellFilter;
 
@@ -32,7 +33,9 @@ namespace Assets.Scripts.ECS.Systems
 
             var cellCount = freeCellFilter.Value.GetEntitiesCount();
             var sCount = worldComp.POICountForType<T>();
-            var freeIndexes = worldService.Value.GetRandomFreeCellIndexes(sCount);
+
+            // ignore terrain attributes already placed:
+            var freeIndexes = worldService.Value.GetRandomFreeCellIndexes(sCount, true);
 
             int i = -1;
             for (var idx = 0; idx < sCount; idx++)
@@ -44,6 +47,10 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var poiComp = ref poiPool.Value.Add(freeCellEntity);
                 ref var psComp = ref psPool.Value.Add(freeCellEntity);
+
+                // override terrain attributes if any:
+                if (terrainAttributePool.Value.Has(freeCellEntity))
+                    terrainAttributePool.Value.Del(freeCellEntity);
 
                 // will prevent from spawning raid and other non static objects here
                 worldPoiTagPool.Value.Add(freeCellEntity);

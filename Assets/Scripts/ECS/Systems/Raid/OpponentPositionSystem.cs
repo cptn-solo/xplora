@@ -22,8 +22,9 @@ namespace Assets.Scripts.ECS.Systems
             if (count <= 0)
                 return;
 
+            // ignore attributes:
             int[] freeCellsIndexes = worldService.Value
-                .GetRandomFreeCellIndexes(count);
+                .GetRandomFreeCellIndexes(count, true);
 
             var i = -1;
 

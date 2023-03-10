@@ -136,6 +136,10 @@ namespace Assets.Scripts.Services
             ref var packedRef = ref world.GetPool<PackedEntityRef>().Add(cellEntity);
             packedRef.PackedEntity = ecsPackedEntity;
 
+            var terrainAttributePool = world.GetPool<TerrainAttributeComp>();
+            if (terrainAttributePool.Has(cellEntity))
+                terrainAttributePool.Del(cellEntity);
+
             world.GetPool<T>().Add(cellEntity);
         }
 
@@ -259,17 +263,22 @@ namespace Assets.Scripts.Services
         /// </summary>
         /// <param name="count">How many free cells we need</param>
         /// <returns></returns>
-        internal int[] GetRandomFreeCellIndexes(int count)
+        internal int[] GetRandomFreeCellIndexes(
+            int count, bool ignoreTerrainAttributes = false)
         {
             if (!WorldEntity.Unpack(out var world, out var worldEntity))
                 return new int[] { };
 
-            var freeCellFilter = world
+            var freeCellFilterMask = world
                 .Filter<FieldCellComp>()
                 .Exc<POIComp>()
-                .Exc<NonPassableTag>()
-                .Exc<TerrainAttributeComp>()
-                .End();
+                .Exc<NonPassableTag>();
+
+            if (!ignoreTerrainAttributes)
+                freeCellFilterMask.Exc<TerrainAttributeComp>();
+
+            var freeCellFilter = freeCellFilterMask.End();
+
             var cellPool = world.GetPool<FieldCellComp>();
             var cellCount = freeCellFilter.GetEntitiesCount();
             var sCount = count;
