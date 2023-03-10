@@ -257,6 +257,24 @@ namespace Assets.Scripts.Services
 
         }
 
+        internal int GetFreeCellsCount(bool ignoreTerrainAttributes = false)
+        {
+            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+                return 0;
+
+            var freeCellFilterMask = world
+                .Filter<FieldCellComp>()
+                .Exc<POIComp>()
+                .Exc<NonPassableTag>();
+
+            if (!ignoreTerrainAttributes)
+                freeCellFilterMask.Exc<TerrainAttributeComp>();
+
+            var freeCellFilter = freeCellFilterMask.End();
+
+            return freeCellFilter.GetEntitiesCount();
+        }
+
         /// <summary>
         /// Gets free indexes, but does the scan only for cells with POIComp on them
         /// so player is not visible by this method (he doesn't have POI reference)

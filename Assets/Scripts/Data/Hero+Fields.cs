@@ -37,6 +37,9 @@ namespace Assets.Scripts.Data
         public int ResistFrostRate { get; internal set; }
         public int ResistFlushRate { get; internal set; }
 
+        // for enemy spawner
+        public int OveralStrength { get; internal set; }
+
         #endregion
 
         #region Traits //черты

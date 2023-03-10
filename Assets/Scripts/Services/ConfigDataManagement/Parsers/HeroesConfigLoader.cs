@@ -7,7 +7,7 @@ namespace Assets.Scripts.Services
 
     public class HeroesConfigLoader : BaseConfigLoader
     {
-        protected override string RangeString => "'Герои'!A1:Q40";
+        protected override string RangeString => "'Герои'!A1:Q42";
         protected override string ConfigName => "Heroes";
         private const int heroesNumber = 16;
 
@@ -113,6 +113,10 @@ namespace Assets.Scripts.Services
             hero.Traits[HeroTrait.Scout] = HeroTrait.Scout.Level(val(++rowIndex, cell).ParseAbsoluteValue());
             hero.Traits[HeroTrait.Tidy] = HeroTrait.Tidy.Level(val(++rowIndex, cell).ParseAbsoluteValue());
             hero.Traits[HeroTrait.Soft] = HeroTrait.Soft.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+
+            rowIndex = 40;
+
+            hero.OveralStrength = val(++rowIndex, cell).ParseAbsoluteValue();
         }
     }
 }

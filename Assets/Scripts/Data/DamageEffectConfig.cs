@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using System;
+
+namespace Assets.Scripts.Data
 {
     public struct DamageEffectConfig
     {

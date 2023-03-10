@@ -157,7 +157,7 @@ namespace Assets.Scripts.Services
             out EcsPackedEntityWithWorld[] opponentHeroes)
         {
             playerHeroes = libManagementService.PlayerHeroes;
-            opponentHeroes = libManagementService.NonPlayerTeamHeroes;
+            opponentHeroes = libManagementService.EnemyDomainHeroes;
 
             return playerHeroes.Length > 0;
         }

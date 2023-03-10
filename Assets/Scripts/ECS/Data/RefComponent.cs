@@ -85,6 +85,7 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld[] PlayerHeroConfigs { get; internal set; }
         public EcsPackedEntityWithWorld[] OpponentHeroConfigs { get; internal set; }
         public Asset[] Assets { get; set; }
+        public Dictionary<int, List<EcsPackedEntityWithWorld>> OpponentsIndexedByStrength { get; internal set; }
     }
 
     public struct BattlePotComp
@@ -104,6 +105,11 @@ namespace Assets.Scripts.ECS.Data
 
     public struct OpponentComp
     {
+    }
+
+    public struct StrengthComp : IIntValue
+    {
+        public int Value { get; set; }
     }
 
     public struct HeroComp : IPackedWithWorldRef

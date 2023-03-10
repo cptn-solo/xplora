@@ -163,6 +163,30 @@ namespace Assets.Scripts.Services
             return ref team;
 
         }
+
+        private EcsPackedEntityWithWorld[] GetEcsEnemyDomainHeroes()
+        {
+            if (!LibraryEntity.Unpack(out var world, out var libEntity))
+                throw new Exception("No Library");
+
+            var filter = world.Filter<Hero>().Inc<PositionComp>().End();
+            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
+            var pool = world.GetPool<Hero>();
+
+            foreach (var entity in filter)
+            {
+                ref var hero = ref pool.Get(entity);
+                if (hero.Domain == HeroDomain.Enemy)
+                    buffer.Add(world.PackEntityWithWorld(entity));
+            }
+
+            var retval = buffer.ToArray();
+            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
+
+            return retval;
+
+        }
+
         private EcsPackedEntityWithWorld[] GetEcsNotInTeamHeroes(EcsPackedEntityWithWorld teamPackedEntity, bool aliveOnly)
         {
             if (!teamPackedEntity.Unpack(out var world, out var teamEntity))

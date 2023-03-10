@@ -19,6 +19,7 @@ namespace Assets.Scripts.Services
         public EcsPackedEntityWithWorld[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
         public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
         public EcsPackedEntityWithWorld[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
+        public EcsPackedEntityWithWorld[] EnemyDomainHeroes => GetEcsEnemyDomainHeroes();
 
         public void Init(
             MenuNavigationService menuNavigationService,

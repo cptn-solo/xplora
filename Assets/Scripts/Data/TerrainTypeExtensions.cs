@@ -10,7 +10,7 @@ namespace Assets.Scripts.Data
         /// <summary>
         /// Will pick a ranged value based on a passed random int 0 - 100
         /// </summary>
-        /// <param name="idx">0 - 100</param>
+        /// <param name="idx">1 - 100</param>
         /// <returns></returns>
         public static TerrainType RandomRangedTerrainType(this int idx)
         {

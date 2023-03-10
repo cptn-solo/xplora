@@ -24,7 +24,7 @@ namespace Assets.Scripts.Data
 
         public static Hero Default =>
             EmptyHero();
-
+        
         public static Hero EmptyHero() =>
             EmptyHero(-1, "", null, null, HeroType.NA);
 
