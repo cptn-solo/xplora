@@ -14,17 +14,12 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<FieldCellComp>> filter;
 
         public void Init(IEcsSystems systems)
-        {
-            var terrainTypes = new TerrainType[3] {
-                    TerrainType.Grass,
-                    TerrainType.LightGrass,
-                    TerrainType.NoGo,
-                };
-
+        {            
             foreach(var entity in filter.Value)
             {
                 ref var terrainType = ref terrainTypePool.Value.Add(entity);
-                terrainType.TerrainType = terrainTypes[Random.Range(0, terrainTypes.Length)];
+                var idx = Random.Range(1, 101);
+                terrainType.TerrainType = idx.RandomRangedTerrainType();
 
                 switch (terrainType.TerrainType)
                 {

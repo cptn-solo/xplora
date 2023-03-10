@@ -25,14 +25,14 @@ namespace Assets.Scripts.ECS.Systems
 
             var cellCount = worldService.Value.CellCount;
 
-            worldComp.PowerSourceCount = (int)Mathf.Pow(
-                Mathf.Sqrt(cellCount) * .1f, 2);
+            worldComp.PowerSourceCount =
+                (int)(cellCount * Random.Range(.25f, .5f) / 100);
 
-            worldComp.HPSourceCount = (int)Mathf.Pow(
-                Mathf.Sqrt(cellCount) * .075f, 2);
+            worldComp.HPSourceCount =
+                (int)(cellCount * Random.Range(.25f, .5f) / 100);
 
-            worldComp.WatchTowerCount = (int)Mathf.Pow(
-                Mathf.Sqrt(cellCount) * .05f, 2);
+            worldComp.WatchTowerCount =
+                (int)(cellCount * Random.Range(.05f, .1f) / 100);
 
             worldService.Value.SetWorldEntity(ecsWorld.Value.PackEntityWithWorld(entity));
         }
