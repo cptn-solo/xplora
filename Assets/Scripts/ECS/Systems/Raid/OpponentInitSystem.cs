@@ -11,6 +11,8 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
+    using static Leopotam.EcsLite.EcsWorld;
+    using static UnityEditor.Progress;
     using HeroIndexByStrength = Dictionary<int, List<EcsPackedEntityWithWorld>>;
 
     public class OpponentInitSystem : IEcsInitSystem
@@ -47,41 +49,64 @@ namespace Assets.Scripts.ECS.Systems
             Debug.Log($"enemyNumber: {enemyNumber}");
 
             var indexed = IndexHeroesByStrength(raidComp.OpponentHeroConfigs);
+            var config = OpponentTeamMemberSpawnConfig.DefaultConfig();
             raidComp.OpponentsIndexedByStrength = indexed;
-
+            raidComp.OppenentMembersSpawnConfig = config;
+            
             for (int idx = 0; idx < enemyNumber; idx++)
             {
                 var teamStrength = enemySpawnConfig.RandomRangedTeamStrength(Random.Range(1, 101));
-                Debug.Log($"teamStrength: {teamStrength}");
+
                 var opponentEntity = ecsWorld.Value.NewEntity();
 
-                ref var opponentComp = ref opponentPool.Value.Add(opponentEntity);
+                var coverHeroStrenth = CoverHeroForTeamStrength(teamStrength, indexed, config);
+
+                var spawnOptions = indexed[coverHeroStrenth];
+                var spawned = spawnOptions[Random.Range(0, spawnOptions.Count)];
 
                 ref var strength = ref strengthPool.Value.Add(opponentEntity);
                 strength.Value = teamStrength;
 
-                ref var heroComp = ref heroPool.Value.Add(opponentEntity);                
-                heroComp.Hero = StrongestHeroForTeamStrength(teamStrength, indexed);
+                ref var heroComp = ref heroPool.Value.Add(opponentEntity);
+                heroComp.Hero = spawned;
+
+                ref var opponentComp = ref opponentPool.Value.Add(opponentEntity);
+                opponentComp.CoverHeroStrength = coverHeroStrenth;
             }
         }
 
-        private EcsPackedEntityWithWorld StrongestHeroForTeamStrength(
+        private int CoverHeroForTeamStrength(
+            int teamStrength, HeroIndexByStrength indexed,
+            OpponentTeamMemberSpawnConfig config)
+        {
+            if (config.RunOnePass(teamStrength) is var strength && strength > 0)
+                return strength;
+
+            return StrongestHeroForTeamStrength(teamStrength, indexed);
+        }
+
+        /// <summary>
+        /// Fallback method of cover hero selection - just picks 1st hero who's
+        /// strength is smaller than overal team strength (while the list is sorted
+        /// descending the strength so most strong heroes go 1st)
+        /// </summary>
+        /// <param name="teamStrength"></param>
+        /// <param name="indexed">heroes indexed by their respective strength</param>
+        /// <returns>strength value used as a key in the hero index</returns>
+        /// <exception cref="Exception"></exception>
+        private int StrongestHeroForTeamStrength(
             int teamStrength, HeroIndexByStrength indexed)
         {
             foreach (var item in indexed.Keys.OrderByDescending(x => x))
-            {
-                if (teamStrength < item)
-                    continue;
+                if (teamStrength >= item)
+                    return item;
 
-                var options = indexed[item];
-                return options[Random.Range(0, options.Count)];
-            }
             throw new Exception($"No available options for team strength {teamStrength}");
         }
 
         private static HeroIndexByStrength IndexHeroesByStrength(EcsPackedEntityWithWorld[] configs)
         {
-            var heroIndexByStrength = new Dictionary<int, List<EcsPackedEntityWithWorld>>();
+            var heroIndexByStrength = new HeroIndexByStrength();
             foreach (var item in configs)
             {
                 if (!item.Unpack(out var libWorld, out var entity))

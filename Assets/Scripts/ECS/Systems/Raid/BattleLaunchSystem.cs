@@ -1,28 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class BattleLaunchSystem : IEcsRunSystem
     {
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<BattleComp> battlePool;
         private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<HeroComp> heroPool;
         private readonly EcsPoolInject<StrengthComp> strengthPool;
-        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
-
+        private readonly EcsPoolInject<OpponentComp> opponentPool;
+        private readonly EcsPoolInject<HeroComp> heroCompPool;
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
-        private readonly EcsFilterInject<Inc<EntityViewRef<Hero>>> unitFilter;
-        private readonly EcsFilterInject<Inc<EntityViewRef<bool>>> overlayFilter;
         private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp>> teamHeroesFilter;
 
         private readonly EcsCustomInject<RaidService> raidService;
@@ -50,44 +48,29 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var raidComp = ref raidPool.Value.Get(raidEntity);
                 ref var strengthComp = ref strengthPool.Value.Get(enemyEntity);
+                ref var opponentComp = ref opponentPool.Value.Get(enemyEntity);
+                ref var heroComp = ref heroCompPool.Value.Get(enemyEntity);
 
-                var config = OpponentTeamMemberSpawnConfig.DefaultConfig;
+                enemyBuffer.Add(heroComp.Hero);
 
-                var initialStrength = strengthComp.Value;
-                var memberCount = 0;
+                int teamStrength = strengthComp.Value;
+                var remainingStrength = teamStrength - opponentComp.CoverHeroStrength;
+                var memberCount = 1;
+                var indexed = raidComp.OpponentsIndexedByStrength;
 
-                var sortedByStrength = config.OveralStrengthLevels.OrderByDescending(x => x.Key);
-
-                while (initialStrength > 0 && memberCount < 8)
+                void callback(int strength)
                 {
-                    foreach (var item in sortedByStrength)
-                    {
-                        if (item.Key > strengthComp.Value)
-                            continue;
+                    var spawnOptions = indexed[strength];
+                    var spawned = spawnOptions[Random.Range(0, spawnOptions.Count)];
 
-                        var adjustedSpawnRate = item.Value.SpawnRate;
-
-                        foreach (var adj in item.Value.TeamStrengthWeightedSpawnRates)
-                        {
-                            if (adj.Key.Item1 < strengthComp.Value &&
-                                adj.Key.Item2 >= strengthComp.Value)
-                            {
-                                adjustedSpawnRate += adj.Value;
-                                break;
-                            }
-                        }
-
-                        if (!adjustedSpawnRate.RatedRandomBool())
-                            continue;
-
-                        var spawnOptions = raidComp.OpponentsIndexedByStrength[item.Key];
-                        var spawned = spawnOptions[Random.Range(0, spawnOptions.Count)];
-
-                        enemyBuffer.Add(spawned);
-                        initialStrength -= item.Key;
-                        memberCount++;
-                    }
+                    enemyBuffer.Add(spawned);
+                    remainingStrength -= strength;
+                    memberCount++;
                 }
+
+                while (remainingStrength > 0 && memberCount < 8)
+                    raidComp.OppenentMembersSpawnConfig.RunOnePass(
+                        remainingStrength, callback, opponentComp.CoverHeroStrength);
 
                 var enemyWrappedHeroes = libraryService.Value.WrapForBattle(
                     enemyBuffer.ToArray(), ecsWorld.Value);
@@ -98,6 +81,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 ListPool<EcsPackedEntityWithWorld>.Add(playerBuffer);
                 ListPool<EcsPackedEntityWithWorld>.Add(enemyBuffer);
+
                 raidService.Value.StartBattle();
             }
 

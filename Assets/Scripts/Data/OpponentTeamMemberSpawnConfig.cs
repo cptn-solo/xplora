@@ -1,17 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Data
 {
+    using SortedByStrength = IOrderedEnumerable<KeyValuePair<int, StrengthSpawnInfo>>;
+    public delegate void SpawnPassCallback(int strength);
+
     public struct OpponentTeamMemberSpawnConfig
     {
         public Dictionary<int, StrengthSpawnInfo> OveralStrengthLevels { get; set; }
 
-        public static OpponentTeamMemberSpawnConfig DefaultConfig =>
-            new()
+        public SortedByStrength SortedSpawnRateInfo { get; set; }
+
+        public int RunOnePass(int teamStrength, SpawnPassCallback callback = null, int treshold = -1)
+        {
+            foreach (var item in SortedSpawnRateInfo)
             {
-                OveralStrengthLevels = new () {
+                if (item.Key > teamStrength ||
+                    (treshold > 0 && item.Key > treshold))
+                    continue;
+
+                var adjustedSpawnRate = item.Value.SpawnRate;
+
+                foreach (var adj in item.Value.TeamStrengthWeightedSpawnRates)
+                {
+                    if (adj.Key.Item1 < teamStrength &&
+                        adj.Key.Item2 >= teamStrength)
+                    {
+                        adjustedSpawnRate += adj.Value;
+                        break;
+                    }
+                }
+
+                if (!adjustedSpawnRate.RatedRandomBool())
+                    continue;
+
+                callback?.Invoke(item.Key);
+
+                return item.Key;
+            }
+
+            return 0;
+        }
+        public static OpponentTeamMemberSpawnConfig DefaultConfig()
+        {
+            var retval = new OpponentTeamMemberSpawnConfig()
+            {
+                OveralStrengthLevels = new() {
                     { 1, new () {
                         OveralStrenght = 1,
                         TintColor = new Color(77f/255f, 131f/255f, 207f/255f, 1f),
@@ -54,5 +91,13 @@ namespace Assets.Scripts.Data
                     } },
                 }
             };
+
+            retval.SortedSpawnRateInfo =
+                retval.OveralStrengthLevels
+                .OrderByDescending(x => x.Key);
+
+            return retval;
+        }
+
     }
 }
