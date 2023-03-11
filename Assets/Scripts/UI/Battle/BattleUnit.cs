@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using Assets.Scripts.ECS;
 using Assets.Scripts.Data;
-using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Inventory;
 using TMPro;
 using UnityEngine;

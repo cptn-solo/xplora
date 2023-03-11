@@ -7,8 +7,6 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
 using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
-//using Google.Apis.Sheets.v4.Data;
 
 namespace Assets.Scripts.Services
 {

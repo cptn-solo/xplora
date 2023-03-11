@@ -1,6 +1,4 @@
-﻿using Assets.Scripts.Battle;
-using Assets.Scripts.Data;
-using UnityEngine;
+﻿using Assets.Scripts.Data;
 
 namespace Assets.Scripts.UI.Battle
 {

@@ -11,8 +11,6 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    using static Leopotam.EcsLite.EcsWorld;
-    using static UnityEditor.Progress;
     using HeroIndexByStrength = Dictionary<int, List<EcsPackedEntityWithWorld>>;
 
     public class OpponentInitSystem : IEcsInitSystem

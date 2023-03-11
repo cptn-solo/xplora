@@ -1,5 +1,4 @@
-﻿using System;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using UnityEngine;
 
