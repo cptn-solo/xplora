@@ -6,6 +6,7 @@ namespace Assets.Scripts.Data
     {
         public BundleIcon Icon;
         public Color IconColor;
+        public Color? BackgroundColor;
         public string BadgeText;
     }
 

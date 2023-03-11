@@ -12,15 +12,16 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool;
+        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updatePool;
+        
+        private readonly EcsPoolInject<EntityViewRef<UnitInfo>> overlayPool;
 
-        private readonly EcsPoolInject<EntityViewRef<BarsInfo>> overlayPool;
-
-        private readonly EcsPoolInject<EntityViewFactoryRef<BarsInfo>> factoryRefPool;
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<BarsInfo>>> factoryRefFilter;
+        private readonly EcsPoolInject<EntityViewFactoryRef<UnitInfo>> factoryRefPool;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<UnitInfo>>> factoryRefFilter;
 
         private readonly EcsFilterInject<
-            Inc<EntityViewRef<Hero>, PlayerComp, PowerComp>,
-            Exc<EntityViewRef<BarsInfo>>> produceTagFilter;
+            Inc<EntityViewRef<Hero>>,
+            Exc<EntityViewRef<UnitInfo>>> produceTagFilter;
 
         public void Run(IEcsSystems systems)
         {
@@ -39,6 +40,9 @@ namespace Assets.Scripts.ECS.Systems
 
                     ref var overlayRef = ref overlayPool.Value.Add(entity);
                     overlayRef.EntityView = entityView;
+
+                    if (!updatePool.Value.Has(entity))
+                        updatePool.Value.Add(entity);
                 }
             }
 

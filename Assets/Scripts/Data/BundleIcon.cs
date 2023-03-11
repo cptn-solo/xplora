@@ -10,6 +10,7 @@
                 BundleIcon.ShieldCrossed => "Effects/pierced",
                 BundleIcon.Flame => "Effects/burning",
                 BundleIcon.SnowFlake => "Effects/frozing",
+                BundleIcon.Power => "Icons/Assets/power",
                 _ => ""
             };
     }
@@ -22,6 +23,7 @@
         ShieldCrossed = 300,
         Flame = 400,
         SnowFlake = 500,
+        Power = 600,
 
     }
 }

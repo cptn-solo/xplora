@@ -71,6 +71,11 @@ namespace Assets.Scripts.ECS.Data
         public IItemsContainer<T> Container;        
     }
 
+    public struct DataViewRef<T>
+    {
+        public IDataView<T> DataView;
+    }
+
     public struct TransformRef<T>
     {
         public Transform Transform;

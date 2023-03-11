@@ -19,6 +19,12 @@ namespace Assets.Scripts
     {
     }
 
+    public interface IDataView<T> : ITransform
+    {
+        public void SetInfo(T info);
+        public void Reset();
+    }
+
     public interface IItemsContainer<T> : ITransform
     {
         public void SetItemInfo(T info);

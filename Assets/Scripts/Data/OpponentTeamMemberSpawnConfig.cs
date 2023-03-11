@@ -14,7 +14,7 @@ namespace Assets.Scripts.Data
                 OveralStrengthLevels = new () {
                     { 1, new () {
                         OveralStrenght = 1,
-                        TintColor = new Color(77f/255f, 131f/255f, 207f/255f),
+                        TintColor = new Color(77f/255f, 131f/255f, 207f/255f, 1f),
                         SpawnRate = 45,
                         TeamStrengthWeightedSpawnRates = new () {
                             { new (1, 10), 0 },
@@ -24,7 +24,7 @@ namespace Assets.Scripts.Data
                     } },
                     { 2, new () {
                         OveralStrenght = 2,
-                        TintColor = new Color(58f/255f, 76f/255f, 255f/255f),
+                        TintColor = new Color(58f/255f, 76f/255f, 255f/255f, 1),
                         SpawnRate = 30,
                         TeamStrengthWeightedSpawnRates = new () {
                             { new (1, 10), 0 },
@@ -34,7 +34,7 @@ namespace Assets.Scripts.Data
                     } },
                     { 7, new () {
                         OveralStrenght = 7,
-                        TintColor = new Color(104f/255f, 38f/255f, 229f/255f),
+                        TintColor = new Color(104f/255f, 38f/255f, 229f/255f, 1f),
                         SpawnRate = 15,
                         TeamStrengthWeightedSpawnRates = new () {
                             { new (1, 10), 0 },
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Data
                     } },
                     { 10, new () {
                         OveralStrenght = 10,
-                        TintColor = new Color(226f/255f, 104f/255f, 56f/255f),
+                        TintColor = new Color(226f/255f, 104f/255f, 56f/255f, 1f),
                         SpawnRate = 10,
                         TeamStrengthWeightedSpawnRates = new () {
                             { new (1, 10), 0 },

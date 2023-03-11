@@ -9,8 +9,10 @@ namespace Assets.Scripts
     public interface IEntityView : ITransform //BattleUnit, Overlay, etc.
     {
         public void AttachChild<C>(ITransform<C> child) where C : struct;
+        public void AttachChild<C>(IDataView<C> child) where C : struct;
         public void AttachChild<C>(IItemsContainer<C> child) where C : struct;
         public void DetachChild<C>(ITransform<C> child) where C : struct;
+        public void DetachChild<C>(IDataView<C> child) where C : struct;
         public void DetachChild<C>(IItemsContainer<C> child) where C : struct;
     }
 

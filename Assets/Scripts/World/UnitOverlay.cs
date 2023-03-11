@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.World
 {
-    public class UnitOverlay : BaseEntityView<BarsInfo>
+    public class UnitOverlay : BaseEntityView<UnitInfo>
     {
         private Transform anchor;
         private Vector3 prevAnchorScale;

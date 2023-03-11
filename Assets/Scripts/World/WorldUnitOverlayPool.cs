@@ -4,7 +4,7 @@ using Assets.Scripts.UI.Inventory;
 
 namespace Assets.Scripts.World
 {
-    public class WorldUnitOverlayPool : BaseCardPool<RaidService, UnitOverlay, BarsInfo>
+    public class WorldUnitOverlayPool : BaseCardPool<RaidService, UnitOverlay, UnitInfo>
     {
 
     }

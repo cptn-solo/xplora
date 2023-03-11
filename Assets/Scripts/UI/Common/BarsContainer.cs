@@ -64,6 +64,7 @@ namespace Assets.Scripts.UI.Common
             var bar = Instantiate(barPrefab).GetComponent<BarWithTitle>();
             var barRectTransform = bar.GetComponent<RectTransform>();
             var canvas = GetComponentInParent<Canvas>();
+            barRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 15f);
             barRectTransform.localScale = canvas.transform.localScale * transform.parent.localScale.x;
             barRectTransform.SetParent(rectTransform);
             barRectTransform.localRotation = Quaternion.identity;
