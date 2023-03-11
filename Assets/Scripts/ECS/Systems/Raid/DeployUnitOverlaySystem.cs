@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<UnitInfo>>> factoryRefFilter;
 
         private readonly EcsFilterInject<
-            Inc<EntityViewRef<Hero>>,
+            Inc<ProduceTag, EntityViewRef<Hero>>,
             Exc<EntityViewRef<UnitInfo>>> produceTagFilter;
 
         public void Run(IEcsSystems systems)

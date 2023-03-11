@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
@@ -14,7 +15,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld;
 
         private readonly EcsPoolInject<BattleComp> battlePool;
+        private readonly EcsPoolInject<RaidComp> raidPool;
         private readonly EcsPoolInject<HeroComp> heroPool;
+        private readonly EcsPoolInject<StrengthComp> strengthPool;
         private readonly EcsPoolInject<DestroyTag> destroyTagPool;
 
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
@@ -32,42 +35,69 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var battleComp = ref battlePool.Value.Get(entity);
 
-                if (battleComp.EnemyPackedEntity.Unpack(ecsWorld.Value, out var enemyEntity))
+                if (!battleComp.EnemyPackedEntity.Unpack(ecsWorld.Value, out var enemyEntity))
+                    throw new Exception("No Enemy");
+
+                if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
+                    throw new Exception("No Raid");
+
+                var playerBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
+
+                foreach (var teamMemberEntity in teamHeroesFilter.Value)
+                    playerBuffer.Add(ecsWorld.Value.PackEntityWithWorld(teamMemberEntity));
+
+                var enemyBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
+
+                ref var raidComp = ref raidPool.Value.Get(raidEntity);
+                ref var strengthComp = ref strengthPool.Value.Get(enemyEntity);
+
+                var config = OpponentTeamMemberSpawnConfig.DefaultConfig;
+
+                var initialStrength = strengthComp.Value;
+                var memberCount = 0;
+
+                var sortedByStrength = config.OveralStrengthLevels.OrderByDescending(x => x.Key);
+
+                while (initialStrength > 0 && memberCount < 8)
                 {
-                    ref var heroComp = ref heroPool.Value.Get(enemyEntity);
+                    foreach (var item in sortedByStrength)
+                    {
+                        if (item.Key > strengthComp.Value)
+                            continue;
 
-                    if (!heroComp.Packed.Unpack(out var libWorld, out var libEntity))
-                        throw new Exception("No Hero config");
+                        var adjustedSpawnRate = item.Value.SpawnRate;
 
-                    var playerBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
+                        foreach (var adj in item.Value.TeamStrengthWeightedSpawnRates)
+                        {
+                            if (adj.Key.Item1 < strengthComp.Value &&
+                                adj.Key.Item2 >= strengthComp.Value)
+                            {
+                                adjustedSpawnRate += adj.Value;
+                                break;
+                            }
+                        }
 
-                    foreach (var teamMemberEntity in teamHeroesFilter.Value)
-                        playerBuffer.Add(ecsWorld.Value.PackEntityWithWorld(teamMemberEntity));
+                        if (!adjustedSpawnRate.RatedRandomBool())
+                            continue;
 
-                    var enemyBuffer = ListPool<EcsPackedEntityWithWorld>.Get();
+                        var spawnOptions = raidComp.OpponentsIndexedByStrength[item.Key];
+                        var spawned = spawnOptions[Random.Range(0, spawnOptions.Count)];
 
-                    for (int i = 0; i < Random.Range(0, 8); i++)
-                        enemyBuffer.Add(heroComp.Packed);
-
-                    var enemyWrappedHeroes = libraryService.Value.WrapForBattle(
-                        enemyBuffer.ToArray(), ecsWorld.Value);
-
-                    battleService.Value.RequestBattle(
-                        playerBuffer.ToArray(),
-                        enemyWrappedHeroes);
-
-                    ListPool<EcsPackedEntityWithWorld>.Add(playerBuffer);
-                    ListPool<EcsPackedEntityWithWorld>.Add(enemyBuffer);
-
+                        enemyBuffer.Add(spawned);
+                        initialStrength -= item.Key;
+                        memberCount++;
+                    }
                 }
 
-                foreach (var unitEntity in unitFilter.Value)
-                    destroyTagPool.Value.Add(unitEntity);
+                var enemyWrappedHeroes = libraryService.Value.WrapForBattle(
+                    enemyBuffer.ToArray(), ecsWorld.Value);
 
-                //same entity as unit but for clarity let's address it as overlayEntity
-                foreach (var overlayEntity in overlayFilter.Value) 
-                    destroyTagPool.Value.Add(overlayEntity);
+                battleService.Value.RequestBattle(
+                    playerBuffer.ToArray(),
+                    enemyWrappedHeroes);
 
+                ListPool<EcsPackedEntityWithWorld>.Add(playerBuffer);
+                ListPool<EcsPackedEntityWithWorld>.Add(enemyBuffer);
                 raidService.Value.StartBattle();
             }
 

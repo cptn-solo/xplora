@@ -45,6 +45,11 @@ namespace Assets.Scripts.World
             unitAnimation = GetComponentInChildren<UnitAnimation>();
         }
 
+        private void OnDestroy()
+        {
+            OnGameObjectDestroy();
+        }
+
         public void SetInitialCoordinates(HexCoordinates initialCoordinates)
         {
             coordinates = initialCoordinates;
