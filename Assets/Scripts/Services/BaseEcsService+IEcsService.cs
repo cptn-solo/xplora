@@ -1,11 +1,14 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using System;
+using Assets.Scripts.ECS.Data;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Services
 {
     public partial class BaseEcsService : IEcsService
     {
 
-        public void RegisterEntityViewFactory<T>(EntityViewFactory<T> factory) where T : struct
+        public void RegisterEntityViewFactory<T>(EntityViewFactory<T> factory)
+            where T : struct
         {
             var factoryEntity = ecsWorld.NewEntity();
             var pool = ecsWorld.GetPool<EntityViewFactoryRef<T>>();
@@ -13,7 +16,8 @@ namespace Assets.Scripts.Services
             factoryRef.FactoryRef = factory;
         }
 
-        public void UnregisterEntityViewFactory<T>() where T : struct
+        public void UnregisterEntityViewFactory<T>()
+            where T : struct
         {
             if (ecsWorld == null) // if the world is destroyed already
                 return;
@@ -23,6 +27,27 @@ namespace Assets.Scripts.Services
             foreach (var entity in filter)
                 pool.Del(entity);
         }
+
+        public bool TryGetEntityViewForPackedEntity<T, V>(
+            EcsPackedEntityWithWorld? packed, out V view)
+            where T : struct
+        {
+            view = default(V);
+
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return false;
+
+            var pool = world.GetPool<EntityViewRef<T>>();
+            if (!pool.Has(entity))
+                return false;
+
+            ref var entityViewRef = ref pool.Get(entity);
+            view = (V)entityViewRef.EntityView;
+
+            return true;
+
+        }
+
     }
 
 }

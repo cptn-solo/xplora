@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using Assets.Scripts.UI.Common;
 using UnityEngine;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Data
 {
     public struct BattleTurnInfo
     {
         public TurnState State { get; set; }
-        public Hero Attacker { get; set; }
-        public Tuple<int, BattleLine, int> AttackerPosition { get; set; }
-        public Hero Target { get; set; }
-        public Tuple<int, BattleLine, int> TargetPosition { get; set; }
+        public Hero AttackerConfig { get; set; }
+        public EcsPackedEntityWithWorld? Attacker { get; set; }
+        public Hero TargetConfig { get; set; }
+        public EcsPackedEntityWithWorld? Target { get; set; }
         public int Turn { get; set; }
         public int Damage { get; set; }
         public DamageEffect[] TargetEffects { get; set; }
@@ -28,8 +29,8 @@ namespace Assets.Scripts.Data
         {
             var prepared = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"{Attacker} " +
-                $">>> {Target}";
+                $"{AttackerConfig} " +
+                $">>> {TargetConfig}";
 
             var attackerEff = "";
             if (AttackerEffects != null)
@@ -46,8 +47,8 @@ namespace Assets.Scripts.Data
 
             var completed = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"{Attacker}, " +
-                $">>> {Target}, " +
+                $"{AttackerConfig}, " +
+                $">>> {TargetConfig}, " +
                 $"-{Damage}" +
                 $"[{targetEff}]" +
                 $"[ " +
@@ -59,13 +60,13 @@ namespace Assets.Scripts.Data
             
             var effects = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"{Attacker}, " +
+                $"{AttackerConfig}, " +
                 $"-{Damage}" +
                 $"[{attackerEff}]";
             
             var skipped = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"{Attacker}";
+                $"{AttackerConfig}";
 
             return State switch
             {

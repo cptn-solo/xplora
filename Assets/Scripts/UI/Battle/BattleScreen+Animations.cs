@@ -95,12 +95,10 @@ namespace Assets.Scripts.UI.Battle
         {
             var attackerPos = attackerBattleGround.position;
 
-            var attackerRM =
-                BattleUnitForPosition(info.AttackerPosition);
-            var targetRM = 
-                info.State == TurnState.TurnSkipped ||
-                info.State == TurnState.TurnEffects ? null :
-                BattleUnitForPosition(info.TargetPosition);
+            battleManager.TryGetEntityViewForPackedEntity<Hero, BattleUnit>(
+                info.Attacker, out var attackerRM);
+            battleManager.TryGetEntityViewForPackedEntity<Hero, BattleUnit>(
+                info.Target, out var targetRM);
 
             if (targetRM != null)
                 attackerPos.y = targetRM.transform.position.y;
@@ -141,14 +139,14 @@ namespace Assets.Scripts.UI.Battle
                     else if (info.Damage > 0)
                         EnqueueTurnAnimation(() => {
                             attackerRM.HeroAnimation.Hit();
-                            audioService.Play(SFX.Named(info.Attacker.SndHit));
+                            audioService.Play(SFX.Named(info.AttackerConfig.SndHit));
                         }, 1f);
 
                     if (info.Lethal)
                     {
                         EnqueueTurnAnimation(() => {
                             attackerRM.HeroAnimation.Death();
-                            audioService.Play(SFX.Named(info.Attacker.SndDied));
+                            audioService.Play(SFX.Named(info.AttackerConfig.SndDied));
                         }, 1f);
                         EnqueueTurnAnimation(() =>
                         {
@@ -170,15 +168,15 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnInProgress:
 
                     EnqueueTurnAnimation(() => {
-                        attackerRM.HeroAnimation.Attack(info.Attacker.Ranged);
-                        audioService.Play(SFX.Named(info.Attacker.SndAttack));
+                        attackerRM.HeroAnimation.Attack(info.AttackerConfig.Ranged);
+                        audioService.Play(SFX.Named(info.AttackerConfig.SndAttack));
                     }, 1f);
 
                     if (info.Dodged)
                     {
                         EnqueueTurnAnimation(() => {
                             targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.Dodged);
-                            audioService.Play(SFX.Named(info.Target.SndDodged));
+                            audioService.Play(SFX.Named(info.TargetConfig.SndDodged));
                         }, 1f);
                     }
                     else
@@ -190,7 +188,7 @@ namespace Assets.Scripts.UI.Battle
                         if (info.Pierced)
                             EnqueueTurnAnimation(() => {
                                 targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.Pierced(info.Damage));
-                                audioService.Play(SFX.Named(info.Target.SndPierced));
+                                audioService.Play(SFX.Named(info.TargetConfig.SndPierced));
                             }, 1f);
 
                         if (info.Damage > 0)
@@ -198,12 +196,12 @@ namespace Assets.Scripts.UI.Battle
                                 if (info.Critical)
                                 {
                                     targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.Critical(info.Damage));
-                                    audioService.Play(SFX.Named(info.Target.SndCritHit));
+                                    audioService.Play(SFX.Named(info.TargetConfig.SndCritHit));
                                 }
                                 else
                                 {
                                     targetRM.HeroAnimation.SetOverlayInfo(TurnStageInfo.JustDamage(info.Damage));
-                                    audioService.Play(SFX.Named(info.Target.SndHit));
+                                    audioService.Play(SFX.Named(info.TargetConfig.SndHit));
                                 }
                             }, 1f);
 
@@ -213,7 +211,7 @@ namespace Assets.Scripts.UI.Battle
                         if (info.Lethal)
                             EnqueueTurnAnimation(() => {
                                 targetRM.HeroAnimation.Death();
-                                audioService.Play(SFX.Named(info.Target.SndDied));
+                                audioService.Play(SFX.Named(info.TargetConfig.SndDied));
                             }, 1f);
                     }
 

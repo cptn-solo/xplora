@@ -10,7 +10,6 @@ namespace Assets.Scripts.ECS.Systems
 
     public class BattleAssignTargetSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<PositionComp> positionPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnPool;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
         private readonly EcsPoolInject<TargetRef> targetRefPool;
@@ -79,13 +78,11 @@ namespace Assets.Scripts.ECS.Systems
 
                 var heroConfigPool = libWorld.GetPool<Hero>();
                 ref var targetConfig = ref heroConfigPool.Get(targetConfigEntity);
-                turnInfo.Target = targetConfig;
-
-                ref var positionComp = ref positionPool.Value.Get(targetEntity);
-                turnInfo.TargetPosition = positionComp.Position;
+                turnInfo.TargetConfig = targetConfig;
 
                 ref var targetRef = ref targetRefPool.Value.Add(turnEntity);
                 targetRef.HeroInstancePackedEntity = world.PackEntityWithWorld(targetEntity);
+                turnInfo.Target = targetRef.HeroInstancePackedEntity;
             }
 
             turnInfo.State = targetEntity == -1 ?

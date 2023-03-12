@@ -96,19 +96,6 @@ namespace Assets.Scripts.UI.Battle
             else
                 return false;
         }
-
-        private BattleUnit BattleUnitForPosition(Tuple<int, BattleLine, int> position)
-        {
-            var slots = (position.Item1 == playerTeamId) ?
-                playerFrontSlots.Concat(playerBackSlots) :
-                enemyFrontSlots.Concat(enemyBackSlots);
-
-            var rm = slots.Where(x => x.Position.Equals(position))
-                .Select(x => x.BattleUnit).FirstOrDefault();
-
-            return rm;
-
-        }
     }
 }
 

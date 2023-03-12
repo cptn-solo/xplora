@@ -12,7 +12,6 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<HPComp> hpCompPool;
         private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<PositionComp> positionPool;
         private readonly EcsPoolInject<EffectsComp> effectsPool;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
@@ -56,7 +55,6 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var hpComp = ref hpCompPool.Value.Get(attackerEntity);
             ref var healthComp = ref healthCompPool.Value.Get(attackerEntity);
-            ref var position = ref positionPool.Value.Get(attackerEntity);
 
             hpComp.UpdateHealthCurrent(effectDamage, healthComp.Value, out int aDisplay, out int aCurrent);
 
@@ -68,7 +66,6 @@ namespace Assets.Scripts.ECS.Systems
             var effectsInfo = new BattleTurnInfo() {
                 Turn = turnInfo.Turn,
                 Attacker = turnInfo.Attacker,
-                AttackerPosition = position.Position,
                 Damage = effectDamage,
                 AttackerEffects = effs,
                 Lethal = hpComp.Value <= 0,

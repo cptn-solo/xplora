@@ -28,8 +28,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var turnInfo = ref battleTurnPool.Value.Get(entity);
                 turnInfo.Turn = ++battleInfo.LastTurnNumber;
-                turnInfo.Attacker = default;
-                turnInfo.Target = default;
                 turnInfo.AttackerEffects = new DamageEffect[0]; 
                 turnInfo.TargetEffects = new DamageEffect[0];
                 turnInfo.Damage = turnInfo.ExtraDamage = 0;

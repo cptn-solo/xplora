@@ -32,7 +32,6 @@ namespace Assets.Scripts.ECS.Systems
                 throw new Exception("No Round");
 
             ref var roundInfo = ref roundPool.Value.Get(roundEntity);
-            ref var turnInfo = ref turnPool.Value.Get(turnEntity);
             if (roundInfo.QueuedHeroes.Length == 0)
             {
                 throw new Exception("Round Queue empty");
@@ -49,10 +48,10 @@ namespace Assets.Scripts.ECS.Systems
 
             var heroConfigPool = libWorld.GetPool<Hero>();
             ref var attackerConfig = ref heroConfigPool.Get(heroConfigEntity);
-            turnInfo.Attacker = attackerConfig;
 
-            ref var position = ref positionPool.Value.Get(attackerInstanceEntity);
-            turnInfo.AttackerPosition = position.Position;
+            ref var turnInfo = ref turnPool.Value.Get(turnEntity);
+            turnInfo.AttackerConfig = attackerConfig;
+            turnInfo.Attacker = roundSlot.HeroInstancePackedEntity;
 
             ref var attackerRef = ref attackerRefPool.Value.Add(turnEntity);
             attackerRef.HeroInstancePackedEntity = world.PackEntityWithWorld(attackerInstanceEntity);

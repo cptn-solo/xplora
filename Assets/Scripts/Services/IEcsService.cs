@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Services
+﻿using Leopotam.EcsLite;
+
+namespace Assets.Scripts.Services
 {
     public interface IEcsService
     {
@@ -11,6 +13,9 @@
         public void UnregisterEntityViewFactory<T>()
             where T : struct;
 
+        public bool TryGetEntityViewForPackedEntity<T, V>(
+            EcsPackedEntityWithWorld? packed, out V view)
+            where T : struct;
     }
 
 }
