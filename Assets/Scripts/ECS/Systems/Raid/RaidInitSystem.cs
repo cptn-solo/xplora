@@ -17,6 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<UpdateAssetBalanceTag> updateBalancePool;
 
         private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<WorldService> worldService;
 
         public void Init(IEcsSystems systems)
         {
@@ -43,6 +44,8 @@ namespace Assets.Scripts.ECS.Systems
             updateBalancePool.Value.Add(raidEntity);
 
             raidService.Value.RaidEntity = ecsWorld.Value.PackEntity(raidEntity);
+
+            worldService.Value.ResetPoiUsageStatus();
         }
     }
 }

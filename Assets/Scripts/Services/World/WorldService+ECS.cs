@@ -369,6 +369,18 @@ namespace Assets.Scripts.Services
                     pool.Add(entity);
             }
         }
+
+        internal void ResetPoiUsageStatus()
+        {
+            if (!WorldEntity.Unpack(out var world, out var worldEntity))
+                return;
+
+            var pool = world.GetPool<UsedTag>();
+            var filter = world.Filter<UsedTag>().End();
+
+            foreach (var entity in filter)
+                pool.Del(entity);
+        }
     }
 
 }
