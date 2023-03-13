@@ -31,7 +31,7 @@ namespace Assets.Scripts.Services
 
         public void RegisterEntityView<T>(
             IEntityView<T> entityView, EcsPackedEntityWithWorld packedEntity)
-            where T: struct
+            where T : struct
         {
             if (!packedEntity.Unpack(out var world, out var entity))
                 throw new Exception("No Entity");
@@ -45,6 +45,26 @@ namespace Assets.Scripts.Services
 
             ref var entityViewRef = ref pool.Get(entity);
             entityViewRef.EntityView = entityView;
+        }
+
+        public bool TryGetEntityView<T>(EcsPackedEntityWithWorld packedEntity,
+            out IEntityView<T> view)
+            where T : struct
+        {
+            view = null;
+
+            if (!packedEntity.Unpack(out var world, out var entity))
+                throw new Exception("No Entity");
+
+            var pool = world.GetPool<EntityViewRef<T>>();
+
+            if (!pool.Has(entity))
+                throw new Exception("No Entity view ref");
+
+            ref var entityViewRef = ref pool.Get(entity);
+            view = entityViewRef.EntityView;
+
+            return true;
         }
 
         public void RegisterTransformRef<T>(ITransform<T> transformRefOrigin)

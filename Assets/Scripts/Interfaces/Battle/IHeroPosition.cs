@@ -10,6 +10,7 @@ namespace Assets.Scripts.Battle
         public Tuple<int, BattleLine, int> Position { get; }
         public void Put(Transform transform);
         public void Reset();
+        public void ToggleVisual(bool toggle);
     }
 
 }

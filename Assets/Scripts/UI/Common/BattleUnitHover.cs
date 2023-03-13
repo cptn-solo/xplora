@@ -1,39 +1,35 @@
-using Assets.Scripts.Services;
+﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS;
-using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
+using Assets.Scripts.Services;
 using TMPro;
 using UnityEngine;
 using Zenject;
-using Assets.Scripts.ECS.Data;
 
-public class HeroDetailsHover : BaseEntityView<SelectedTag<Hero>>
+public class BattleUnitHover : BaseEntityView<SelectedTag<Hero>>
 {
     [SerializeField] protected TextMeshProUGUI heroNameText;
 
     [Inject]
-    public void Construct(HeroLibraryService service)
+    public void Construct(BattleManagementService service)
     {
         service.RegisterEntityView(this);
-    }    
+    }
 
-    protected Hero hero;
-    public Hero? Hero
+    public string HeroName
     {
-        get => hero;
+        get => heroNameText.text;
         set
         {
             if (value == null)
             {
                 this.gameObject.SetActive(false);
-                hero = default;
                 return;
             }
 
-            hero = value.Value;
-
             this.gameObject.SetActive(true);
 
-            heroNameText.text = hero.Name;
+            heroNameText.text = value;
 
         }
     }
@@ -41,7 +37,7 @@ public class HeroDetailsHover : BaseEntityView<SelectedTag<Hero>>
 
     protected void Start()
     {
-        Hero = null;
+        HeroName = null;
     }
 
     protected void OnDestroy()

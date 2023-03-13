@@ -7,6 +7,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class BattleHeroInstanceInit : IEcsRunSystem
     {
         private readonly EcsPoolInject<PositionComp> positionPool;
@@ -122,7 +123,6 @@ namespace Assets.Scripts.ECS.Systems
             ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Add(heroInstanceEntity);
             barsAndEffectsComp.HealthCurrent = hpComp.Value;
             barsAndEffectsComp.Health = healthComp.Value;
-            barsAndEffectsComp.Speed = speedComp.Value;
             barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
 
             if (heroConfig.Ranged)

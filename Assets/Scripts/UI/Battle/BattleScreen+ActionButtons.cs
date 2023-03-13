@@ -31,7 +31,7 @@ namespace Assets.Scripts.UI.Battle
         {
             switch (arg1)
             {
-                case Actions.ToggleInventoryPanel:
+                case Actions.ToggleLogPanel:
                     {
                     }
                     break;

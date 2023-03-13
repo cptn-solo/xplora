@@ -21,6 +21,7 @@ namespace Assets.Scripts.ECS.Data
     public struct RetireTag { }
     public struct DestroyTag { }
     public struct GarbageTag { }
+    public struct DeselectTag { }
     public struct SelectedTag { }
     public struct SelectedTag<T> { }
 

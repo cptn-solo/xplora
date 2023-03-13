@@ -8,6 +8,7 @@ using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
+using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
@@ -39,6 +40,7 @@ namespace Assets.Scripts.Services
             ecsRunSystems
                 .Add(new BattleHeroesInitSystem())
                 .Add(new BattleHeroInstanceInit())
+                .Add(new BattleUpdateHoverUnitSystem()) // show details on hover
                 .Add(new BattlePotInitSystem())
                 .Add(new BattleDeployHeroesSystem())
                 .Add(new BattleDeployHeroOverlaysSystem())
@@ -311,6 +313,67 @@ namespace Assets.Scripts.Services
             slot.Put(entityViewRef.EntityView.Transform);
 
         }
+
+        internal void RequestDetailsHover(EcsPackedEntityWithWorld? packed)
+        {
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return;
+
+            var pool = world.GetPool<UpdateTag<SelectedTag>>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);
+        }
+
+        internal void DismissDetailsHover(EcsPackedEntityWithWorld? packed)
+        {
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return;
+
+            var pool = world.GetPool<DeselectTag>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);
+        }
+
+        private bool TryGetBattleFieldSlots(out Dictionary<HeroPosition, IHeroPosition> slots)
+        {
+            slots = null;
+
+            if (!BattleEntity.Unpack(out var world, out var entity))
+                throw new Exception("No battle");
+
+            var pool = world.GetPool<BattleFieldComp>();
+
+            if (!pool.Has(entity))
+                throw new Exception("No battle field");
+
+            ref var battleField = ref pool.Get(entity);
+            slots = battleField.Slots;
+
+            return true;
+        }
+
+        internal void ShowAvailableTransferSlots(Tuple<int, BattleLine, int> pos)
+        {
+            if (!TryGetBattleFieldSlots(out var slots))
+                return;
+
+            // toggle if position team matches slot team (moveonly across
+            // the same team's slots
+            foreach (var slot in slots)
+                slot.Value.ToggleVisual(slot.Key.Item1 == pos.Item1);
+        }
+
+        internal void HideSlots()
+        {
+            if (!TryGetBattleFieldSlots(out var slots))
+                return;
+
+            foreach (var slot in slots)
+                slot.Value.ToggleVisual(false);
+        }
+
 
         #endregion
     }

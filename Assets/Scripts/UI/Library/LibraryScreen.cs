@@ -31,8 +31,6 @@ namespace Assets.Scripts.UI.Library
         [SerializeField] private Transform playerTeamContainer;
         [SerializeField] private Transform enemyTeamContainer;
         
-        [SerializeField] private HeroDetailsHover heroDetails;
-
         [SerializeField] private HeroCardPool cardPool;
 
         [SerializeField] private UIMenuButton raidButton;

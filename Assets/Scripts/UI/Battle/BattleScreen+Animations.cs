@@ -93,15 +93,22 @@ namespace Assets.Scripts.UI.Battle
         }
         private void ScheduleTurnStageAnimations(BattleTurnInfo info)
         {
-            var attackerPos = attackerBattleGround.position;
 
             battleManager.TryGetEntityViewForPackedEntity<Hero, BattleUnit>(
                 info.Attacker, out var attackerRM);
             battleManager.TryGetEntityViewForPackedEntity<Hero, BattleUnit>(
                 info.Target, out var targetRM);
 
+            var attackerPos = attackerRM.transform.position;
+
             if (targetRM != null)
-                attackerPos.y = targetRM.transform.position.y;
+            {
+                attackerPos.y = targetRM.HeroAnimation.transform.position.y;
+                attackerPos.x =
+                    attackerRM.transform.position.x +
+                    (targetRM.transform.position.x -
+                    attackerRM.transform.position.x) * .6f;
+            }
 
             switch (info.State)
             {

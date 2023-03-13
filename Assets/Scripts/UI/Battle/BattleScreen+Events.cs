@@ -12,23 +12,19 @@ namespace Assets.Scripts.UI.Battle
             {
                 case BattleState.Created:
 
-                    ToggleHeroCards(true);
-
+                    
                     break;
 
                 case BattleState.BattleStarted:
                     
                     audioService.Play(SFX.MainTheme);
-                    ToggleHeroCards(false);
                     
                     break;
 
                 case BattleState.Completed:
                     
                     audioService.Stop();
-                    
-                    ToggleHeroCards(true);
-                    
+                                        
                     if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.PlayerTeam.Id)
                         audioService.Play(CommonSoundEvent.BattleWon.SoundForEvent());
                     else if (battleManager.CurrentBattle.WinnerTeamId == libraryManager.EnemyTeam.Id)
@@ -47,24 +43,12 @@ namespace Assets.Scripts.UI.Battle
 
         }
 
-        private void ToggleHeroCards(bool toggle)
-        {
-            var allSlots = playerFrontSlots.Concat(playerBackSlots).Concat(enemyFrontSlots).Concat(enemyBackSlots);
-            foreach (BattleLineSlot slot in allSlots)
-            {
-                slot.ToggleVisual(toggle);
-                if (slot.BattleUnit != null)
-                    slot.BattleUnit.ToggleInfoDisplay(toggle);
-            }
-        }
-
         private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo, BattleInfo battleInfo)
         {
             switch (roundInfo.State)
             {
                 case RoundState.RoundPrepared:
                 case RoundState.RoundCompleted:
-                    battleQueue.LayoutHeroes(battleManager.QueuedHeroes);
                     break;
                 default:
                     break;
@@ -85,11 +69,6 @@ namespace Assets.Scripts.UI.Battle
                     }
                     break;
                 case TurnState.TurnPrepared:
-                    {
-                        battleQueue.LayoutHeroes(battleManager.QueuedHeroes);
-                        EnqueueOrAuto(turnInfo);
-                        break;
-                    }
                 case TurnState.TurnInProgress:
                 case TurnState.TurnSkipped:
                 case TurnState.TurnEffects:
@@ -100,7 +79,6 @@ namespace Assets.Scripts.UI.Battle
                     }
                     break;
                 case TurnState.TurnProcessed:
-                    battleQueue.LayoutHeroes(battleManager.QueuedHeroes);
                     break;
                 default:
                     break;

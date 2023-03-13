@@ -13,7 +13,7 @@
         StepBattle = 350, // when autoplaying can stop and let the user make a turn
         ReloadMetadata = 400,
         SaveTeamForBattle = 500,
-        ToggleInventoryPanel = 600,
+        ToggleLogPanel = 600,
     }
 
 }

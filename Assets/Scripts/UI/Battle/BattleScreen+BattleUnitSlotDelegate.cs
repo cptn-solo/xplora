@@ -39,6 +39,8 @@ namespace Assets.Scripts.UI.Battle
 
                 Rollback = () => battleManager.MoveHero(packed, pos);
 
+                battleManager.ShowAvailableTransferSlots(pos);
+
                 heroTransfer.Begin(bls.BattleUnit.PackedEntity.Value, pos);
 
                 bls.Reset();
@@ -64,6 +66,8 @@ namespace Assets.Scripts.UI.Battle
             {
                 if (heroTransfer.TransferHero != null)
                     slotDelegate.TransferAbort(s);
+
+                battleManager.HideSlots();
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>
             {

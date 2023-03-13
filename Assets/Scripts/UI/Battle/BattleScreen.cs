@@ -25,10 +25,6 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private RectTransform enemyPartyFront;
         [SerializeField] private RectTransform enemyPartyBack;
 
-        [SerializeField] private Transform playerBattleGround;        
-        [SerializeField] private Transform enemyBattleGround;
-        [SerializeField] private Transform attackerBattleGround;
-
         private readonly BattleLineSlot[] playerFrontSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] playerBackSlots = new BattleLineSlot[4];
         private readonly BattleLineSlot[] enemyFrontSlots = new BattleLineSlot[4];
@@ -40,7 +36,6 @@ namespace Assets.Scripts.UI.Battle
 
         private bool initialized;
         
-        private BattleQueue battleQueue;
         private UIActionButton[] actionButtons;
 
         private int playerTeamId;
@@ -51,7 +46,6 @@ namespace Assets.Scripts.UI.Battle
 
         protected override void OnBeforeAwake()
         {
-            battleQueue = GetComponent<BattleQueue>();
         }
 
         protected override void OnBeforeEnable()
@@ -133,6 +127,7 @@ namespace Assets.Scripts.UI.Battle
             {
                 slot.DelegateProvider = slotDelegate;
                 slot.Position = new HeroPosition(teamId, line, slot.SlotIndex);
+                slot.ToggleVisual(false);
                 slots[slot.SlotIndex] = slot;
                 dict.Add(slot.Position, slot);
             }

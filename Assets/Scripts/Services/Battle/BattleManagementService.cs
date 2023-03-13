@@ -3,6 +3,7 @@ using Assets.Scripts.UI.Data;
 using System;
 using UnityEngine.Events;
 using Leopotam.EcsLite;
+using Assets.Scripts.UI.Battle;
 
 namespace Assets.Scripts.Services
 {
@@ -189,5 +190,6 @@ namespace Assets.Scripts.Services
             PlayerTeamPackedEntities = playerTeam;
             EnemyTeamPackedEntities = enemyTeam;
         }
+
     }
 }
