@@ -110,24 +110,12 @@ namespace Assets.Scripts.UI.Battle
                     EnqueueTurnAnimation(() => {
                         // move both cards
                         var move = 1.0f;
-
-                        attackerRM.HeroAnimation.Highlight(true);
                         attackerRM.HeroAnimation.Run(move, attackerPos);                        
-                        attackerRM.HeroAnimation.Zoom(move);
-
-                        targetRM.HeroAnimation.Highlight(true);
-                        targetRM.HeroAnimation.Zoom(move);
                     }, 1.3f);
                     
                     break;
 
-                case TurnState.TurnSkipped:
-                    
-                    EnqueueTurnAnimation(() => {
-                        var move = 1.0f;
-                        attackerRM.HeroAnimation.Highlight(true);
-                        attackerRM.HeroAnimation.Zoom(move);
-                    }, 1f);
+                case TurnState.TurnSkipped:                    
                     
                     break;
 
@@ -233,13 +221,11 @@ namespace Assets.Scripts.UI.Battle
                         if (attackerRM != null)
                         {
                             attackerRM.HeroAnimation.MoveSpriteBack();
-                            attackerRM.HeroAnimation.Highlight(false);
                         }
 
                         if (targetRM != null)
                         {
                             targetRM.HeroAnimation.MoveSpriteBack();
-                            targetRM.HeroAnimation.Highlight(false);
                         }
                     }, .3f);
 
