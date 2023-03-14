@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
+    using static UnityEngine.EventSystems.EventTrigger;
     using HeroPosition = Tuple<int, BattleLine, int>;
 
     public partial class BattleManagementService // ECS
@@ -283,10 +284,16 @@ namespace Assets.Scripts.Services
         /// </summary>
         private void DestroyEcsRounds()
         {
-            var filter = ecsWorld.Filter<BattleRoundInfo>().End();
-            var destroyTagPool = ecsWorld.GetPool<GarbageTag>();
+            if (!BattleEntity.Unpack(out var battleWorld, out var battleEntity))
+                throw new Exception("No battle");
+
+            var filter = battleWorld.Filter<BattleRoundInfo>().End();
+            var destroyTagPool = battleWorld.GetPool<GarbageTag>();
             foreach (var entity in filter)
                 destroyTagPool.Add(entity);
+
+            ref var battle = ref CurrentBattle;
+            battle.LastRoundNumber = -1;
         }
 
         private void MoveEcsHeroToPosition(
