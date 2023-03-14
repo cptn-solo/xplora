@@ -44,7 +44,7 @@ namespace Assets.Scripts.UI.Inventory
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
             Color.RGBToHSV(normalColor, out var h, out var s, out var v);
-            acceptingColor = Color.HSVToRGB(h, s, v * .7f);
+            acceptingColor = Color.HSVToRGB(h, s, v * 1f);
             acceptingColor.a = normalColor.a;
             OnAwake();
         }
