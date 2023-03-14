@@ -333,7 +333,7 @@ namespace Assets.Scripts.Services
             if (packed == null || !packed.Value.Unpack(out var world, out var entity))
                 return;
 
-            var pool = world.GetPool<UpdateTag<SelectedTag>>();
+            var pool = world.GetPool<SelectedTag>();
 
             if (!pool.Has(entity))
                 pool.Add(entity);
@@ -344,10 +344,10 @@ namespace Assets.Scripts.Services
             if (packed == null || !packed.Value.Unpack(out var world, out var entity))
                 return;
 
-            var pool = world.GetPool<DeselectTag>();
+            var pool = world.GetPool<SelectedTag>();
 
-            if (!pool.Has(entity))
-                pool.Add(entity);
+            if (pool.Has(entity))
+                pool.Del(entity);
         }
 
         private bool TryGetBattleFieldSlots(out Dictionary<HeroPosition, IHeroPosition> slots)

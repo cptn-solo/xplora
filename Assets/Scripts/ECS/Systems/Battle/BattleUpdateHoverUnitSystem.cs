@@ -16,28 +16,27 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<EntityViewRef<SelectedTag<Hero>>> detailsViewRefPool = default;
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> detailsBarsViewRefPool = default;
         private readonly EcsPoolInject<SelectedTag> selectedTagPool = default;
-        private readonly EcsPoolInject<DeselectTag> deselectTagPool = default;
-
-        private readonly EcsPoolInject<UpdateTag<SelectedTag>> updateSelectionTagPool = default;
 
         private readonly EcsFilterInject<
-            Inc<EntityViewRef<Hero>, SelectedTag>,
-            Exc<UpdateTag<SelectedTag>>> oldSelectionFilter = default;
+            Inc<HeroConfigRefComp, EntityViewRef<Hero>,
+                SelectedTag>> selectionFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<EntityViewRef<Hero>, DeselectTag>> deselectionFilter = default;
-
-        private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp, EntityViewRef<Hero>, UpdateTag<SelectedTag>>,
-            Exc<SelectedTag>> selectionFilter = default;
-
-        private readonly EcsFilterInject<
-            Inc<EntityViewRef<SelectedTag<Hero>>, ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
+            Inc<EntityViewRef<SelectedTag<Hero>>,
+                ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
 
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var entity in deselectionFilter.Value)
+            foreach (var entity in selectionFilter.Value)
+            {
+                ref var entityViewRef = ref entityViewRefPool.Value.Get(entity);
+                var card = (BattleUnit)entityViewRef.EntityView;
+
+                UpdateDetailsHover(entity, card.Transform);
+            }
+
+            if (selectionFilter.Value.GetEntitiesCount() == 0)
             {
                 foreach (var detailsViewEntity in detailsViewFilter.Value)
                 {
@@ -45,26 +44,8 @@ namespace Assets.Scripts.ECS.Systems
                     var detailsView = (BattleUnitHover)detailsViewRef.EntityView;
                     detailsView.HeroName = null;
                 }
-
-                deselectTagPool.Value.Del(entity);
-
-                if (selectedTagPool.Value.Has(entity))
-                    selectedTagPool.Value.Del(entity);
             }
 
-            foreach (var entity in selectionFilter.Value)
-            {
-                ref var entityViewRef = ref entityViewRefPool.Value.Get(entity);
-                var card = (BattleUnit)entityViewRef.EntityView;
-
-                RemoveCurrentSelection();
-
-                selectedTagPool.Value.Add(entity);
-
-                UpdateDetailsHover(entity, card.Transform);
-
-                updateSelectionTagPool.Value.Del(entity);
-            }
         }
 
         private void UpdateDetailsHover(int entity, Transform hostTransform)
@@ -88,18 +69,6 @@ namespace Assets.Scripts.ECS.Systems
                 detailsView.Transform.position = hostTransform.position;
 
             }
-        }
-
-        private void RemoveCurrentSelection()
-        {
-            foreach (var entity in oldSelectionFilter.Value)
-            {
-                ref var entityViewRef = ref entityViewRefPool.Value.Get(entity);
-                var card = (BattleUnit)entityViewRef.EntityView;
-
-                selectedTagPool.Value.Del(entity);
-            }
-
         }
     }
 }
