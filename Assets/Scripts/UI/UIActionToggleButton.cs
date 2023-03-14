@@ -3,6 +3,13 @@
 public class UIActionToggleButton : UIActionButton
 {
     [SerializeField] private Sprite[] sprites;
+    private bool localToggle = false;
+
+    public void Toggle()
+    {
+        localToggle = !localToggle;
+        Toggle(localToggle);
+    }
 
     public void Toggle(bool toggle)
     {

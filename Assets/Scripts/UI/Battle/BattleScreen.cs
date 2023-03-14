@@ -14,10 +14,12 @@ namespace Assets.Scripts.UI.Battle
 
     public partial class BattleScreen : MenuScreen
     {
-        [Inject] private readonly BattleManagementService battleManager;
-        [Inject] private readonly HeroLibraryService libraryManager;
-        [Inject] private readonly AudioPlaybackService audioService;
-        [Inject] private readonly MenuNavigationService navService;
+        private BattleManagementService battleManager;
+        private HeroLibraryService libraryManager;
+        private AudioPlaybackService audioService;
+        private MenuNavigationService navService;
+
+        private BattleLog battleLog;
 
         [SerializeField] private RectTransform playerPartyFront;
         [SerializeField] private RectTransform playerPartyBack;
@@ -31,11 +33,11 @@ namespace Assets.Scripts.UI.Battle
         private readonly BattleLineSlot[] enemyBackSlots = new BattleLineSlot[4];
 
         private SlotDelegateProvider slotDelegate = default;
-        
+
         private readonly HeroTransfer heroTransfer = new();
 
         private bool initialized;
-        
+
         private UIActionButton[] actionButtons;
 
         private int playerTeamId;
@@ -44,42 +46,28 @@ namespace Assets.Scripts.UI.Battle
         delegate void TransferRollback();
         TransferRollback Rollback { get; set; } // initialised on transaction start
 
-        protected override void OnBeforeAwake()
+        [Inject]
+        public void Construct(
+            BattleManagementService battleManager,
+            HeroLibraryService libraryManager,
+            AudioPlaybackService audioService,
+            MenuNavigationService navService)
         {
+            this.battleManager = battleManager;
+            this.libraryManager = libraryManager;
+            this.audioService = audioService;
+            this.navService = navService;
+
+            Initialize();
         }
 
-        protected override void OnBeforeEnable()
+        private void Initialize()
         {
-            if (initialized)
-            {               
-                battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
-                battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
-                battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
-
-                UpdateView();
-            }
-        }
-
-        protected override void OnBeforeDisable()
-        {
-            battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
-            battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
-            battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
-        }
-
-        protected override void OnBeforeUpdate()
-        { 
-        }
-        
-        protected override void OnBeforeStart()
-        {
+            battleLog = GetComponentInChildren<BattleLog>();
             actionButtons = GetComponentsInChildren<UIActionButton>();
+
             foreach (var button in actionButtons)
                 button.OnActionButtonClick += Button_OnActionButtonClick;
-
-            battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
-            battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
-            battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
 
             playerTeamId = libraryManager.PlayerTeam.Id;
             enemyTeamId = libraryManager.EnemyTeam.Id;
@@ -95,9 +83,23 @@ namespace Assets.Scripts.UI.Battle
 
             battleManager.BindEcsHeroSlots(slots);
 
-            initialized = true;
+            battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
+            battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
+            battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
 
-            UpdateView();
+            initialized = true;
+        }
+
+        protected override void OnBeforeDestroy()
+        {
+            battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
+            battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
+            battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
+        }
+
+        protected override void OnBeforeStart() {
+            if (initialized)
+                UpdateView();
         }
 
         private void UpdateView()

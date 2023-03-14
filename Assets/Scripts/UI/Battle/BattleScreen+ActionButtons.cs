@@ -23,7 +23,6 @@ namespace Assets.Scripts.UI.Battle
                 if (button.Action == Actions.AutoBattle)
                     button.gameObject.SetActive(
                         battleManager.CanAutoPlayBattle);
-
             }
         }
 
@@ -33,6 +32,8 @@ namespace Assets.Scripts.UI.Battle
             {
                 case Actions.ToggleLogPanel:
                     {
+                        battleLog.TogglePanelSize();
+                        arg2.GetComponent<UIActionToggleButton>().Toggle();
                     }
                     break;
                 case Actions.CompleteTurn:

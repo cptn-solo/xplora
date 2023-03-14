@@ -5,106 +5,60 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using System;
 
 namespace Assets.Scripts.UI.Battle
 {
     public class BattleLog : MonoBehaviour
     {
-        [Inject] private readonly BattleManagementService battleManager;
+        private BattleManagementService battleManager;
+        private RectTransform rt;
 
-        [SerializeField] private Transform contentTransform;
-        [SerializeField] private GameObject logRecordPrefab;
-        
-        private bool initialized;
-        private Canvas canvas;
+        private float initialHeight;
+        private float currentHeight;
 
-        private readonly List<string> logRecordTexts = new();
-        private bool clearLogActive;
-        private bool enqueLogActive;
-
-        private void Start()
+        [Inject]
+        public void Construct(BattleManagementService battleManager)
         {
-            canvas = GetComponentInParent<Canvas>();
+            this.battleManager = battleManager;
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            rt = GetComponent<RectTransform>();
 
             battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
             battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
             battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
-            initialized = true;
-        }
-        private void ClearLogRecords()
-        {
-            if (!clearLogActive)
-                StartCoroutine(ClearLogCoroutine());
-        }
-        private void EnqueueText(string v)
-        {
-            logRecordTexts.Add(v);
-            if (!enqueLogActive)
-                StartCoroutine(AddLogRecordCoroutine());
-
         }
 
-        private IEnumerator AddLogRecordCoroutine()
+        private TextMeshProUGUI text;        
+        private Canvas canvas;
+
+        private void Awake() =>
+            text = GetComponentInChildren<TextMeshProUGUI>();
+
+        private void Start()
         {
-            enqueLogActive = true;
-
-            while (clearLogActive)
-                yield return null;
-
-            while (logRecordTexts.Count > 0)
-            {
-                AddLogRecord(logRecordTexts[0]);
-                logRecordTexts.RemoveAt(0);
-
-                yield return null;
-            }
-
-            yield return null;
-
-            enqueLogActive = false;
+            canvas = GetComponentInParent<Canvas>();
+            initialHeight = rt.rect.height;
+            currentHeight = initialHeight;
         }
 
-        private IEnumerator ClearLogCoroutine()
-        {
-            clearLogActive = true;
-            
-            if (logRecordTexts.Count > 0)
-            {
-                logRecordTexts.Clear();
-                yield return null;
-            }
+        private void ClearLogRecords() => 
+            text.text = "";
 
-            if (contentTransform.childCount > 0)
-                for (int i = contentTransform.childCount - 1; i >= 0; i--)
-                {
-                    Destroy(contentTransform.GetChild(i).gameObject);
-                    yield return null;
-                }
-            
-            yield return null;
+        private void EnqueueText(string v) =>
+            text.text += $"\n{v}";
 
-            clearLogActive = false;
-        }
-
-        private void AddLogRecord(string text)
-        {
-            var record = Instantiate(logRecordPrefab).GetComponent<TextMeshProUGUI>();
-            record.text = text;
-            record.transform.localScale = canvas.transform.localScale;
-            record.transform.SetParent(contentTransform);
-            record.transform.localPosition = Vector3.zero;
-            record.transform.SetAsFirstSibling();
-        }
-
-        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo, BattleRoundInfo roundInfo, BattleInfo battleInfo)
-        {
+        private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo,
+            BattleRoundInfo roundInfo, BattleInfo battleInfo) =>
             EnqueueText(turnInfo.ToString());
-        }
 
-        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo, BattleInfo battleInfo)
-        {
+        private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo,
+            BattleInfo battleInfo) =>
             EnqueueText(roundInfo.ToString());
-        }
 
         private void BattleManager_OnBattleEvent(BattleInfo battleInfo)
         {
@@ -115,28 +69,20 @@ namespace Assets.Scripts.UI.Battle
             EnqueueText(battleInfo.ToString());
         }
 
-        private void OnEnable()
+        private void OnDestroy()
         {
-            if (initialized)
-            {
-                battleManager.OnBattleEvent += BattleManager_OnBattleEvent;
-                battleManager.OnRoundEvent += BattleManager_OnRoundEvent;
-                battleManager.OnTurnEvent += BattleManager_OnTurnEvent;
-
-                ClearLogRecords();
-            }
+            battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
+            battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
+            battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
         }
 
-        private void OnDisable()
+        internal void TogglePanelSize()
         {
-            if (initialized)
-            {
-                battleManager.OnBattleEvent -= BattleManager_OnBattleEvent;
-                battleManager.OnRoundEvent -= BattleManager_OnRoundEvent;
-                battleManager.OnTurnEvent -= BattleManager_OnTurnEvent;
-            }
-            clearLogActive = false;
-            enqueLogActive = false;
+            currentHeight =
+                initialHeight == currentHeight ?
+                initialHeight * 3 : initialHeight;
+
+            rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, currentHeight);
         }
     }
 }
