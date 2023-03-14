@@ -107,7 +107,8 @@ namespace Assets.Scripts.UI.Battle
                 attackerPos.x =
                     attackerRM.transform.position.x +
                     (targetRM.transform.position.x -
-                    attackerRM.transform.position.x) * .6f;
+                    attackerRM.transform.position.x) *
+                        (info.AttackerConfig.Ranged ? .2f : .6f);
             }
 
             switch (info.State)
