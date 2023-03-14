@@ -306,6 +306,20 @@ namespace Assets.Scripts.Services
             ref var pos = ref positionPool.Get(entity);
             pos.Position = position;
 
+            var frontPool = world.GetPool<FrontlineTag>();
+            var backPool = world.GetPool<BacklineTag>();
+
+            if (backPool.Has(entity))
+                backPool.Del(entity);
+
+            if (frontPool.Has(entity))
+                frontPool.Del(entity);
+
+            if (position.Item2 == BattleLine.Front)
+                frontPool.Add(entity);
+            else
+                backPool.Add(entity);
+
             var slot = battleField.Slots[pos.Position];
 
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
