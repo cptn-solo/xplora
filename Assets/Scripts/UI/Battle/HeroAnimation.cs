@@ -18,6 +18,8 @@ namespace Assets.Scripts.UI.Battle
 
         private Animator animator;
 
+        [SerializeField] private Transform rangedAttack;
+
         private bool initialized;
         private readonly WaitForSeconds defaultWait = new(.35f);
         private readonly WaitForSeconds waitOneSec = new(1f);
@@ -120,11 +122,11 @@ namespace Assets.Scripts.UI.Battle
             StartCoroutine(MoveSpriteCoroutine(position, sec));
         }
 
-        public void Attack(bool range = false)
+        public void Attack(bool range = false, Vector3 position = default)
         {
             StartCoroutine(TimedAnimationCorotine(AnimBoolAttack, range ? 1 : -1));
             if (range)
-                StartCoroutine(TimedAnimationCorotine(AnimBoolRangeAttack, .5f, .6f));
+                StartCoroutine(RangeAttackCoroutine(position, .5f));
 
         }
         public void Hit()
@@ -162,6 +164,7 @@ namespace Assets.Scripts.UI.Battle
             yield return stopAfter;
             animator.SetBool(animationCode, false);
         }
+
         private IEnumerator DeathAnimationCorotine()
         {
             animator.SetBool(AnimBoolDeath, true);
@@ -172,17 +175,48 @@ namespace Assets.Scripts.UI.Battle
 
             animator.SetBool(AnimBoolDeath, true);
         }
+        private Vector3 debugPos = default;
+        private IEnumerator RangeAttackCoroutine(Vector3 position = default, float sec = -1f)
+        {
+            animator.SetBool(AnimBoolRangeAttack, true);
+            debugPos = position;
 
+            var mt = rangedAttack;
+            var delta = 0f;
+            mt.localPosition = Vector3.zero;
+            var move = position - mt.position;
+            var speed = move / sec;
+
+            while (delta <= sec)
+            {
+                mt.position +=  Time.deltaTime * speed;
+
+                delta += Time.deltaTime;
+
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(.1f);
+
+            animator.SetBool(AnimBoolRangeAttack, false);
+
+            yield return new WaitForSeconds(.5f);
+        }
+        private void OnDrawGizmos()
+        {
+            Gizmos.DrawSphere(debugPos, .2f);
+        }
         private IEnumerator MoveSpriteCoroutine(Vector3 position = default, float sec = -1f)
         {
             var mt = transform.parent.transform;
             var delta = 0f;
             mt.localPosition = Vector3.zero;
             var move = position - transform.position;
-            
+            var speed = move / sec;
+
             while (delta <= sec)
             {
-                mt.position += move * Time.deltaTime;
+                mt.position += speed * Time.deltaTime;
                 
                 delta += Time.deltaTime;
 

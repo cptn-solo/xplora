@@ -99,21 +99,23 @@ namespace Assets.Scripts.UI.Battle
             battleManager.TryGetEntityViewForPackedEntity<Hero, BattleUnit>(
                 info.Target, out var targetRM);
 
-            var attackerPos = attackerRM.transform.position;
+            var attackerPos = attackerRM.HeroAnimation.transform.position;
 
-            if (targetRM != null)
+            if (targetRM != null && !info.AttackerConfig.Ranged)
             {
-                attackerPos.y = targetRM.HeroAnimation.transform.position.y;
-                attackerPos.x =
-                    attackerRM.transform.position.x +
-                    (targetRM.transform.position.x -
-                    attackerRM.transform.position.x) *
-                        (info.AttackerConfig.Ranged ? .2f : .6f);
+                var move = targetRM.HeroAnimation.transform.position -
+                    attackerRM.HeroAnimation.transform.position;
+                attackerPos = attackerPos + move +
+                    targetRM.HeroAnimation.transform.right * 1.5f;
+                    
             }
 
             switch (info.State)
             {
                 case TurnState.TurnPrepared:
+
+                    if (info.AttackerConfig.Ranged) // ranged don't run, just shoot
+                        break;
 
                     EnqueueTurnAnimation(() => {
                         // move both cards
@@ -164,9 +166,11 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnInProgress:
 
                     EnqueueTurnAnimation(() => {
-                        attackerRM.HeroAnimation.Attack(info.AttackerConfig.Ranged);
+                        attackerRM.HeroAnimation.Attack(
+                            info.AttackerConfig.Ranged, targetRM.transform.position +
+                            Vector3.up * .8f);
                         audioService.Play(SFX.Named(info.AttackerConfig.SndAttack));
-                    }, 1f);
+                    }, .8f);
 
                     if (info.Dodged)
                     {

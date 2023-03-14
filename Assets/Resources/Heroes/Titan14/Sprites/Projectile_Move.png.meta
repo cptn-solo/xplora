@@ -144,12 +144,12 @@ TextureImporter:
       name: Projectile_Move_0
       rect:
         serializedVersion: 2
-        x: 108
-        y: 0
-        width: 60
-        height: 113
-      alignment: 9
-      pivot: {x: 0.5053126, y: 0.07402628}
+        x: 118
+        y: 55
+        width: 43
+        height: 5
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -165,12 +165,12 @@ TextureImporter:
       name: Projectile_Move_1
       rect:
         serializedVersion: 2
-        x: 168
-        y: 0
-        width: 64
-        height: 113
-      alignment: 9
-      pivot: {x: 0.51494193, y: 0.12762563}
+        x: 179
+        y: 55
+        width: 43
+        height: 5
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -186,12 +186,12 @@ TextureImporter:
       name: Projectile_Move_2
       rect:
         serializedVersion: 2
-        x: 232
-        y: 0
-        width: 61
-        height: 113
-      alignment: 9
-      pivot: {x: 0.510451, y: 0.2602135}
+        x: 239
+        y: 55
+        width: 43
+        height: 5
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
