@@ -10,21 +10,19 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleCompleteTurnSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool;
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
-        private readonly EcsPoolInject<CompletedTurnTag> completeTagPool;
+        private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool = default;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
+        private readonly EcsPoolInject<CompletedTurnTag> completeTagPool = default;
 
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
-        private readonly EcsPoolInject<DeadTag> deadTagPool;
+        private readonly EcsPoolInject<DeadTag> deadTagPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool;
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag>> makeTurnFilter;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag>> makeTurnFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -8,16 +8,16 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleRoundStartSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
-        private readonly EcsPoolInject<RoundInProgressTag> roundInProgressTagPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
+        private readonly EcsPoolInject<RoundInProgressTag> roundInProgressTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleInfoFilter;
-        private readonly EcsFilterInject<Inc<BattleRoundInfo, RoundInProgressTag>> roundInfoFilter;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleInfoFilter = default;
+        private readonly EcsFilterInject<Inc<BattleRoundInfo, RoundInProgressTag>> roundInfoFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

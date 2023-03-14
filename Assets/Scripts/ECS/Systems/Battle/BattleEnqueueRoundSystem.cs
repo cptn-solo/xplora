@@ -11,19 +11,18 @@ namespace Assets.Scripts.ECS.Systems
     {
         private const int minRoundsQueue = 4;
 
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
-        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
-        private readonly EcsPoolInject<DraftTag> draftTagPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
+        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool = default;
+        private readonly EcsPoolInject<DraftTag> draftTagPool = default;
         
         private readonly EcsFilterInject<
             Inc<BattleInfo, RoundShortageTag>,
-            Exc<BattleCompletedTag>> battleFilter;
-        private readonly EcsFilterInject<Inc<BattleRoundInfo>> roundInfoFilter;
+            Exc<BattleCompletedTag>> battleFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

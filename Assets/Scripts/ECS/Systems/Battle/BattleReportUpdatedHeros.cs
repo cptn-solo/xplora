@@ -7,13 +7,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleReportUpdatedHeros : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HeroInstanceOriginRefComp> pool;
-        private readonly EcsPoolInject<DeadTag> deadTagPool;
+        private readonly EcsPoolInject<HeroInstanceOriginRefComp> pool = default;
+        private readonly EcsPoolInject<DeadTag> deadTagPool = default;
         
-        private readonly EcsPoolInject<HPComp> hpPool;
+        private readonly EcsPoolInject<HPComp> hpPool = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroInstanceOriginRefComp, ProcessedHeroTag>> filter;
+            Inc<HeroInstanceOriginRefComp, ProcessedHeroTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

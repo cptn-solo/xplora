@@ -5,16 +5,14 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     public class TerrainDestructionSystem : IEcsRunSystem
     {
-        private EcsPoolInject<DestroyTag> destroyTagPool;
-        private EcsPoolInject<VisibilityRef> visibilityRefPool;
+        private EcsPoolInject<VisibilityRef> visibilityRefPool = default;
 
-        private EcsFilterInject<Inc<VisibilityRef>> visibilityFilter;
-        private EcsFilterInject<Inc<WorldComp, DestroyTag>> worldFilter;
+        private EcsFilterInject<Inc<VisibilityRef>> visibilityFilter = default;
+        private EcsFilterInject<Inc<WorldComp, DestroyTag>> worldFilter = default;
 
-        private EcsCustomInject<WorldService> worldService;
+        private EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

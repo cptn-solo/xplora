@@ -8,20 +8,20 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class LibraryDeployCardsSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<EntityViewFactoryRef<Hero>> factoryPool;
-        private readonly EcsPoolInject<LibraryFieldComp> fieldPool;
-        private readonly EcsPoolInject<PositionComp> positionPool;
-        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool;
+        private readonly EcsPoolInject<EntityViewFactoryRef<Hero>> factoryPool = default;
+        private readonly EcsPoolInject<LibraryFieldComp> fieldPool = default;
+        private readonly EcsPoolInject<PositionComp> positionPool = default;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
 
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter;
-        private readonly EcsFilterInject<Inc<LibraryFieldComp>> fieldFilter;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
+        private readonly EcsFilterInject<Inc<LibraryFieldComp>> fieldFilter = default;
         private readonly EcsFilterInject<
             Inc<Hero, PositionComp>,
-            Exc<EntityViewRef<Hero>>> filter;
+            Exc<EntityViewRef<Hero>>> filter = default;
 
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -6,12 +6,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldUnveilFieldCellsSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<VisibilityUpdateTag> visibilityUpdateTagPool;
-        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
-        private readonly EcsPoolInject<VisibleTag> visibleTagPool;
-        private readonly EcsPoolInject<ExploredTag> exploredTagPool;
+        private readonly EcsPoolInject<VisibilityUpdateTag> visibilityUpdateTagPool = default;
+        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool = default;
+        private readonly EcsPoolInject<VisibleTag> visibleTagPool = default;
+        private readonly EcsPoolInject<ExploredTag> exploredTagPool = default;
 
-        private readonly EcsFilterInject<Inc<FieldCellComp, VisibilityRef, UnveilCellsTag>> filter;
+        private readonly EcsFilterInject<Inc<FieldCellComp, VisibilityRef, UnveilCellsTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

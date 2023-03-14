@@ -8,23 +8,23 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class PlayerTeamCardsSpawnSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<EntityViewRef<TeamMemberInfo>> pool;
-        private readonly EcsPoolInject<TransformRef<Team>> containerPool;
-        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool;
+        private readonly EcsPoolInject<EntityViewRef<TeamMemberInfo>> pool = default;
+        private readonly EcsPoolInject<TransformRef<Team>> containerPool = default;
+        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool = default;
 
-        private readonly EcsPoolInject<EntityViewFactoryRef<TeamMemberInfo>> factoryPool;
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<TeamMemberInfo>>> factoryFilter;
+        private readonly EcsPoolInject<EntityViewFactoryRef<TeamMemberInfo>> factoryPool = default;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<TeamMemberInfo>>> factoryFilter = default;
 
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, HeroConfigRefComp>,
-            Exc<EntityViewRef<TeamMemberInfo>>> filter;
+            Exc<EntityViewRef<TeamMemberInfo>>> filter = default;
 
         private readonly EcsFilterInject<
-            Inc<TransformRef<Team>>> containerFilter;
+            Inc<TransformRef<Team>>> containerFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

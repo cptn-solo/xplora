@@ -13,7 +13,7 @@ namespace Assets.Scripts.World
     /// </summary>
     public class PointerHandler : MonoBehaviour
     {
-        [Inject] private readonly WorldService worldService;
+        [Inject] private readonly WorldService worldService = default;
 
         private PlayerInputActions input;
         

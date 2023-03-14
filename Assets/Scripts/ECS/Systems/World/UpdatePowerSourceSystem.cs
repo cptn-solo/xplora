@@ -8,11 +8,11 @@ namespace Assets.Scripts.ECS.Systems
     public class UpdateWorldPoiSystem<T> : IEcsRunSystem
         where T: struct
     {
-        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool;
-        private readonly EcsPoolInject<UsedTag> usedTagPool;
+        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool = default;
+        private readonly EcsPoolInject<UsedTag> usedTagPool = default;
 
         private readonly EcsFilterInject<
-            Inc<T, UpdateTag, EntityViewRef<bool>>> updateFilter;
+            Inc<T, UpdateTag, EntityViewRef<bool>>> updateFilter = default;
 
         public void Run(IEcsSystems systems)
         {

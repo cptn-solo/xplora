@@ -10,19 +10,15 @@ namespace Assets.Scripts.ECS.Systems
     public class WorldPoiInitSystem<T> : IEcsInitSystem
         where T: struct
     {
+        private readonly EcsPoolInject<WorldComp> worldPool = default;
+        private readonly EcsPoolInject<T> psPool = default;
+        private readonly EcsPoolInject<POIComp> poiPool = default;
+        private readonly EcsPoolInject<WorldPoiTag> worldPoiTagPool = default;
+        private readonly EcsPoolInject<TerrainAttributeComp> terrainAttributePool = default;
 
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsFilterInject<Inc<FieldCellComp>, Exc<POIComp>> freeCellFilter = default;
 
-        private readonly EcsPoolInject<WorldComp> worldPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<T> psPool;
-        private readonly EcsPoolInject<POIComp> poiPool;
-        private readonly EcsPoolInject<WorldPoiTag> worldPoiTagPool;
-        private readonly EcsPoolInject<TerrainAttributeComp> terrainAttributePool;
-
-        private readonly EcsFilterInject<Inc<FieldCellComp>, Exc<POIComp>> freeCellFilter;
-
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Init(IEcsSystems systems)
         {

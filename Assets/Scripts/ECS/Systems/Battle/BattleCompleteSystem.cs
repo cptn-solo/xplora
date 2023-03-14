@@ -8,19 +8,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleCompleteSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
-        private readonly EcsPoolInject<BattleCompletedTag> battleCompletedTagPool;
-        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
-        private readonly EcsPoolInject<DelayTimerComp<WinnerTag>> delayWinnerPool;
-        private readonly EcsPoolInject<DelayTimerComp<DestroyTag>> delayDestroyPool;
-        private readonly EcsPoolInject<WinnerTag> winnerTagPool;
-        private readonly EcsPoolInject<RetreatTag> retreatTagPool;
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattleCompletedTag> battleCompletedTagPool = default;
+        private readonly EcsPoolInject<DestroyTag> destroyTagPool = default;
+        private readonly EcsPoolInject<DelayTimerComp<WinnerTag>> delayWinnerPool = default;
+        private readonly EcsPoolInject<DelayTimerComp<DestroyTag>> delayDestroyPool = default;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsFilterInject<
             Inc<BattleInfo, WinnerTag>,
-            Exc<BattleCompletedTag>> filter;
-
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+            Exc<BattleCompletedTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

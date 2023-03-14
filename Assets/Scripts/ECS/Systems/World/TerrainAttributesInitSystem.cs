@@ -7,12 +7,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class TerrainAttributesInitSystem : IEcsInitSystem
     {
-        private readonly EcsPoolInject<WorldComp> worldPool;
-        private readonly EcsPoolInject<TerrainAttributeComp> attributePool;
+        private readonly EcsPoolInject<WorldComp> worldPool = default;
+        private readonly EcsPoolInject<TerrainAttributeComp> attributePool = default;
 
-        private readonly EcsFilterInject<Inc<FieldCellComp>, Exc<NonPassableTag>> accessibleFilter;
+        private readonly EcsFilterInject<Inc<FieldCellComp>, Exc<NonPassableTag>> accessibleFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Init(IEcsSystems systems)
         {

@@ -9,8 +9,8 @@ namespace Assets.Scripts.UI
 {
     public class ApplicationSettingsScreen : MonoBehaviour
     {
-        [Inject] private AudioPlaybackService audioPlaybackService;
-        [Inject] private PlayerPreferencesService playerPrefsService;
+        [Inject] private AudioPlaybackService audioPlaybackService = default;
+        [Inject] private PlayerPreferencesService playerPrefsService = default;
 
         [SerializeField] private Button closeButton;
 

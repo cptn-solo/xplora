@@ -7,10 +7,10 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class TerrainInitSystem : IEcsInitSystem
     {
-        private readonly EcsPoolInject<WorldComp> worldPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<WorldComp> worldPool = default;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Init(IEcsSystems systems)
         {

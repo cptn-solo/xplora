@@ -7,13 +7,11 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class PlayerPositionSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
 
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsFilterInject<Inc<PlayerComp>, Exc<FieldCellComp>> positionFilter = default;
 
-        private readonly EcsFilterInject<Inc<PlayerComp>, Exc<FieldCellComp>> positionFilter;
-
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

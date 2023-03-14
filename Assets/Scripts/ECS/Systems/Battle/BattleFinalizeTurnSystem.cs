@@ -9,16 +9,16 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleFinalizeTurnSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<GarbageTag> garbageTagPool;
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
-        private readonly EcsPoolInject<ProcessedHeroTag> processedHeroPool;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
+        private readonly EcsPoolInject<GarbageTag> garbageTagPool = default;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
+        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
+        private readonly EcsPoolInject<ProcessedHeroTag> processedHeroPool = default;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<TargetRef> targetRefPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, ProcessedTurnTag>> filter;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo, ProcessedTurnTag>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

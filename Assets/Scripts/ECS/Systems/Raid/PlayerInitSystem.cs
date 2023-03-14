@@ -11,22 +11,22 @@ namespace Assets.Scripts.ECS.Systems
 
     public class PlayerInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<PlayerComp> playerPool;
-        private readonly EcsPoolInject<TeamComp> teamPool;
-        private readonly EcsPoolInject<HeroComp> heroPool;
-        private readonly EcsPoolInject<PowerComp> powerPool;
-        private readonly EcsPoolInject<StaminaComp> staminaPool;
-        private readonly EcsPoolInject<SightRangeComp> sightRangePool;
-        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
-        private readonly EcsPoolInject<SpeedComp> speedCompPool;
-        private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<HPComp> hpCompPool;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<PlayerComp> playerPool = default;
+        private readonly EcsPoolInject<TeamComp> teamPool = default;
+        private readonly EcsPoolInject<HeroComp> heroPool = default;
+        private readonly EcsPoolInject<PowerComp> powerPool = default;
+        private readonly EcsPoolInject<StaminaComp> staminaPool = default;
+        private readonly EcsPoolInject<SightRangeComp> sightRangePool = default;
+        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<SpeedComp> speedCompPool = default;
+        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Init(IEcsSystems systems)
         {

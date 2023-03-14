@@ -11,13 +11,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class RaidInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<UpdateAssetBalanceTag> updateBalancePool;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updateBalancePool = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Init(IEcsSystems systems)
         {

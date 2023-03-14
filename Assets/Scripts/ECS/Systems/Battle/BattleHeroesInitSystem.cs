@@ -12,17 +12,16 @@ namespace Assets.Scripts.ECS.Systems
 
     public class BattleHeroesInitSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftBattleTagPool;
-        private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
-        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool;
-        private readonly EcsPoolInject<PositionComp> positionPool;
-        private readonly EcsPoolInject<BattleFieldComp> battleFieldPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool = default;
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
+        private readonly EcsPoolInject<PositionComp> positionPool = default;
+        private readonly EcsPoolInject<BattleFieldComp> battleFieldPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> filter;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

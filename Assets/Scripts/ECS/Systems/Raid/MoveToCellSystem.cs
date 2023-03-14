@@ -7,14 +7,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class MoveToCellSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<VisitCellComp> visitPool;
-        private readonly EcsPoolInject<DrainComp> drainPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<VisitCellComp> visitPool = default;
+        private readonly EcsPoolInject<DrainComp> drainPool = default;
 
-        private readonly EcsFilterInject<Inc<FieldCellComp, VisitCellComp>> visitFilter;
+        private readonly EcsFilterInject<Inc<FieldCellComp, VisitCellComp>> visitFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

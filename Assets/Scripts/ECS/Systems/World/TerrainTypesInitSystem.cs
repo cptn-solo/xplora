@@ -8,10 +8,10 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class TerrainTypesInitSystem : IEcsInitSystem
     {
-        private readonly EcsPoolInject<NonPassableTag> noGoTagPool;
-        private readonly EcsPoolInject<TerrainTypeComp> terrainTypePool;
+        private readonly EcsPoolInject<NonPassableTag> noGoTagPool = default;
+        private readonly EcsPoolInject<TerrainTypeComp> terrainTypePool = default;
 
-        private readonly EcsFilterInject<Inc<FieldCellComp>> filter;
+        private readonly EcsFilterInject<Inc<FieldCellComp>> filter = default;
 
         public void Init(IEcsSystems systems)
         {            

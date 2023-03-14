@@ -8,7 +8,7 @@ namespace Assets.Scripts.World
 {
     public class CellHighlighter : MonoBehaviour
     {
-        [Inject] private readonly AudioPlaybackService audioService;
+        [Inject] private readonly AudioPlaybackService audioService = default;
 
         static readonly int cellHighlightingId =
             Shader.PropertyToID("_CellHighlighting");

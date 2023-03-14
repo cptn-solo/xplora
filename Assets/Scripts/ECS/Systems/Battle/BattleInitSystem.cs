@@ -8,13 +8,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftTagPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftTagPool = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
         public void Init(IEcsSystems systems)
         {

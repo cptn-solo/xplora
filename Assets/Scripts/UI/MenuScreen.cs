@@ -7,7 +7,7 @@ namespace Assets.Scripts.UI
 {
     public class MenuScreen : MonoBehaviour
     {
-        [Inject] private readonly MenuNavigationService nav;
+        [Inject] private readonly MenuNavigationService nav = default;
 
         [SerializeField] private Screens screen;
 

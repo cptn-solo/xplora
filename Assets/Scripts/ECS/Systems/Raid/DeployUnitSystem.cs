@@ -10,19 +10,19 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DeployUnitSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<HeroComp> heroPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<PlayerComp> playerPool;
-        private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool;
+        private readonly EcsPoolInject<HeroComp> heroPool = default;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<PlayerComp> playerPool = default;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool = default;
 
-        private readonly EcsPoolInject<EntityViewFactoryRef<Hero>> factoryPool;
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter;
+        private readonly EcsPoolInject<EntityViewFactoryRef<Hero>> factoryPool = default;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
 
-        private readonly EcsFilterInject<Inc<ProduceTag, HeroComp, FieldCellComp>> produceTagFilter;
+        private readonly EcsFilterInject<Inc<ProduceTag, HeroComp, FieldCellComp>> produceTagFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

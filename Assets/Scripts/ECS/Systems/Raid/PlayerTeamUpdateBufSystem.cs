@@ -8,13 +8,13 @@ namespace Assets.Scripts.ECS.Systems
     public class PlayerTeamUpdateBufSystem<T> : IEcsRunSystem
         where T : struct
     {
-        private readonly EcsPoolInject<BuffComp<T>> buffPool;
-        private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool;
-        private readonly EcsPoolInject<UpdateBuffsTag<T>> updateTagPool;
+        private readonly EcsPoolInject<BuffComp<T>> buffPool = default;
+        private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool = default;
+        private readonly EcsPoolInject<UpdateBuffsTag<T>> updateTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, ItemsContainerRef<BagedIconInfo>,
-                BuffComp<T>, UpdateBuffsTag<T>>> filter;
+                BuffComp<T>, UpdateBuffsTag<T>>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

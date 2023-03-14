@@ -9,23 +9,21 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleAftermathSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleComp> battlePool;
-        private readonly EcsPoolInject<BattleAftermathComp> aftermathPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<DrainComp> drainPool;
-        private readonly EcsPoolInject<VisitCellComp> visitPool;
-        private readonly EcsPoolInject<GarbageTag> garbagePool;
-        private readonly EcsPoolInject<RetireTag> retirePool;
-        private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool;
-        private readonly EcsPoolInject<DebuffTag<DamageRangeComp>> debuffTagPool;        
+        private readonly EcsPoolInject<BattleComp> battlePool = default;
+        private readonly EcsPoolInject<BattleAftermathComp> aftermathPool = default;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<DrainComp> drainPool = default;
+        private readonly EcsPoolInject<GarbageTag> garbagePool = default;
+        private readonly EcsPoolInject<RetireTag> retirePool = default;
+        private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
+        private readonly EcsPoolInject<DebuffTag<DamageRangeComp>> debuffTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
-        private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter;
-        private readonly EcsFilterInject<Inc<BuffComp<DamageRangeComp>>> damageBuffFilter;
+        private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter = default;
+        private readonly EcsFilterInject<Inc<BuffComp<DamageRangeComp>>> damageBuffFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

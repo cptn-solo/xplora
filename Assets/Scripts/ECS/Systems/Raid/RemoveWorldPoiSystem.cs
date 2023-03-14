@@ -7,12 +7,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class RemoveWorldPoiSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<GarbageTag> garbagePool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<GarbageTag> garbagePool = default;
 
-        private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter;
+        private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

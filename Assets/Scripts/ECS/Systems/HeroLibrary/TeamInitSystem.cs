@@ -9,12 +9,12 @@ namespace Assets.Scripts.ECS.Systems
 
     public class TeamInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<Team> teamPool;
-        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool;
+        private readonly EcsPoolInject<Team> teamPool = default;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool = default;
 
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
         public void Init(IEcsSystems systems)
         {

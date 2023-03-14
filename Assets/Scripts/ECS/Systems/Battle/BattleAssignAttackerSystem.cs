@@ -9,16 +9,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleAssignAttackerSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleTurnInfo> turnPool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundPool;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<PositionComp> positionPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnPool = default;
+        private readonly EcsPoolInject<BattleRoundInfo> roundPool = default;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
 
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
 
-        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter;
+        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

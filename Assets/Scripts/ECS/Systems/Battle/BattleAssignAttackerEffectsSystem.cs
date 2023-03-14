@@ -9,13 +9,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleAssignAttackerEffectsSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<SkippedTag> skippedTagPool;
-        private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool;
-        private readonly EcsPoolInject<BattleTurnInfo> turnPool;
-        private readonly EcsPoolInject<EffectsComp> effectsPool;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
+        private readonly EcsPoolInject<SkippedTag> skippedTagPool = default;
+        private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool = default;
+        private readonly EcsPoolInject<BattleTurnInfo> turnPool = default;
+        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
 
-        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter;
+        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

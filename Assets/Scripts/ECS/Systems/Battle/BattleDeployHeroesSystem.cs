@@ -10,20 +10,20 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDeployHeroesSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<EntityViewFactoryRef<Hero>> factoryPool;
-        private readonly EcsPoolInject<PositionComp> positionPool;
-        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
-        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool;
-        private readonly EcsPoolInject<BattleFieldComp> battleFieldPool;
+        private readonly EcsPoolInject<EntityViewFactoryRef<Hero>> factoryPool = default;
+        private readonly EcsPoolInject<PositionComp> positionPool = default;
+        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
+        private readonly EcsPoolInject<BattleFieldComp> battleFieldPool = default;
 
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
         private readonly EcsFilterInject<
             Inc<HeroConfigRefComp, PositionComp>,
-            Exc<EntityViewRef<Hero>, DeadTag>> filter;
+            Exc<EntityViewRef<Hero>, DeadTag>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

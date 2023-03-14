@@ -6,9 +6,9 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class GarbageCollectorSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsFilterInject<Inc<GarbageTag>> garbageTagFilter;
+        private readonly EcsFilterInject<Inc<GarbageTag>> garbageTagFilter = default;
 
         public void Run(IEcsSystems systems)
         {

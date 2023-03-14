@@ -10,18 +10,18 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class UpdateUnitStrengthSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<StrengthComp> strengthPool;
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<DataViewRef<BagedIconInfo>> pool;
-        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updateTagPool;
+        private readonly EcsPoolInject<StrengthComp> strengthPool = default;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<DataViewRef<BagedIconInfo>> pool = default;
+        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updateTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<StrengthComp, DataViewRef<BagedIconInfo>,
-                UpdateTag<StrengthComp>>> filter;
+                UpdateTag<StrengthComp>>> filter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -8,13 +8,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleMarkTurnReadySystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<ReadyTurnTag> readyTurnTagPool;
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
+        private readonly EcsPoolInject<ReadyTurnTag> readyTurnTagPool = default;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, DraftTag>, Exc<ReadyTurnTag>> filter;
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo, DraftTag>, Exc<ReadyTurnTag>> filter = default;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -8,12 +8,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDetectCompletedRoundSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
-        private readonly EcsPoolInject<GarbageTag> garbageTagPool;
+        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
+        private readonly EcsPoolInject<GarbageTag> garbageTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleRoundInfo>> filter;
+        private readonly EcsFilterInject<Inc<BattleRoundInfo>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

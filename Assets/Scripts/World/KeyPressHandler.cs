@@ -7,7 +7,7 @@ namespace Assets.Scripts.World
 {
     public class KeyPressHandler : MonoBehaviour
     {
-        [Inject] private readonly WorldService worldService;
+        [Inject] private readonly WorldService worldService = default;
 
         private PlayerInputActions input;
         private Vector3 direction = Vector3.zero;

@@ -10,19 +10,19 @@ namespace Assets.Scripts.ECS.Systems
 
     public class BattleLaunchSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleComp> battlePool;
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<StrengthComp> strengthPool;
-        private readonly EcsPoolInject<OpponentComp> opponentPool;
-        private readonly EcsPoolInject<HeroComp> heroCompPool;
-        private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter;
-        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp>> teamHeroesFilter;
+        private readonly EcsPoolInject<BattleComp> battlePool = default;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<StrengthComp> strengthPool = default;
+        private readonly EcsPoolInject<OpponentComp> opponentPool = default;
+        private readonly EcsPoolInject<HeroComp> heroCompPool = default;
+        private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter = default;
+        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp>> teamHeroesFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

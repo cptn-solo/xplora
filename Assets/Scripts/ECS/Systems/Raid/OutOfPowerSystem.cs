@@ -7,9 +7,9 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class OutOfPowerSystem : IEcsRunSystem
     {
-        private readonly EcsFilterInject<Inc<OutOfPowerTag, PlayerComp>> oopFilter;
+        private readonly EcsFilterInject<Inc<OutOfPowerTag, PlayerComp>> oopFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

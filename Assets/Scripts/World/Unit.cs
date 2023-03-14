@@ -12,7 +12,7 @@ namespace Assets.Scripts.World
 {
     public class Unit : BaseEntityView<Hero>
     {
-        [Inject] private readonly AudioPlaybackService audioService;
+        [Inject] private readonly AudioPlaybackService audioService = default;
 
         private UnitAnimation unitAnimation;
         private Hero hero;

@@ -8,16 +8,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDestroyDiedCardsSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<EntityViewRef<Hero>> cardViewRefPool;
-        private readonly EcsPoolInject<EntityViewRef<BarsAndEffectsInfo>> overlayViewRefPool;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> cardViewRefPool = default;
+        private readonly EcsPoolInject<EntityViewRef<BarsAndEffectsInfo>> overlayViewRefPool = default;
 
         private readonly EcsFilterInject<
             Inc<EntityViewRef<Hero>,
                 EntityViewRef<BarsAndEffectsInfo>,
                 ProcessedHeroTag,
-                RetiredTag>> filter;
-
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+                RetiredTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

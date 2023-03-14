@@ -9,13 +9,13 @@ namespace Assets.Scripts.ECS.Systems
 
     public class PlayerTeamUpdateHPSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<HPComp> hpCompPool;
-        private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> containerRefPool;
-        private readonly EcsPoolInject<UpdateHPTag> updateTagPool;
+        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> containerRefPool = default;
+        private readonly EcsPoolInject<UpdateHPTag> updateTagPool = default;
 
         private readonly EcsFilterInject<
-            Inc<PlayerTeamTag, ItemsContainerRef<BarInfo>, UpdateHPTag>> filter;
+            Inc<PlayerTeamTag, ItemsContainerRef<BarInfo>, UpdateHPTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

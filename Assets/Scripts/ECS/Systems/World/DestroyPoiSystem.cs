@@ -7,9 +7,9 @@ namespace Assets.Scripts.ECS.Systems
 
     public class DestroyPoiSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool;
+        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool = default;
 
-        private readonly EcsFilterInject<Inc<DestroyTag, EntityViewRef<bool>>> destroyTagFilter;
+        private readonly EcsFilterInject<Inc<DestroyTag, EntityViewRef<bool>>> destroyTagFilter = default;
 
         public void Run(IEcsSystems systems)
         {

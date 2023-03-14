@@ -10,21 +10,20 @@ namespace Assets.Scripts.ECS.Systems
     public class DeployPoiSystem<T> : IEcsRunSystem
         where T: struct
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<UpdateTag> updateTagPool;
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool;
-        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool = default;
 
-        private readonly EcsPoolInject<EntityViewFactoryRef<bool>> factoryRefPool;
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<bool>>> factoryRefFilter;
+        private readonly EcsPoolInject<EntityViewFactoryRef<bool>> factoryRefPool = default;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<bool>>> factoryRefFilter = default;
 
         private readonly EcsFilterInject<
             Inc<T, ProduceTag, WorldPoiTag, FieldCellComp>,
-            Exc<EntityViewRef<bool>>> produceTagFilter;
+            Exc<EntityViewRef<bool>>> produceTagFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

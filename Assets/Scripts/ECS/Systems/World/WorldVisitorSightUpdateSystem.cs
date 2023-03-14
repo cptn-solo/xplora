@@ -12,11 +12,11 @@ namespace Assets.Scripts.ECS.Systems
 
     public class WorldVisitorSightUpdateSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<VisitorComp> visitorPool;
+        private readonly EcsPoolInject<VisitorComp> visitorPool = default;
 
-        private readonly EcsFilterInject<Inc<FieldCellComp, VisitorComp>> filter;
+        private readonly EcsFilterInject<Inc<FieldCellComp, VisitorComp>> filter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

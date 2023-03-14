@@ -6,7 +6,7 @@ namespace Assets.Scripts.World
 {
     public class CameraFollow : MonoBehaviour
     {
-        [Inject] private readonly RaidService raidService;
+        [Inject] private readonly RaidService raidService = default;
 
         private Transform target;
 

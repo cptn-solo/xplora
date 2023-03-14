@@ -8,21 +8,21 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattlePotInitSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<HPComp> hpPool;
-        private readonly EcsPoolInject<BattlePotComp> battlePotPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<HPComp> hpPool = default;
+        private readonly EcsPoolInject<BattlePotComp> battlePotPool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleInfo, BattleFieldComp>,
-            Exc<DraftTag<BattleInfo>, BattlePotComp>> battleFilter;
+            Exc<DraftTag<BattleInfo>, BattlePotComp>> battleFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<HPComp, EnemyTeamTag>> enemyFilter;
+            Inc<HPComp, EnemyTeamTag>> enemyFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<HPComp, PlayerTeamTag>> playerFilter;
+            Inc<HPComp, PlayerTeamTag>> playerFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -8,17 +8,17 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class TerrainGenerationSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<WorldComp> worldPool;
-        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
+        private readonly EcsPoolInject<WorldComp> worldPool = default;
+        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool = default;
 
-        private readonly EcsPoolInject<ExploredTag> exploredTagPool;
-        private readonly EcsPoolInject<TerrainTypeComp> terrainTypePool;
+        private readonly EcsPoolInject<ExploredTag> exploredTagPool = default;
+        private readonly EcsPoolInject<TerrainTypeComp> terrainTypePool = default;
 
-        private readonly EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter;
+        private readonly EcsFilterInject<Inc<WorldComp, ProduceTag>> worlFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

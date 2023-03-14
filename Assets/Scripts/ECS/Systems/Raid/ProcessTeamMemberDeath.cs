@@ -9,11 +9,11 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class ProcessTeamMemberDeath : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
+        private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

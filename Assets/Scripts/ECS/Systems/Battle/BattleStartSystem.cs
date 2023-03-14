@@ -8,13 +8,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleStartSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool = default;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsFilterInject<
             Inc<BattleInfo>,
-            Exc<BattleInProgressTag, BattleCompletedTag>> filter;
+            Exc<BattleInProgressTag, BattleCompletedTag>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

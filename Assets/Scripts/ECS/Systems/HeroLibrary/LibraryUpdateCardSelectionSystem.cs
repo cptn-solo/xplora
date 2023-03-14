@@ -9,24 +9,24 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class LibraryUpdateCardSelectionSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<Hero> heroConfigPool;
-        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool;
-        private readonly EcsPoolInject<EntityViewRef<SelectedTag<Hero>>> detailsViewRefPool;
-        private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> detailsBarsViewRefPool;
+        private readonly EcsPoolInject<Hero> heroConfigPool = default;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
+        private readonly EcsPoolInject<EntityViewRef<SelectedTag<Hero>>> detailsViewRefPool = default;
+        private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> detailsBarsViewRefPool = default;
         
-        private readonly EcsPoolInject<SelectedTag> selectedTagPool;
-        private readonly EcsPoolInject<UpdateTag<SelectedTag>> updateSelectionTagPool;
+        private readonly EcsPoolInject<SelectedTag> selectedTagPool = default;
+        private readonly EcsPoolInject<UpdateTag<SelectedTag>> updateSelectionTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<Hero, EntityViewRef<Hero>, SelectedTag>,
-            Exc<UpdateTag<SelectedTag>>> oldSelectionFilter;
+            Exc<UpdateTag<SelectedTag>>> oldSelectionFilter = default;
 
         private readonly EcsFilterInject<
             Inc<Hero, EntityViewRef<Hero>, UpdateTag<SelectedTag>>,
-            Exc<SelectedTag>> selectionFilter;
+            Exc<SelectedTag>> selectionFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<EntityViewRef<SelectedTag<Hero>>, ItemsContainerRef<BarInfo>>> detailsViewFilter;
+            Inc<EntityViewRef<SelectedTag<Hero>>, ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
 
 
         public void Run(IEcsSystems systems)

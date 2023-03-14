@@ -8,15 +8,11 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class VisitPowerSourceSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<RefillComp> refillPool = default;
+        private readonly EcsPoolInject<DrainComp> draindPool = default;
 
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<RefillComp> refillPool;
-        private readonly EcsPoolInject<DrainComp> draindPool;
-
-        private readonly EcsFilterInject<Inc<StaminaComp, VisitedComp<PowerSourceComp>>> visitFilter;
-
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsFilterInject<Inc<StaminaComp, VisitedComp<PowerSourceComp>>> visitFilter = default;
 
         public void Run(IEcsSystems systems)
         {

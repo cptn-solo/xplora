@@ -15,16 +15,16 @@ namespace Assets.Scripts.ECS.Systems
 
     public class OpponentInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<OpponentComp> opponentPool;
-        private readonly EcsPoolInject<StrengthComp> strengthPool;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<OpponentComp> opponentPool = default;
+        private readonly EcsPoolInject<StrengthComp> strengthPool = default;
         
-        private readonly EcsPoolInject<HeroComp> heroPool;
+        private readonly EcsPoolInject<HeroComp> heroPool = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Init(IEcsSystems systems)
         {

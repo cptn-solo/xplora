@@ -7,10 +7,10 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DestroyUnitSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool = default;
 
         private readonly EcsFilterInject<
-            Inc<DestroyTag, EntityViewRef<Hero>>> destroyTagFilter;
+            Inc<DestroyTag, EntityViewRef<Hero>>> destroyTagFilter = default;
 
         public void Run(IEcsSystems systems)
         {

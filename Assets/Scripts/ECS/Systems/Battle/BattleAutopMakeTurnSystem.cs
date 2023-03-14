@@ -8,14 +8,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleAutoMakeTurnSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool;
-        private readonly EcsPoolInject<ReadyTurnTag> readyTurnTagPool;
-        private readonly EcsPoolInject<AttackTag> attackTagPool;
+        private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool = default;
+        private readonly EcsPoolInject<ReadyTurnTag> readyTurnTagPool = default;
+        private readonly EcsPoolInject<AttackTag> attackTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter;
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, ReadyTurnTag>> turnInfoFilter;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter = default;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo, ReadyTurnTag>> turnInfoFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

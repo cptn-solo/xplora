@@ -6,11 +6,11 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldOutOfSightSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
+        private readonly EcsPoolInject<DestroyTag> destroyTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<VisibilityUpdateTag, FieldCellComp, EntityViewRef<bool>, WorldPoiTag>,
-            Exc<VisibleTag, DestroyTag>> filter;
+            Exc<VisibleTag, DestroyTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

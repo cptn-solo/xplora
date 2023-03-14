@@ -7,9 +7,9 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DestroyUnitOverlaySystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<EntityViewRef<UnitInfo>> overlayPool;
+        private readonly EcsPoolInject<EntityViewRef<UnitInfo>> overlayPool = default;
 
-        private readonly EcsFilterInject<Inc<DestroyTag, EntityViewRef<UnitInfo>>> destroyTagFilter;
+        private readonly EcsFilterInject<Inc<DestroyTag, EntityViewRef<UnitInfo>>> destroyTagFilter = default;
 
         public void Run(IEcsSystems systems)
         {

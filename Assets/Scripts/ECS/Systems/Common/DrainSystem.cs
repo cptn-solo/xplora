@@ -10,12 +10,12 @@ namespace Assets.Scripts.ECS.Systems
     /// </summary>
     public class DrainSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<PowerComp> powerPool;
-        private readonly EcsPoolInject<UpdateTag> updateTagPool;
-        private readonly EcsPoolInject<OutOfPowerTag> oopTagPool;
-        private readonly EcsPoolInject<DrainComp> drainPool;
+        private readonly EcsPoolInject<PowerComp> powerPool = default;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
+        private readonly EcsPoolInject<OutOfPowerTag> oopTagPool = default;
+        private readonly EcsPoolInject<DrainComp> drainPool = default;
 
-        private readonly EcsFilterInject<Inc<DrainComp, PowerComp>> drainFilter;
+        private readonly EcsFilterInject<Inc<DrainComp, PowerComp>> drainFilter = default;
 
         public void Run(IEcsSystems systems)
         {

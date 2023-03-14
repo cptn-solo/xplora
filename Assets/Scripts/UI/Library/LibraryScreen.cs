@@ -14,8 +14,8 @@ namespace Assets.Scripts.UI.Library
 
     public partial class LibraryScreen : MenuScreen
     {
-        [Inject] private readonly BattleManagementService battleManager;
-        [Inject] private readonly MenuNavigationService nav;
+        [Inject] private readonly BattleManagementService battleManager = default;
+        [Inject] private readonly MenuNavigationService nav = default;
 
         private HeroLibraryService libManager;
 

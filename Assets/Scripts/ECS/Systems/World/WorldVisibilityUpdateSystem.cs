@@ -7,14 +7,14 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldVisibilityUpdateSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
-        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool;
-        private readonly EcsPoolInject<VisibleTag> visibleTagPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
+        private readonly EcsPoolInject<VisibilityRef> visibilityRefPool = default;
+        private readonly EcsPoolInject<VisibleTag> visibleTagPool = default;
 
         private readonly EcsFilterInject<
-            Inc<VisibilityUpdateTag, FieldCellComp, VisibilityRef>> filter;
+            Inc<VisibilityUpdateTag, FieldCellComp, VisibilityRef>> filter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

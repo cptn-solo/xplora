@@ -10,24 +10,24 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDealAttackDamageSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<TargetRef> targetRefPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool;
-        private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
-        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool;
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
+        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool = default;
 
-        private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool;
+        private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
 
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealDamageTag>> filter;
+            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealDamageTag>> filter = default;
 
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
-        private readonly EcsCustomInject<BattleManagementService> battleService;
-        private readonly EcsCustomInject<PlayerPreferencesService> prefs;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
+        private readonly EcsCustomInject<PlayerPreferencesService> prefs = default;
 
         public void Run(IEcsSystems systems)
         {

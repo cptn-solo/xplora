@@ -9,19 +9,19 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class DeployUnitOverlaySystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool;
-        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updatePool;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool = default;
+        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updatePool = default;
         
-        private readonly EcsPoolInject<EntityViewRef<UnitInfo>> overlayPool;
+        private readonly EcsPoolInject<EntityViewRef<UnitInfo>> overlayPool = default;
 
-        private readonly EcsPoolInject<EntityViewFactoryRef<UnitInfo>> factoryRefPool;
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<UnitInfo>>> factoryRefFilter;
+        private readonly EcsPoolInject<EntityViewFactoryRef<UnitInfo>> factoryRefPool = default;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<UnitInfo>>> factoryRefFilter = default;
 
         private readonly EcsFilterInject<
             Inc<ProduceTag, EntityViewRef<Hero>>,
-            Exc<EntityViewRef<UnitInfo>>> produceTagFilter;
+            Exc<EntityViewRef<UnitInfo>>> produceTagFilter = default;
 
         public void Run(IEcsSystems systems)
         {

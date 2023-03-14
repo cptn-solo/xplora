@@ -7,13 +7,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class OpponentPositionSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<FieldCellComp> cellPool;
+        private readonly EcsPoolInject<FieldCellComp> cellPool = default;
 
-        private readonly EcsFilterInject<Inc<OpponentComp>, Exc<FieldCellComp>> positionFilter;
+        private readonly EcsFilterInject<Inc<OpponentComp>, Exc<FieldCellComp>> positionFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

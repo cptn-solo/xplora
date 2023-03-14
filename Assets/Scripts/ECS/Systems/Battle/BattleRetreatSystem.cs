@@ -8,15 +8,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleRetreatSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
-        private readonly EcsPoolInject<WinnerTag> winnerTagPool;
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool = default;
+        private readonly EcsPoolInject<WinnerTag> winnerTagPool = default;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleInfo, RetreatTag>,
-            Exc<WinnerTag>> filter;
+            Exc<WinnerTag>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

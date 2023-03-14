@@ -10,23 +10,23 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleTryCastEffectsSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<DealEffectsTag> dealEffectsTagPool;
+        private readonly EcsPoolInject<DealEffectsTag> dealEffectsTagPool = default;
 
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<TargetRef> targetRefPool = default;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool;
-        private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<EffectsComp> effectsPool;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealEffectsTag>> filter;
+            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealEffectsTag>> filter = default;
 
-        private readonly EcsCustomInject<PlayerPreferencesService> prefs;
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<PlayerPreferencesService> prefs = default;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

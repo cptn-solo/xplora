@@ -8,15 +8,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleTerminationSystem : IEcsPostRunSystem
     {
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<BattlePotComp> battlePotPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<BattlePotComp> battlePotPool = default;
 
-        private readonly EcsPoolInject<DelayTimerComp<DestroyTag>> delayPool;
+        private readonly EcsPoolInject<DelayTimerComp<DestroyTag>> delayPool = default;
 
         private readonly EcsFilterInject<
-            Inc<BattleInfo, BattlePotComp, DelayTimerComp<DestroyTag>>> filter;
+            Inc<BattleInfo, BattlePotComp, DelayTimerComp<DestroyTag>>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void PostRun(IEcsSystems systems)
         {

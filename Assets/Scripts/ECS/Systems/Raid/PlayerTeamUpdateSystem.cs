@@ -9,14 +9,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class PlayerTeamUpdateSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<UpdateTag> updateTagPool;
-        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
-        private readonly EcsPoolInject<SpeedComp> speedCompPool;
-        private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<HPComp> hpCompPool;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
+        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool = default;
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<SpeedComp> speedCompPool = default;
+        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
 
-        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp, UpdateTag>> filter; 
+        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp, UpdateTag>> filter = default; 
 
         public void Run(IEcsSystems systems)
         {
@@ -34,9 +33,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var healthComp = ref healthCompPool.Value.Get(playerTeamMemberEntity);
                 healthComp.Value = heroConfig.Health;
-
-                //ref var hpComp = ref hpCompPool.Value.Get(playerTeamMemberEntity);
-                //hpComp.Value = heroConfig.Health;
 
                 updateTagPool.Value.Del(playerTeamMemberEntity);
                 updateHPTagPool.Value.Add(playerTeamMemberEntity);

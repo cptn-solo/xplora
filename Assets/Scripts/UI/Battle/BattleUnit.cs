@@ -15,7 +15,7 @@ namespace Assets.Scripts.UI.Battle
         IPointerEnterHandler, IPointerExitHandler
     {        
         [SerializeField] private HeroAnimation heroAnimation;
-        [Inject] private readonly BattleManagementService battleService;
+        [Inject] private readonly BattleManagementService battleService = default;
 
         public HeroAnimation HeroAnimation => heroAnimation;
 

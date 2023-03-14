@@ -7,15 +7,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class UpdateUnitOverlaySystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<PowerComp> powerPool;
+        private readonly EcsPoolInject<PowerComp> powerPool = default;
         /// <summary>
         /// BarInfo shouldn't be messed up with BarSInfo wich is parent empty
         /// entity view that now contains only bars child
         /// </summary>
-        private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> overlayPool;
+        private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> overlayPool = default;
 
         private readonly EcsFilterInject<
-            Inc<UpdateTag, ItemsContainerRef<BarInfo>, PowerComp>> updateFilter;
+            Inc<UpdateTag, ItemsContainerRef<BarInfo>, PowerComp>> updateFilter = default;
 
 
         public void Run(IEcsSystems systems)

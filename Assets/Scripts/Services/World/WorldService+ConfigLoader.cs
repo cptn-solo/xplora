@@ -10,7 +10,7 @@ namespace Assets.Scripts.Services
 {
     public partial class WorldService //Config loading
     {
-        [Inject] private readonly StreamingAssetsLoaderService saLoader;
+        [Inject] private readonly StreamingAssetsLoaderService saLoader = default;
 
         private TerrainAttributesLibrary terrainAttributesLibrary = TerrainAttributesLibrary.EmptyLibrary();
         private TerrainAttributesConfigLoader terrainAttributesConfigLoader;

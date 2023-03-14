@@ -13,21 +13,19 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattlePrepareRoundSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
+        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool = default;
+        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
+        private readonly EcsPoolInject<DraftTag> draftTagPool = default;
+        private readonly EcsPoolInject<NameComp> namePool = default;
+        private readonly EcsPoolInject<SpeedComp> speedPool = default;
+        private readonly EcsPoolInject<IconName> iconNamePool = default;
+        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool = default;
 
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
-        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool;
-        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
-        private readonly EcsPoolInject<DraftTag> draftTagPool;
-        private readonly EcsPoolInject<NameComp> namePool;
-        private readonly EcsPoolInject<SpeedComp> speedPool;
-        private readonly EcsPoolInject<IconName> iconNamePool;
-        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool;
+        private readonly EcsFilterInject<Inc<BattleRoundInfo, DraftTag>> roundInfoFilter = default;
 
-        private readonly EcsFilterInject<Inc<BattleRoundInfo, DraftTag>> roundInfoFilter;
-
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

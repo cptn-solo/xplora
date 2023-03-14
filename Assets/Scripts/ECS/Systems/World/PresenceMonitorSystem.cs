@@ -8,8 +8,8 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class PresenceMonitorSystem : IEcsRunSystem
     {
-        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<bool>>> factoryFilter;
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsFilterInject<Inc<EntityViewFactoryRef<bool>>> factoryFilter = default;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

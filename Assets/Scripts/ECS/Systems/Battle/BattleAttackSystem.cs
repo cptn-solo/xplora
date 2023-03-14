@@ -10,19 +10,18 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleAttackSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
-        private readonly EcsPoolInject<AttackTag> attackTagPool;
-        private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool;
-        private readonly EcsPoolInject<DealEffectsTag> dealEffectsTagPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
+        private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
+        private readonly EcsPoolInject<DealEffectsTag> dealEffectsTagPool = default;
         
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<TargetRef> targetRefPool = default;
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, AttackerRef, TargetRef>> filter;
+            Inc<BattleTurnInfo, MakeTurnTag, AttackTag, AttackerRef, TargetRef>> filter = default;
 
-        private readonly EcsCustomInject<PlayerPreferencesService> prefs;
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<PlayerPreferencesService> prefs = default;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

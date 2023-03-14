@@ -7,11 +7,11 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class LibraryInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<DraftTag> draftTagPool;
+        private readonly EcsPoolInject<DraftTag> draftTagPool = default;
 
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
         public void Init(IEcsSystems systems)
         {

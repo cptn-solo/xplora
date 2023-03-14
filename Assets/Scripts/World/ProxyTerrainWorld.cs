@@ -7,7 +7,7 @@ namespace Assets.Scripts.World
 {
     public class ProxyTerrainWorld : MonoBehaviour
     {
-        [Inject] private readonly WorldService worldService;
+        [Inject] private readonly WorldService worldService = default;
         
         private HexGrid grid;
         private CellHighlighter cellHighlighter;

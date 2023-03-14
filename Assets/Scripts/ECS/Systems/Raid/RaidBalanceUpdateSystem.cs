@@ -9,12 +9,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class RaidBalanceUpdateSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool;
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool;
+        private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool = default;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool = default;
 
         private readonly EcsFilterInject<
-            Inc<RaidComp, ItemsContainerRef<BagedIconInfo>, UpdateAssetBalanceTag>> filter;
+            Inc<RaidComp, ItemsContainerRef<BagedIconInfo>, UpdateAssetBalanceTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

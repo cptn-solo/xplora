@@ -6,7 +6,7 @@ namespace Assets.Scripts.Services
 {
     public partial class HeroLibraryService // Config Loader
     {
-        [Inject] private readonly StreamingAssetsLoaderService saLoader;
+        [Inject] private readonly StreamingAssetsLoaderService saLoader = default;
 
         private HeroesConfigLoader heroesConfigLoader;
 

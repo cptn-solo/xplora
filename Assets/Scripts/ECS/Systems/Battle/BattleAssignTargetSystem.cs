@@ -10,14 +10,14 @@ namespace Assets.Scripts.ECS.Systems
 
     public class BattleAssignTargetSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleTurnInfo> turnPool;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<TargetRef> targetRefPool;
-        private readonly EcsPoolInject<RangedTag> rangedTagPool;
-        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnPool = default;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<TargetRef> targetRefPool = default;
+        private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
+        private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
 
-        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter;
+        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -8,11 +8,11 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldInitSystem : IEcsInitSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<WorldComp> worldPool;
+        private readonly EcsPoolInject<WorldComp> worldPool = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Init(IEcsSystems systems)
         {

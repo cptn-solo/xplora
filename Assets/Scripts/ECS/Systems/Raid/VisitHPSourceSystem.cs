@@ -8,17 +8,17 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class VisitHPSourceSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<UpdateHPTag> updatePool;
-        private readonly EcsPoolInject<HPComp> hpPool;
-        private readonly EcsPoolInject<HealthComp> healthPool;
+        private readonly EcsPoolInject<UpdateHPTag> updatePool = default;
+        private readonly EcsPoolInject<HPComp> hpPool = default;
+        private readonly EcsPoolInject<HealthComp> healthPool = default;
 
         private readonly EcsFilterInject<
-            Inc<PlayerComp, VisitedComp<HPSourceComp>>> visitFilter;
+            Inc<PlayerComp, VisitedComp<HPSourceComp>>> visitFilter = default;
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, HPComp, HealthComp>,
-            Exc<DeadTag>> teamMembersFilter;
+            Exc<DeadTag>> teamMembersFilter = default;
 
-        private readonly EcsCustomInject<AudioPlaybackService> audioService;
+        private readonly EcsCustomInject<AudioPlaybackService> audioService = default;
 
         public void Run(IEcsSystems systems)
         {

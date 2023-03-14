@@ -8,15 +8,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class VisitWatchTowerSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<FieldCellComp> fieldCellPool;
+        private readonly EcsPoolInject<FieldCellComp> fieldCellPool = default;
         private readonly EcsPoolInject<
-            ActiveTraitHeroComp<WatchTowerComp>> traitHeroPool;
+            ActiveTraitHeroComp<WatchTowerComp>> traitHeroPool = default;
 
         private readonly EcsFilterInject<
-            Inc<PlayerComp, FieldCellComp, VisitedComp<WatchTowerComp>>> visitFilter;
+            Inc<PlayerComp, FieldCellComp, VisitedComp<WatchTowerComp>>> visitFilter = default;
 
-        private readonly EcsCustomInject<WorldService> worldService;
-        private readonly EcsCustomInject<AudioPlaybackService> audioService;
+        private readonly EcsCustomInject<WorldService> worldService = default;
+        private readonly EcsCustomInject<AudioPlaybackService> audioService = default;
 
         public void Run(IEcsSystems systems)
         {

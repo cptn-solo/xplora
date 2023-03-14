@@ -8,16 +8,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleTrophyCounterSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleAftermathComp> aftermathPool;
-        private readonly EcsPoolInject<RaidComp> raidPool;
-        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool;
+        private readonly EcsPoolInject<BattleAftermathComp> aftermathPool = default;
+        private readonly EcsPoolInject<RaidComp> raidPool = default;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool = default;
 
-        private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter;
+        private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -9,18 +9,16 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleWinCheckSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
 
-        private readonly EcsPoolInject<WinnerTag> winnerTagPool;
-        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool;
+        private readonly EcsPoolInject<WinnerTag> winnerTagPool = default;
+        private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool = default;
         
         private readonly EcsFilterInject<
             Inc<BattleInfo, BattleInProgressTag>,
-            Exc<WinnerTag>> filter;
-        private readonly EcsFilterInject<Inc<PlayerTeamTag>, Exc<DeadTag>> playerHeroes;
-        private readonly EcsFilterInject<Inc<EnemyTeamTag>, Exc<DeadTag>> enemyHeroes;
-
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+            Exc<WinnerTag>> filter = default;
+        private readonly EcsFilterInject<Inc<PlayerTeamTag>, Exc<DeadTag>> playerHeroes = default;
+        private readonly EcsFilterInject<Inc<EnemyTeamTag>, Exc<DeadTag>> enemyHeroes = default;
 
         public void Run(IEcsSystems systems)
         {

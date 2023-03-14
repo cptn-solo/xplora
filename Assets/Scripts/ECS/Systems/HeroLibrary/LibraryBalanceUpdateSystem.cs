@@ -8,12 +8,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class LibraryBalanceUpdateSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool;
-        private readonly EcsPoolInject<Team> teamPool;
-        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool;
+        private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool = default;
+        private readonly EcsPoolInject<Team> teamPool = default;
+        private readonly EcsPoolInject<UpdateAssetBalanceTag> updatePool = default;
 
         private readonly EcsFilterInject<
-            Inc<Team, ItemsContainerRef<BagedIconInfo>, UpdateAssetBalanceTag>> filter;
+            Inc<Team, ItemsContainerRef<BagedIconInfo>, UpdateAssetBalanceTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

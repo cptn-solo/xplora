@@ -11,13 +11,13 @@ namespace Assets.Scripts.ECS.Systems
     /// </summary>
     public class RefillSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<PowerComp> powerPool;
-        private readonly EcsPoolInject<RefillComp> refillPool;
-        private readonly EcsPoolInject<UpdateTag> updateTagPool;
+        private readonly EcsPoolInject<PowerComp> powerPool = default;
+        private readonly EcsPoolInject<RefillComp> refillPool = default;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
 
-        private readonly EcsFilterInject<Inc<RefillComp, PowerComp>> refillFilter;
+        private readonly EcsFilterInject<Inc<RefillComp, PowerComp>> refillFilter = default;
 
-        private readonly EcsCustomInject<AudioPlaybackService> audioService;
+        private readonly EcsCustomInject<AudioPlaybackService> audioService = default;
 
         public void Run(IEcsSystems systems)
         {

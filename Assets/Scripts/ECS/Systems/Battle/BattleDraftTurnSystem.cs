@@ -9,13 +9,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDraftTurnSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleTurnInfo> battleTurnPool;
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<BattleTurnRefComp> turnRefPool;
+        private readonly EcsPoolInject<BattleTurnInfo> battleTurnPool = default;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        
+        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter = default;
 
-        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter;
-
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

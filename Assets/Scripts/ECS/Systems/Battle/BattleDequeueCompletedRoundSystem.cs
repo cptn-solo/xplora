@@ -9,13 +9,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDequeueCompletedRoundSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool;
-        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> filter;
+        private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

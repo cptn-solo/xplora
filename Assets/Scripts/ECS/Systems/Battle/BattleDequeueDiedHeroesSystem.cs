@@ -7,15 +7,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleDequeueDiedHeroesSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<RetiredTag> retiredTagPool;
-        private readonly EcsPoolInject<HeroInstanceRefComp> pool;
-        private readonly EcsPoolInject<BattleRoundInfo> roundPool;
+        private readonly EcsPoolInject<RetiredTag> retiredTagPool = default;
+        private readonly EcsPoolInject<HeroInstanceRefComp> pool = default;
+        private readonly EcsPoolInject<BattleRoundInfo> roundPool = default;
 
         private readonly EcsFilterInject<
             Inc<HeroInstanceRefComp, DeadTag>,
-            Exc<RetiredTag>> filter;
+            Exc<RetiredTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

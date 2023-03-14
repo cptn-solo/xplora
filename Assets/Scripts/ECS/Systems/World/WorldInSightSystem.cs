@@ -6,12 +6,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class WorldInSightSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<ProduceTag> produceTagPool;
-        private readonly EcsPoolInject<DestroyTag> destroyTagPool;
+        private readonly EcsPoolInject<ProduceTag> produceTagPool = default;
+        private readonly EcsPoolInject<DestroyTag> destroyTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<VisibilityUpdateTag, FieldCellComp, VisibleTag, POIComp, WorldPoiTag>,
-            Exc<EntityViewRef<bool>, ProduceTag>> filter;
+            Exc<EntityViewRef<bool>, ProduceTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

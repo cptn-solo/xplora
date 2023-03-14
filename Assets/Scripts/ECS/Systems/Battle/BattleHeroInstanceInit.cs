@@ -10,31 +10,31 @@ namespace Assets.Scripts.ECS.Systems
 
     public class BattleHeroInstanceInit : IEcsRunSystem
     {
-        private readonly EcsPoolInject<PositionComp> positionPool;
-        private readonly EcsPoolInject<BattleInfo> battleInfoPool;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool;
-        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool;
-        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool;
-        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool;
-        private readonly EcsPoolInject<SpeedComp> speedPool;
-        private readonly EcsPoolInject<FrontlineTag> frontlineTagPool;
-        private readonly EcsPoolInject<BacklineTag> backlineTagPool;
-        private readonly EcsPoolInject<HealthComp> healthPool;
-        private readonly EcsPoolInject<HPComp> hpPool;
-        private readonly EcsPoolInject<EffectsComp> effectsPool;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
-        private readonly EcsPoolInject<RangedTag> rangedTagPool;
-        private readonly EcsPoolInject<NameComp> namePool;
-        private readonly EcsPoolInject<IconName> iconNamePool;
-        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool;
-        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool;
-        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftBattleTagPool;
-        private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool;
+        private readonly EcsPoolInject<PositionComp> positionPool = default;
+        private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
+        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool = default;
+        private readonly EcsPoolInject<SpeedComp> speedPool = default;
+        private readonly EcsPoolInject<FrontlineTag> frontlineTagPool = default;
+        private readonly EcsPoolInject<BacklineTag> backlineTagPool = default;
+        private readonly EcsPoolInject<HealthComp> healthPool = default;
+        private readonly EcsPoolInject<HPComp> hpPool = default;
+        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
+        private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
+        private readonly EcsPoolInject<NameComp> namePool = default;
+        private readonly EcsPoolInject<IconName> iconNamePool = default;
+        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool = default;
+        private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool = default;
+        private readonly EcsPoolInject<DraftTag<BattleInfo>> draftBattleTagPool = default;
+        private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool = default;
 
-        private readonly EcsFilterInject<Inc<PositionComp, DraftTag<Hero>>> filter;
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> battleFilter;
+        private readonly EcsFilterInject<Inc<PositionComp, DraftTag<Hero>>> filter = default;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> battleFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

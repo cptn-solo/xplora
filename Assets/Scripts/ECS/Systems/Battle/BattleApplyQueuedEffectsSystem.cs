@@ -10,20 +10,20 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleApplyQueuedEffectsSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HPComp> hpCompPool;
-        private readonly EcsPoolInject<HealthComp> healthCompPool;
-        private readonly EcsPoolInject<EffectsComp> effectsPool;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool;
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
 
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool;
-        private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool;
-        private readonly EcsPoolInject<AttackTag> attackTagPool;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
+        private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool = default;
+        private readonly EcsPoolInject<AttackTag> attackTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, AttackerEffectsTag>> filter;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, AttackerEffectsTag>> filter = default;
 
-        private readonly EcsCustomInject<HeroLibraryService> libraryService;
-        private readonly EcsCustomInject<BattleManagementService> battleService;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

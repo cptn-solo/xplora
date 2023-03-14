@@ -4,8 +4,6 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
-using static Zenject.SignalSubscription;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -13,16 +11,16 @@ namespace Assets.Scripts.ECS.Systems
     {
         //private readonly EcsWorldInject ecsWorld;
 
-        private readonly EcsPoolInject<VisitedComp<TerrainAttributeComp>> pool;
+        private readonly EcsPoolInject<VisitedComp<TerrainAttributeComp>> pool = default;
         private readonly EcsPoolInject<
-            ActiveTraitHeroComp<TerrainAttributeComp>> traitHeroPool;
+            ActiveTraitHeroComp<TerrainAttributeComp>> traitHeroPool = default;
 
         private readonly EcsFilterInject<
             Inc<VisitedComp<TerrainAttributeComp>,
-                ActiveTraitHeroComp<TerrainAttributeComp>>> visitFilter;
+                ActiveTraitHeroComp<TerrainAttributeComp>>> visitFilter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService;
-        private readonly EcsCustomInject<WorldService> worldService;
+        private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsCustomInject<WorldService> worldService = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -7,10 +7,10 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class LibraryUpdateCardsSystem : IEcsRunSystem
     {        
-        private readonly EcsPoolInject<UpdateTag> updateTagPool;
-        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
+        private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsFilterInject<
-            Inc<Hero, EntityViewRef<Hero>, UpdateTag>> filter;
+            Inc<Hero, EntityViewRef<Hero>, UpdateTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

@@ -11,7 +11,7 @@ namespace Assets.Scripts.UI
     {        
         private HUD HUD;
         private ApplicationSettingsScreen appSettingsScreen;
-        private bool pauseBetweenScenes;
+        private bool pauseBetweenScenes = false;
         
         private MenuNavigationService nav;
 

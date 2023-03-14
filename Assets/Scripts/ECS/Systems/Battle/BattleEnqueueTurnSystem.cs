@@ -7,13 +7,13 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleEnqueueTurnSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
+        private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool;
-        private readonly EcsPoolInject<DraftTag> draftTagPool;
+        private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
+        private readonly EcsPoolInject<DraftTag> draftTagPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo>> turnInfoFilter;
-        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo>> turnInfoFilter = default;
+        private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter = default;
 
         public void Run(IEcsSystems systems)
         {
