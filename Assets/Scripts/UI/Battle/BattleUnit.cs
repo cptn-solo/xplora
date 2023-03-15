@@ -1,21 +1,12 @@
 using Assets.Scripts.ECS;
 using Assets.Scripts.Data;
-using Assets.Scripts.UI.Inventory;
-using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using Asset = Assets.Scripts.Data.Asset;
-using Zenject;
-using Assets.Scripts.Services;
 
 namespace Assets.Scripts.UI.Battle
 {
-    public partial class BattleUnit : BaseEntityView<Hero>,
-        IPointerEnterHandler, IPointerExitHandler
+    public partial class BattleUnit : BaseEntityView<Hero>        
     {        
         [SerializeField] private HeroAnimation heroAnimation;
-        [Inject] private readonly BattleManagementService battleService = default;
 
         public HeroAnimation HeroAnimation => heroAnimation;
 
@@ -51,18 +42,5 @@ namespace Assets.Scripts.UI.Battle
             if (heroAnimation != null)
                 heroAnimation.HideOverlay();
         }
-
-        public void OnPointerEnter(PointerEventData eventData) =>
-            battleService.RequestDetailsHover(PackedEntity);
-
-        public void OnPointerExit(PointerEventData eventData) =>
-            battleService.DismissDetailsHover(PackedEntity);
-
-
-        private void OnDestroy()
-        {
-            OnGameObjectDestroy();
-        }
-
     }
 }

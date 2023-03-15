@@ -5,9 +5,7 @@ namespace Assets.Scripts.World
 {
     public partial class TeamMember : IEntityView<TeamMemberInfo>
     {
-        public override void UpdateData()
-        {
+        public override void UpdateData() =>
             Hero = DataLoader(PackedEntity);
-        }
     }
 }

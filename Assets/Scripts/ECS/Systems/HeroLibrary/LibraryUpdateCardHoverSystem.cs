@@ -3,25 +3,27 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
-using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleUpdateHoverUnitSystem : IEcsRunSystem
+    public class LibraryUpdateCardHoverSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<Hero> heroConfigPool = default;
 
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsPoolInject<EntityViewRef<HoverTag<Hero>>> detailsViewRefPool = default;
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> detailsBarsViewRefPool = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp, EntityViewRef<Hero>,
-                HoverTag>> hoverFilter = default;
+            Inc<Hero,
+                EntityViewRef<Hero>,
+                HoverTag
+                >> hoverFilter = default;
 
         private readonly EcsFilterInject<
             Inc<EntityViewRef<HoverTag<Hero>>,
-                ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
+                ItemsContainerRef<BarInfo>
+                >> detailsViewFilter = default;
 
 
         public void Run(IEcsSystems systems)
@@ -39,8 +41,8 @@ namespace Assets.Scripts.ECS.Systems
                 foreach (var detailsViewEntity in detailsViewFilter.Value)
                 {
                     ref var detailsViewRef = ref detailsViewRefPool.Value.Get(detailsViewEntity);
-                    var detailsView = (BattleUnitHover)detailsViewRef.EntityView;
-                    detailsView.HeroName = null;
+                    var detailsView = (HeroDetailsHover)detailsViewRef.EntityView;
+                    detailsView.Hero = null;
                 }
             }
 
@@ -50,23 +52,18 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var detailsViewEntity in detailsViewFilter.Value)
             {
-                ref var heroConfigRef = ref heroConfigRefPool.Value.Get(entity);
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero config");
-
-                ref var heroConfig = ref libWorld.GetPool<Hero>().Get(libEntity);
+                ref var heroConfig = ref heroConfigPool.Value.Get(entity);
 
                 ref var detailsViewRef = ref detailsViewRefPool.Value.Get(detailsViewEntity);
-                var detailsView = (BattleUnitHover)detailsViewRef.EntityView;
-                detailsView.HeroName = heroConfig.Name;
+                var detailsView = (HeroDetailsHover)detailsViewRef.EntityView;
+                detailsView.Hero = heroConfig;
 
                 ref var detailsBarsRef = ref detailsBarsViewRefPool.Value.Get(detailsViewEntity);
                 detailsBarsRef.Container.SetItems(heroConfig.BarsInfo);
 
-                // TODO: sync hover position with card requested hover
                 detailsView.Transform.position = hostTransform.position;
-
             }
         }
     }
 }
+

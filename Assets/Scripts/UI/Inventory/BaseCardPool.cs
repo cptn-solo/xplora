@@ -55,6 +55,7 @@ namespace Assets.Scripts.UI.Inventory
             card.Transform.SetParent(transform);
             card.Transform.localRotation = Quaternion.identity;
             card.PackedEntity = packedInstanceEntity;
+            card.EcsService = ecsService;
 
             CardBinder?.Invoke(card);
 

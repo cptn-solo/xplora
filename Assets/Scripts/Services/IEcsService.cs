@@ -16,6 +16,10 @@ namespace Assets.Scripts.Services
         public bool TryGetEntityViewForPackedEntity<T, V>(
             EcsPackedEntityWithWorld? packed, out V view)
             where T : struct;
+
+        public void RequestDetailsHover(EcsPackedEntityWithWorld? packed);
+        public void DismissDetailsHover(EcsPackedEntityWithWorld? packed);
+
     }
 
 }

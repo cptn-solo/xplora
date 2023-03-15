@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Assets.Scripts;
 using Assets.Scripts.Data;
 
 namespace Assets.Scripts.UI.Common
@@ -18,10 +17,7 @@ namespace Assets.Scripts.UI.Common
         {
             rectTransform = GetComponent<RectTransform>();
         }
-        private void Start()
-        {
-            AttachToEntityView();
-        }
+
         public void SetData(BarInfo[] value) {
             if (bars.Length != value.Length)
             {

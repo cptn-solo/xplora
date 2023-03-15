@@ -67,15 +67,11 @@ namespace Assets.Scripts.World
             return icon;
         }
 
-        private void Awake()
+        protected override void OnBeforeAwake()
         {
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
         }
 
-        private void OnDestroy()
-        {
-            OnGameObjectDestroy();
-        }
     }
 }

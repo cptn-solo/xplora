@@ -10,11 +10,6 @@ namespace Assets.Scripts.UI.Common
 
         private Dictionary<BundleIcon, IconWithBage> icons = new();
 
-        private void Start()
-        {
-            AttachToEntityView();
-        }
-
         public void SetIconInfo(BagedIconInfo info)
         {
             if (icons.TryGetValue(info.Icon, out var iconWithBage))

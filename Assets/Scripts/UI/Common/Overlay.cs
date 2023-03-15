@@ -37,12 +37,10 @@ public class Overlay : BaseEntityView<BarsAndEffectsInfo>
         damageText.text = "";
         effectText.text = "";
     }
-    private void OnDestroy()
+    protected override void OnBeforeDestroy()
     {
         destroyed = true;
         anchor = null;
-
-        OnGameObjectDestroy();
     }
 
     private void Update()

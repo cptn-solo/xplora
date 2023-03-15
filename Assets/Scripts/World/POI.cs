@@ -14,7 +14,7 @@ namespace Assets.Scripts.World
 
         [SerializeField] private Transform visual;
 
-        private void Awake() =>
+        protected override void OnBeforeAwake() =>
             poiAnimation = GetComponentInChildren<PoiAnimation>();
 
         public void SetInitialCoordinates(HexCoordinates initialCoordinates) =>
@@ -25,9 +25,6 @@ namespace Assets.Scripts.World
 
         internal void SetupAnimator<T>() =>
             poiAnimation.SetRuntimeAnimator<T>();
-
-        private void OnDestroy() =>
-            OnGameObjectDestroy();
 
     }
 }

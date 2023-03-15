@@ -1,10 +1,7 @@
-﻿using Assets.Scripts.Services;
-using Assets.Scripts.Data;
-using Assets.Scripts.World.HexMap;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using Zenject;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.World
 {
@@ -13,20 +10,18 @@ namespace Assets.Scripts.World
     /// </summary>
     public class PointerHandler : MonoBehaviour
     {
-        [Inject] private readonly WorldService worldService = default;
-
         private PlayerInputActions input;
         
-        private IHexCellGrid grid;
         private Vector2 pos;
-        private HexCell previousCell;
 
         private bool pointerMoved;
+
+        public event UnityAction<Vector2> OnPositionHover;
+        public event UnityAction<Vector2> OnPositionTouch;
 
         private void Awake()
         {
             input = new();
-            grid = GetComponent<IHexCellGrid>();
         }
 
         private void OnEnable()
@@ -46,18 +41,16 @@ namespace Assets.Scripts.World
 
         }
 
-        private void Pointer_canceled(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+        private void Pointer_canceled(InputAction.CallbackContext obj)
         {
         }
 
-        private void Pointer_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+        private void Pointer_performed(InputAction.CallbackContext obj)
         {
             pointerMoved = true;
             pos = obj.ReadValue<Vector2>();
         }
 
-        private HexCell GetCellUnderCursor() =>
-            grid.GetCell(Camera.main.ScreenPointToRay(pos));
         
 
         private void Update()
@@ -66,9 +59,6 @@ namespace Assets.Scripts.World
 
             pointerMoved = false;
 
-            if (worldService.PlayerUnit == null)
-                return;
-
             var overUI = EventSystem.current.IsPointerOverGameObject();
             if (overUI)
                 return;
@@ -76,58 +66,16 @@ namespace Assets.Scripts.World
             var lmb = Mouse.current.leftButton.wasPressedThisFrame;
             if (lmb)
             {
-                HandleTouch();
+                OnPositionTouch?.Invoke(pos);
             }
             else
             {
                 if (needHoverProcess)
-                    HandleHover();
+                    OnPositionHover(pos);
             }
         }
 
-        #region Touch Cell       
 
-        private void HandleHover()
-        {
-            HexCell currentCell = GetCellUnderCursor();
-
-            bool needUpdateHighlight = false;
-
-            if (currentCell)
-            {
-                if (!previousCell || currentCell != previousCell)
-                    needUpdateHighlight = true;
-
-                previousCell = currentCell;
-
-                needUpdateHighlight = needUpdateHighlight && worldService.CheckIfReachable(currentCell.coordinates);
-            }
-            else
-            {
-                if (previousCell)
-                    needUpdateHighlight = true;
-
-                previousCell = null;
-            }
-
-            if (needUpdateHighlight)
-            {
-                worldService.SetAimToCoordinates(currentCell ?
-                    currentCell.coordinates : null);
-            }
-        }
-
-        private void HandleTouch()
-        {
-            HexCell currentCell = GetCellUnderCursor();
-            if (currentCell)
-            {
-                worldService.ResetHexDir(); //to prevent next cell selection - pointer doesn't need it
-                worldService.ProcessTargetCoordinatesSelection(currentCell.coordinates);                
-            }
-        }
-
-        #endregion
 
     }
 }

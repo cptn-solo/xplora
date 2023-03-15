@@ -35,7 +35,7 @@ namespace Assets.Scripts.Services
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
                 .Add(new LibraryDeployCardsSystem())
-                .Add(new LibraryUpdateCardSelectionSystem())
+                .Add(new LibraryUpdateCardHoverSystem())
                 .Add(new LibraryUpdateCardsSystem())
                 .Add(new LibraryBalanceUpdateSystem())
                 .Add(new GarbageCollectorSystem())

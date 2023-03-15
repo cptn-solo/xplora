@@ -1,15 +1,13 @@
 ﻿using Assets.Scripts.ECS;
 using Assets.Scripts.UI.Common;
 using Assets.Scripts.Data;
-using Assets.Scripts.Battle;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Library
 {
-
-    public partial class HeroCard : BaseEntityView<Hero>
+    public partial class HeroCard : BaseEntityView<Hero>        
     {
 
         [SerializeField] private Image heroIconImage;
@@ -76,21 +74,11 @@ namespace Assets.Scripts.UI.Library
             var icon = Resources.Load<Sprite>(iconName);
             return icon;
         }
-        private void Awake()
+
+        protected override void OnBeforeAwake()
         {
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
         }
-
-        private void OnDestroy()
-        {
-            OnGameObjectDestroy();
-        }
-        #region IEntityView
-
-        public override void UpdateData() =>
-            Hero = DataLoader(PackedEntity.Value);
-
-        #endregion
     }
 }

@@ -40,20 +40,11 @@ namespace Assets.Scripts.World
         
         private Coroutine activeMove = null;
 
-        private void Awake()
-        {
+        protected override void OnBeforeAwake() =>
             unitAnimation = GetComponentInChildren<UnitAnimation>();
-        }
 
-        private void OnDestroy()
-        {
-            OnGameObjectDestroy();
-        }
-
-        public void SetInitialCoordinates(HexCoordinates initialCoordinates)
-        {
+        public void SetInitialCoordinates(HexCoordinates initialCoordinates) =>
             coordinates = initialCoordinates;
-        }
 
         public void SetHero(Hero hero, bool isPlayer)
         {
