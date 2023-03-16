@@ -54,7 +54,8 @@ namespace Assets.Scripts.UI.Library
                     pts.Position :
                     new(-1, BattleLine.NA, s.SlotIndex);
                 
-                if (heroTransfer.Commit(pos, out var hero) is bool success)
+                if (heroTransfer.Commit(pos, out var hero) is bool success &&
+                    success)
                 {
                     libManager.MoveHero(hero, pos);
                     OnHeroMoved?.Invoke();
@@ -72,7 +73,8 @@ namespace Assets.Scripts.UI.Library
             };
             slotDelegate.TransferAbort = (UIItemSlot s) =>
             {
-                if (heroTransfer.Abort() is bool success)
+                if (heroTransfer.Abort() is bool success &&
+                    success)
                     Rollback?.Invoke();
 
                 Rollback = null;
