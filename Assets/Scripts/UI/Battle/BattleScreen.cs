@@ -68,10 +68,7 @@ namespace Assets.Scripts.UI.Battle
             actionButtons = GetComponentsInChildren<UIActionButton>();
 
             foreach (var button in actionButtons)
-            {
-                button.enabled = false;
                 button.OnActionButtonClick += Button_OnActionButtonClick;
-            }
 
             playerTeamId = libraryManager.PlayerTeam.Id;
             enemyTeamId = libraryManager.EnemyTeam.Id;
