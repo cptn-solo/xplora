@@ -63,6 +63,7 @@ namespace Assets.Scripts.Services
         public bool CanAutoPlayBattle =>
             PlayMode switch
             {
+                BattleMode.NA => CanStartBattle,
                 BattleMode.Autoplay => true,
                 BattleMode.StepMode => true,
                 _ => false
@@ -122,7 +123,14 @@ namespace Assets.Scripts.Services
         internal void FastForwardPlay()
         {
             if (CanAutoPlayBattle)
+            {
+                if (CanStartBattle)
+                {
+                    CurrentBattle.SetState(BattleState.BattleStarted);
+                    OnBattleEvent?.Invoke(CurrentBattle);
+                }
                 PlayMode = BattleMode.Fastforward;
+            }
         }
 
         internal void MakeTurn()

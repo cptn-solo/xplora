@@ -11,18 +11,22 @@ namespace Assets.Scripts.UI.Battle
         {
             foreach (var button in actionButtons)
             {
-                if (button.Action == Actions.CompleteTurn) // and start button too
-                    button.gameObject.SetActive(
+                if (button.Action == Actions.BeginBattle) // and start button too
+                    button.SetEnabled(
                         battleManager.CanStartBattle ||
                         battleManager.CanMakeTurn);
 
                 if (button.Action == Actions.StepBattle)
-                    button.gameObject.SetActive(
+                    button.SetEnabled(
                         battleManager.CanStepPlayBattle);
 
                 if (button.Action == Actions.AutoBattle)
-                    button.gameObject.SetActive(
+                    button.SetEnabled(
                         battleManager.CanAutoPlayBattle);
+
+                if (button.Action == Actions.RetreatBattle)
+                    button.SetEnabled(
+                        true);
             }
         }
 
@@ -36,7 +40,7 @@ namespace Assets.Scripts.UI.Battle
                         arg2.GetComponent<UIActionToggleButton>().Toggle();
                     }
                     break;
-                case Actions.CompleteTurn:
+                case Actions.BeginBattle:
                     {
                         if (battleManager.CurrentBattle.State == BattleState.TeamsPrepared)
                             battleManager.BeginBattle();

@@ -18,7 +18,12 @@ namespace Assets.Scripts.ECS.Systems
 
         public void Run(IEcsSystems systems)
         {
-            if (battleService.Value.PlayMode != BattleMode.Autoplay)
+            if (battleService.Value.PlayMode switch
+            {
+                BattleMode.Autoplay => false,
+                BattleMode.Fastforward => false,
+                _ => true
+            })
                 return;
 
             foreach (var entity in filter.Value)
