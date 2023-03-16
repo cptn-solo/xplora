@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
+using Assets.Scripts.ECS;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Inventory;
 using System;

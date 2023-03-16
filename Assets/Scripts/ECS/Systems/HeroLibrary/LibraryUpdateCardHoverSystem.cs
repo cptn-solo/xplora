@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class LibraryUpdateCardHoverSystem : IEcsRunSystem
+    public class LibraryUpdateCardHoverSystem : UpdateCardHoverSystem, IEcsRunSystem
     {
         private readonly EcsPoolInject<Hero> heroConfigPool = default;
 
@@ -61,7 +61,7 @@ namespace Assets.Scripts.ECS.Systems
                 ref var detailsBarsRef = ref detailsBarsViewRefPool.Value.Get(detailsViewEntity);
                 detailsBarsRef.Container.SetItems(heroConfig.BarsInfo);
 
-                detailsView.Transform.position = hostTransform.position;
+                PositionHoverView(hostTransform, detailsView.Transform);
             }
         }
     }

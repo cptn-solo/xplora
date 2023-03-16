@@ -4,6 +4,7 @@ using System;
 using UnityEngine.Events;
 using Leopotam.EcsLite;
 using Assets.Scripts.UI.Battle;
+using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.Services
 {
@@ -172,7 +173,6 @@ namespace Assets.Scripts.Services
             this.prefs = playerPreferencesService;
 
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
-
         }
 
         private void MenuNavigationService_OnBeforeNavigateToScreen(

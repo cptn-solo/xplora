@@ -7,7 +7,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleUpdateHoverUnitSystem : IEcsRunSystem
+    public class BattleUpdateHoverUnitSystem : UpdateCardHoverSystem, IEcsRunSystem
     {
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
 
@@ -63,9 +63,7 @@ namespace Assets.Scripts.ECS.Systems
                 ref var detailsBarsRef = ref detailsBarsViewRefPool.Value.Get(detailsViewEntity);
                 detailsBarsRef.Container.SetItems(heroConfig.BarsInfo);
 
-                // TODO: sync hover position with card requested hover
-                detailsView.Transform.position = hostTransform.position;
-
+                PositionHoverView(hostTransform, detailsView.Transform);
             }
         }
     }

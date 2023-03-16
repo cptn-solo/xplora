@@ -7,6 +7,7 @@ using UnityEngine;
 using Zenject;
 using Assets.Scripts.Battle;
 using System.Collections.Generic;
+using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.UI.Library
 {
@@ -23,8 +24,8 @@ namespace Assets.Scripts.UI.Library
         public void Construct(HeroLibraryService libManager)
         {
             this.libManager = libManager;
-            libManager.OnDataAvailable += LibManager_OnDataAvailable;
 
+            Initialize();
         }
 
         [SerializeField] private Transform libraryContainer;
@@ -32,15 +33,12 @@ namespace Assets.Scripts.UI.Library
         [SerializeField] private Transform enemyTeamContainer;
         
         [SerializeField] private HeroCardPool cardPool;
-
         [SerializeField] private UIMenuButton raidButton;
 
         private bool googleHeroesAvailable = true;
 
-        protected override void OnBeforeStart()
+        private void Initialize()
         {
-            InitSlotDelegates();
-
             var actionButtons = GetComponentsInChildren<UIActionButton>(true);
 
 #if !PLATFORM_STANDALONE_WIN && !UNITY_EDITOR
@@ -58,15 +56,17 @@ namespace Assets.Scripts.UI.Library
                 button.OnActionButtonClick += OnActionButtonPressed;
             }
 
-            cardPool.CardBinder = BindHeroCard;
-
+            InitSlotDelegates();
+            
             var slots = new Dictionary<HeroPosition, IHeroPosition>();
 
             InitSlots<LibrarySlot>(slots, libraryContainer, -1);
             InitSlots<PlayerTeamSlot>(slots, playerTeamContainer, 0);
             InitSlots<EnemyTeamSlot>(slots, enemyTeamContainer, 1);
 
-            libManager.BindEcsHeroSlots(slots);            
+            libManager.BindEcsHeroSlots(slots);
+
+            libManager.OnDataAvailable += LibManager_OnDataAvailable;
         }
 
         private void LibManager_OnDataAvailable()
@@ -98,12 +98,6 @@ namespace Assets.Scripts.UI.Library
 
         }
 
-        private void BindHeroCard(HeroCard heroCard)
-        {
-            var actionButton = heroCard.GetComponent<UIActionButton>();
-            actionButton.OnActionButtonClick += OnActionButtonPressed;
-        }
-
         protected override void OnBeforeDestroy()
         {
             libManager.DestroyEcsLibraryField();
@@ -114,14 +108,6 @@ namespace Assets.Scripts.UI.Library
         {
             switch (action)
             {
-                case Actions.SelectHero:
-                    {
-                        var heroCard = actionTransform.GetComponent<HeroCard>();
-                        Debug.Log($"Hero from line #{heroCard.Hero} selected");
-
-                        libManager.SetEcsSelectedHero(heroCard.PackedEntity);
-                    }
-                    break;
                 case Actions.SaveTeamForBattle:
                     {
                         battleManager.PlayerTeamPackedEntities =

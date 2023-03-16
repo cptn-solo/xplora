@@ -13,6 +13,14 @@ namespace Assets.Scripts.Services
         public void UnregisterEntityViewFactory<T>()
             where T : struct;
 
+        public void RegisterEntityView<T>(
+            IEntityView<T> entityView)
+            where T : struct;
+
+        public void RegisterEntityView<T>(
+            IEntityView<T> entityView, EcsPackedEntityWithWorld packedEntity)
+            where T : struct;
+
         public bool TryGetEntityViewForPackedEntity<T, V>(
             EcsPackedEntityWithWorld? packed, out V view)
             where T : struct;

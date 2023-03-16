@@ -4,7 +4,6 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     /// <summary>
     /// Drains power from source
     /// </summary>

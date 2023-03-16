@@ -33,4 +33,8 @@ namespace Assets.Scripts
         public void Reset();
     }
 
+    public interface ICameraView {
+        public Vector3 GetViewPosition(Vector3 worldPosition);
+    }
+
 }

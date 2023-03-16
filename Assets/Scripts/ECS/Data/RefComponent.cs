@@ -26,6 +26,7 @@ namespace Assets.Scripts.ECS.Data
     public struct SelectedTag<T> { }
     public struct HoverTag { }
     public struct HoverTag<T> { }
+    public struct CameraTag { }
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
     public struct UsedTag { }
@@ -86,7 +87,7 @@ namespace Assets.Scripts.ECS.Data
 
 #endregion
 
-#region Comps
+    #region Comps
 
     public struct RaidComp
     {

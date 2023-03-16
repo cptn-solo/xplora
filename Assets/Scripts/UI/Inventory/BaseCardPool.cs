@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Services;
+﻿using Assets.Scripts.ECS;
+using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using UnityEngine;
 using Zenject;
@@ -13,6 +14,7 @@ namespace Assets.Scripts.UI.Inventory
     {
 
     }
+
     public class BaseCardPool<S, T, E> : MonoBehaviour
         where T: MonoBehaviour, ITransform, IEntityView<E>
         where E: struct

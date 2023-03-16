@@ -1,10 +1,7 @@
 ﻿using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
-using Assets.Scripts.UI.Common;
 using Assets.Scripts.UI.Inventory;
-using Assets.Scripts.UI.Library;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle
