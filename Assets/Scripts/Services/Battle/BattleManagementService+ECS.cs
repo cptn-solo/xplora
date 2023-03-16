@@ -8,11 +8,10 @@ using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
-using UnityEngine;
+
 
 namespace Assets.Scripts.Services
 {
-    using static UnityEngine.EventSystems.EventTrigger;
     using HeroPosition = Tuple<int, BattleLine, int>;
 
     public partial class BattleManagementService // ECS
@@ -335,28 +334,6 @@ namespace Assets.Scripts.Services
 
         }
 
-        internal void RequestDetailsHover(EcsPackedEntityWithWorld? packed)
-        {
-            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
-                return;
-
-            var pool = world.GetPool<SelectedTag>();
-
-            if (!pool.Has(entity))
-                pool.Add(entity);
-        }
-
-        internal void DismissDetailsHover(EcsPackedEntityWithWorld? packed)
-        {
-            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
-                return;
-
-            var pool = world.GetPool<SelectedTag>();
-
-            if (pool.Has(entity))
-                pool.Del(entity);
-        }
-
         private bool TryGetBattleFieldSlots(out Dictionary<HeroPosition, IHeroPosition> slots)
         {
             slots = null;
@@ -375,7 +352,7 @@ namespace Assets.Scripts.Services
             return true;
         }
 
-        internal void ShowAvailableTransferSlots(Tuple<int, BattleLine, int> pos)
+        internal void ShowAvailableTransferSlots(HeroPosition pos)
         {
             if (!TryGetBattleFieldSlots(out var slots))
                 return;

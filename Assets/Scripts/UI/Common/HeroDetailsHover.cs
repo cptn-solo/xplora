@@ -5,8 +5,9 @@ using TMPro;
 using UnityEngine;
 using Zenject;
 using Assets.Scripts.ECS.Data;
+using Assets.Scripts;
 
-public class HeroDetailsHover : BaseEntityView<SelectedTag<Hero>>
+public class HeroDetailsHover : BaseEntityView<HoverTag<Hero>>
 {
     [SerializeField] protected TextMeshProUGUI heroNameText;
 
@@ -39,13 +40,6 @@ public class HeroDetailsHover : BaseEntityView<SelectedTag<Hero>>
     }
 
 
-    protected void Start()
-    {
+    protected override void OnBeforeStart() =>
         Hero = null;
-    }
-
-    protected void OnDestroy()
-    {
-        OnGameObjectDestroy();
-    }
 }

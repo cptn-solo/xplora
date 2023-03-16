@@ -2,7 +2,6 @@
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using Assets.Scripts.UI.Battle;
 using UnityEngine;
 using System;
 
@@ -13,30 +12,29 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
 
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
-        private readonly EcsPoolInject<EntityViewRef<SelectedTag<Hero>>> detailsViewRefPool = default;
+        private readonly EcsPoolInject<EntityViewRef<HoverTag<Hero>>> detailsViewRefPool = default;
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> detailsBarsViewRefPool = default;
-        private readonly EcsPoolInject<SelectedTag> selectedTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<HeroConfigRefComp, EntityViewRef<Hero>,
-                SelectedTag>> selectionFilter = default;
+                HoverTag>> hoverFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<EntityViewRef<SelectedTag<Hero>>,
+            Inc<EntityViewRef<HoverTag<Hero>>,
                 ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
 
 
         public void Run(IEcsSystems systems)
         {
-            foreach (var entity in selectionFilter.Value)
+            foreach (var entity in hoverFilter.Value)
             {
                 ref var entityViewRef = ref entityViewRefPool.Value.Get(entity);
-                var card = (BattleUnit)entityViewRef.EntityView;
+                var card = (ITransform)entityViewRef.EntityView;
 
                 UpdateDetailsHover(entity, card.Transform);
             }
 
-            if (selectionFilter.Value.GetEntitiesCount() == 0)
+            if (hoverFilter.Value.GetEntitiesCount() == 0)
             {
                 foreach (var detailsViewEntity in detailsViewFilter.Value)
                 {

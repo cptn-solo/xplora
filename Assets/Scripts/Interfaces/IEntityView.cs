@@ -1,4 +1,5 @@
-﻿using Leopotam.EcsLite;
+﻿using Assets.Scripts.Services;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts
 {
@@ -19,6 +20,7 @@ namespace Assets.Scripts
     public interface IEntityView<T> : IEntityView
     {
         public EcsPackedEntityWithWorld? PackedEntity { get; set; }
+        public IEcsService EcsService { get; set; }
         public DataLoadDelegate<T> DataLoader { get; set; }
         public void UpdateData();
         public void Destroy();

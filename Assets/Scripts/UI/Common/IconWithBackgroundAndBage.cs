@@ -38,11 +38,6 @@ public partial class IconWithBackgroundAndBage : MonoBehaviour
         bageText = GetComponentInChildren<TextMeshProUGUI>();
     }
 
-    private void Start()
-    {
-        AttachToEntityView();   
-    }
-
     private void OnDestroy()
     {
         OnGameObjectDestroy();

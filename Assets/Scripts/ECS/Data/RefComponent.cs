@@ -24,6 +24,8 @@ namespace Assets.Scripts.ECS.Data
     public struct DeselectTag { }
     public struct SelectedTag { }
     public struct SelectedTag<T> { }
+    public struct HoverTag { }
+    public struct HoverTag<T> { }
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
     public struct UsedTag { }

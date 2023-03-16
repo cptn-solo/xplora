@@ -10,14 +10,8 @@ namespace Assets.Scripts.World
         private readonly RaidService raidService;
 
         [Inject]
-        public void Construct(RaidService raidService)
-        {
+        public void Construct(RaidService raidService) =>
             raidService.RegisterEntityView<Team>(this, raidService.RaidEntity);            
-        }    
 
-        private void OnDestroy()
-        {
-            OnGameObjectDestroy();
-        }
     }
 }

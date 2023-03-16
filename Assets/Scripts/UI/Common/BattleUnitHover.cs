@@ -6,15 +6,13 @@ using TMPro;
 using UnityEngine;
 using Zenject;
 
-public class BattleUnitHover : BaseEntityView<SelectedTag<Hero>>
+public class BattleUnitHover : BaseEntityView<HoverTag<Hero>>
 {
     [SerializeField] protected TextMeshProUGUI heroNameText;
 
     [Inject]
-    public void Construct(BattleManagementService service)
-    {
+    public void Construct(BattleManagementService service) =>
         service.RegisterEntityView(this);
-    }
 
     public string HeroName
     {
@@ -34,14 +32,6 @@ public class BattleUnitHover : BaseEntityView<SelectedTag<Hero>>
         }
     }
 
-
-    protected void Start()
-    {
+    protected override void OnBeforeStart() =>
         HeroName = null;
-    }
-
-    protected void OnDestroy()
-    {
-        OnGameObjectDestroy();
-    }
 }

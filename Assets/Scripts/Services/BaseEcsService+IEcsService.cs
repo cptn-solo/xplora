@@ -1,5 +1,4 @@
-﻿using System;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Services
@@ -45,8 +44,30 @@ namespace Assets.Scripts.Services
             view = (V)entityViewRef.EntityView;
 
             return true;
-
         }
+
+        public void RequestDetailsHover(EcsPackedEntityWithWorld? packed)
+        {
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return;
+
+            var pool = world.GetPool<HoverTag>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);
+        }
+
+        public void DismissDetailsHover(EcsPackedEntityWithWorld? packed)
+        {
+            if (packed == null || !packed.Value.Unpack(out var world, out var entity))
+                return;
+
+            var pool = world.GetPool<HoverTag>();
+
+            if (pool.Has(entity))
+                pool.Del(entity);
+        }
+
 
     }
 

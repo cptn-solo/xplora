@@ -10,13 +10,20 @@ namespace Assets.Scripts.World
         [Inject] private readonly WorldService worldService = default;
         
         private HexGrid grid;
+        private HexCell previousCell;
         private CellHighlighter cellHighlighter;
+        private PointerHandler pointerHandler;
 
         private void Awake()
         {
+            pointerHandler = GetComponent<PointerHandler>();
             grid = GetComponent<HexGrid>();
             cellHighlighter = GetComponent<CellHighlighter>();
+
+            pointerHandler.OnPositionHover += HandleHover;
+            pointerHandler.OnPositionTouch += HandleTouch;
         }
+
         private void Start()
         {
 
@@ -40,6 +47,9 @@ namespace Assets.Scripts.World
             worldService.TerrainProducer = null;
             worldService.CellIndexResolver = null;
             worldService.CellCoordinatesResolver = null;
+
+            pointerHandler.OnPositionHover -= HandleHover;
+            pointerHandler.OnPositionTouch -= HandleTouch;
         }
 
         private HexCoordinates ResolveHexCoordinates(HexCoordinates coord, HexDirection dir)
@@ -75,5 +85,58 @@ namespace Assets.Scripts.World
             return neighbor.coordinates.ToPosition();
         }
 
+        private HexCell GetCellUnderCursor(Vector2 pos) =>
+            grid.GetCell(Camera.main.ScreenPointToRay(pos));
+
+        #region Touch Cell       
+
+        private void HandleHover(Vector2 pos)
+        {
+
+            if (worldService.PlayerUnit == null)
+                return;
+
+            HexCell currentCell = GetCellUnderCursor(pos);
+
+            bool needUpdateHighlight = false;
+
+            if (currentCell)
+            {
+                if (!previousCell || currentCell != previousCell)
+                    needUpdateHighlight = true;
+
+                previousCell = currentCell;
+
+                needUpdateHighlight = needUpdateHighlight && worldService.CheckIfReachable(currentCell.coordinates);
+            }
+            else
+            {
+                if (previousCell)
+                    needUpdateHighlight = true;
+
+                previousCell = null;
+            }
+
+            if (needUpdateHighlight)
+            {
+                worldService.SetAimToCoordinates(currentCell ?
+                    currentCell.coordinates : null);
+            }
+        }
+
+        private void HandleTouch(Vector2 pos)
+        {
+            if (worldService.PlayerUnit == null)
+                return;
+
+            HexCell currentCell = GetCellUnderCursor(pos);
+            if (currentCell)
+            {
+                worldService.ResetHexDir(); //to prevent next cell selection - pointer doesn't need it
+                worldService.ProcessTargetCoordinatesSelection(currentCell.coordinates);
+            }
+        }
+
+        #endregion
     }
 }

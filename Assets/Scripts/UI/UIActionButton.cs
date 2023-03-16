@@ -32,5 +32,9 @@ public class UIActionButton : MonoBehaviour
     private void OnDisable() =>
         button.onClick.RemoveListener(OnButtonClick);
 
-
+    internal void SetEnabled(bool v)
+    {
+        button.interactable = v;
+        enabled = v;
+    }
 }

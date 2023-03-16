@@ -10,15 +10,8 @@ namespace Assets.Scripts.UI.Library
         private readonly HeroLibraryService libraryService;
 
         [Inject]
-        public void Construct(HeroLibraryService libraryService)
-        {
+        public void Construct(HeroLibraryService libraryService) =>
             libraryService.RegisterEntityView<Team>(this, libraryService.PlayerTeamEntity);
-        }
-
-        private void OnDestroy()
-        {
-            OnGameObjectDestroy();
-        }
 
     }
 }

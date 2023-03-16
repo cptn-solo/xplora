@@ -12,11 +12,8 @@ namespace Assets.Scripts.World
         public void Attach(Transform anchor) =>
             this.anchor = anchor;
 
-        private void OnDestroy()
-        {
+        protected override void OnBeforeDestroy() =>
             anchor = null;
-            OnGameObjectDestroy();
-        }
 
         private void Update()
         {
