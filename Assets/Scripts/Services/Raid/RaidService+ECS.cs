@@ -373,12 +373,21 @@ namespace Assets.Scripts.Services
                     break;
                 case SpecOption.UnlimitedStaminaTag:
                     {
+                        var updatePool = world.GetPool<UpdateTag>();
+
                         var pool = world.GetPool<BuffComp<NoStaminaDrainBuffTag>>();
                         if (!PlayerEntity.Unpack(out _, out var playerEntity))
                             throw new Exception("No Player entity");
 
                         if (!pool.Has(playerEntity))
                             pool.Add(playerEntity);
+
+                        ref var comp = ref pool.Get(playerEntity);
+                        comp.Usages += 3; // 3 turns without stamina usage
+
+                        if (!updatePool.Has(playerEntity))
+                            updatePool.Add(playerEntity);
+
                     }
                     break;
                 case SpecOption.DefenceRate:

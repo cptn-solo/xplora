@@ -56,12 +56,17 @@ namespace Assets.Scripts.ECS.Systems
 
                             ref var drainComp = ref drainPool.Value.Get(playerEntity);
 
-                            drainComp.Value += 10; // for cell transition
-
-                            if (staminaBuffPool.Value.Has(playerEntity))
-                                staminaBuffPool.Value.Del(playerEntity);
+                            if (!staminaBuffPool.Value.Has(playerEntity))
+                            {
+                                drainComp.Value += 10; // for cell transition
+                            }
                             else
-                                drainComp.Value += 10; // for battle (if no buff)
+                            {
+                                ref var staminaBuff = ref staminaBuffPool.Value.Get(playerEntity);
+                                staminaBuff.Usages--;
+                            }
+
+                            drainComp.Value += 10; // for battle
 
                             playerCellComp.CellIndex = opponentCellComp.CellIndex;
                         }

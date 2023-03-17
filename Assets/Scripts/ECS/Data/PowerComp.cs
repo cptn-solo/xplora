@@ -10,8 +10,19 @@ namespace Assets.Scripts.ECS.Data
     {
         private BarInfo[] barsInfo;
         private int currentValue;
+        private bool staminaBuff;
+
+        public bool StaminaBuff {
+            get => staminaBuff;
+            internal set
+            {
+                staminaBuff = value;
+                CurrentValue = currentValue;
+            }
+        }
 
         public int InitialValue { get; internal set; }
+
         public int CurrentValue
         {
             get => currentValue;
@@ -22,8 +33,10 @@ namespace Assets.Scripts.ECS.Data
                 var relativeValue =
                     InitialValue <= 0 ? 0f :
                     (float)currentValue / InitialValue;
-                var color = relativeValue > .5f ?
-                    UnityEngine.Color.green : UnityEngine.Color.red;
+                var color = StaminaBuff ?
+                    Color.white : 
+                    relativeValue > .5f ?
+                    Color.green : Color.red;
                 barsInfo = new BarInfo[] {
                     BarInfo.EmptyBarInfo(
                         0,

@@ -8,6 +8,7 @@ namespace Assets.Scripts.ECS.Systems
     public class UpdateUnitOverlaySystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<PowerComp> powerPool = default;
+        private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
         /// <summary>
         /// BarInfo shouldn't be messed up with BarSInfo wich is parent empty
         /// entity view that now contains only bars child
@@ -24,6 +25,8 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var powerComp = ref powerPool.Value.Get(entity);
                 ref var overlayRef = ref overlayPool.Value.Get(entity);
+
+                powerComp.StaminaBuff = staminaBuffPool.Value.Has(entity);
 
                 overlayRef.Container.SetItems(powerComp.BarsInfo);
             }
