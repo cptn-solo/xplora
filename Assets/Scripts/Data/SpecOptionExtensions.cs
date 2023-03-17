@@ -19,6 +19,25 @@ namespace Assets.Scripts.Data
                 _ => "Способность"
             };
 
+        public static string BonusOptionName(this SpecOption specOption, int factor) =>
+            specOption switch
+            {
+                SpecOption.DamageRange => factor == 100 ?
+                    $"Удвоить начальную силу героя" : 
+                    $"{specOption.Name()} +{factor}",
+                SpecOption.DefenceRate => $"{specOption.Name()} +{factor}",
+                SpecOption.AccuracyRate => $"{specOption.Name()} +{factor}",
+                SpecOption.DodgeRate => $"{specOption.Name()} +{factor}",
+                SpecOption.Health => factor == 100 ?
+                    "Восстановить здоровье героя" :
+                    $"{specOption.Name()} +{factor}",
+                SpecOption.Speed => $"{specOption.Name()} +{factor}",
+                SpecOption.UnlimitedStaminaTag =>
+                    "Сэкономить выносливость отряда",
+                SpecOption.HP => $"{specOption.Name()} +{factor}",
+                _ => $"{specOption.Name()} +{factor}"
+            };
+
         public static Type BuffComp(this SpecOption specOption) =>
             specOption switch
             {

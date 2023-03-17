@@ -190,7 +190,7 @@ namespace Assets.Scripts.Data
                 if (i < 2)
                     buffer.Add(resultBonusOptions[i].ToString());
                 else
-                    buffer[1] += $", {resultBonusOptions[i].ToString()}";
+                    buffer[1] += $", \n{resultBonusOptions[i]}";
             }
             info.ActionTitles = buffer.ToArray();
 
