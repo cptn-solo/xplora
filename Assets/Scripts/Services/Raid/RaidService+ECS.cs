@@ -365,7 +365,9 @@ namespace Assets.Scripts.Services
                         var hpPool = world.GetPool<HPComp>();
                         ref var hpComp = ref hpPool.Get(entity);
 
-                        hpComp.Value = Mathf.Min(healthComp.Value, hpComp.Value * 2);
+                        //HP buff changed from x2 to full HP recovery on event:
+                        //hpComp.Value = Mathf.Min(healthComp.Value, hpComp.Value * 2);
+                        hpComp.Value = healthComp.Value;
 
                         if (!updatePool.Has(entity))
                             updatePool.Add(entity);
