@@ -89,7 +89,8 @@ namespace Assets.Scripts.Services
             Screens previous, Screens current)
         {
             if (current == Screens.Raid &&
-                enemySpawnRulesConfigLoader.DataAvailable)
+                opponentSpawnConfigLoader.DataAvailable &&
+                teamSpawnConfigLoader.DataAvailable)
                 StartEcsWorld();
 
             if (previous == Screens.Raid)

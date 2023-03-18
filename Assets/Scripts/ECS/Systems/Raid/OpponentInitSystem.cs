@@ -33,12 +33,12 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            var enemySpawnConfig = OpponentSpawnConfig.DefaultConfig;
+            ref var enemySpawnConfig = ref raidService.Value.OpponentSpawnConfig();
 
             // % of free world cells we can occupy by enemies:
             var enemySpawnFactor = Random.Range(
-                enemySpawnConfig.SpawnRateForWorldChunk.Item1,
-                enemySpawnConfig.SpawnRateForWorldChunk.Item2);
+                enemySpawnConfig.SpawnRateForWorldChunk.MinRate,
+                enemySpawnConfig.SpawnRateForWorldChunk.MaxRate);
 
             // attributes ignored:
             var availableCellsCount = worldService.Value.GetFreeCellsCount(true);
@@ -47,7 +47,7 @@ namespace Assets.Scripts.ECS.Systems
             Debug.Log($"enemyNumber: {enemyNumber}");
 
             var indexed = IndexHeroesByStrength(raidComp.OpponentHeroConfigs);
-            var config = OpponentTeamMemberSpawnConfig.DefaultConfig();
+            ref var config = ref raidService.Value.OpponentTeamMemberSpawnConfig();
             raidComp.OpponentsIndexedByStrength = indexed;
             raidComp.OppenentMembersSpawnConfig = config;
             

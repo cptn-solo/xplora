@@ -8,20 +8,30 @@ namespace Assets.Scripts.Services
     {
         [Inject] private readonly StreamingAssetsLoaderService saLoader = default;
 
-        private EnemySpawnRulesLibrary spawnRulesLibrary = EnemySpawnRulesLibrary.EmptyLibrary();
-        private EnemySpawnRulesConfigLoader enemySpawnRulesConfigLoader;
+        private OpponentSpawnConfig opponentSpawnConfig = new();
+        private OpponentTeamMemberSpawnConfig teamSpawnConfig = new();
 
-        public EnemySpawnRulesLibrary EnemySpawnRulesLibrary => spawnRulesLibrary;
+        private EnemySpawnRulesConfigLoader opponentSpawnConfigLoader;
+        private TeamSpawnRulesConfigLoader teamSpawnConfigLoader;
 
+        public ref OpponentSpawnConfig OpponentSpawnConfig() =>
+            ref opponentSpawnConfig;
+
+        public ref OpponentTeamMemberSpawnConfig OpponentTeamMemberSpawnConfig() =>
+            ref teamSpawnConfig;
+        
         public event UnityAction OnDataAvailable;
 
         public bool DataAvailable =>
-            enemySpawnRulesConfigLoader != null &&
-            enemySpawnRulesConfigLoader.DataAvailable;
+            opponentSpawnConfigLoader != null &&
+            teamSpawnConfigLoader != null &&
+            opponentSpawnConfigLoader.DataAvailable &&
+            teamSpawnConfigLoader.DataAvailable;
 
         public void InitConfigLoading()
         {
-            enemySpawnRulesConfigLoader = new(spawnRulesLibrary, NotifyIfAllDataAvailable);
+            opponentSpawnConfigLoader = new(OpponentSpawnConfig, NotifyIfAllDataAvailable);
+            teamSpawnConfigLoader = new(OpponentTeamMemberSpawnConfig, NotifyIfAllDataAvailable);
         }
 
         public void NotifyIfAllDataAvailable()
@@ -32,12 +42,14 @@ namespace Assets.Scripts.Services
 
         public void LoadCachedData()
         {
-            saLoader.LoadData(enemySpawnRulesConfigLoader.ConfigFileName, enemySpawnRulesConfigLoader.ProcessSerializedString);
+            saLoader.LoadData(opponentSpawnConfigLoader.ConfigFileName, opponentSpawnConfigLoader.ProcessSerializedString);
+            saLoader.LoadData(teamSpawnConfigLoader.ConfigFileName, teamSpawnConfigLoader.ProcessSerializedString);
         }
 
         public void LoadRemoteData()
         {
-            enemySpawnRulesConfigLoader.LoadGoogleData();
+            opponentSpawnConfigLoader.LoadGoogleData();
+            teamSpawnConfigLoader.LoadGoogleData();
         }
 
     }

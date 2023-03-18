@@ -17,6 +17,9 @@ namespace Assets.Scripts.Data
             return result;
         }
 
+        public FloatRange SpawnRateForType(TerrainPOI terrainPOI) =>
+            TerrainPOIs[terrainPOI].SpawnRateInterval;
+
         internal void UpdateConfig(
             TerrainPOI terrainPOI,
             FloatRange range)

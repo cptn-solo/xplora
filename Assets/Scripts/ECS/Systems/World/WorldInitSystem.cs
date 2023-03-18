@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
@@ -20,19 +21,24 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var worldComp = ref worldPool.Value.Add(entity);
 
+            var config = worldService.Value.TerrainPOILibrary;
+
             worldComp.CellPackedEntities =
                 new EcsPackedEntity[worldService.Value.CellCount];
 
             var cellCount = worldService.Value.CellCount;
 
+            var psRate = config.SpawnRateForType(TerrainPOI.PowerSource);
             worldComp.PowerSourceCount =
-                (int)(cellCount * Random.Range(.25f, .5f) / 100);
+                (int)(cellCount * Random.Range(psRate.MinRate, psRate.MaxRate) / 100);
 
+            var hpsRate = config.SpawnRateForType(TerrainPOI.HPSource);
             worldComp.HPSourceCount =
-                (int)(cellCount * Random.Range(.25f, .5f) / 100);
+                (int)(cellCount * Random.Range(hpsRate.MinRate, hpsRate.MaxRate) / 100);
 
+            var wtRate = config.SpawnRateForType(TerrainPOI.WatchTower);
             worldComp.WatchTowerCount =
-                (int)(cellCount * Random.Range(.05f, .1f) / 100);
+                (int)(cellCount * Random.Range(wtRate.MinRate, wtRate.MaxRate) / 100);
 
             worldService.Value.SetWorldEntity(ecsWorld.Value.PackEntityWithWorld(entity));
         }
