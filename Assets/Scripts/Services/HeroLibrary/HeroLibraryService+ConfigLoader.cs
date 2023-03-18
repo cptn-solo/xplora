@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Assets.Scripts.Services
 {
-    public partial class HeroLibraryService // Config Loader
+    public partial class HeroLibraryService : IConfigLoaderService // Config Loader
     {
         [Inject] private readonly StreamingAssetsLoaderService saLoader = default;
 
@@ -20,7 +20,7 @@ namespace Assets.Scripts.Services
             heroesConfigLoader.DataAvailable &&
             damageConfigLoader.DataAvailable;
 
-        private void InitConfigLoading()
+        public void InitConfigLoading()
         {
             heroesConfigLoader = new(ProcessEcsHeroConfig, NotifyIfAllDataAvailable);
             damageConfigLoader = new(DamageTypesLibrary, NotifyIfAllDataAvailable);
@@ -32,13 +32,13 @@ namespace Assets.Scripts.Services
                 OnDataAvailable?.Invoke();
         }
 
-        public void LoadData()
+        public void LoadCachedData()
         {
             saLoader.LoadData(heroesConfigLoader.ConfigFileName, heroesConfigLoader.ProcessSerializedString);
             saLoader.LoadData(damageConfigLoader.ConfigFileName, damageConfigLoader.ProcessSerializedString);
         }
 
-        public void LoadGoogleData()
+        public void LoadRemoteData()
         {
             heroesConfigLoader.LoadGoogleData();
             damageConfigLoader.LoadGoogleData();

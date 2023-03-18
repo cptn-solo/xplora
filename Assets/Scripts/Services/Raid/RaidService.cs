@@ -42,6 +42,15 @@ namespace Assets.Scripts.Services
             battleManagementService.OnBattleComplete += BattleManagementService_OnBattleComplete;
 
             State = RaidState.NA;
+
+            InitConfigLoading();
+
+            OnDataAvailable += RaidService_OnDataAvailable;
+        }
+
+        private void RaidService_OnDataAvailable()
+        {
+            // NB: raid is initialized upon scene navigation so no explicit reset is required
         }
 
         private void BattleManagementService_OnBattleComplete(bool won, Asset[] pot)
@@ -79,7 +88,8 @@ namespace Assets.Scripts.Services
         private void MenuNavigationService_OnBeforeNavigateToScreen(
             Screens previous, Screens current)
         {
-            if (current == Screens.Raid)
+            if (current == Screens.Raid &&
+                enemySpawnRulesConfigLoader.DataAvailable)
                 StartEcsWorld();
 
             if (previous == Screens.Raid)

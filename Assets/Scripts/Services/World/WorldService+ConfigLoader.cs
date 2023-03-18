@@ -8,7 +8,7 @@ using Zenject;
 
 namespace Assets.Scripts.Services
 {
-    public partial class WorldService //Config loading
+    public partial class WorldService : IConfigLoaderService // Config loading
     {
         [Inject] private readonly StreamingAssetsLoaderService saLoader = default;
 
@@ -22,30 +22,48 @@ namespace Assets.Scripts.Services
 
         public TerrainEventLibrary TerrainEventsLibrary => terrainEventsLibrary;
 
+        private TerrainPOILibrary terrainPOILibrary = TerrainPOILibrary.EmptyLibrary();
+        private TerrainPOIsConfigLoader terrainPOIsConfigLoader;
+
+        public TerrainPOILibrary TerrainPOILibrary => terrainPOILibrary;
+
         public event UnityAction OnDataAvailable;
 
         public bool DataAvailable =>
             terrainAttributesConfigLoader != null &&
             terrainEventsConfigLoader != null &&
-            terrainAttributesConfigLoader.DataAvailable &&
-            terrainEventsConfigLoader.DataAvailable;
+            terrainPOIsConfigLoader != null &&
 
-        private void InitConfigLoading()
+            terrainAttributesConfigLoader.DataAvailable &&
+            terrainEventsConfigLoader.DataAvailable &&
+            terrainPOIsConfigLoader.DataAvailable;
+
+        public void InitConfigLoading()
         {
             terrainAttributesConfigLoader = new(terrainAttributesLibrary, NotifyIfAllDataAvailable);
             terrainEventsConfigLoader = new(terrainEventsLibrary, NotifyIfAllDataAvailable);
+            terrainPOIsConfigLoader = new(terrainPOILibrary, NotifyIfAllDataAvailable);
         }
 
-        private void NotifyIfAllDataAvailable()
+        public void NotifyIfAllDataAvailable()
         {
             if (DataAvailable)
                 OnDataAvailable?.Invoke();
         }
 
-        public void LoadData()
+        public void LoadCachedData()
         {
             saLoader.LoadData(terrainAttributesConfigLoader.ConfigFileName, terrainAttributesConfigLoader.ProcessSerializedString);
             saLoader.LoadData(terrainEventsConfigLoader.ConfigFileName, terrainEventsConfigLoader.ProcessSerializedString);
+            saLoader.LoadData(terrainPOIsConfigLoader.ConfigFileName, terrainPOIsConfigLoader.ProcessSerializedString);
         }
+
+        public void LoadRemoteData()
+        {
+            terrainAttributesConfigLoader.LoadGoogleData();
+            terrainEventsConfigLoader.LoadGoogleData();
+            terrainPOIsConfigLoader.LoadGoogleData();
+        }
+
     }
 }

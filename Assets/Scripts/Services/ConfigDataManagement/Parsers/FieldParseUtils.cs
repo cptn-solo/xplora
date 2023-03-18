@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -103,6 +104,30 @@ namespace Assets.Scripts.Services
             {
                 Debug.LogError($"ParseDamageEffect [{rawValue}] Exception: {ex.Message}");
                 return DamageEffect.NA;
+            }
+        }
+
+        public static TerrainPOI ParseTerrainPOI(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .ToLower();
+                return rawValues switch
+                {
+                    "источникстамины" => TerrainPOI.PowerSource,
+                    "колодецздоровья" => TerrainPOI.HPSource,
+                    "смотроваявышка" => TerrainPOI.WatchTower,
+                    _ => TerrainPOI.NA
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseTerrainPOI [{rawValue}] Exception: {ex.Message}");
+                return TerrainPOI.NA;
             }
         }
 
@@ -298,7 +323,7 @@ namespace Assets.Scripts.Services
             }
         }
 
-        public static int ParseRateValue(this object rawValueObj, int defaultValue = 0)
+        public static float ParseFloatRateValue(this object rawValueObj, float defaultValue = 0f)
         {
             string rawValue = (string)rawValueObj;
 
@@ -307,12 +332,46 @@ namespace Assets.Scripts.Services
                 var rawValues = rawValue
                     .Replace("%", "")
                     .Replace(" ", "")
+                    .Replace(",", ".")
                     .Replace("-", "");
 
                 if (rawValues.Length == 0)
                     return defaultValue;
 
-                return int.Parse(rawValues, System.Globalization.NumberStyles.None);
+                return float.Parse(rawValues,
+                    System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseFloatRateValue [{rawValue}] Exception: {ex.Message}");
+                return 0f;
+            }
+        }
+
+        public static int ParseRateValue(this object rawValueObj,
+            int defaultValue = 0,
+            bool signed = false)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace("%", "")
+                    .Replace(" ", "");
+
+                if (!signed)
+                    rawValues = rawValues
+                    .Replace("-", "");
+
+                if (rawValues.Length == 0)
+                    return defaultValue;
+
+                return int.Parse(rawValues,
+                    signed ?
+                        NumberStyles.AllowLeadingSign :
+                        NumberStyles.None);
             }
             catch (Exception ex)
             {
@@ -381,7 +440,7 @@ namespace Assets.Scripts.Services
                 if (rawValues.Length == 0)
                     return defaultValue;
 
-                return int.Parse(rawValues, System.Globalization.NumberStyles.None);
+                return int.Parse(rawValues, NumberStyles.None);
             }
             catch (Exception ex)
             {

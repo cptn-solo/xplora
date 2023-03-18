@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Assets.Scripts.Data
 {
-    using RangedRate = Tuple<int, int>;
-
     public struct StrengthSpawnInfo
     {
         public int OveralStrenght { get; set; }
@@ -22,6 +20,6 @@ namespace Assets.Scripts.Data
         /// Added (or subtructed) rate for a member spawn rate if a given member
         /// to be spawned for a team with a given total strength (ranged)
         /// </summary>
-        public Dictionary<RangedRate, int> TeamStrengthWeightedSpawnRates { get; set; }
+        public Dictionary<IntRange, int> TeamStrengthWeightedSpawnRates { get; set; }
     }
 }

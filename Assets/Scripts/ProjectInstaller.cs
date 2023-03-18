@@ -57,7 +57,7 @@ namespace Assets.Scripts
             libManagementService.Init(
                 menuNavigationService,
                 battleManagementService);
-            libManagementService.LoadData();
+            libManagementService.LoadCachedData();
 
             battleManagementService.Init(
                 menuNavigationService,
@@ -73,10 +73,11 @@ namespace Assets.Scripts
                 battleManagementService,
                 worldService,
                 audioPlaybackService);
+            raidService.LoadCachedData();
 
             worldService.Init(
                 menuNavigationService);
-            worldService.LoadData();
+            worldService.LoadCachedData();
         }
 
         private void BindInstallerInterfaces()

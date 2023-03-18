@@ -99,5 +99,71 @@ namespace Assets.Scripts.Data
             return retval;
         }
 
+        internal void ResetTeamMemberSpawnRates()
+        {
+            OveralStrengthLevels.Clear();
+        }
+
+        /// <summary>
+        /// Prepares base spawn rate info to be later updated with adjustments info.
+        /// Please purge existing records prior to load config
+        /// </summary>
+        /// <param name="strength">Hero strength</param>
+        /// <param name="spawnRate">Base spawn rate (before adjustments)</param>
+        /// <param name="tintColor">Tint color to be used with icons, etc</param>
+        internal void UpdateTeamMemberSpawnRateByStrength(int strength, int spawnRate, Color tintColor)
+        {
+            if (OveralStrengthLevels.TryGetValue(strength, out var existing))
+            {
+                existing.OveralStrenght = strength; // redundant but still helps to organize data.
+                existing.SpawnRate = spawnRate;
+                existing.TintColor = tintColor;
+
+                OveralStrengthLevels[strength] = existing;
+            }
+            else
+            {
+                var added = new StrengthSpawnInfo()
+                {
+                    OveralStrenght = strength,
+                    SpawnRate = spawnRate,
+                    TintColor = tintColor,
+                    TeamStrengthWeightedSpawnRates = new(),
+                };
+                OveralStrengthLevels.Add(strength, added);
+            }
+        }
+
+        /// <summary>
+        /// Sets adjustment for hero spawn rates according to overal team strength
+        /// </summary>
+        /// <param name="strength">Hero strength (used as a reference)</param>
+        /// <param name="teamStrength">Overal team strength range to be adjusted</param>
+        /// <param name="adjustment">Adjustment value</param>
+        /// <exception cref="Exception">This method can't be used untill base
+        /// spawn rates are loaded in UpdateEnemyBaseSpawnRateByStrength</exception>
+        internal void UpdateTeamMemberAdjustmentsByStrength(int strength, IntRange teamStrength, int adjustment)
+        {
+            if (!OveralStrengthLevels.TryGetValue(strength, out var existing))
+                throw new Exception("No Dict for Strength Adjustment");
+
+            var adjDict = existing.TeamStrengthWeightedSpawnRates;
+
+            if (adjDict.TryGetValue(teamStrength, out _))
+                adjDict[teamStrength] = adjustment;
+            else
+                adjDict.Add(teamStrength, adjustment);
+
+            existing.TeamStrengthWeightedSpawnRates = adjDict;
+
+            OveralStrengthLevels[strength] = existing;
+        }
+
+        internal void PrepareIndexes()
+        {
+            SortedSpawnRateInfo = OveralStrengthLevels
+                .OrderByDescending(x => x.Key);           
+        }
+
     }
 }

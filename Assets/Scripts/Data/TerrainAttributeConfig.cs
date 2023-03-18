@@ -1,5 +1,6 @@
 ﻿namespace Assets.Scripts.Data
 {
+
     public struct TerrainAttributeConfig
     {
         public TerrainType TerrainType { get; private set; }

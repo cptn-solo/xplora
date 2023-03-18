@@ -120,7 +120,7 @@ namespace Assets.Scripts.UI.Library
                 case Actions.ReloadMetadata:
                     {
                         if (googleHeroesAvailable)
-                            libManager.LoadGoogleData();
+                            libManager.LoadRemoteData();
                     }
                     break;
                 default:

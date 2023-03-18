@@ -30,6 +30,14 @@ public class EditModeMenu : EditorWindow
         {
             LoadTerrainEvents();
         }
+        else if (GUILayout.Button("Load Terrain POI configs (Google)"))
+        {
+            LoadTerrainPOIs();
+        }
+        else if (GUILayout.Button("Load Enemy Spawn rules (Google)"))
+        {
+            LoadEnemySpawnRules();
+        }
     }
 
     private void LoadHeroesFromGoogleSheet()
@@ -62,6 +70,22 @@ public class EditModeMenu : EditorWindow
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadTerrainEvents ran.");
+    }
+
+    private void LoadTerrainPOIs()
+    {
+        var loader = new TerrainPOIsConfigLoader();
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadTerrainPOIs ran.");
+    }
+
+    private void LoadEnemySpawnRules()
+    {
+        var loader = new EnemySpawnRulesConfigLoader();
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadEnemySpawnRules ran.");
     }
 
 }
