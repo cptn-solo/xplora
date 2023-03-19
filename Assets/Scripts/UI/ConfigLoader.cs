@@ -113,7 +113,7 @@ namespace Assets.Scripts.UI
 
             raidService.LoadRemoteData();
 
-            while (!worldServiceFinished)
+            while (!raidServiceFinished)
                 yield return null;
 
             EnqueueText($"Enemy and Enemy team member spawn rules loaded");

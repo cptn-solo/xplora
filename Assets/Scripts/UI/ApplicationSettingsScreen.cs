@@ -2,6 +2,7 @@ using Assets.Scripts.Services;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Zenject;
 
@@ -9,6 +10,8 @@ namespace Assets.Scripts.UI
 {
     public class ApplicationSettingsScreen : MonoBehaviour
     {
+        private PlayerInputActions inputActions;
+
         [Inject] private AudioPlaybackService audioPlaybackService = default;
         [Inject] private PlayerPreferencesService playerPrefsService = default;
 
@@ -19,6 +22,9 @@ namespace Assets.Scripts.UI
         [SerializeField] private Toggle disableRngToggle;
 
         [SerializeField] private Button closeButton;
+
+        private HandlePanelVisibility panel;
+
         public event UnityAction OnCloseButtonPressed;
 
         public void Close() => OnCloseButtonPressed?.Invoke();
@@ -45,6 +51,27 @@ namespace Assets.Scripts.UI
             disableRngToggle.onValueChanged.AddListener(OnDisableRngToggleChange);
 
             closeButton.onClick.AddListener(Close);
+
+            panel = GetComponentInChildren<HandlePanelVisibility>();
+
+            panel.OnClickedOutside += Close;
+
+            inputActions = new();
+        }
+        private void OnEnable()
+        {
+            inputActions.UI.Cancel.performed += Cancel_performed;
+            inputActions.Enable();
+        }
+        private void OnDisable()
+        {
+            inputActions.UI.Cancel.performed -= Cancel_performed;
+            inputActions.Disable();
+        }
+
+        private void Cancel_performed(InputAction.CallbackContext obj)
+        {
+            Close();
         }
 
         private void OnDestroy()
@@ -58,6 +85,7 @@ namespace Assets.Scripts.UI
             disableRngToggle.onValueChanged.RemoveListener(OnDisableRngToggleChange);
 
             closeButton.onClick.RemoveListener(Close);
+            panel.OnClickedOutside -= Close;
         }
 
         public void OnMusicSliderChange(float value)
