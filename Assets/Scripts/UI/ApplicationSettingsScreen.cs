@@ -12,16 +12,16 @@ namespace Assets.Scripts.UI
         [Inject] private AudioPlaybackService audioPlaybackService = default;
         [Inject] private PlayerPreferencesService playerPrefsService = default;
 
-        [SerializeField] private Button closeButton;
-
         [SerializeField] private Toggle musicToggle;
         [SerializeField] private Slider musicSlider;
         [SerializeField] private Toggle sfxToggle;
         [SerializeField] private Slider sfxSlider;
         [SerializeField] private Toggle disableRngToggle;
 
-
+        [SerializeField] private Button closeButton;
         public event UnityAction OnCloseButtonPressed;
+
+        public void Close() => OnCloseButtonPressed?.Invoke();
 
         void Start()
         {
@@ -33,8 +33,6 @@ namespace Assets.Scripts.UI
 
             disableRngToggle.isOn = playerPrefsService.DisableRNGToggle;
         }
-
-        public void Close() => OnCloseButtonPressed?.Invoke();
 
         private void Awake()
         {

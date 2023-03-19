@@ -14,6 +14,7 @@ namespace Assets.Scripts.UI
         private bool pauseBetweenScenes = false;
         
         private MenuNavigationService nav;
+        private ConfigLoader configLoader;
 
         [Inject]
         public void Construct(MenuNavigationService nav)
@@ -33,10 +34,19 @@ namespace Assets.Scripts.UI
             
             appSettingsScreen = GetComponentInChildren<ApplicationSettingsScreen>(true);
             appSettingsScreen.OnCloseButtonPressed += AppSettingsScreen_OnCloseButtonPressed;
+
+            configLoader = GetComponentInChildren<ConfigLoader>(true);
+            configLoader.OnCloseButtonPressed += ConfigLoader_OnCloseButtonPressed;
             
             //ToggleScreen(Screens.Hub);
             //ToggleScreen(Screens.Battle);
             //ToggleScreen(Screens.HeroesLibrary);
+        }
+
+        private void ConfigLoader_OnCloseButtonPressed()
+        {
+            configLoader.gameObject.SetActive(false);
+            HUD.gameObject.SetActive(true);
         }
 
         private void AppSettingsScreen_OnCloseButtonPressed()
@@ -53,6 +63,12 @@ namespace Assets.Scripts.UI
         private void HUD_OnMenuButtonPressed()
         {
             nav.NavigateToScreen(Screens.Hub);
+        }
+
+        public void ToggleConfigLoader()
+        {
+            configLoader.gameObject.SetActive(true);
+            HUD.gameObject.SetActive(false);
         }
 
         public void ToggleScreen(Screens screen, NavigationCallback callback)

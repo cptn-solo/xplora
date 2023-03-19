@@ -106,6 +106,8 @@ namespace Assets.Scripts.UI.Library
 
         private void OnActionButtonPressed(Actions action, Transform actionTransform)
         {
+            // NB: raid button is a navigation one, not an action, so no need to
+            // handle it here.
             switch (action)
             {
                 case Actions.SaveTeamForBattle:
@@ -120,7 +122,7 @@ namespace Assets.Scripts.UI.Library
                 case Actions.ReloadMetadata:
                     {
                         if (googleHeroesAvailable)
-                            libManager.LoadRemoteData();
+                            nav.UIManager.ToggleConfigLoader();
                     }
                     break;
                 default:

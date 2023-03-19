@@ -331,6 +331,11 @@ namespace Assets.Scripts.Services
             return freeIndexes;
         }
 
+        public void StopWorld()
+        {
+            StopEcsWorldContext();
+        }
+
         internal void ResetEcsTerrain()
         {
             if (!WorldEntity.Unpack(out var world, out var worldEntity))
