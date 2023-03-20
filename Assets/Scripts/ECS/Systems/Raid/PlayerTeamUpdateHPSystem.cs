@@ -9,8 +9,8 @@ namespace Assets.Scripts.ECS.Systems
 
     public class PlayerTeamUpdateHPSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> containerRefPool = default;
         private readonly EcsPoolInject<UpdateHPTag> updateTagPool = default;
 

@@ -21,8 +21,8 @@ namespace Assets.Scripts.ECS.Systems
         {
             luckyOne = -1;
             level = 0;
-            var filter = ecsWorld.Value.Filter<PlayerTeamTag>().Inc<HeroTraitComp<C>>().End();
-            var pool = ecsWorld.Value.GetPool<HeroTraitComp<C>>();
+            var filter = ecsWorld.Value.Filter<PlayerTeamTag>().Inc<IntValueComp<C>>().End();
+            var pool = ecsWorld.Value.GetPool<IntValueComp<C>>();
 
             var cnt = filter.GetEntitiesCount();
 

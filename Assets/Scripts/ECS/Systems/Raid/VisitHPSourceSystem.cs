@@ -9,13 +9,13 @@ namespace Assets.Scripts.ECS.Systems
     public class VisitHPSourceSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<UpdateHPTag> updatePool = default;
-        private readonly EcsPoolInject<HPComp> hpPool = default;
-        private readonly EcsPoolInject<HealthComp> healthPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpPool = default;
+        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthPool = default;
 
         private readonly EcsFilterInject<
             Inc<PlayerComp, VisitedComp<HPSourceComp>>> visitFilter = default;
         private readonly EcsFilterInject<
-            Inc<PlayerTeamTag, HPComp, HealthComp>,
+            Inc<PlayerTeamTag, IntValueComp<HpTag>, IntValueComp<HealthTag>>,
             Exc<DeadTag>> teamMembersFilter = default;
 
         private readonly EcsCustomInject<AudioPlaybackService> audioService = default;

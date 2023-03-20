@@ -18,10 +18,10 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<GarbageTag> garbagePool = default;
         private readonly EcsPoolInject<RetireTag> retirePool = default;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
-        private readonly EcsPoolInject<DebuffTag<DamageRangeComp>> debuffTagPool = default;
+        private readonly EcsPoolInject<DebuffTag<IntRangeValueComp<DamageRangeTag>>> debuffTagPool = default;
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter = default;
-        private readonly EcsFilterInject<Inc<BuffComp<DamageRangeComp>>> damageBuffFilter = default;
+        private readonly EcsFilterInject<Inc<BuffComp<IntRangeValueComp<DamageRangeTag>>>> damageBuffFilter = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 

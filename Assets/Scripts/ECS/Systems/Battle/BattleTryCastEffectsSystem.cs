@@ -5,6 +5,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -16,8 +17,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
-        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
 
@@ -72,7 +73,7 @@ namespace Assets.Scripts.ECS.Systems
                     ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
                     ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
-                    hpComp.UpdateHealthCurrent(turnInfo.ExtraDamage, healthComp.Value, out int aDisplay, out int aCurrent);
+                    hpComp.Value = Mathf.Max(0, hpComp.Value - turnInfo.ExtraDamage);
 
                     ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
                     barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;

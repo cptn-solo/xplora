@@ -10,7 +10,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroInstanceOriginRefComp> pool = default;
         private readonly EcsPoolInject<DeadTag> deadTagPool = default;
         
-        private readonly EcsPoolInject<HPComp> hpPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpPool = default;
 
         private readonly EcsFilterInject<
             Inc<HeroInstanceOriginRefComp, ProcessedHeroTag>> filter = default;
@@ -31,7 +31,7 @@ namespace Assets.Scripts.ECS.Systems
                     continue;
                 }
 
-                var hpPoolOrigin = originWorld.GetPool<HPComp>();
+                var hpPoolOrigin = originWorld.GetPool<IntValueComp<HpTag>>();
                 if (hpPoolOrigin.Has(originEntity))
                 {
                     ref var hpCompOrigin = ref hpPoolOrigin.Get(originEntity);

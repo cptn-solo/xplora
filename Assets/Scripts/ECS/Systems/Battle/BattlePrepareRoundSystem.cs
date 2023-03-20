@@ -18,10 +18,10 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<DraftTag> draftTagPool = default;
-        private readonly EcsPoolInject<NameComp> namePool = default;
-        private readonly EcsPoolInject<SpeedComp> speedPool = default;
-        private readonly EcsPoolInject<IconName> iconNamePool = default;
-        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool = default;
+        private readonly EcsPoolInject<IntValueComp<SpeedTag>> speedPool = default;
+        private readonly EcsPoolInject<NameValueComp<NameTag>> namePool = default;
+        private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
+        private readonly EcsPoolInject<NameValueComp<IdleSpriteTag>> idleSpriteNamePool = default;
 
         private readonly EcsFilterInject<Inc<BattleRoundInfo, DraftTag>> roundInfoFilter = default;
 

@@ -5,13 +5,14 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
     public class BattleApplyQueuedEffectsSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
-        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
@@ -56,7 +57,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var hpComp = ref hpCompPool.Value.Get(attackerEntity);
             ref var healthComp = ref healthCompPool.Value.Get(attackerEntity);
 
-            hpComp.UpdateHealthCurrent(effectDamage, healthComp.Value, out int aDisplay, out int aCurrent);
+            hpComp.Value = Mathf.Max(0, hpComp.Value - effectDamage);
 
             ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(attackerEntity);
             barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;

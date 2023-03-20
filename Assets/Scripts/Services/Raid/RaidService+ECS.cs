@@ -44,7 +44,7 @@ namespace Assets.Scripts.Services
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
                 .Add(new PlayerTeamUpdateHPSystem()) //HP update on team cards
-                .Add(new PlayerTeamUpdateBufSystem<DamageRangeComp>()) //Buf icons update on team cards
+                .Add(new PlayerTeamUpdateBufSystem<IntRangeValueComp<DamageRangeTag>>()) //Buf icons update on team cards
                                                                        //.DelHere<UpdateHPTag>()
                 .Add(new OutOfPowerSystem())
                 // with BattleAftermathComp:
@@ -52,7 +52,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleAftermathSystem())
                 .Add(new BattleTrophyCounterSystem())
                 .Add(new RaidBalanceUpdateSystem())
-                .Add(new PlayerTeamUpdateDebufSystem<DamageRangeComp>()) //remove buff and icons update on team cards
+                .Add(new PlayerTeamUpdateDebufSystem<IntRangeValueComp<DamageRangeTag>>()) //remove buff and icons update on team cards
                 .DelHere<BattleAftermathComp>()
                 .Add(new RemoveWorldPoiSystem())
                 .Add(new RaidTeardownSystem())

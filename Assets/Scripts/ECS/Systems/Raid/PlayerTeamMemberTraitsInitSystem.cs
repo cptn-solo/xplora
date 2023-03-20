@@ -65,7 +65,7 @@ namespace Assets.Scripts.ECS.Systems
         private void AddTraitComponent<T>(int playerTeamMemberEntity, KeyValuePair<HeroTrait, HeroTraitInfo> trait)
             where T : struct
         {
-            var pool = ecsWorld.Value.GetPool<HeroTraitComp<T>>();
+            var pool = ecsWorld.Value.GetPool<IntValueComp<T>>();
             ref var val = ref pool.Add(playerTeamMemberEntity);
             val.Value = trait.Value.Level;
         }

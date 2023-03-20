@@ -18,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<DeadTag> deadTagPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
 
         private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag>> makeTurnFilter = default;
 

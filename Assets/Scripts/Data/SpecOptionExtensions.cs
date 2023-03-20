@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Reflection;
 using Assets.Scripts.ECS.Data;
 
 namespace Assets.Scripts.Data
@@ -38,18 +37,6 @@ namespace Assets.Scripts.Data
                     "Сэкономить выносливость отряда",
                 SpecOption.HP => $"{specOption.Name()} +{factor}",
                 _ => $"{specOption.Name()} +{factor}"
-            };
-        
-        public static Type BuffComp(this SpecOption specOption) =>
-            specOption switch
-            {
-                SpecOption.DamageRange => typeof(BuffComp<DamageRangeComp>),
-                SpecOption.Speed => typeof(BuffComp<SpeedComp>),
-                SpecOption.Health => typeof(BuffComp<HealthComp>), // pls note that
-                                                                   // health buff add HP
-                                                                   // but not health (design decision)
-                SpecOption.HP => typeof(BuffComp<HPComp>),
-                _ => typeof(BuffComp<DummyBuff>)
-            };
+            };        
     }
 }

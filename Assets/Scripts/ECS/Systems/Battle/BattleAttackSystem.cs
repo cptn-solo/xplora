@@ -14,11 +14,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
         private readonly EcsPoolInject<DealEffectsTag> dealEffectsTagPool = default;
-        
+
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
-        private readonly EcsPoolInject<AccuracyRateComp> accuracyPool = default;
-        private readonly EcsPoolInject<DodgeRateComp> dodgePool = default;
+        private readonly EcsPoolInject<IntValueComp<AccuracyRateTag>> accuracyPool = default;
+        private readonly EcsPoolInject<IntValueComp<DodgeRateTag>> dodgePool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, MakeTurnTag, AttackTag, AttackerRef, TargetRef>> filter = default;

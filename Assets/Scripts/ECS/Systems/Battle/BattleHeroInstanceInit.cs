@@ -19,11 +19,12 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<FrontlineTag> frontlineTagPool = default;
         private readonly EcsPoolInject<BacklineTag> backlineTagPool = default;
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default; // dynamic (hp)
+        private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default; // mostly static (rates)
         private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
-        private readonly EcsPoolInject<NameComp> namePool = default;
-        private readonly EcsPoolInject<IconName> iconNamePool = default;
-        private readonly EcsPoolInject<IdleSpriteName> idleSpriteNamePool = default;
+        private readonly EcsPoolInject<NameValueComp<NameTag>> namePool = default;
+        private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
+        private readonly EcsPoolInject<NameValueComp<IdleSpriteTag>> idleSpriteNamePool = default;
         private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool = default;
         private readonly EcsPoolInject<DraftTag<BattleInfo>> draftBattleTagPool = default;
         private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool = default;
@@ -88,17 +89,28 @@ namespace Assets.Scripts.ECS.Systems
             else
                 backlineTagPool.Value.Add(heroInstanceEntity);
 
-            CloneOrigin<SpeedComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
-            CloneOrigin<DefenceRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
-            CloneOrigin<CritRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
-            CloneOrigin<AccuracyRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
-            CloneOrigin<DodgeRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
-            CloneOrigin<DamageRangeComp, IntRange>(heroInstanceEntity, battleWorld, originWorld, originEntity);
-
-            ref var healthComp = ref CloneOrigin<HealthComp>(heroInstanceEntity,
+            ref var speedComp = ref CloneOrigin<IntValueComp<SpeedTag>>(heroInstanceEntity,
                 battleWorld, originWorld, originEntity);
 
-            ref var hpComp = ref CloneOrigin<HPComp>(heroInstanceEntity,
+            ref var defenceRateComp = ref CloneOrigin<IntValueComp<DefenceRateTag>>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
+
+            ref var critRateComp = ref CloneOrigin<IntValueComp<CritRateTag>>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
+
+            ref var accuracyRateComp = ref CloneOrigin<IntValueComp<AccuracyRateTag>>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
+
+            ref var dodgeRateComp = ref CloneOrigin<IntValueComp<DodgeRateTag>>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
+
+            ref var damageRangeComp = ref CloneOrigin<IntRangeValueComp<DamageRangeTag>, IntRange>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
+
+            ref var healthComp = ref CloneOrigin<IntValueComp<HealthTag>>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
+
+            ref var hpComp = ref CloneOrigin<IntValueComp<HpTag>>(heroInstanceEntity,
                 battleWorld, originWorld, originEntity);
 
             ref var effectsComp = ref effectsPool.Value.Add(heroInstanceEntity);
@@ -120,6 +132,18 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var idleSpriteNameComp = ref idleSpriteNamePool.Value.Add(heroInstanceEntity);
             idleSpriteNameComp.Name = heroConfig.IdleSpriteName;
+
+            ref var barsInfoComp = ref barsInfoPool.Value.Add(heroInstanceEntity);
+            barsInfoComp.Name = heroConfig.Name;
+            barsInfoComp.Health = healthComp.Value;
+            barsInfoComp.Speed = speedComp.Value;
+            barsInfoComp.DamageMax = damageRangeComp.Value.MaxRate;
+            barsInfoComp.DefenceRate = defenceRateComp.Value;
+            barsInfoComp.AccuracyRate = accuracyRateComp.Value;
+            barsInfoComp.DodgeRate = dodgeRateComp.Value;
+            barsInfoComp.CriticalHitRate = critRateComp.Value;
+
+            barsInfoComp.Generate();
         }
 
         private ref T CloneOrigin<T>(int heroInstanceEntity, EcsWorld world, EcsWorld originWorld, int originEntity)

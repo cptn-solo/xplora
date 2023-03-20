@@ -18,43 +18,43 @@ namespace Assets.Scripts.Services
             {
                 case SpecOption.DamageRange:
                     {
-                        ref var comp = ref world.GetPool<DamageRangeComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntRangeValueComp<DamageRangeTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
                 case SpecOption.CritRate:
                     {
-                        ref var comp = ref world.GetPool<CritRateComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntValueComp<CritRateTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
                 case SpecOption.DefenceRate:
                     {
-                        ref var comp = ref world.GetPool<DefenceRateComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntValueComp<DefenceRateTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
                 case SpecOption.AccuracyRate:
                     {
-                        ref var comp = ref world.GetPool<AccuracyRateComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntValueComp<AccuracyRateTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
                 case SpecOption.DodgeRate:
                     {
-                        ref var comp = ref world.GetPool<DodgeRateComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntValueComp<DodgeRateTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
                 case SpecOption.Health:
                     {
-                        ref var comp = ref world.GetPool<HealthComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntValueComp<HealthTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
                 case SpecOption.Speed:
                     {
-                        ref var comp = ref world.GetPool<SpeedComp>().Get(entity);
+                        ref var comp = ref world.GetPool<IntValueComp<SpeedTag>>().Get(entity);
                         comp.Value += factor;
                         break;
                     }
@@ -97,7 +97,7 @@ namespace Assets.Scripts.Services
 
         private static void IncrementTraitLevel<T>(int factor, EcsWorld world, int entity)
         {
-            var pool = world.GetPool<HeroTraitComp<T>>();
+            var pool = world.GetPool<IntValueComp<T>>();
 
             if (!pool.Has(entity))
                 pool.Add(entity);
@@ -137,9 +137,9 @@ namespace Assets.Scripts.Services
             {
                 case SpecOption.DamageRange:
                     {
-                        var updatePool = world.GetPool<UpdateBuffsTag<DamageRangeComp>>();
+                        var updatePool = world.GetPool<UpdateBuffsTag<IntRangeValueComp<DamageRangeTag>>>();
                         //buff*=2
-                        var pool = world.GetPool<BuffComp<DamageRangeComp>>();
+                        var pool = world.GetPool<BuffComp<IntRangeValueComp<DamageRangeTag>>>();
                         if (!pool.Has(entity))
                             pool.Add(entity);
 
@@ -156,10 +156,10 @@ namespace Assets.Scripts.Services
                     {
                         var updatePool = world.GetPool<UpdateHPTag>();
                         //hp = max(health, hp*=2)
-                        var healthPool = world.GetPool<HealthComp>();
+                        var healthPool = world.GetPool<IntValueComp<HealthTag>>();
                         ref var healthComp = ref healthPool.Get(entity);
 
-                        var hpPool = world.GetPool<HPComp>();
+                        var hpPool = world.GetPool<IntValueComp<HpTag>>();
                         ref var hpComp = ref hpPool.Get(entity);
 
                         //HP buff changed from x2 to full HP recovery on event:

@@ -14,11 +14,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
-        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
-        private readonly EcsPoolInject<DefenceRateComp> defenceCompPool = default;
-        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool = default;
-        private readonly EcsPoolInject<CritRateComp> critRateCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<DefenceRateTag>> defenceCompPool = default;
+        private readonly EcsPoolInject<IntRangeValueComp<DamageRangeTag>> damageRangeCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<CritRateTag>> critRateCompPool = default;
 
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
@@ -69,7 +69,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var criticalComp = ref critRateCompPool.Value.Get(attackerEntity);
 
             var rawDamage = prefs.Value.DisableRNGToggle ?
-                damageRangeComp.Value.MaxRate : damageRangeComp.RandomDamage;
+                damageRangeComp.Value.MaxRate : damageRangeComp.RandomValue;
             var criticalDamage = !prefs.Value.DisableRNGToggle && criticalComp.Value.RatedRandomBool();
 
             int damage = rawDamage;
@@ -83,7 +83,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
             ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
-            hpComp.UpdateHealthCurrent(damage, healthComp.Value, out int aDisplay, out int aCurrent);
+            hpComp.Value = Mathf.Max(0, hpComp.Value - damage);
 
             ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
             barsAndEffectsComp.HealthCurrent = hpComp.Value;

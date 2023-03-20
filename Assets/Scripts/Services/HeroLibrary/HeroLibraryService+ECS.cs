@@ -302,28 +302,28 @@ namespace Assets.Scripts.Services
 
                 ref var heroConfig = ref world.GetPool<Hero>().Get(configEntity);
 
-                ref var speedComp = ref targetWorld.GetPool<SpeedComp>().Add(entity);
+                ref var speedComp = ref targetWorld.GetPool<IntValueComp<SpeedTag>>().Add(entity);
                 speedComp.Value = heroConfig.Speed;
 
-                ref var healthComp = ref targetWorld.GetPool<HealthComp>().Add(entity);
+                ref var healthComp = ref targetWorld.GetPool< IntValueComp<HealthTag>>().Add(entity);
                 healthComp.Value = heroConfig.Health;
 
-                ref var hpComp = ref targetWorld.GetPool<HPComp>().Add(entity);
+                ref var hpComp = ref targetWorld.GetPool< IntValueComp<HpTag>>().Add(entity);
                 hpComp.Value = heroConfig.Health;
 
-                ref var defenceRateComp = ref targetWorld.GetPool<DefenceRateComp>().Add(entity);
+                ref var defenceRateComp = ref targetWorld.GetPool< IntValueComp<DefenceRateTag>>().Add(entity);
                 defenceRateComp.Value = heroConfig.DefenceRate;
 
-                ref var critRateComp = ref targetWorld.GetPool<CritRateComp>().Add(entity);
+                ref var critRateComp = ref targetWorld.GetPool< IntValueComp<CritRateTag>>().Add(entity);
                 critRateComp.Value = heroConfig.CriticalHitRate;
 
-                ref var accuracyRateComp = ref targetWorld.GetPool<AccuracyRateComp>().Add(entity);
+                ref var accuracyRateComp = ref targetWorld.GetPool< IntValueComp<AccuracyRateTag>>().Add(entity);
                 accuracyRateComp.Value = heroConfig.AccuracyRate;
 
-                ref var dodgeRateComp = ref targetWorld.GetPool<DodgeRateComp>().Add(entity);
+                ref var dodgeRateComp = ref targetWorld.GetPool< IntValueComp<DodgeRateTag>>().Add(entity);
                 dodgeRateComp.Value = heroConfig.DodgeRate;
 
-                ref var damageRangeComp = ref targetWorld.GetPool<DamageRangeComp>().Add(entity);
+                ref var damageRangeComp = ref targetWorld.GetPool< IntRangeValueComp<DamageRangeTag>>().Add(entity);
                 damageRangeComp.Value = new IntRange(heroConfig.DamageMin, heroConfig.DamageMax);
 
                 buffer.Add(targetWorld.PackEntityWithWorld(entity));

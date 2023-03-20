@@ -10,16 +10,16 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
 
-        private readonly EcsPoolInject<DamageRangeComp>     damageRangeCompPool     = default;
-        private readonly EcsPoolInject<DefenceRateComp>     defenceRateCompPool     = default;
-        private readonly EcsPoolInject<CritRateComp>        critRateCompPool        = default;
-        private readonly EcsPoolInject<AccuracyRateComp>    accuracyRateCompPool    = default;
-        private readonly EcsPoolInject<DodgeRateComp>       dodgeRateCompPool       = default;
-        private readonly EcsPoolInject<HealthComp>          healthCompPool          = default;
-        private readonly EcsPoolInject<SpeedComp>           speedCompPool           = default;
-        private readonly EcsPoolInject<NameComp>            nameCompPool            = default;
+        private readonly EcsPoolInject<IntRangeValueComp<DamageRangeTag>> damageRangeCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<DefenceRateTag>> defenceRateCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<CritRateTag>> critRateCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<AccuracyRateTag>> accuracyRateCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<DodgeRateTag>> dodgeRateCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<SpeedTag>> speedCompPool = default;
+        private readonly EcsPoolInject<NameValueComp<NameTag>> nameCompPool = default;
 
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
 
         private readonly EcsFilterInject<Inc<HeroConfigRefComp, PlayerTeamTag>> filter = default;
 

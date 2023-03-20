@@ -35,18 +35,5 @@ namespace Assets.Scripts.Data
                 HeroTrait.Soft => $"{trait.Name()} +{factor}",
                 _ => $"{trait.Name()} +{factor}"
             };
-
-        public static Type HeroTraitComp(this HeroTrait trait) =>
-            trait switch
-            {
-                HeroTrait.Hidden => typeof(HeroTraitComp<TraitHiddenTag>),
-                HeroTrait.Purist => typeof(HeroTraitComp<TraitPuristTag>),
-                HeroTrait.Shrumer => typeof(HeroTraitComp<TraitShrumerTag>),
-                HeroTrait.Scout => typeof(HeroTraitComp<TraitScoutTag>),
-                HeroTrait.Tidy => typeof(HeroTraitComp<TraitTidyTag>),
-                HeroTrait.Soft => typeof(HeroTraitComp<TraitSoftTag>),
-                _ => typeof(HeroTraitComp<TraitDummyTag>)
-            };
-
     }
 }
