@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleUpdateHoverUnitSystem : UpdateCardHoverSystem, IEcsRunSystem
     {
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default;
 
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsPoolInject<EntityViewRef<HoverTag<Hero>>> detailsViewRefPool = default;
@@ -50,18 +50,14 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var detailsViewEntity in detailsViewFilter.Value)
             {
-                ref var heroConfigRef = ref heroConfigRefPool.Value.Get(entity);
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero config");
-
-                ref var heroConfig = ref libWorld.GetPool<Hero>().Get(libEntity);
+                ref var barsInfo = ref barsInfoPool.Value.Get(entity);
 
                 ref var detailsViewRef = ref detailsViewRefPool.Value.Get(detailsViewEntity);
                 var detailsView = (BattleUnitHover)detailsViewRef.EntityView;
-                detailsView.HeroName = heroConfig.Name;
+                detailsView.HeroName = barsInfo.Name;
 
                 ref var detailsBarsRef = ref detailsBarsViewRefPool.Value.Get(detailsViewEntity);
-                detailsBarsRef.Container.SetItems(heroConfig.BarsInfo);
+                detailsBarsRef.Container.SetItems(barsInfo.BarsInfo);
 
                 PositionHoverView(hostTransform, detailsView.Transform);
             }
