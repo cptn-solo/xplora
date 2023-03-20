@@ -9,8 +9,6 @@ using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Battle
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public partial class BattleScreen // Battle Unit Slot Delegate
     {
         private event UnityAction OnHeroMoved;

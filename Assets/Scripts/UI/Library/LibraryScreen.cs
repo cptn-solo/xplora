@@ -11,8 +11,6 @@ using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.UI.Library
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public partial class LibraryScreen : MenuScreen
     {
         [Inject] private readonly BattleManagementService battleManager = default;

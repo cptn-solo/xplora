@@ -6,11 +6,8 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Library
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public class LibrarySlot : UIItemSlot, IHeroPosition, ITransform
     {
-
         private HeroCard heroCard;
         public HeroCard HeroCard => heroCard;
 

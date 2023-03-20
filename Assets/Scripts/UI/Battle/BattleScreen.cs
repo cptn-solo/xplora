@@ -11,8 +11,6 @@ using Zenject;
 
 namespace Assets.Scripts.UI.Battle
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public partial class BattleScreen : MenuScreen
     {
         private BattleManagementService battleManager;

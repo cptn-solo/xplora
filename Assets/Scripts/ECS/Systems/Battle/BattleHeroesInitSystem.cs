@@ -8,8 +8,6 @@ using System.Linq;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public class BattleHeroesInitSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;

@@ -185,10 +185,10 @@ namespace Assets.Scripts.Services
                 StopEcsContext();
         }
 
-        internal EcsPackedEntityWithWorld? HeroAtPosition(Tuple<int, BattleLine, int> position) =>
+        internal EcsPackedEntityWithWorld? HeroAtPosition(HeroPosition position) =>
             GetEcsHeroAtPosition(position);
 
-        internal void MoveHero(EcsPackedEntityWithWorld hero, Tuple<int, BattleLine, int> pos) =>
+        internal void MoveHero(EcsPackedEntityWithWorld hero, HeroPosition pos) =>
             MoveEcsHeroToPosition(hero, pos);
 
         internal void RequestBattle(

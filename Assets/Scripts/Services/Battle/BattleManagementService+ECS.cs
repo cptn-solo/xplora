@@ -12,8 +12,6 @@ using Leopotam.EcsLite.ExtendedSystems;
 
 namespace Assets.Scripts.Services
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public partial class BattleManagementService // ECS
     {
         public EcsPackedEntityWithWorld BattleEntity { get; internal set; } //current battle

@@ -6,8 +6,6 @@ using UnityEngine.Events;
 
 namespace Assets.Scripts.UI.Library
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public partial class LibraryScreen // Slot Delegate 
     {
         private event UnityAction OnHeroMoved;

@@ -9,8 +9,6 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.Services
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public partial class HeroLibraryService // ECS
     {
         public EcsPackedEntityWithWorld LibraryEntity { get; internal set; }

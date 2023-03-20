@@ -7,7 +7,7 @@ namespace Assets.Scripts.Battle
 {
     public interface IHeroPosition //Slot
     {
-        public Tuple<int, BattleLine, int> Position { get; }
+        public HeroPosition Position { get; }
         public void Put(Transform transform);
         public void Reset();
         public void ToggleVisual(bool toggle);

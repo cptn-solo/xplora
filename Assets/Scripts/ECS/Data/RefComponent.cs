@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Battle;
@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
+    using Random = UnityEngine.Random;
 
     #region Tags
 
@@ -85,7 +85,7 @@ namespace Assets.Scripts.ECS.Data
         public Transform Transform;
     }
 
-#endregion
+    #endregion
 
     #region Comps
 
@@ -240,7 +240,7 @@ namespace Assets.Scripts.ECS.Data
         public int Max { get; set; }
         public int Min { get; set; }
 
-        public int RandomDamage => UnityEngine.Random.Range(Min, Max + 1);
+        public int RandomDamage => Random.Range(Min, Max + 1);
 
     }
 

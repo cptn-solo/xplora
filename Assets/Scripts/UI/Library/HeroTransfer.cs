@@ -4,8 +4,6 @@ using Leopotam.EcsLite;
 
 namespace Assets.Scripts
 {
-    using HeroPosition = Tuple<int, BattleLine, int>;
-
     public class HeroTransfer
     {
         public struct HeroTransaction

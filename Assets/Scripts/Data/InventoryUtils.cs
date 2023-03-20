@@ -8,8 +8,8 @@ namespace Assets.Scripts.Data
     public static class InventoryUtils
     {
         public delegate bool ItemComparer<T>(T val);
-        public static Tuple<int, BattleLine, int> FirstFreeSlotIndex<T>(
-            this Dictionary<Tuple<int, BattleLine, int>, T> heroes, 
+        public static HeroPosition FirstFreeSlotIndex<T>(
+            this Dictionary<HeroPosition, T> heroes, 
             ItemComparer<T> comparer)
         {
             var sorted = heroes
@@ -19,7 +19,7 @@ namespace Assets.Scripts.Data
             {
                 var slot = sorted[i];
                 if (slot.Key.Item3 > i)
-                    return new Tuple<int, BattleLine, int>(-1, BattleLine.NA, i);
+                    return new HeroPosition(-1, BattleLine.NA, i);
             }
 
             return new(-1, BattleLine.NA, sorted.Count());
