@@ -16,9 +16,11 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<HPComp> hpCompPool = default;
         private readonly EcsPoolInject<HealthComp> healthCompPool = default;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
+        private readonly EcsPoolInject<DefenceRateComp> defenceCompPool = default;
         private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool = default;
+        private readonly EcsPoolInject<CritRateComp> critRateCompPool = default;
 
+        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
 
 
@@ -53,9 +55,9 @@ namespace Assets.Scripts.ECS.Systems
                 throw new Exception("No Target entity");
 
             ref var attackerConfig = ref battleService.Value.GetHeroConfig(attackerRef.HeroInstancePackedEntity);
-            ref var targetConfig = ref battleService.Value.GetHeroConfig(targetRef.HeroInstancePackedEntity);
 
-            var shield = targetConfig.DefenceRate;
+            ref var defenceComp = ref defenceCompPool.Value.Get(targetEntity);
+            var shield = defenceComp.Value;
             if (turnInfo.Pierced)
             {
                 DamageEffectConfig config = libraryService.Value.DamageTypesLibrary
@@ -64,9 +66,11 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             ref var damageRangeComp = ref damageRangeCompPool.Value.Get(attackerEntity);
+            ref var criticalComp = ref critRateCompPool.Value.Get(attackerEntity);
 
-            var rawDamage = prefs.Value.DisableRNGToggle ? damageRangeComp.Max : damageRangeComp.RandomDamage;
-            var criticalDamage = !prefs.Value.DisableRNGToggle && attackerConfig.RandomCriticalHit;
+            var rawDamage = prefs.Value.DisableRNGToggle ?
+                damageRangeComp.Value.MaxRate : damageRangeComp.RandomDamage;
+            var criticalDamage = !prefs.Value.DisableRNGToggle && criticalComp.Value.RatedRandomBool();
 
             int damage = rawDamage;
             damage *= criticalDamage ? 2 : 1;

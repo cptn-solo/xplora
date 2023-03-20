@@ -126,6 +126,12 @@ namespace Assets.Scripts.ECS.Data
     public struct StrengthComp : IIntValue
     {
         public int Value { get; set; }
+
+        public void Combine(int b) =>
+            Value = Value * b;
+
+        public void Combine(float b) =>
+            Value = (int)(Value * b);
     }
 
     public struct HeroComp : IPackedWithWorldRef
@@ -201,9 +207,6 @@ namespace Assets.Scripts.ECS.Data
     /// </summary>
     public struct PositionComp
     {
-        /// <summary>
-        /// team id + battle line + slot index 
-        /// </summary>
         public HeroPosition Position { get; set; }
     }
 
@@ -221,28 +224,6 @@ namespace Assets.Scripts.ECS.Data
     public struct HostileComp { } // hostile unit/poi
     public struct FriendlyComp { } // friendly unit/poi
     public struct NeutralComp { } // neutral unit/poi
-
-    public struct DummyBuff : IIntValue
-    {
-        public int Value { get; set; }
-    }
-
-    public struct BuffComp<T> : IIntValue
-    {
-        public int Value { get; set; }
-        public int Usages { get; set; }
-        public Color IconColor { get; set; }
-        public BundleIcon Icon { get; set; }
-    }
-
-    public struct DamageRangeComp
-    {
-        public int Max { get; set; }
-        public int Min { get; set; }
-
-        public int RandomDamage => Random.Range(Min, Max + 1);
-
-    }
 
     #endregion
 

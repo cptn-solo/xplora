@@ -5,6 +5,7 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
+using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -16,12 +17,13 @@ namespace Assets.Scripts.ECS.Systems
         
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
+        private readonly EcsPoolInject<AccuracyRateComp> accuracyPool = default;
+        private readonly EcsPoolInject<DodgeRateComp> dodgePool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, MakeTurnTag, AttackTag, AttackerRef, TargetRef>> filter = default;
 
         private readonly EcsCustomInject<PlayerPreferencesService> prefs = default;
-        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {
@@ -34,14 +36,20 @@ namespace Assets.Scripts.ECS.Systems
             ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
             ref var targetRef = ref targetRefPool.Value.Get(turnEntity);
 
-            ref var attackerConfig = ref battleService.Value.GetHeroConfig(attackerRef.HeroInstancePackedEntity);
-            ref var targetConfig = ref battleService.Value.GetHeroConfig(targetRef.HeroInstancePackedEntity);
+            if (!attackerRef.Packed.Unpack(out _, out var attakerEntity))
+                throw new Exception("No attacker");
+
+            if (!targetRef.Packed.Unpack(out _, out var targetEntity))
+                throw new Exception("No target");
+
+            ref var accuracyComp = ref accuracyPool.Value.Get(attakerEntity);
+            ref var dodgeComp = ref dodgePool.Value.Get(targetEntity);
 
             // attack:
-            var accurate = prefs.Value.DisableRNGToggle || attackerConfig.RandomAccuracy;
+            var accurate = prefs.Value.DisableRNGToggle || accuracyComp.Value.RatedRandomBool();
 
             // defence:
-            var dodged = !prefs.Value.DisableRNGToggle && targetConfig.RandomDodge;
+            var dodged = !prefs.Value.DisableRNGToggle && dodgeComp.Value.RatedRandomBool();
 
             if (accurate && !dodged)
             {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
@@ -8,7 +7,6 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     public class PlayerInitSystem : IEcsInitSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
@@ -22,9 +20,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<SightRangeComp> sightRangePool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
-        private readonly EcsPoolInject<SpeedComp> speedCompPool = default;
-        private readonly EcsPoolInject<HealthComp> healthCompPool = default;
-        private readonly EcsPoolInject<HPComp> hpCompPool = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 
@@ -79,20 +74,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Add(playerTeamMemberEntity);
                 heroConfigRef.HeroConfigPackedEntity = heroConfigPackedEntity;
-
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero Config");
-
-                ref var heroConfig = ref libWorld.GetPool<Hero>().Get(libEntity);
-
-                ref var speedComp = ref speedCompPool.Value.Add(playerTeamMemberEntity);
-                speedComp.Value = heroConfig.Speed;
-
-                ref var healthComp = ref healthCompPool.Value.Add(playerTeamMemberEntity);
-                healthComp.Value = heroConfig.Health;
-
-                ref var hpComp = ref hpCompPool.Value.Add(playerTeamMemberEntity);
-                hpComp.Value = heroConfig.Health;
             }
 
             ListPool<Hero>.Add(heroBuffer);

@@ -36,7 +36,7 @@ namespace Assets.Scripts.ECS.Systems
                 var eventConfig = worldService.Value
                     .TerrainEventsLibrary.TerrainEvents[attributes.Info.TerrainAttribute];
 
-                raidService.Value.TryCastEcsTerrainEvent(eventConfig,
+                raidService.Value.CastEcsTerrainEvent(eventConfig,
                     traitHero.Hero, traitHero.PackedHeroInstanceEntity, traitHero.MaxLevel);
             }
         }

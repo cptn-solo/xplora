@@ -7,35 +7,29 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntityWithWorld Packed { get; }
     }
-    public interface IName
-    {
-        public string Name { get; }
-    }
-    public interface IIntValue
-    {
-        public int Value { get; }
-    }
 
     public struct BattleComp
     {
         public EcsPackedEntity EnemyPackedEntity { get; internal set; }
     }
+
     public struct BattleRefComp
     {
         public EcsPackedEntity BattlePackedEntity { get; internal set; }
     }
+
     public struct HeroConfigRefComp : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroConfigPackedEntity { get; internal set; }
         public EcsPackedEntityWithWorld Packed => HeroConfigPackedEntity;
     }
+
     public struct HeroInstanceRefComp : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
         public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
 
     }
-
 
     /// <summary>
     /// To be attached to a battle hero instance to track back damage and such for the raid
@@ -54,30 +48,6 @@ namespace Assets.Scripts.ECS.Data
     public struct BattleRoundRefComp
     {
         public EcsPackedEntity RoundPackedEntity { get; internal set; }
-    }
-
-    /// <summary>
-    /// Initial HP
-    /// </summary>
-    public struct HealthComp : IIntValue
-    {
-        public int Value { get; set; }
-    }
-    public struct SpeedComp : IIntValue
-    {
-        public int Value { get; set; }
-    }
-    public struct NameComp : IName
-    {
-        public string Name { get; set; }
-    }
-    public struct IconName : IName
-    {
-        public string Name { get; set; }
-    }
-    public struct IdleSpriteName : IName
-    {
-        public string Name { get; set; }
     }    
 
     public struct BattleInProgressTag { }

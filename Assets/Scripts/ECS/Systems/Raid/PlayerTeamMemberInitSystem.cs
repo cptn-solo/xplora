@@ -1,0 +1,67 @@
+﻿using System;
+using Assets.Scripts.Data;
+using Assets.Scripts.ECS.Data;
+using Leopotam.EcsLite;
+using Leopotam.EcsLite.Di;
+
+namespace Assets.Scripts.ECS.Systems
+{
+    public class PlayerTeamMemberInitSystem : IEcsInitSystem
+    {
+        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+
+        private readonly EcsPoolInject<DamageRangeComp>     damageRangeCompPool     = default;
+        private readonly EcsPoolInject<DefenceRateComp>     defenceRateCompPool     = default;
+        private readonly EcsPoolInject<CritRateComp>        critRateCompPool        = default;
+        private readonly EcsPoolInject<AccuracyRateComp>    accuracyRateCompPool    = default;
+        private readonly EcsPoolInject<DodgeRateComp>       dodgeRateCompPool       = default;
+        private readonly EcsPoolInject<HealthComp>          healthCompPool          = default;
+        private readonly EcsPoolInject<SpeedComp>           speedCompPool           = default;
+        private readonly EcsPoolInject<NameComp>            nameCompPool            = default;
+
+        private readonly EcsPoolInject<HPComp> hpCompPool = default;
+
+        private readonly EcsFilterInject<Inc<HeroConfigRefComp, PlayerTeamTag>> filter = default;
+
+        public void Init(IEcsSystems systems)
+        {
+            foreach (var entity in filter.Value)
+            {
+                ref var heroConfigRef = ref heroConfigRefPool.Value.Get(entity);
+
+                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
+                    throw new Exception("No Hero Config");
+
+                ref var heroConfig = ref libWorld.GetPool<Hero>().Get(libEntity);
+
+                ref var damageRangeComp = ref damageRangeCompPool.Value.Add(entity);
+                damageRangeComp.Value = new IntRange(heroConfig.DamageMin, heroConfig.DamageMax);
+
+                ref var defenceRateComp = ref defenceRateCompPool.Value.Add(entity);
+                defenceRateComp.Value = heroConfig.DefenceRate;
+
+                ref var critRateComp = ref critRateCompPool.Value.Add(entity);
+                critRateComp.Value = heroConfig.CriticalHitRate;
+
+                ref var accuracyRateComp = ref accuracyRateCompPool.Value.Add(entity);
+                accuracyRateComp.Value = heroConfig.AccuracyRate;
+
+                ref var dodgeRateComp = ref dodgeRateCompPool.Value.Add(entity);
+                dodgeRateComp.Value = heroConfig.DodgeRate;
+
+                ref var healthComp = ref healthCompPool.Value.Add(entity);
+                healthComp.Value = heroConfig.Health;
+
+                ref var speedComp = ref speedCompPool.Value.Add(entity);
+                speedComp.Value = heroConfig.Speed;
+
+                ref var hpComp = ref hpCompPool.Value.Add(entity);
+                hpComp.Value = heroConfig.Health;
+
+                ref var nameComp = ref nameCompPool.Value.Add(entity);
+                nameComp.Name = heroConfig.Name;
+
+            }
+        }
+    }
+}

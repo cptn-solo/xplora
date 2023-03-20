@@ -15,12 +15,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
         private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool = default;
         private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
-        private readonly EcsPoolInject<DamageRangeComp> damageRangeCompPool = default;
-        private readonly EcsPoolInject<SpeedComp> speedPool = default;
+
         private readonly EcsPoolInject<FrontlineTag> frontlineTagPool = default;
         private readonly EcsPoolInject<BacklineTag> backlineTagPool = default;
-        private readonly EcsPoolInject<HealthComp> healthPool = default;
-        private readonly EcsPoolInject<HPComp> hpPool = default;
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
@@ -91,31 +88,18 @@ namespace Assets.Scripts.ECS.Systems
             else
                 backlineTagPool.Value.Add(heroInstanceEntity);
 
-            ref var speedComp = ref speedPool.Value.Add(heroInstanceEntity);
-            ref var speedCompOrigin = ref originWorld.GetPool<SpeedComp>().Get(originEntity);
-            speedComp.Value = speedCompOrigin.Value;
+            CloneOrigin<SpeedComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
+            CloneOrigin<DefenceRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
+            CloneOrigin<CritRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
+            CloneOrigin<AccuracyRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
+            CloneOrigin<DodgeRateComp>(heroInstanceEntity, battleWorld, originWorld, originEntity);
+            CloneOrigin<DamageRangeComp, IntRange>(heroInstanceEntity, battleWorld, originWorld, originEntity);
 
-            ref var damageRangeComp = ref damageRangeCompPool.Value.Add(heroInstanceEntity);
+            ref var healthComp = ref CloneOrigin<HealthComp>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
 
-            damageRangeComp.Min = heroConfig.DamageMin;
-            damageRangeComp.Max = heroConfig.DamageMax;
-
-            var damageRangeBuffPool = originWorld.GetPool<BuffComp<DamageRangeComp>>();
-
-            if (damageRangeBuffPool.Has(originEntity))
-            {
-                ref var damageBuff = ref damageRangeBuffPool.Get(originEntity);
-                damageRangeComp.Min *= damageBuff.Value / 100;
-                damageRangeComp.Max *= damageBuff.Value / 100;
-            }
-
-            ref var healthComp = ref healthPool.Value.Add(heroInstanceEntity);
-            ref var healthCompOrigin = ref originWorld.GetPool<HealthComp>().Get(originEntity);
-            healthComp.Value = healthCompOrigin.Value;
-
-            ref var hpComp = ref hpPool.Value.Add(heroInstanceEntity);
-            ref var hpCompOrigin = ref originWorld.GetPool<HPComp>().Get(originEntity);
-            hpComp.Value = hpCompOrigin.Value;
+            ref var hpComp = ref CloneOrigin<HPComp>(heroInstanceEntity,
+                battleWorld, originWorld, originEntity);
 
             ref var effectsComp = ref effectsPool.Value.Add(heroInstanceEntity);
             effectsComp.ActiveEffects = new();
@@ -136,6 +120,29 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var idleSpriteNameComp = ref idleSpriteNamePool.Value.Add(heroInstanceEntity);
             idleSpriteNameComp.Name = heroConfig.IdleSpriteName;
+        }
+
+        private ref T CloneOrigin<T>(int heroInstanceEntity, EcsWorld world, EcsWorld originWorld, int originEntity)
+            where T : struct, IIntValue =>
+            ref CloneOrigin<T, int>(heroInstanceEntity, world, originWorld, originEntity);
+
+        private ref T CloneOrigin<T, V>(int heroInstanceEntity, EcsWorld world, EcsWorld originWorld, int originEntity)
+            where T : struct, IValue<V>
+        {
+            var pool = world.GetPool<T>();
+            ref var comp = ref pool.Add(heroInstanceEntity);
+            ref var compOrigin = ref originWorld.GetPool<T>().Get(originEntity);
+            comp.Value = compOrigin.Value;
+
+            var buffPool = originWorld.GetPool<BuffComp<T>>();
+
+            if (buffPool.Has(originEntity))
+            {
+                ref var buffComp = ref buffPool.Get(originEntity);
+                comp.Combine(buffComp.Value / 100f);
+            }
+
+            return ref comp;
         }
     }
 }

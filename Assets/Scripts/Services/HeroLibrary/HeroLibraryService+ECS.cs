@@ -280,73 +280,7 @@ namespace Assets.Scripts.Services
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
             ref var entityViewRef = ref entityViewRefPool.Get(entity);
             slot.Put(entityViewRef.EntityView.Transform);
-        }
-
-        internal void BoostSpecOption(Hero eventHero, SpecOption specOption, int factor)
-        {
-            var packed = HeroConfigEntities[eventHero.Id];
-            if (!packed.Unpack(out var world, out var entity))
-                throw new Exception("No Hero Config");
-
-            var heroConfigPool = world.GetPool<Hero>();
-            ref var heroConfig = ref heroConfigPool.Get(entity);
-
-            switch (specOption)
-            {
-                case SpecOption.DamageRange:
-                    heroConfig.DamageMin += factor;
-                    heroConfig.DamageMax += factor;
-                    break;
-                case SpecOption.DefenceRate:
-                    heroConfig.DefenceRate += factor;
-                    break;
-                case SpecOption.AccuracyRate:
-                    heroConfig.AccuracyRate += factor;
-                    break;
-                case SpecOption.DodgeRate:
-                    heroConfig.DodgeRate += factor;
-                    break;
-                case SpecOption.Health:
-                    heroConfig.Health += factor;
-                    break;
-                case SpecOption.Speed:
-                    heroConfig.Speed += factor;
-                    break;
-                case SpecOption.UnlimitedStaminaTag: //NA for permanent boost
-                    break;
-                default:
-                    break;
-            }
-
-        }
-
-        internal void BoostTraitOption(Hero eventHero, HeroTrait traitOption, int factor)
-        {
-            var packed = HeroConfigEntities[eventHero.Id];
-            if (!packed.Unpack(out var world, out var entity))
-                throw new Exception("No Hero Config");
-
-            var heroConfigPool = world.GetPool<Hero>();
-            ref var heroConfig = ref heroConfigPool.Get(entity);
-
-            switch (traitOption)
-            {
-                case HeroTrait.Hidden:
-                case HeroTrait.Purist:
-                case HeroTrait.Shrumer:
-                case HeroTrait.Scout:
-                case HeroTrait.Tidy:
-                case HeroTrait.Soft:
-                    {
-                        var val = heroConfig.Traits[traitOption];
-                        val.Level += factor;
-                        heroConfig.Traits[traitOption] = val;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        }       
 
         public EcsPackedEntityWithWorld[] WrapForBattle(
             EcsPackedEntityWithWorld[] heroes, EcsWorld targetWorld = null)
@@ -376,6 +310,21 @@ namespace Assets.Scripts.Services
 
                 ref var hpComp = ref targetWorld.GetPool<HPComp>().Add(entity);
                 hpComp.Value = heroConfig.Health;
+
+                ref var defenceRateComp = ref targetWorld.GetPool<DefenceRateComp>().Add(entity);
+                defenceRateComp.Value = heroConfig.DefenceRate;
+
+                ref var critRateComp = ref targetWorld.GetPool<CritRateComp>().Add(entity);
+                critRateComp.Value = heroConfig.CriticalHitRate;
+
+                ref var accuracyRateComp = ref targetWorld.GetPool<AccuracyRateComp>().Add(entity);
+                accuracyRateComp.Value = heroConfig.AccuracyRate;
+
+                ref var dodgeRateComp = ref targetWorld.GetPool<DodgeRateComp>().Add(entity);
+                dodgeRateComp.Value = heroConfig.DodgeRate;
+
+                ref var damageRangeComp = ref targetWorld.GetPool<DamageRangeComp>().Add(entity);
+                damageRangeComp.Value = new IntRange(heroConfig.DamageMin, heroConfig.DamageMax);
 
                 buffer.Add(targetWorld.PackEntityWithWorld(entity));
             }

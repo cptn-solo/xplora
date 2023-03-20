@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Scripts.ECS.Data;
 using Google.Apis.Sheets.v4.Data;
 
 namespace Assets.Scripts.Data
@@ -42,5 +43,20 @@ namespace Assets.Scripts.Data
         public IntRange(int item1, int item2) : base(item1, item2)
         {
         }
+
+        public static IntRange operator +(IntRange a, IntRange b)
+            => new IntRange(a.MinRate + b.MinRate, a.MaxRate + b.MaxRate);
+
+        public static IntRange operator +(IntRange a, int b)
+            => new IntRange(a.MinRate + b, a.MaxRate + b);
+
+        public static IntRange operator *(IntRange a, IntRange b)
+            => new IntRange(a.MinRate * b.MinRate, a.MaxRate * b.MaxRate);
+
+        public static IntRange operator *(IntRange a, int b)
+            => new IntRange(a.MinRate * b, a.MaxRate * b);
+
+        public static IntRange operator *(IntRange a, float b)
+            => new IntRange((int)(a.MinRate * b), (int)(a.MaxRate * b));
     }
 }

@@ -7,12 +7,12 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
 using System;
 using UnityEngine;
+using System.Security.Principal;
 
 namespace Assets.Scripts.Services
 {
     public partial class RaidService // ECS
     {
-
         public EcsPackedEntityWithWorld PlayerEntity { get; set; }
         public EcsPackedEntity WorldEntity { get; set; }
         public EcsPackedEntity RaidEntity { get; set; }
@@ -31,6 +31,8 @@ namespace Assets.Scripts.Services
                 .Add(new RaidInitSystem())
                 .Add(new OpponentInitSystem())
                 .Add(new PlayerInitSystem())
+                .Add(new PlayerTeamMemberInitSystem())
+                .Add(new PlayerTeamMemberTraitsInitSystem())
                 .Inject(this)
                 .Inject(worldService)
                 .Init();
@@ -307,105 +309,7 @@ namespace Assets.Scripts.Services
         {
             if (ecsWorld != null && RaidEntity.Unpack(ecsWorld, out var raidEntity))
                 ecsWorld.DelEntity(raidEntity);
-        }
-
-        private void BoostEcsTeamMemberSpecOption(
-            EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
-        {
-            libManagementService.BoostSpecOption(
-                currentEventInfo.Value.EventHero,
-                specOption,
-                factor);
-
-            if (!heroEntity.Unpack(out var world, out var entity))
-                throw new Exception("No Hero instance");
-
-            var pool = world.GetPool<UpdateTag>();
-            if (!pool.Has(entity))
-                pool.Add(entity);
-        }
-
-        private void BoostEcsNextBattleSpecOption(
-            EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
-        {
-            // TODO: Add Spec Option Boost for the next battle
-            //1. pick player team hero for eventHero
-            if (!RaidEntity.Unpack(ecsWorld, out var raidEntity))
-                throw new Exception("No Raid");
-
-            if (!heroEntity.Unpack(out var world, out var entity))
-                throw new Exception("No Hero instance");
-
-            switch (specOption)
-            {
-                case SpecOption.DamageRange:
-                    {
-                        var updatePool = world.GetPool<UpdateBuffsTag<DamageRangeComp>>();
-                        //buff*=2
-                        var pool = world.GetPool<BuffComp<DamageRangeComp>>();
-                        if (!pool.Has(entity))
-                            pool.Add(entity);
-
-                        ref var buff = ref pool.Get(entity);
-                        buff.Value += ((buff.Value == 0 ? 100 : 0) + factor);
-                        buff.Icon = BundleIcon.ShieldCrossed;
-                        buff.IconColor = Color.cyan;
-
-                        if (!updatePool.Has(entity))
-                            updatePool.Add(entity);
-                    }
-                    break;
-                case SpecOption.Health:
-                    {
-                        var updatePool = world.GetPool<UpdateHPTag>();
-                        //hp = max(health, hp*=2)
-                        var healthPool = world.GetPool<HealthComp>();
-                        ref var healthComp = ref healthPool.Get(entity);
-
-                        var hpPool = world.GetPool<HPComp>();
-                        ref var hpComp = ref hpPool.Get(entity);
-
-                        //HP buff changed from x2 to full HP recovery on event:
-                        //hpComp.Value = Mathf.Min(healthComp.Value, hpComp.Value * 2);
-                        hpComp.Value = healthComp.Value;
-
-                        if (!updatePool.Has(entity))
-                            updatePool.Add(entity);
-                    }
-                    break;
-                case SpecOption.UnlimitedStaminaTag:
-                    {
-                        var updatePool = world.GetPool<UpdateTag>();
-
-                        var pool = world.GetPool<BuffComp<NoStaminaDrainBuffTag>>();
-                        if (!PlayerEntity.Unpack(out _, out var playerEntity))
-                            throw new Exception("No Player entity");
-
-                        if (!pool.Has(playerEntity))
-                            pool.Add(playerEntity);
-
-                        ref var comp = ref pool.Get(playerEntity);
-                        comp.Usages += 3; // 3 turns without stamina usage
-
-                        if (!updatePool.Has(playerEntity))
-                            updatePool.Add(playerEntity);
-
-                    }
-                    break;
-                case SpecOption.DefenceRate:
-                case SpecOption.AccuracyRate:
-                case SpecOption.DodgeRate:
-                case SpecOption.Speed:
-                default:
-                    break;
-            }
-
-            //2. add boostComponent of specOption to the raid hero entitity instance
-            // 
-
-        }
-
-
+        }        
 
     }
 }

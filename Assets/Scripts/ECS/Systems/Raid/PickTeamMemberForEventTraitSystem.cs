@@ -5,6 +5,7 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
 using Random = UnityEngine.Random;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -68,43 +69,54 @@ namespace Assets.Scripts.ECS.Systems
             if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
                 return false;
 
-            var filter = ecsWorld.Value.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
+            if (!PickTheLuckyOne(trait, out var luckyHero, out var level))
+                return false;
+
             var heroConfigRefPool = ecsWorld.Value.GetPool<HeroConfigRefComp>();
+            ref var heroConfigRef = ref heroConfigRefPool.Get(luckyHero);
 
-            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
-            var maxedHeroes = ListPool<Hero>.Get();
+            if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
+                throw new Exception("No Hero config");
 
-            foreach (var entity in filter)
+            ref var hero = ref libWorld.GetPool<Hero>().Get(libEntity);
+            eventHero = hero;
+            eventHeroEntity = ecsWorld.Value.PackEntityWithWorld(luckyHero);
+            maxLevel = level;
+
+            return true;
+        }
+
+        private bool PickTheLuckyOne(HeroTrait trait, out int luckyHero, out int level)
+        {
+            luckyHero = -1;
+            level = 0;
+
+            switch (trait)
             {
-                ref var heroConfigRef = ref heroConfigRefPool.Get(entity);
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero config");
-
-                ref var hero = ref libWorld.GetPool<Hero>().Get(libEntity);
-
-                if (hero.Traits.TryGetValue(trait, out var traitInfo) &&
-                    traitInfo.Level > 0 &&
-                    traitInfo.Level >= maxLevel)
-                {
-                    maxLevel = traitInfo.Level;
-                    maxedHeroes.Add(hero);
-                    buffer.Add(ecsWorld.Value.PackEntityWithWorld(entity));
-                }
+                case HeroTrait.Hidden:
+                    return TryGetTeamMemberForTrait<TraitHiddenTag>(out luckyHero, out level);
+                case HeroTrait.Purist:
+                    return TryGetTeamMemberForTrait<TraitPuristTag>(out luckyHero, out level);
+                case HeroTrait.Shrumer:
+                    return TryGetTeamMemberForTrait<TraitShrumerTag>(out luckyHero, out level);
+                case HeroTrait.Scout:
+                    return TryGetTeamMemberForTrait<TraitScoutTag>(out luckyHero, out level);
+                case HeroTrait.Tidy:
+                    return TryGetTeamMemberForTrait<TraitTidyTag>(out luckyHero, out level);
+                case HeroTrait.Soft:
+                    return TryGetTeamMemberForTrait<TraitSoftTag>(out luckyHero, out level);
+                default:
+                    return false;
             }
-            if (maxedHeroes.Count > 0)
-            {
-                var idx = Random.Range(0, maxedHeroes.Count);
-                eventHero = maxedHeroes[idx];
-                eventHeroEntity = buffer[idx];
-            }
+        }
 
-            ListPool<Hero>.Add(maxedHeroes);
+        protected virtual bool TryGetTeamMemberForTrait<C>(out int luckyOne, out int level)
+            where C : struct
+        {
+            luckyOne = -1;
+            level = 0;
 
-            var retval = buffer.Count > 0;
-
-            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
-
-            return retval;
+            return false;
         }
     }
 }

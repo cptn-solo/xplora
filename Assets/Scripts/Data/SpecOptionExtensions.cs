@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Reflection;
 using Assets.Scripts.ECS.Data;
 
 namespace Assets.Scripts.Data
@@ -37,7 +39,7 @@ namespace Assets.Scripts.Data
                 SpecOption.HP => $"{specOption.Name()} +{factor}",
                 _ => $"{specOption.Name()} +{factor}"
             };
-
+        
         public static Type BuffComp(this SpecOption specOption) =>
             specOption switch
             {

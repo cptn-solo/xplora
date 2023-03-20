@@ -25,15 +25,9 @@ namespace Assets.Scripts.Services
                 this.dialog = null;
         }
 
-        internal void TryCastEcsTerrainEvent(TerrainEventConfig eventConfig,
+        internal void CastEcsTerrainEvent(TerrainEventConfig eventConfig,
             Hero eventHero, EcsPackedEntityWithWorld eventHeroEntity, int maxLevel)
         {
-            if (!(5 + (maxLevel * 5)).RatedRandomBool())
-            {
-                Debug.Log($"Missed Event: {eventConfig}");
-                return;
-            }
-
             currentEventInfo = WorldEventInfo.Create(eventConfig,
                 eventHero, eventHeroEntity, maxLevel);
 
@@ -74,8 +68,8 @@ namespace Assets.Scripts.Services
                             {
                                 var additionalOption = currentEventInfo.Value.BonusOptions[idx + 1];
                                 //1. increment hero trait in the library
-                                libManagementService.BoostTraitOption(
-                                    currentEventInfo.Value.EventHero,
+                                BoostTraitOption(
+                                    currentEventInfo.Value.HeroEntity,
                                     additionalOption.TraitOption,
                                     additionalOption.Factor);
 

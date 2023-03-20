@@ -12,6 +12,7 @@
         DefenceRate = 200,
         AccuracyRate = 300,
         DodgeRate = 400,
+        CritRate = 450,
         Health = 500,
         Speed = 600,
         UnlimitedStaminaTag = 700, // not present in Hero fields (dynamic)

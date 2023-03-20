@@ -8,7 +8,7 @@ namespace Assets.Scripts.Data
         public static bool RatedRandomBool(this int rate)
         {
             var ret = false;
-            if (rate == 100)
+            if (rate >= 100)
             {
                 ret = true;
             }
