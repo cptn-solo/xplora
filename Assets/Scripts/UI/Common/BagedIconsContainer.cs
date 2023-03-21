@@ -53,7 +53,8 @@ namespace Assets.Scripts.UI.Common
         {
             icon.SetIconByCode(info.Icon);
             icon.SetBadgeText(info.BadgeText);
-            icon.SetIconColor(info.IconColor);
+            icon.SetIconColor(info.Icon.IconMaterial() == BundleIconMaterial.Font ?
+                info.IconColor : Color.white);
         }
 
         private void OnDestroy()

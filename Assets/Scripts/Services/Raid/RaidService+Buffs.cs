@@ -85,7 +85,7 @@ namespace Assets.Scripts.Services
 
                         ref var buff = ref pool.Get(entity);
                         buff.Value += ((buff.Value == 0 ? 100 : 0) + factor);
-                        buff.Icon = BundleIcon.ShieldCrossed;
+                        buff.Icon = BundleIcon.Sword;
                         buff.IconColor = Color.cyan;
 
                         if (!updatePool.Has(entity))

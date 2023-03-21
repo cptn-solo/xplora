@@ -14,7 +14,7 @@
         public static BundleIcon Icon(this AssetType assetType) =>
             assetType switch
             {
-                AssetType.Money => BundleIcon.SnowFlake,
+                AssetType.Money => BundleIcon.Coins,
                 _ => BundleIcon.NA
             };
     }

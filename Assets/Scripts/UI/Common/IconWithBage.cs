@@ -8,6 +8,8 @@ public class IconWithBage : MonoBehaviour
     private TextMeshProUGUI bageText;
     private Image iconImage;
 
+    private Material defaultIconMaterial;
+
     public void SetBadgeText(string text)
     {
         bageText.text = text;
@@ -27,6 +29,7 @@ public class IconWithBage : MonoBehaviour
     {
         bageText = GetComponentInChildren<TextMeshProUGUI>();
         iconImage = GetComponentInChildren<Image>();
+        defaultIconMaterial = iconImage.material;
     }
 
     private void ResolveIcon(Image image, BundleIcon code)
@@ -37,6 +40,16 @@ public class IconWithBage : MonoBehaviour
         {
             image.sprite = SpriteForResourceName(code.IconFileName());
             image.enabled = true;
+            switch (code.IconMaterial())
+            {
+                case BundleIconMaterial.Font:
+                    image.material = defaultIconMaterial;
+                    break;
+                default:
+                    image.material = null;
+                    break;
+            }
+
         }
     }
 
