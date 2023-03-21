@@ -6,8 +6,15 @@ namespace Assets.Scripts.ECS.Data
     {
         public T Value { get; set; }
 
+        void Add(int b);
         void Combine(int b);
         void Combine(float b);
+
+        public static IValue<T> operator +(IValue<T> a, int b)
+        {
+            a.Add(b);
+            return a;
+        }
 
         public static IValue<T> operator *(IValue<T> a, int b)
         {

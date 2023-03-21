@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld = default;
 
         private readonly EcsPoolInject<EntityViewRef<Hero>> unitPool = default;
-        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updatePool = default;
+        private readonly EcsPoolInject<UpdateTag<StrengthTag>> updatePool = default;
         
         private readonly EcsPoolInject<EntityViewRef<UnitInfo>> overlayPool = default;
 

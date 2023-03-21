@@ -12,14 +12,14 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<StrengthComp> strengthPool = default;
+        private readonly EcsPoolInject<IntValueComp<StrengthTag>> strengthPool = default;
         private readonly EcsPoolInject<RaidComp> raidPool = default;
         private readonly EcsPoolInject<DataViewRef<BagedIconInfo>> pool = default;
-        private readonly EcsPoolInject<UpdateTag<StrengthComp>> updateTagPool = default;
+        private readonly EcsPoolInject<UpdateTag<StrengthTag>> updateTagPool = default;
 
         private readonly EcsFilterInject<
-            Inc<StrengthComp, DataViewRef<BagedIconInfo>,
-                UpdateTag<StrengthComp>>> filter = default;
+            Inc<IntValueComp<StrengthTag>, DataViewRef<BagedIconInfo>,
+                UpdateTag<StrengthTag>>> filter = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 

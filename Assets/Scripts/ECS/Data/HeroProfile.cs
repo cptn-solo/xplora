@@ -13,6 +13,9 @@ namespace Assets.Scripts.ECS.Data
     {
         public int Value { get; set; }
 
+        public void Add(int b) =>
+            Value = Value + b;
+
         public void Combine(int b) =>
             Value = Value * b;
 
@@ -25,6 +28,9 @@ namespace Assets.Scripts.ECS.Data
         public IntRange Value { get; set; }
 
         public int RandomValue => Random.Range(Value.MinRate, Value.MaxRate + 1);
+
+        public void Add(int b) =>
+            Value = Value + b;
 
         public void Combine(int b) =>
             Value = Value * b;
@@ -52,6 +58,9 @@ namespace Assets.Scripts.ECS.Data
         public int Usages { get; set; }
         public Color IconColor { get; set; }
         public BundleIcon Icon { get; set; }
+
+        public void Add(int b) =>
+            Value = Value + b;
 
         public void Combine(int b) =>
             Value = Value * b;
@@ -88,7 +97,7 @@ namespace Assets.Scripts.ECS.Data
         {
             barsInfo = new BarInfo[]
         {
-            BarInfo.EmptyBarInfo(0, $"HP: {Health}", Color.red, Health / Mathf.Max(Health, 100f)),
+            BarInfo.EmptyBarInfo(0, $"Health: {Health}", Color.red, Health / Mathf.Max(Health, 100f)),
             BarInfo.EmptyBarInfo(1, $"Speed: {Speed}", Color.blue, Speed / Mathf.Max(Speed, 10f)),
             BarInfo.EmptyBarInfo(2, $"Max Damage: {DamageMax}", Color.yellow, DamageMax / Mathf.Max(DamageMax, 20f)),
             BarInfo.EmptyBarInfo(3, $"Defence: {DefenceRate} %", Color.gray, DefenceRate / Mathf.Max(DefenceRate, 50f)),

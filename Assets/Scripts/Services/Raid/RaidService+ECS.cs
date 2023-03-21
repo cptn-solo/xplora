@@ -7,7 +7,6 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
 using System;
 using UnityEngine;
-using System.Security.Principal;
 
 namespace Assets.Scripts.Services
 {
@@ -44,8 +43,9 @@ namespace Assets.Scripts.Services
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
                 .Add(new PlayerTeamUpdateHPSystem()) //HP update on team cards
+                .Add(new PlayerTeamUpdateBarsInfoSystem())
                 .Add(new PlayerTeamUpdateBufSystem<IntRangeValueComp<DamageRangeTag>>()) //Buf icons update on team cards
-                                                                       //.DelHere<UpdateHPTag>()
+                .Add(new PlayerTeamUpdateHoverSystem())
                 .Add(new OutOfPowerSystem())
                 // with BattleAftermathComp:
                 .Add(new ProcessTeamMemberDeath())

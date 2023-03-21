@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class VisitHPSourceSystem : IEcsRunSystem
     {
-        private readonly EcsPoolInject<UpdateHPTag> updatePool = default;
+        private readonly EcsPoolInject<UpdateTag<HpTag>> updatePool = default;
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthPool = default;
 

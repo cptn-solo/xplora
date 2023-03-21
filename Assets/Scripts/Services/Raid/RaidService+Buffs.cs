@@ -3,6 +3,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Data;
 using System;
 using UnityEngine;
+using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.Services
 {
@@ -14,54 +15,17 @@ namespace Assets.Scripts.Services
             if (!eventHero.Unpack(out var world, out var entity))
                 return;
 
-            switch (specOption)
+            var _ = specOption switch
             {
-                case SpecOption.DamageRange:
-                    {
-                        ref var comp = ref world.GetPool<IntRangeValueComp<DamageRangeTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                case SpecOption.CritRate:
-                    {
-                        ref var comp = ref world.GetPool<IntValueComp<CritRateTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                case SpecOption.DefenceRate:
-                    {
-                        ref var comp = ref world.GetPool<IntValueComp<DefenceRateTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                case SpecOption.AccuracyRate:
-                    {
-                        ref var comp = ref world.GetPool<IntValueComp<AccuracyRateTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                case SpecOption.DodgeRate:
-                    {
-                        ref var comp = ref world.GetPool<IntValueComp<DodgeRateTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                case SpecOption.Health:
-                    {
-                        ref var comp = ref world.GetPool<IntValueComp<HealthTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                case SpecOption.Speed:
-                    {
-                        ref var comp = ref world.GetPool<IntValueComp<SpeedTag>>().Get(entity);
-                        comp.Value += factor;
-                        break;
-                    }
-                default:
-                    break;
-            }
-
+                SpecOption.DamageRange => world.IncrementValue<IntRangeValueComp<DamageRangeTag>, IntRange>(factor, entity),
+                SpecOption.CritRate => world.IncrementIntValue<CritRateTag>(factor, entity),
+                SpecOption.DefenceRate => world.IncrementIntValue<DefenceRateTag>(factor, entity),
+                SpecOption.AccuracyRate => world.IncrementIntValue<AccuracyRateTag>(factor, entity),
+                SpecOption.DodgeRate => world.IncrementIntValue<DodgeRateTag>(factor, entity),
+                SpecOption.Health => world.IncrementIntValue<HealthTag>(factor, entity),
+                SpecOption.Speed => world.IncrementIntValue<SpeedTag>(factor, entity),
+                _ => false
+            };
         }
 
         internal void BoostTraitOption(EcsPackedEntityWithWorld eventHero,
@@ -70,41 +34,17 @@ namespace Assets.Scripts.Services
             if (!eventHero.Unpack(out var world, out var entity))
                 return;
 
-            switch (traitOption)
+            var _ = traitOption switch
             {
-                case HeroTrait.Hidden:
-                    IncrementTraitLevel<TraitHiddenTag>(factor, world, entity);
-                    break;
-                case HeroTrait.Purist:
-                    IncrementTraitLevel<TraitPuristTag>(factor, world, entity);
-                    break;
-                case HeroTrait.Shrumer:
-                    IncrementTraitLevel<TraitShrumerTag>(factor, world, entity);
-                    break;
-                case HeroTrait.Scout:
-                    IncrementTraitLevel<TraitScoutTag>(factor, world, entity);
-                    break;
-                case HeroTrait.Tidy:
-                    IncrementTraitLevel<TraitTidyTag>(factor, world, entity);
-                    break;
-                case HeroTrait.Soft:
-                    IncrementTraitLevel<TraitSoftTag>(factor, world, entity);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private static void IncrementTraitLevel<T>(int factor, EcsWorld world, int entity)
-        {
-            var pool = world.GetPool<IntValueComp<T>>();
-
-            if (!pool.Has(entity))
-                pool.Add(entity);
-
-            ref var comp = ref pool.Get(entity);
-            comp.Value += factor;
-        }
+                HeroTrait.Hidden => world.IncrementIntValue<TraitHiddenTag>(factor, entity),
+                HeroTrait.Purist => world.IncrementIntValue<TraitPuristTag>(factor, entity),
+                HeroTrait.Shrumer => world.IncrementIntValue<TraitShrumerTag>(factor, entity),
+                HeroTrait.Scout => world.IncrementIntValue<TraitScoutTag>(factor, entity),
+                HeroTrait.Tidy => world.IncrementIntValue<TraitTidyTag>(factor, entity),
+                HeroTrait.Soft => world.IncrementIntValue<TraitSoftTag>(factor, entity),
+                _ => false
+            };
+        }        
 
         private void BoostEcsTeamMemberSpecOption(
             EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
@@ -154,17 +94,15 @@ namespace Assets.Scripts.Services
                     break;
                 case SpecOption.Health:
                     {
-                        var updatePool = world.GetPool<UpdateHPTag>();
+                        var updatePool = world.GetPool<UpdateTag>();
                         //hp = max(health, hp*=2)
-                        var healthPool = world.GetPool<IntValueComp<HealthTag>>();
-                        ref var healthComp = ref healthPool.Get(entity);
 
                         var hpPool = world.GetPool<IntValueComp<HpTag>>();
                         ref var hpComp = ref hpPool.Get(entity);
 
                         //HP buff changed from x2 to full HP recovery on event:
                         //hpComp.Value = Mathf.Min(healthComp.Value, hpComp.Value * 2);
-                        hpComp.Value = healthComp.Value;
+                        hpComp.Value = world.ReadIntValue<HealthTag>(entity);
 
                         if (!updatePool.Has(entity))
                             updatePool.Add(entity);

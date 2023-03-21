@@ -41,10 +41,11 @@ namespace Assets.Scripts.ECS.Data
     public struct VisibilityUpdateTag { }
     public struct NoStaminaDrainBuffTag { }
 
-    public struct UpdateHPTag { }
     public struct UpdateAssetBalanceTag { }
     public struct UpdateBuffsTag<T> { }
     public struct DebuffTag<T> { }
+
+    public struct StrengthTag { }
 
     #endregion
 
@@ -121,17 +122,6 @@ namespace Assets.Scripts.ECS.Data
         /// Maximum strength value available after cover hero have being assigned
         /// </summary>
         public int CoverHeroStrength { get; set; }
-    }
-
-    public struct StrengthComp : IIntValue
-    {
-        public int Value { get; set; }
-
-        public void Combine(int b) =>
-            Value = Value * b;
-
-        public void Combine(float b) =>
-            Value = (int)(Value * b);
     }
 
     public struct HeroComp : IPackedWithWorldRef

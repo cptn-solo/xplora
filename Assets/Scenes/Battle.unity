@@ -503,30 +503,15 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 296088654}
     m_Modifications:
-    - target: {fileID: 1272646641914842781, guid: fd878fdae4a61954eb2de5e637d505bf,
+    - target: {fileID: 1378264244367865577, guid: fd878fdae4a61954eb2de5e637d505bf,
         type: 3}
-      propertyPath: m_Color.a
-      value: 0.6313726
-      objectReference: {fileID: 0}
-    - target: {fileID: 1272646641914842781, guid: fd878fdae4a61954eb2de5e637d505bf,
-        type: 3}
-      propertyPath: m_Color.b
-      value: 0.44142655
-      objectReference: {fileID: 0}
-    - target: {fileID: 1272646641914842781, guid: fd878fdae4a61954eb2de5e637d505bf,
-        type: 3}
-      propertyPath: m_Color.g
-      value: 0.36445355
-      objectReference: {fileID: 0}
-    - target: {fileID: 1272646641914842781, guid: fd878fdae4a61954eb2de5e637d505bf,
-        type: 3}
-      propertyPath: m_Color.r
-      value: 0.6603774
+      propertyPath: m_fontSize
+      value: 42.55
       objectReference: {fileID: 0}
     - target: {fileID: 3905912016691865442, guid: fd878fdae4a61954eb2de5e637d505bf,
         type: 3}
       propertyPath: m_Name
-      value: HeroDetailsLib
+      value: DetailsHover
       objectReference: {fileID: 0}
     - target: {fileID: 5902917116430794639, guid: fd878fdae4a61954eb2de5e637d505bf,
         type: 3}

@@ -21,6 +21,8 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
 
+        private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default; // mostly static (rates)
+
         private readonly EcsFilterInject<Inc<HeroConfigRefComp, PlayerTeamTag>> filter = default;
 
         public void Init(IEcsSystems systems)
@@ -60,6 +62,19 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var nameComp = ref nameCompPool.Value.Add(entity);
                 nameComp.Name = heroConfig.Name;
+
+                ref var barsInfoComp = ref barsInfoPool.Value.Add(entity);
+                barsInfoComp.Name = heroConfig.Name;
+                barsInfoComp.Health = healthComp.Value;
+                barsInfoComp.Speed = speedComp.Value;
+                barsInfoComp.DamageMax = damageRangeComp.Value.MaxRate;
+                barsInfoComp.DefenceRate = defenceRateComp.Value;
+                barsInfoComp.AccuracyRate = accuracyRateComp.Value;
+                barsInfoComp.DodgeRate = dodgeRateComp.Value;
+                barsInfoComp.CriticalHitRate = critRateComp.Value;
+
+                barsInfoComp.Generate();
+
 
             }
         }

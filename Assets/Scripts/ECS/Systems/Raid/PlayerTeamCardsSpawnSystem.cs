@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<EntityViewRef<TeamMemberInfo>> pool = default;
         private readonly EcsPoolInject<TransformRef<Team>> containerPool = default;
-        private readonly EcsPoolInject<UpdateHPTag> updateHPTagPool = default;
+        private readonly EcsPoolInject<UpdateTag<HpTag>> updateHPTagPool = default;
 
         private readonly EcsPoolInject<EntityViewFactoryRef<TeamMemberInfo>> factoryPool = default;
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<TeamMemberInfo>>> factoryFilter = default;

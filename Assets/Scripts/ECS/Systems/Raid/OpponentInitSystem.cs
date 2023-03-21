@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<RaidComp> raidPool = default;
         private readonly EcsPoolInject<OpponentComp> opponentPool = default;
-        private readonly EcsPoolInject<StrengthComp> strengthPool = default;
+        private readonly EcsPoolInject<IntValueComp<StrengthTag>> strengthPool = default;
         
         private readonly EcsPoolInject<HeroComp> heroPool = default;
 
