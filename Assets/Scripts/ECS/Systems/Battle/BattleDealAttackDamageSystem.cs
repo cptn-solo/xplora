@@ -75,7 +75,9 @@ namespace Assets.Scripts.ECS.Systems
             int damage = rawDamage;
             damage *= criticalDamage ? 2 : 1;
             damage -= (int)(damage * shield / 100f);
-            damage = Mathf.Max(0, damage);
+            damage = Mathf.Max(1, damage); // no reason to deal 0 damage bc
+                                           // this is only possible due to
+                                           // roundings. changing 0 to 1
 
             turnInfo.Damage += damage;
             turnInfo.Critical = criticalDamage;
