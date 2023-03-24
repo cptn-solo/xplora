@@ -4,6 +4,7 @@ using Leopotam.EcsLite;
 
 namespace Assets.Scripts.Data
 {
+
     public static class HeroTraitExtensions
     {
         public static HeroTraitInfo Zero(this HeroTrait trait) =>

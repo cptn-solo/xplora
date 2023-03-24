@@ -91,6 +91,7 @@ namespace Assets.Scripts.Services
             added.HeroType = HeroType.Human;
             added.Inventory = Hero.DefaultInventory();
             added.Traits = Hero.DefaultTraits();
+            added.Kinds = Hero.DefaultKinds();
             added.Attack = Hero.DefaultAttack();
             added.Defence = Hero.DefaultDefence();
 

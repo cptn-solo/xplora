@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Assets.Scripts.Data
 {
+    using static UnityEditor.Progress;
     using AssetDict = Dictionary<int, Asset>;
     public partial struct Hero : IEntity
     {
@@ -42,6 +43,7 @@ namespace Assets.Scripts.Data
             hero.IdleSpriteName = idleSpriteName;
 
             hero.Traits = DefaultTraits();
+            hero.Kinds = DefaultKinds();
 
             hero.Attack = DefaultAttack();
             hero.Defence = DefaultDefence();
@@ -82,6 +84,18 @@ namespace Assets.Scripts.Data
                 { HeroTrait.Scout, HeroTrait.Scout.Zero()  },
                 { HeroTrait.Tidy, HeroTrait.Tidy.Zero()  },
                 { HeroTrait.Soft, HeroTrait.Soft.Zero() },
+            };
+
+        public static Dictionary<HeroKind, HeroKindInfo> DefaultKinds() => new()
+            {
+                { HeroKind.Asc, HeroKind.Asc.Zero() },
+                { HeroKind.Spi, HeroKind.Spi.Zero() },
+                { HeroKind.Int, HeroKind.Int.Zero() },
+                { HeroKind.Cha, HeroKind.Cha.Zero() },
+                { HeroKind.Tem, HeroKind.Tem.Zero() },
+                { HeroKind.Con, HeroKind.Con.Zero() },
+                { HeroKind.Str, HeroKind.Str.Zero() },
+                { HeroKind.Dex, HeroKind.Dex.Zero() },
             };
     }
 

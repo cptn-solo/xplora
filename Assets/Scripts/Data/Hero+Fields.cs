@@ -48,6 +48,12 @@ namespace Assets.Scripts.Data
 
         #endregion
 
+        #region Relations
+
+        public Dictionary<HeroKind, HeroKindInfo> Kinds { get; internal set; }
+
+        #endregion
+
         #region Sounds
         public string SndAttack { get; internal set; }
         public string SndDodged { get; internal set; }

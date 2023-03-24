@@ -7,7 +7,7 @@ namespace Assets.Scripts.Services
 
     public class HeroesConfigLoader : BaseConfigLoader
     {
-        protected override string RangeString => "'Герои'!A1:Q42";
+        protected override string RangeString => "'Герои'!A1:Q51";
         protected override string ConfigName => "Heroes";
         private const int heroesNumber = 16;
 
@@ -117,6 +117,20 @@ namespace Assets.Scripts.Services
             rowIndex = 40;
 
             hero.OveralStrength = val(++rowIndex, cell).ParseAbsoluteValue();
+
+            if (hero.Domain == HeroDomain.Hero)
+            {
+                rowIndex = 42;
+
+                hero.Kinds[HeroKind.Asc] = HeroKind.Asc.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Spi] = HeroKind.Spi.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Int] = HeroKind.Int.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Cha] = HeroKind.Cha.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Tem] = HeroKind.Tem.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Con] = HeroKind.Con.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Str] = HeroKind.Str.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Dex] = HeroKind.Dex.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            }
         }
     }
 }
