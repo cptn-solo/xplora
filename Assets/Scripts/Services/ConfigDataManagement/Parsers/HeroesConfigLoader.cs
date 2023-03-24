@@ -73,24 +73,24 @@ namespace Assets.Scripts.Services
 
             rowIndex = 4;
 
-            val(++rowIndex, cell).ParseAbsoluteRangeValue(out int minVal, out int maxVal);
+            val(++rowIndex, cell).ParseIntRangeValue(out int minVal, out int maxVal);
             hero.DamageMin = minVal;
             hero.DamageMax = maxVal;
 
-            hero.DefenceRate = val(++rowIndex, cell).ParseRateValue();
-            hero.AccuracyRate = val(++rowIndex, cell).ParseRateValue();
-            hero.DodgeRate = val(++rowIndex, cell).ParseRateValue();
-            hero.Health = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.Speed = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.CriticalHitRate = val(++rowIndex, cell).ParseRateValue();
+            hero.DefenceRate = val(++rowIndex, cell).ParseIntValue();
+            hero.AccuracyRate = val(++rowIndex, cell).ParseIntValue();
+            hero.DodgeRate = val(++rowIndex, cell).ParseIntValue();
+            hero.Health = val(++rowIndex, cell).ParseIntValue();
+            hero.Speed = val(++rowIndex, cell).ParseIntValue();
+            hero.CriticalHitRate = val(++rowIndex, cell).ParseIntValue();
             hero.AttackType = val(++rowIndex, cell).ParseAttackType();
             hero.DamageType = val(++rowIndex, cell).ParseDamageType();
-            hero.ResistBleedRate = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.ResistPoisonRate = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.ResistStunRate = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.ResistBurnRate = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.ResistFrostRate = val(++rowIndex, cell).ParseAbsoluteValue();
-            hero.ResistFlushRate = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.ResistBleedRate = val(++rowIndex, cell).ParseIntValue();
+            hero.ResistPoisonRate = val(++rowIndex, cell).ParseIntValue();
+            hero.ResistStunRate = val(++rowIndex, cell).ParseIntValue();
+            hero.ResistBurnRate = val(++rowIndex, cell).ParseIntValue();
+            hero.ResistFrostRate = val(++rowIndex, cell).ParseIntValue();
+            hero.ResistFlushRate = val(++rowIndex, cell).ParseIntValue();
 
             rowIndex = 21;
 
@@ -107,29 +107,29 @@ namespace Assets.Scripts.Services
 
             rowIndex = 33;
 
-            hero.Traits[HeroTrait.Hidden] = HeroTrait.Hidden.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-            hero.Traits[HeroTrait.Purist] = HeroTrait.Purist.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-            hero.Traits[HeroTrait.Shrumer] = HeroTrait.Shrumer.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-            hero.Traits[HeroTrait.Scout] = HeroTrait.Scout.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-            hero.Traits[HeroTrait.Tidy] = HeroTrait.Tidy.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-            hero.Traits[HeroTrait.Soft] = HeroTrait.Soft.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+            hero.Traits[HeroTrait.Hidden] = HeroTrait.Hidden.Level(val(++rowIndex, cell).ParseIntValue());
+            hero.Traits[HeroTrait.Purist] = HeroTrait.Purist.Level(val(++rowIndex, cell).ParseIntValue());
+            hero.Traits[HeroTrait.Shrumer] = HeroTrait.Shrumer.Level(val(++rowIndex, cell).ParseIntValue());
+            hero.Traits[HeroTrait.Scout] = HeroTrait.Scout.Level(val(++rowIndex, cell).ParseIntValue());
+            hero.Traits[HeroTrait.Tidy] = HeroTrait.Tidy.Level(val(++rowIndex, cell).ParseIntValue());
+            hero.Traits[HeroTrait.Soft] = HeroTrait.Soft.Level(val(++rowIndex, cell).ParseIntValue());
 
             rowIndex = 40;
 
-            hero.OveralStrength = val(++rowIndex, cell).ParseAbsoluteValue();
+            hero.OveralStrength = val(++rowIndex, cell).ParseIntValue();
 
             if (hero.Domain == HeroDomain.Hero)
             {
                 rowIndex = 42;
 
-                hero.Kinds[HeroKind.Asc] = HeroKind.Asc.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Spi] = HeroKind.Spi.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Int] = HeroKind.Int.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Cha] = HeroKind.Cha.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Tem] = HeroKind.Tem.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Con] = HeroKind.Con.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Str] = HeroKind.Str.Level(val(++rowIndex, cell).ParseAbsoluteValue());
-                hero.Kinds[HeroKind.Dex] = HeroKind.Dex.Level(val(++rowIndex, cell).ParseAbsoluteValue());
+                hero.Kinds[HeroKind.Asc] = HeroKind.Asc.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Spi] = HeroKind.Spi.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Int] = HeroKind.Int.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Cha] = HeroKind.Cha.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Tem] = HeroKind.Tem.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Con] = HeroKind.Con.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Str] = HeroKind.Str.Level(val(++rowIndex, cell).ParseIntValue());
+                hero.Kinds[HeroKind.Dex] = HeroKind.Dex.Level(val(++rowIndex, cell).ParseIntValue());
             }
         }
     }

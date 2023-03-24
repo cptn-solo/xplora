@@ -22,6 +22,10 @@ public class EditModeMenu : EditorWindow
         {
             LoadDamageTypesFromGoogleSheet();
         }
+        else if (GUILayout.Button("Load Relations Config (Google)"))
+        {
+            LoadRelationsConfigFromGoogleSheet();
+        }
         else if (GUILayout.Button("Load Terrain Attributes (Google)"))
         {
             LoadTerrainAttributes();
@@ -46,6 +50,14 @@ public class EditModeMenu : EditorWindow
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadHeroesFromGoogleSheet ran.");
+    }
+
+    private void LoadRelationsConfigFromGoogleSheet()
+    {
+        var loader = new HeroRelationRulesConfigLoader();
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadRelationsConfigFromGoogleSheet ran.");
     }
 
     private void LoadDamageTypesFromGoogleSheet()

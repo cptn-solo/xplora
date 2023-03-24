@@ -120,7 +120,7 @@ namespace Assets.Scripts.Services
                             pool.Add(playerEntity);
 
                         ref var comp = ref pool.Get(playerEntity);
-                        comp.Usages += 3; // 3 turns without stamina usage
+                        comp.Usages += factor; // 3 turns without stamina usage
 
                         if (!updatePool.Has(playerEntity))
                             updatePool.Add(playerEntity);

@@ -113,6 +113,8 @@ namespace Assets.Scripts.Services
             return ref added;
         }
 
+        private ref HeroRelationsConfig HeroRelationsConfigProcessor() => ref HeroRelationsConfig;
+
         private HeroPosition GetEcsNextFreePosition()
         {
             var buffer = ListPool<int>.Get();

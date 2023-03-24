@@ -1,5 +1,4 @@
 ﻿using Assets.Scripts.Data;
-using Assets.Scripts.UI.Data;
 using System.Collections.Generic;
 
 namespace Assets.Scripts.Services

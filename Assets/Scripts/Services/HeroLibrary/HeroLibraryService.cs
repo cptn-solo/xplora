@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
-using System;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.ECS.Data;
 
@@ -12,6 +11,7 @@ namespace Assets.Scripts.Services
         private BattleManagementService battleManagementService;
 
         public DamageTypesLibrary DamageTypesLibrary => damageTypesLib;
+        public HeroRelationsConfig HeroRelationsConfig = new();
 
         public ref Team PlayerTeam => ref GetEcsPlayerTeam();
         public ref Team EnemyTeam => ref GetEcsEnemyTeam();

@@ -13,17 +13,22 @@ namespace Assets.Scripts.Services
         private DamageTypesLibrary damageTypesLib = DamageTypesLibrary.EmptyLibrary();
         private DamageTypesConfigLoader damageConfigLoader;
 
+        private HeroRelationRulesConfigLoader relationConfigLoader;
+
         public event UnityAction OnDataAvailable;
         public bool DataAvailable =>
             heroesConfigLoader != null &&
             damageConfigLoader != null &&
+            relationConfigLoader != null &&
             heroesConfigLoader.DataAvailable &&
-            damageConfigLoader.DataAvailable;
+            damageConfigLoader.DataAvailable &&
+            relationConfigLoader.DataAvailable;
 
         public void InitConfigLoading()
         {
             heroesConfigLoader = new(ProcessEcsHeroConfig, NotifyIfAllDataAvailable);
             damageConfigLoader = new(DamageTypesLibrary, NotifyIfAllDataAvailable);
+            relationConfigLoader = new(HeroRelationsConfigProcessor, NotifyIfAllDataAvailable);
         }
 
         public void NotifyIfAllDataAvailable()
@@ -36,12 +41,14 @@ namespace Assets.Scripts.Services
         {
             saLoader.LoadData(heroesConfigLoader.ConfigFileName, heroesConfigLoader.ProcessSerializedString);
             saLoader.LoadData(damageConfigLoader.ConfigFileName, damageConfigLoader.ProcessSerializedString);
+            saLoader.LoadData(relationConfigLoader.ConfigFileName, relationConfigLoader.ProcessSerializedString);
         }
 
         public void LoadRemoteData()
         {
             heroesConfigLoader.LoadGoogleData();
             damageConfigLoader.LoadGoogleData();
+            relationConfigLoader.LoadGoogleData();
         }
     }
 }

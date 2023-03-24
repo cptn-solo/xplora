@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using Assets.Scripts.Data;
 using Assets.Scripts.Services;
 using TMPro;
 using UnityEngine;
@@ -95,7 +94,7 @@ namespace Assets.Scripts.UI
             while (!heroServiceFinished)
                 yield return null;
 
-            EnqueueText($"Hero configs and Damage configs loaded");
+            EnqueueText($"Heroes, Relations and Damage configs loaded");
             EnqueueText($"");
 
             yield return null;

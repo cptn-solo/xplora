@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Assets.Scripts.Services
 {
     public delegate ref OpponentSpawnConfig OpponentConfigProcessor();
-
+    
     public class EnemySpawnRulesConfigLoader : BaseConfigLoader
     {
         private readonly OpponentConfigProcessor opConfigProcessor;
@@ -46,7 +46,7 @@ namespace Assets.Scripts.Services
             for (int row = 17; row < 22; row++)
             {
                 var teamStrengthRange = val(row, 0).ParseIntArray();
-                var spawnRate = val(row, 1).ParseRateValue();
+                var spawnRate = val(row, 1).ParseIntValue();
 
                 opConfig.UpdateEnemySpawnRateForStrength(
                     spawnRate,

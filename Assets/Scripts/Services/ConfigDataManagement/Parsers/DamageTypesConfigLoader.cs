@@ -33,11 +33,11 @@ namespace Assets.Scripts.Services
 
                 var damageType = val(row, 0).ParseDamageType();
                 var effectType = val(row, 1).ParseDamageEffect();
-                var turnsCountInt = val(row, 2).ParseAbsoluteValue();
+                var turnsCountInt = val(row, 2).ParseIntValue();
                 var skipTurnsBool = val(row, 3).ParseBoolValue(); //yes no true false 1 0 etc.
-                var extraDamage = val(row, 4).ParseAbsoluteValue();
-                var useShieldRate = val(row, 5).ParseRateValue();
-                var chanceRate = val(row, 6).ParseRateValue();
+                var extraDamage = val(row, 4).ParseIntValue();
+                var useShieldRate = val(row, 5).ParseIntValue();
+                var chanceRate = val(row, 6).ParseIntValue();
 
                 library.Value.UpdateConfig(damageType, effectType, turnsCountInt, skipTurnsBool, extraDamage, useShieldRate,
                                      chanceRate);

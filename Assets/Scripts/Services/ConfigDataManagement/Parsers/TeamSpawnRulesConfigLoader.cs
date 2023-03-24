@@ -42,11 +42,11 @@ namespace Assets.Scripts.Services
 
             for (int row = 2; row < 6; row++)
             {
-                var strength = val(row, 1).ParseAbsoluteValue();
-                var spawnRate = val(row, 2).ParseRateValue();
-                var r = val(row, 3).ParseAbsoluteValue();
-                var g = val(row, 4).ParseAbsoluteValue();
-                var b = val(row, 5).ParseAbsoluteValue();
+                var strength = val(row, 1).ParseIntValue();
+                var spawnRate = val(row, 2).ParseIntValue();
+                var r = val(row, 3).ParseIntValue();
+                var g = val(row, 4).ParseIntValue();
+                var b = val(row, 5).ParseIntValue();
                 var color = new Color((float)r / 255f, (float)g / 255f, (float)b / 255f, 1f);
 
                 teamConfig.UpdateTeamMemberSpawnRateByStrength(
@@ -61,7 +61,7 @@ namespace Assets.Scripts.Services
                 var intRange = new IntRange(teamStrengthRange[0], teamStrengthRange[1]);
                 for (int i = 0; i < buffer.Count; i++)
                 {
-                    var adjustment = val(row, 1 + i).ParseRateValue(0, true);
+                    var adjustment = val(row, 1 + i).ParseIntValue(0, true);
                     teamConfig.UpdateTeamMemberAdjustmentsByStrength(
                         buffer[i], intRange, adjustment);
 

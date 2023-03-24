@@ -41,7 +41,7 @@ namespace Assets.Scripts.Services
                 else prevTT = terrainType;
 
                 var terrainAttribute = val(row, 3).ParseTerrainAttribute();
-                var spawnRate = val(row, 4).ParseRateValue();
+                var spawnRate = val(row, 4).ParseIntValue();
 
                 library.Value.UpdateConfig(terrainType, terrainAttribute, spawnRate);
             }

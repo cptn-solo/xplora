@@ -303,7 +303,7 @@ namespace Assets.Scripts.Services
         }
 
 
-        public static void ParseAbsoluteRangeValue(this object rawValueObj, out int minVal, out int maxVal)
+        public static void ParseIntRangeValue(this object rawValueObj, out int minVal, out int maxVal)
         {
             string rawValue = (string)rawValueObj;
 
@@ -339,8 +339,8 @@ namespace Assets.Scripts.Services
                     return defaultValue;
 
                 return float.Parse(rawValues,
-                    System.Globalization.NumberStyles.Any,
-                    System.Globalization.CultureInfo.InvariantCulture);
+                    NumberStyles.Any,
+                    CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {
@@ -348,8 +348,8 @@ namespace Assets.Scripts.Services
                 return 0f;
             }
         }
-
-        public static int ParseRateValue(this object rawValueObj,
+        
+        public static int ParseIntValue(this object rawValueObj,
             int defaultValue = 0,
             bool signed = false)
         {
@@ -380,7 +380,60 @@ namespace Assets.Scripts.Services
             }
         }
 
-        public static int[] ParseIntArray(this object rawValueObj)
+        public static HeroKind HeroKindByName(this string kindString) =>
+            kindString.ToLower() switch
+            {
+                "asc" => HeroKind.Asc,
+                "spi" => HeroKind.Spi,
+                "int" => HeroKind.Int,
+                "cha" => HeroKind.Cha,
+                "tem" => HeroKind.Tem,
+                "con" => HeroKind.Con,
+                "str" => HeroKind.Str,
+                "dex" => HeroKind.Dex,
+                _ => HeroKind.NA
+            };
+
+        public static RelationBonusInfo ParseRelationBonus(this object rawValueObj)
+        {
+            string rawValue = (string)rawValueObj;
+
+            try
+            {
+                var rawValues = rawValue
+                    .Replace(" ", "")
+                    .Replace("%", "")
+                    .ToLower()
+                    .Split(";");
+                
+                if (rawValues.Length == 0)
+                    return RelationBonusInfo.Empty;
+
+                var buffer = ListPool<HeroKind>.Get();
+                var ret = new RelationBonusInfo
+                {
+                    Bonus = rawValues[0].ParseIntValue(0, true)
+                };
+
+                for (var i = 1; i < rawValues.Length; i++)
+                    buffer.Add(rawValues[i].HeroKindByName());                    
+
+                var retval = buffer.ToArray();
+
+                ListPool<HeroKind>.Add(buffer);
+
+                ret.TargetKinds = retval;
+                
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ParseHeroTraitsArray [{rawValue}] Exception: {ex.Message}");
+                return RelationBonusInfo.Empty;
+            }
+        }
+
+        public static int[] ParseIntArray(this object rawValueObj, bool signed = false)
         {
             string rawValue = (string)rawValueObj;
 
@@ -395,7 +448,7 @@ namespace Assets.Scripts.Services
                 var buffer = ListPool<int>.Get();
 
                 foreach (var literal in rawValues)
-                    buffer.Add(literal.ParseAbsoluteValue());
+                    buffer.Add(literal.ParseIntValue(0, signed));
 
                 var retval = buffer.ToArray();
 
@@ -423,29 +476,6 @@ namespace Assets.Scripts.Services
             {
                 Debug.LogError($"ParseSoundFileValue [{rawValue}] Exception: {ex.Message}");
                 return "nosound";
-            }
-        }
-        public static int ParseAbsoluteValue(this object rawValueObj, int defaultValue = 0)
-        {
-            string rawValue = (string)rawValueObj;
-
-            try
-            {
-                var rawValues = rawValue
-                    .Replace("%", "")
-                    .Replace(" ", "");
-
-                rawValues = Regex.Replace(rawValues, "[^0-9]", "");
-
-                if (rawValues.Length == 0)
-                    return defaultValue;
-
-                return int.Parse(rawValues, NumberStyles.None);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"ParseAbsoluteValue [{rawValue}] Exception: {ex.Message}");
-                return defaultValue;
             }
         }
 
