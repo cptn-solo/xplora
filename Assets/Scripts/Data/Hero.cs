@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Assets.Scripts.Data
 {
-    using static UnityEditor.Progress;
     using AssetDict = Dictionary<int, Asset>;
+    
     public partial struct Hero : IEntity
     {
         public override string ToString()
