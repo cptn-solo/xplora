@@ -34,7 +34,7 @@ namespace Assets.Scripts.UI
 
         private void OnActionButtonClick(int idx)
         {
-            raidService.OnEventAction<WorldEventInfo>(idx);
+            raidService.OnEventAction<RelationsEventInfo>(idx);
         }
 
         protected override void OnBeforeAwake()
@@ -66,6 +66,23 @@ namespace Assets.Scripts.UI
             tgtImage.sprite = Resources.Load<Sprite>(info.TgtIconName);
 
             eventTitle.text = info.EventTitle;
+
+            scorePanel.SetInfo(info.ScoreInfo);
+
+            foreach (var child in kindsTransform.GetComponentsInChildren<HeroKindPanel>())
+                Destroy(child.gameObject);
+            
+            var canvas = GetComponentInParent<Canvas>();
+
+            foreach (var item in info.EventItems)
+            {
+                var card = Instantiate(kindPrefab).GetComponent<HeroKindPanel>();
+                card.transform.localScale = canvas.transform.localScale;
+                card.transform.SetParent(kindsTransform);
+                card.transform.localRotation = Quaternion.identity;
+
+                card.SetInfo(item);
+            }
 
             for (int i = 0; i < actionButtons.Length; i++)
             {

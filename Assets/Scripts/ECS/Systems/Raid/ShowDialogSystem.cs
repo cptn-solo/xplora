@@ -39,8 +39,8 @@ namespace Assets.Scripts.ECS.Systems
                     view.SetEventInfo(info);
 
                     modalPool.Value.Add(modalEntity);
+                    modalPool.Value.Add(entity); // both added here to avoid modal while no views registred
                 }
-                modalPool.Value.Add(entity);
             }                         
         }
     }

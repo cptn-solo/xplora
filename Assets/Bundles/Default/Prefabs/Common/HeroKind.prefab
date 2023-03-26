@@ -53,7 +53,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barImage: {fileID: 588724397710030336}
-  deltaImage: {fileID: 0}
+  deltaImage: {fileID: 5362535461763362158}
   titleLabel: {fileID: 791133062995148487}
 --- !u!1 &791133062995148486
 GameObject:
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35.8
+  m_fontSize: 23.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -504,7 +504,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35.8
+  m_fontSize: 23.25
   m_fontSizeBase: 6.81
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -713,7 +713,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5362535462154781184
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1019,7 +1019,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barImage: {fileID: 4673198388117513189}
-  deltaImage: {fileID: 0}
+  deltaImage: {fileID: 5362535462154781185}
   titleLabel: {fileID: 9073226076176669579}
 --- !u!1 &9102710955822533527
 GameObject:

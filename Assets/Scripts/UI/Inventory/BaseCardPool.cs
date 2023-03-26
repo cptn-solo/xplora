@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.ECS;
-using Assets.Scripts.Services;
+﻿using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using UnityEngine;
 using Zenject;

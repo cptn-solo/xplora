@@ -5,24 +5,6 @@ using UnityEngine;
 
 namespace Assets.Scripts.Data
 {
-    public struct RelationEventItemInfo
-    {
-        public string ItemTitle { get; internal set; }
-        public BarInfo SrcBarInfo { get; internal set; }
-        public BarInfo TgtBarInfo { get; internal set; }
-    }
-    public struct RelationsEventInfo
-    {
-        public string EventTitle { get; internal set; }
-        public string SrcIconName { get; internal set; }
-        public string TgtIconName { get; internal set; }
-        public string EventText { get; internal set; }
-
-        public RelationEventItemInfo[] EventItems { get; internal set; }
-
-        public string[] ActionTitles { get; internal set; }
-    }
-
     public struct WorldEventInfo
     {
         public Hero EventHero { get; internal set; }
