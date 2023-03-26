@@ -9,6 +9,5 @@ namespace Assets.Scripts.UI.Common
         [SerializeField] private BarWithTitle source;
         [SerializeField] private BarWithTitle target;
 
-
     }
 }

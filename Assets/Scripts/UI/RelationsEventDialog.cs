@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Data;
+using Assets.Scripts.ECS;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Common;
 using TMPro;
@@ -9,7 +10,7 @@ using Zenject;
 
 namespace Assets.Scripts.UI
 {
-    public class RelationsEventDialog : MonoBehaviour, IEventDialog<RelationsEventInfo>
+    public class RelationsEventDialog : BaseEntityView<RelationsEventInfo>, IEventDialog<RelationsEventInfo>
     {
         private RaidService raidService;
 
@@ -26,7 +27,7 @@ namespace Assets.Scripts.UI
         public void Construct(RaidService raidService)
         {
             this.raidService = raidService;
-            this.raidService.RegisterEventDialog(this);
+            this.raidService.RegisterEntityView(this);
 
             gameObject.SetActive(false);
         }
@@ -36,7 +37,7 @@ namespace Assets.Scripts.UI
             raidService.OnEventAction<WorldEventInfo>(idx);
         }
 
-        private void Awake()
+        protected override void OnBeforeAwake()
         {
             for (int i = 0; i < actionButtons.Length; i++)
             {
@@ -46,12 +47,10 @@ namespace Assets.Scripts.UI
             }
         }
 
-        private void OnDestroy()
+        protected override void OnBeforeDestroy()
         {
             foreach (var button in actionButtons)
-                button.onClick.RemoveAllListeners();
-
-            raidService.UnregisterEventDialog(this);
+                button.onClick.RemoveAllListeners();            
         }
 
         #region IEventDialog members

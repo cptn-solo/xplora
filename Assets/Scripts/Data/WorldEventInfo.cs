@@ -36,7 +36,7 @@ namespace Assets.Scripts.Data
         /// <summary>
         /// Actual spawned bonuses for the player to select from in a dialog
         /// </summary>
-        public BonusOptionConfig[] BonusOptions { get; private set; }
+        public BonusOptionConfig[] BonusOptions { get; set; }
 
         /// <summary>
         /// Подлежащее Гекс
@@ -116,7 +116,7 @@ namespace Assets.Scripts.Data
             },
         };
 
-        private static string EventTextGenerator(int level, string heroName, TerrainAttribute attribute)
+        public static string EventTextGenerator(int level, string heroName, TerrainAttribute attribute)
         {
             string retval = "";
 
@@ -149,73 +149,6 @@ namespace Assets.Scripts.Data
 
             return retval;
         }
-
-        internal static WorldEventInfo Create(TerrainEventConfig config,
-            Hero hero, EcsPackedEntityWithWorld heroEntity, int level)
-        {
-            var buttonBonuses = ListPool<BonusOptionConfig>.Get();
-
-            foreach(var bonusOption in config.BonusOptions)
-            {
-                BonusOptionConfig? bonus = null;
-
-                foreach (var bonusConfig in bonusOption.BonusConfigs)
-                    if (bonusConfig.SpawnRate.RatedRandomBool())
-                    {
-                        bonus = bonusConfig;
-                        break;
-                    }
-
-                if (bonus == null)
-                {
-                    if (bonusOption.BonusConfigs.Sum(x => x.SpawnRate) < 100)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        // fallback bonus if spawnrate fails
-                        bonus = bonusOption.BonusConfigs[
-                            Random.Range(0, bonusOption.BonusConfigs.Length)];
-
-                        buttonBonuses.Add(bonus.Value);
-                    }
-                }
-                else
-                {
-                    buttonBonuses.Add(bonus.Value);
-                }
-            }
-
-            var resultBonusOptions = buttonBonuses.ToArray();
-
-            ListPool<BonusOptionConfig>.Add(buttonBonuses);
-
-            var info = new WorldEventInfo()
-            {
-                EventHero = hero,
-                HeroEntity = heroEntity,
-                EventTitle = $"{config.Name} ({level})",
-                EventText = EventTextGenerator(level, hero.Name, config.Attribute),
-                IconName = hero.IconName,
-                BonusOptions = resultBonusOptions,
-            };
-
-            var buffer = ListPool<string>.Get();
-
-            for(int i = 0; i < resultBonusOptions.Length; i++)
-            {
-                if (i < 2)
-                    buffer.Add(resultBonusOptions[i].ToString());
-                else
-                    buffer[1] += $", \n{resultBonusOptions[i]}";
-            }
-            info.ActionTitles = buffer.ToArray();
-
-            ListPool<string>.Add(buffer);
-
-            return info;
-
-        }
+        
     }
 }

@@ -31,7 +31,7 @@ namespace Assets.Scripts.Services
             EcsPackedEntityWithWorld? packed, out V view)
             where T : struct
         {
-            view = default(V);
+            view = default;
 
             if (packed == null || !packed.Value.Unpack(out var world, out var entity))
                 return false;
@@ -68,7 +68,17 @@ namespace Assets.Scripts.Services
                 pool.Del(entity);
         }
 
+        public void OnEventAction<T>(int idx) where T : struct
+        {
+            var filter = ecsWorld.Filter<ModalDialogTag>().Inc<T>().End(); 
+            var pool = ecsWorld.GetPool<ModalDialogAction<T>>();
 
+            foreach ( var entity in filter)
+            {
+                ref var action = ref pool.Add(entity);
+                action.ActionIdx = idx;
+            }
+        }
     }
 
 }

@@ -29,6 +29,9 @@ namespace Assets.Scripts.Services
         public void RequestDetailsHover(EcsPackedEntityWithWorld? packed);
         public void DismissDetailsHover(EcsPackedEntityWithWorld? packed);
 
+        public void OnEventAction<T>(int idx)
+            where T : struct;
+
     }
 
 }

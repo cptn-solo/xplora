@@ -1,4 +1,5 @@
 using Assets.Scripts.Data;
+using Assets.Scripts.ECS;
 using Assets.Scripts.Services;
 using TMPro;
 using UnityEngine;
@@ -8,21 +9,23 @@ using Zenject;
 
 namespace Assets.Scripts.UI
 {
-    public class WorldEventDialog : MonoBehaviour, IEventDialog<WorldEventInfo>
+    public class WorldEventDialog : BaseEntityView<WorldEventInfo>, IEventDialog<WorldEventInfo>
     {
-        private RaidService raidService;
 
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI eventTitle;
         [SerializeField] private TextMeshProUGUI eventText;
 
         [SerializeField] private Button[] actionButtons;
+        
+        private RaidService raidService;
 
         [Inject]
         public void Construct(RaidService raidService)
         {
             this.raidService = raidService;
-            this.raidService.RegisterEventDialog(this);
+
+            raidService.RegisterEntityView(this);
 
             gameObject.SetActive(false);
         }
@@ -32,22 +35,20 @@ namespace Assets.Scripts.UI
             raidService.OnEventAction<WorldEventInfo>(idx);
         }
 
-        private void Awake()
+        protected override void OnBeforeAwake()
         {
             for (int i = 0; i < actionButtons.Length; i++)
             {
                 var idx = i;
-                UnityAction call = () => OnActionButtonClick(idx);
+                void call() => OnActionButtonClick(idx);
                 actionButtons[i].onClick.AddListener(call);
             }
         }
 
-        private void OnDestroy()
+        protected override void OnBeforeDestroy()
         {
             foreach (var button in actionButtons)
                 button.onClick.RemoveAllListeners();
-
-            raidService.UnregisterEventDialog(this);
         }
 
         #region IEventDialog members

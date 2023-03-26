@@ -1,15 +1,69 @@
-﻿using Leopotam.EcsLite;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Data;
+using Leopotam.EcsLite;
 using System;
 using UnityEngine;
-using Assets.Scripts.ECS;
+using Leopotam.EcsLite.Di;
+using Assets.Scripts.Services;
 
-namespace Assets.Scripts.Services
+namespace Assets.Scripts.ECS.Systems
 {
-    public partial class RaidService // Buffs
+    public class ProcessWorldEventAction : ProcessDialogActionSystem<WorldEventInfo>
     {
-        internal void BoostSpecOption(EcsPackedEntityWithWorld eventHero,
+        private readonly EcsWorldInject ecsWorld = default;
+        private readonly EcsCustomInject<RaidService> raidService = default;
+
+        protected override void ProcessAction(
+            WorldEventInfo currentEventInfo, 
+            ModalDialogAction<WorldEventInfo> action)
+        {
+            // apply event result for button idx
+
+            var idx = action.ActionIdx;
+
+            var selectedOption = currentEventInfo.BonusOptions[idx];
+
+            switch (idx)
+            {
+                case 0:// permanent boost
+                    {
+                        BoostEcsTeamMemberSpecOption(
+                            currentEventInfo.HeroEntity,
+                            selectedOption.SpecOption,
+                            selectedOption.Factor);
+                    }
+                    break;
+                case 1:// next battle boost
+                    {
+                        //1. add bonus field to hero struct
+                        //2. update bonus field in hero in the library
+                        //3. implement bonus field handling in battle manager (including reset after the battle)
+                        BoostEcsNextBattleSpecOption(
+                            currentEventInfo.HeroEntity,
+                            selectedOption.SpecOption,
+                            selectedOption.Factor);
+
+                        if (currentEventInfo.BonusOptions.Length > idx + 1)
+                        {
+                            var additionalOption = currentEventInfo.BonusOptions[idx + 1];
+                            //1. increment hero trait in the library
+                            BoostTraitOption(
+                                currentEventInfo.HeroEntity,
+                                additionalOption.TraitOption,
+                                additionalOption.Factor);
+
+                            //2. increment hero trait in the raid entity
+                            // redundant if Raid references lib hero config
+
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void BoostSpecOption(EcsPackedEntityWithWorld eventHero,
             SpecOption specOption, int factor)
         {
             if (!eventHero.Unpack(out var world, out var entity))
@@ -28,7 +82,7 @@ namespace Assets.Scripts.Services
             };
         }
 
-        internal void BoostTraitOption(EcsPackedEntityWithWorld eventHero,
+        private void BoostTraitOption(EcsPackedEntityWithWorld eventHero,
             HeroTrait traitOption, int factor)
         {
             if (!eventHero.Unpack(out var world, out var entity))
@@ -50,7 +104,7 @@ namespace Assets.Scripts.Services
             EcsPackedEntityWithWorld heroEntity, SpecOption specOption, int factor)
         {
             BoostSpecOption(
-                currentEventInfo.Value.HeroEntity,
+                heroEntity,
                 specOption,
                 factor);
 
@@ -67,7 +121,7 @@ namespace Assets.Scripts.Services
         {
             // TODO: Add Spec Option Boost for the next battle
             //1. pick player team hero for eventHero
-            if (!RaidEntity.Unpack(ecsWorld, out var raidEntity))
+            if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out _))
                 throw new Exception("No Raid");
 
             if (!heroEntity.Unpack(out var world, out var entity))
@@ -113,7 +167,7 @@ namespace Assets.Scripts.Services
                         var updatePool = world.GetPool<UpdateTag>();
 
                         var pool = world.GetPool<BuffComp<NoStaminaDrainBuffTag>>();
-                        if (!PlayerEntity.Unpack(out _, out var playerEntity))
+                        if (!raidService.Value.PlayerEntity.Unpack(out _, out var playerEntity))
                             throw new Exception("No Player entity");
 
                         if (!pool.Has(playerEntity))
@@ -142,4 +196,3 @@ namespace Assets.Scripts.Services
         }
     }
 }
-

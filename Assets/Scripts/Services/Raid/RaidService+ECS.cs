@@ -75,6 +75,8 @@ namespace Assets.Scripts.Services
                 .DelHere<VisitedComp<PowerSourceComp>>()
                 .DelHere<VisitedComp<WatchTowerComp>>()
                 .DelHere<VisitedComp<TerrainAttributeComp>>()
+                .Add(new ShowDialogSystem<WorldEventInfo>())
+                .Add(new ProcessWorldEventAction())
                 .Add(new RefillSystem())
                 .DelHere<RefillComp>()
                 .Add(new DrainSystem())
