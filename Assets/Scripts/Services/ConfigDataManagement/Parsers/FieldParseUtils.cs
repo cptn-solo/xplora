@@ -302,6 +302,21 @@ namespace Assets.Scripts.Services
             }
         }
 
+        public static IntRange ParseIntRangeValue(this object rawValueObj, bool signed = false)
+        {
+            var arr = rawValueObj.ParseIntArray(signed);
+            
+            if (arr == null)
+                throw new Exception($"ParseIntRangeValue [{rawValueObj}]");
+
+            if (arr.Length == 0)
+                throw new Exception($"ParseIntRangeValue no range in [{rawValueObj}]");
+
+            if (arr.Length == 1)
+                return new IntRange(arr[0], arr[0]);
+
+            return new IntRange(arr[0], arr[1]);
+        }
 
         public static void ParseIntRangeValue(this object rawValueObj, out int minVal, out int maxVal)
         {
@@ -312,8 +327,8 @@ namespace Assets.Scripts.Services
                 var rawValues = rawValue
                     .Replace(" ", "")
                     .Split('-');
-                minVal = int.Parse(rawValues[0], System.Globalization.NumberStyles.None);
-                maxVal = int.Parse(rawValues[1], System.Globalization.NumberStyles.None);
+                minVal = int.Parse(rawValues[0], NumberStyles.None);
+                maxVal = int.Parse(rawValues[1], NumberStyles.None);
             }
             catch (Exception ex)
             {
@@ -323,7 +338,9 @@ namespace Assets.Scripts.Services
             }
         }
 
-        public static float ParseFloatRateValue(this object rawValueObj, float defaultValue = 0f)
+        public static float ParseFloatRateValue(this object rawValueObj, 
+            float defaultValue = 0f,
+            bool signed = false)
         {
             string rawValue = (string)rawValueObj;
 
@@ -332,14 +349,17 @@ namespace Assets.Scripts.Services
                 var rawValues = rawValue
                     .Replace("%", "")
                     .Replace(" ", "")
-                    .Replace(",", ".")
+                    .Replace(",", ".");
+                
+                if (!signed)
+                    rawValues = rawValues
                     .Replace("-", "");
 
                 if (rawValues.Length == 0)
                     return defaultValue;
 
                 return float.Parse(rawValues,
-                    NumberStyles.Any,
+                    NumberStyles.Float,
                     CultureInfo.InvariantCulture);
             }
             catch (Exception ex)

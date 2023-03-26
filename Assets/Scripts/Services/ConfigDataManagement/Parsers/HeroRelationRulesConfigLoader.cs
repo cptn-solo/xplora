@@ -1,6 +1,6 @@
 ﻿using Assets.Scripts.Data;
+using System;
 using System.Collections.Generic;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace Assets.Scripts.Services
 {
@@ -99,6 +99,14 @@ namespace Assets.Scripts.Services
                 { HeroKindGroup.Neutral, new IntRange(spiritToNeutral[0], spiritToNeutral[1]) },
                 { HeroKindGroup.Body, new IntRange(spiritToNeutral[0], spiritToNeutral[1]) },
             });
+
+            config.EventSpawnRateThresholds = new Tuple<IntRange, float>[] {
+                new (val(33, 0).ParseIntRangeValue(), val(33,1).ParseFloatRateValue()),
+                new (val(34, 0).ParseIntRangeValue(), val(34,1).ParseFloatRateValue()),
+                new (val(36, 0).ParseIntRangeValue(), val(36,1).ParseFloatRateValue()),
+                new (val(37, 0).ParseIntRangeValue(), val(37,1).ParseFloatRateValue()),
+                new (val(38, 0).ParseIntRangeValue(), val(38,1).ParseFloatRateValue()),
+            };
 
             var rstLow = val(4, 3).ParseIntValue(0, true);
             var rstEnemies = val(4, 4).ParseIntValue(0, true);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Data
 {
@@ -41,6 +42,8 @@ namespace Assets.Scripts.Data
 
         public Dictionary<HeroKindGroup, Dictionary<HeroKindGroup, IntRange>> RelationMatrix { get; set; }
         
+        public Tuple<IntRange, float>[] EventSpawnRateThresholds { get; set; }
+
         public RelationStateValue[] RelationStateThresholds { get; set; }
 
         public Dictionary<HeroKindGroup, RelationTargetRuleConfig[]> RelationTargetRules { get; set; }
