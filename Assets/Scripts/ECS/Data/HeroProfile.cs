@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using UnityEngine;
+using static UnityEditor.Progress;
 using Color = UnityEngine.Color;
 
 namespace Assets.Scripts.ECS.Data
@@ -79,6 +80,23 @@ namespace Assets.Scripts.ECS.Data
     public struct TraitSoftTag { }
     public struct TraitDummyTag { } // NA
 
+
+    public struct HeroKindAscTag { }
+    public struct HeroKindSpiTag { }
+    public struct HeroKindIntTag { }
+    public struct HeroKindChaTag { }
+    
+    public struct HeroKindTemTag { }
+    public struct HeroKindConTag { }
+    public struct HeroKindStrTag { }
+    public struct HeroKindDexTag { }    
+    
+    public struct KindGroupNeutralTag { }
+    public struct KindGroupBodyTag { }
+    public struct KindGroupSpiritTag { }
+
+    public struct HeroKindRSDTag { } // stirit kinds ++, body kinds --
+  
     public struct BarsInfoComp {
 
         public string Name { get; set; }

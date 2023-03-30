@@ -11,6 +11,8 @@ namespace Assets.Scripts.Data
 
         public T MinRate => Item1;
         public T MaxRate => Item2;
+ 
+        public virtual bool Contains(T a) => false;
 
         public override bool Equals(object obj)
         {
@@ -35,6 +37,9 @@ namespace Assets.Scripts.Data
         public FloatRange(float item1, float item2) : base(item1, item2)
         {
         }
+
+        public override bool Contains(float a) => 
+            MaxRate >= a && MinRate <= a;
     }
 
     public class IntRange : ValueRange<int>
@@ -42,6 +47,9 @@ namespace Assets.Scripts.Data
         public IntRange(int item1, int item2) : base(item1, item2)
         {
         }
+
+        public override bool Contains(int a) => 
+            MaxRate >= a && MinRate <= a;
 
         public static IntRange operator +(IntRange a, IntRange b)
             => new IntRange(a.MinRate + b.MinRate, a.MaxRate + b.MaxRate);

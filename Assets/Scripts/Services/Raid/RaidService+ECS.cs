@@ -32,8 +32,10 @@ namespace Assets.Scripts.Services
                 .Add(new PlayerInitSystem())
                 .Add(new PlayerTeamMemberInitSystem())
                 .Add(new PlayerTeamMemberTraitsInitSystem())
+                .Add(new PlayerTeamMemberRelationsInitSystem())
                 .Inject(this)
                 .Inject(worldService)
+                .Inject(libManagementService)
                 .Init();
 
             ecsRunSystems
