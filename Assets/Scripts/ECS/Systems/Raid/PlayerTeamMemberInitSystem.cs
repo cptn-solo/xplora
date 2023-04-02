@@ -17,7 +17,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<IntValueComp<DodgeRateTag>> dodgeRateCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
         private readonly EcsPoolInject<IntValueComp<SpeedTag>> speedCompPool = default;
-        private readonly EcsPoolInject<NameValueComp<NameTag>> nameCompPool = default;
+        private readonly EcsPoolInject<NameValueComp<NameTag>> namePool = default;
+        private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
 
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
 
@@ -60,8 +61,11 @@ namespace Assets.Scripts.ECS.Systems
                 ref var hpComp = ref hpCompPool.Value.Add(entity);
                 hpComp.Value = heroConfig.Health;
 
-                ref var nameComp = ref nameCompPool.Value.Add(entity);
+                ref var nameComp = ref namePool.Value.Add(entity);
                 nameComp.Name = heroConfig.Name;
+
+                ref var iconNameComp = ref iconNamePool.Value.Add(entity);
+                iconNameComp.Name = heroConfig.IconName;
 
                 ref var barsInfoComp = ref barsInfoPool.Value.Add(entity);
                 barsInfoComp.Name = heroConfig.Name;

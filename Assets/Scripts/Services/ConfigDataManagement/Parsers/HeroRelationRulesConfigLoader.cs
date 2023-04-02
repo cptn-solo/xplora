@@ -100,12 +100,13 @@ namespace Assets.Scripts.Services
                 { HeroKindGroup.Body, new IntRange(spiritToNeutral[0], spiritToNeutral[1]) },
             });
 
-            config.EventSpawnRateThresholds = new Tuple<IntRange, float>[] {
-                new (val(33, 0).ParseIntRangeValue(), val(33,1).ParseFloatRateValue()),
-                new (val(34, 0).ParseIntRangeValue(), val(34,1).ParseFloatRateValue()),
-                new (val(36, 0).ParseIntRangeValue(), val(36,1).ParseFloatRateValue()),
-                new (val(37, 0).ParseIntRangeValue(), val(37,1).ParseFloatRateValue()),
-                new (val(38, 0).ParseIntRangeValue(), val(38,1).ParseFloatRateValue()),
+            var basisValue = val(34, 1).ParseFloatRateValue();
+            config.EventSpawnRateThresholds = new RelationEventTriggerRange[] {
+                new (val(33, 0).ParseIntRangeValue(), val(33,1).ParseFloatRateValue(), 0f),
+                new (val(34, 0).ParseIntRangeValue(), basisValue, 0f),
+                new (val(36, 0).ParseIntRangeValue(), basisValue, val(36,1).ParseFloatRateValue()),
+                new (val(37, 0).ParseIntRangeValue(), basisValue, val(37,1).ParseFloatRateValue()),
+                new (val(38, 0).ParseIntRangeValue(), basisValue, val(38,1).ParseFloatRateValue()),
             };
 
             var rstLow = val(4, 3).ParseIntValue(0, true);
@@ -119,9 +120,10 @@ namespace Assets.Scripts.Services
                 new RelationStateValue(RelationState.Low, rstLow),
                 new RelationStateValue(RelationState.Enemies, rstEnemies),
                 new RelationStateValue(RelationState.Bad, rstBad),
-                new RelationStateValue(RelationState.Good, rstGood),
-                new RelationStateValue(RelationState.Friends, rstFrieds),
-                new RelationStateValue(RelationState.High, rstHigh),
+                new RelationStateValue(RelationState.Good, 0),
+                new RelationStateValue(RelationState.Friends, rstGood),
+                new RelationStateValue(RelationState.High, rstFrieds),
+                new RelationStateValue(RelationState.OverHigh, rstHigh),
             };
             
             var spiritRules = ReadTargetRules(6, 44, val);

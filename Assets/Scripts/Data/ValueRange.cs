@@ -1,5 +1,6 @@
 ﻿using System;
-using Assets.Scripts.ECS.Data;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Data
 {
@@ -38,6 +39,8 @@ namespace Assets.Scripts.Data
         {
         }
 
+        public float RandomValue => Random.Range(MinRate, MaxRate);
+
         public override bool Contains(float a) => 
             MaxRate >= a && MinRate <= a;
     }
@@ -47,6 +50,8 @@ namespace Assets.Scripts.Data
         public IntRange(int item1, int item2) : base(item1, item2)
         {
         }
+
+        public int RandomValue => Random.Range(MinRate, MaxRate + 1);
 
         public override bool Contains(int a) => 
             MaxRate >= a && MinRate <= a;

@@ -69,16 +69,31 @@ namespace Assets.Scripts.ECS.Systems
             if (!eventHero.Unpack(out var world, out var entity))
                 return;
 
-            var _ = specOption switch
+            switch (specOption)
             {
-                SpecOption.DamageRange => world.IncrementValue<IntRangeValueComp<DamageRangeTag>, IntRange>(factor, entity),
-                SpecOption.CritRate => world.IncrementIntValue<CritRateTag>(factor, entity),
-                SpecOption.DefenceRate => world.IncrementIntValue<DefenceRateTag>(factor, entity),
-                SpecOption.AccuracyRate => world.IncrementIntValue<AccuracyRateTag>(factor, entity),
-                SpecOption.DodgeRate => world.IncrementIntValue<DodgeRateTag>(factor, entity),
-                SpecOption.Health => world.IncrementIntValue<HealthTag>(factor, entity),
-                SpecOption.Speed => world.IncrementIntValue<SpeedTag>(factor, entity),
-                _ => false
+                case SpecOption.DamageRange:
+                    world.IncrementValue<IntRangeValueComp<DamageRangeTag>, IntRange>(factor, entity);
+                    break;
+                case SpecOption.CritRate:
+                    world.IncrementIntValue<CritRateTag>(factor, entity);
+                    break;
+                case SpecOption.DefenceRate:
+                    world.IncrementIntValue<DefenceRateTag>(factor, entity);
+                    break;
+                case SpecOption.AccuracyRate:
+                    world.IncrementIntValue<AccuracyRateTag>(factor, entity);
+                    break;
+                case SpecOption.DodgeRate:
+                    world.IncrementIntValue<DodgeRateTag>(factor, entity);
+                    break;
+                case SpecOption.Health:
+                    world.IncrementIntValue<HealthTag>(factor, entity);
+                    break;
+                case SpecOption.Speed:
+                    world.IncrementIntValue<SpeedTag>(factor, entity);
+                    break;
+                default:
+                    break;
             };
         }
 
@@ -96,7 +111,7 @@ namespace Assets.Scripts.ECS.Systems
                 HeroTrait.Scout => world.IncrementIntValue<TraitScoutTag>(factor, entity),
                 HeroTrait.Tidy => world.IncrementIntValue<TraitTidyTag>(factor, entity),
                 HeroTrait.Soft => world.IncrementIntValue<TraitSoftTag>(factor, entity),
-                _ => false
+                _ => 0
             };
         }        
 

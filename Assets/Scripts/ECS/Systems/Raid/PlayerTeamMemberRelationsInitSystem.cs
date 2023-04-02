@@ -40,7 +40,7 @@ namespace Assets.Scripts.ECS.Systems
                 InitHeroKindGroup(entity, heroConfig, relationsConfig);
                 DeriveMainKindGroup(entity, relationsConfig);
             }
-        }
+        }        
 
         private void DeriveMainKindGroup(int entity, HeroRelationsConfig relationsConfig)
         {

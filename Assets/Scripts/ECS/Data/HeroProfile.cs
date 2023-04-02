@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Data;
+using Leopotam.EcsLite;
 using UnityEngine;
 using static UnityEditor.Progress;
 using Color = UnityEngine.Color;
@@ -28,7 +29,7 @@ namespace Assets.Scripts.ECS.Data
     {
         public IntRange Value { get; set; }
 
-        public int RandomValue => Random.Range(Value.MinRate, Value.MaxRate + 1);
+        public int RandomValue => Value.RandomValue;
 
         public void Add(int b) =>
             Value = Value + b;
@@ -97,6 +98,12 @@ namespace Assets.Scripts.ECS.Data
 
     public struct HeroKindRSDTag { } // stirit kinds ++, body kinds --
   
+    public struct RelationScoreComp
+    {
+        public int Value { get; set; }
+        public EcsPackedEntity[] Parties { get; set; }
+    }
+
     public struct BarsInfoComp {
 
         public string Name { get; set; }

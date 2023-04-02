@@ -19,11 +19,11 @@ namespace Assets.Scripts.ECS
             return en;
         }
 
-        public static bool IncrementIntValue<T>(this EcsWorld world, int factor, int entity)
+        public static int IncrementIntValue<T>(this EcsWorld world, int factor, int entity)
             where T : struct =>
             world.IncrementValue<IntValueComp<T>, int>(factor, entity);
 
-        public static bool IncrementValue<T, V>(this EcsWorld world, int factor, int entity)
+        public static V IncrementValue<T, V>(this EcsWorld world, int factor, int entity)
             where T : struct, IValue<V>
         {
             var pool = world.GetPool<T>();
@@ -34,7 +34,7 @@ namespace Assets.Scripts.ECS
             ref var comp = ref pool.Get(entity);
             comp.Add(factor);
 
-            return true;
+            return comp.Value;
         }
 
         public static IntRange ReadIntRangeValue<T>(this EcsWorld world, int entity)

@@ -9,5 +9,6 @@
         Good = 400,
         Friends = 500,
         High = 600,
+        OverHigh = 700
     }
 }
