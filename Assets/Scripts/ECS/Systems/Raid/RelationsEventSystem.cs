@@ -5,7 +5,6 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -19,10 +18,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
         private readonly EcsPoolInject<RelationsEventInfo> eventInfoPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEventItemInfo>> draftTagPool = default;
-        private readonly EcsPoolInject<RelationScoreComp> scorePool = default;
+        private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
+        private readonly EcsPoolInject<RelationScoreRef> scoreRefPool = default;
                 
-        private readonly EcsFilterInject<
-            Inc<RelationScoreComp>> scoreFilter = default;
         private readonly EcsFilterInject<
             Inc<RelationsEventInfo, DraftTag<RelationEventItemInfo>>> filter = default; // test
         private readonly EcsFilterInject<
@@ -112,7 +110,7 @@ namespace Assets.Scripts.ECS.Systems
 
             var scoreFactorRange = config.RelationMatrix[info.SrcKindGroup][info.TgtKindGroup];
             var scoreFactor = scoreFactorRange.RandomValue;
-            ref var scoreComp = ref GetScore(srcHeroEntity, tgtHeroEntity, out var scoreEntity);
+            ref var scoreComp = ref GetScore(srcHeroEntity, info.TargetEntity.Value, out var scoreEntity);
             scoreComp.Value += scoreFactor;
             info.ScoreEntity = ecsWorld.Value.PackEntity(scoreEntity);
             info.ScoreDiff = scoreFactor;
@@ -232,13 +230,13 @@ namespace Assets.Scripts.ECS.Systems
             var index = new Dictionary<HeroKind, int>();
             foreach (var bonusKind in info.Rule.IncomingBonus.TargetKinds)
             {
-                var bonus = info.Rule.IncomingBonus.Bonus;
-                var current = IncrementKindValue(srcHeroEntity, bonusKind, bonus);
+                var diff = info.Rule.IncomingBonus.Bonus;
+                var current = IncrementKindValue(srcHeroEntity, bonusKind, diff);
                 if (index.TryGetValue(bonusKind, out var idx))
                 {
                     var itemInfo = itemBuff[idx];
-                    itemInfo.SrcBaseValue = current - bonus;
-                    itemInfo.SrcDiffValue = bonus;
+                    itemInfo.SrcCurrentValue = current;
+                    itemInfo.SrcDiffValue = diff;
                     itemBuff[idx] = itemInfo;
                 }
                 else
@@ -246,8 +244,8 @@ namespace Assets.Scripts.ECS.Systems
                     var itemInfo = new RelationEventItemInfo()
                     {
                         Kind = bonusKind,
-                        SrcBaseValue = current - bonus,
-                        SrcDiffValue = bonus,
+                        SrcCurrentValue = current,
+                        SrcDiffValue = diff,
                     };
                     itemBuff.Add(itemInfo);
                     index.Add(bonusKind, itemBuff.Count - 1);
@@ -256,13 +254,13 @@ namespace Assets.Scripts.ECS.Systems
 
             foreach (var bonusKind in info.Rule.OutgoingBonus.TargetKinds)
             {
-                var bonus = info.Rule.OutgoingBonus.Bonus;
-                var current = IncrementKindValue(tgtHeroEntity, bonusKind, bonus);
+                var dif = info.Rule.OutgoingBonus.Bonus;
+                var current = IncrementKindValue(tgtHeroEntity, bonusKind, dif);
                 if (index.TryGetValue(bonusKind, out var idx))
                 {
                     var itemInfo = itemBuff[idx];
-                    itemInfo.TgtBaseValue = current - bonus;
-                    itemInfo.TgtDiffValue = bonus;
+                    itemInfo.TgtCurrentValue = current;
+                    itemInfo.TgtDiffValue = dif;
                     itemBuff[idx] = itemInfo;
                 }
                 else
@@ -270,8 +268,8 @@ namespace Assets.Scripts.ECS.Systems
                     var itemInfo = new RelationEventItemInfo()
                     {
                         Kind = bonusKind,
-                        TgtBaseValue = current - bonus,
-                        TgtDiffValue = bonus,
+                        TgtCurrentValue = current,
+                        TgtDiffValue = dif,
                     };
                     itemBuff.Add(itemInfo);
                     index.Add(bonusKind, itemBuff.Count - 1);
@@ -301,8 +299,11 @@ namespace Assets.Scripts.ECS.Systems
 
             Debug.Log($"Relation event spawned between {srcName.Name} and {tgtName.Name}");
 
-            var score = info.Score - info.ScoreDiff;
-            var delta = info.ScoreDiff;
+            // to show current value for positive diff we should 1st substract it so total bar value will 
+            // represent a value _after_ increment. If the diff was negative we show current value as it is
+            // and change color for the diff part to some negative color (yellow). same for items below.
+            var score = GetScoreValueForBar(info.Score, info.ScoreDiff);
+            var delta = Mathf.Abs(info.ScoreDiff);
             var scoreMax = 30;
 
             var relationState = config.GetRelationState(info.Score);
@@ -318,7 +319,7 @@ namespace Assets.Scripts.ECS.Systems
                     Title = $"{info.Score}",
                     Value = Mathf.Min(1, (float)score / scoreMax),
                     Delta = Mathf.Min(1, (float)delta / scoreMax),
-                    Color = score > 0 ? Color.green : Color.red,
+                    Color = info.Score > 0 ? Color.green : Color.red,
                     DeltaColor = Color.yellow,
                 }
             };
@@ -329,73 +330,65 @@ namespace Assets.Scripts.ECS.Systems
                 item.ItemTitle = item.Kind.Name();
                 item.SrcBarInfo = new()
                 {
-                    Title = $"{item.SrcBaseValue + item.SrcDiffValue}",
-                    Value = Mathf.Min(1, (float)item.SrcBaseValue / scoreMax),
-                    Delta = Mathf.Min(1, (float)item.SrcDiffValue / scoreMax),
+                    Title = $"{item.SrcCurrentValue}",
+                    Value = Mathf.Min(1, (float)GetScoreValueForBar(item.SrcCurrentValue, item.SrcDiffValue)
+                        / scoreMax),
+                    Delta = Mathf.Min(1, (float)Mathf.Abs(item.SrcDiffValue) / scoreMax),
                     Color = Color.red,
-                    DeltaColor = Color.cyan,
+                    DeltaColor = item.SrcDiffValue > 0 ? Color.cyan : Color.yellow,
                 };
                 item.TgtBarInfo = new()
                 {
-                    Title = $"{item.TgtBaseValue + item.TgtDiffValue}",
-                    Value = Mathf.Min(1, (float)item.TgtBaseValue / scoreMax),
-                    Delta = Mathf.Min(1, (float)item.TgtDiffValue / scoreMax),
+                    Title = $"{item.TgtCurrentValue}",
+                    Value = Mathf.Min(1, (float)GetScoreValueForBar(item.TgtCurrentValue, item.TgtDiffValue)
+                        / scoreMax),
+                    Delta = Mathf.Min(1, (float)Mathf.Abs(item.TgtDiffValue) / scoreMax),
                     Color = Color.red,
-                    DeltaColor = Color.cyan,
+                    DeltaColor = item.TgtDiffValue > 0 ? Color.cyan : Color.yellow,
                 };
 
                 items[i] = item;
             }
 
             info.EventItems = items;
+
+            static int GetScoreValueForBar(int current, int diff) =>
+                Mathf.Sign(current) == Mathf.Sign(diff) ?
+                    Mathf.Abs(current - diff) :
+                    Mathf.Abs(current);
         }
 
         private int IncrementKindValue(int entity, HeroKind kind, int factor)
         {
             return kind switch
             {
-                HeroKind.Asc => (int)ecsWorld.Value.IncrementIntValue<HeroKindAscTag>(factor, entity),
-                HeroKind.Spi => (int)ecsWorld.Value.IncrementIntValue<HeroKindSpiTag>(factor, entity),
-                HeroKind.Int => (int)ecsWorld.Value.IncrementIntValue<HeroKindIntTag>(factor, entity),
-                HeroKind.Cha => (int)ecsWorld.Value.IncrementIntValue<HeroKindChaTag>(factor, entity),
-                HeroKind.Tem => (int)ecsWorld.Value.IncrementIntValue<HeroKindTemTag>(factor, entity),
-                HeroKind.Con => (int)ecsWorld.Value.IncrementIntValue<HeroKindConTag>(factor, entity),
-                HeroKind.Str => (int)ecsWorld.Value.IncrementIntValue<HeroKindStrTag>(factor, entity),
-                HeroKind.Dex => (int)ecsWorld.Value.IncrementIntValue<HeroKindDexTag>(factor, entity),
+                HeroKind.Asc => ecsWorld.Value.IncrementIntValue<HeroKindAscTag>(factor, entity),
+                HeroKind.Spi => ecsWorld.Value.IncrementIntValue<HeroKindSpiTag>(factor, entity),
+                HeroKind.Int => ecsWorld.Value.IncrementIntValue<HeroKindIntTag>(factor, entity),
+                HeroKind.Cha => ecsWorld.Value.IncrementIntValue<HeroKindChaTag>(factor, entity),
+                HeroKind.Tem => ecsWorld.Value.IncrementIntValue<HeroKindTemTag>(factor, entity),
+                HeroKind.Con => ecsWorld.Value.IncrementIntValue<HeroKindConTag>(factor, entity),
+                HeroKind.Str => ecsWorld.Value.IncrementIntValue<HeroKindStrTag>(factor, entity),
+                HeroKind.Dex => ecsWorld.Value.IncrementIntValue<HeroKindDexTag>(factor, entity),
                 _ => 0,
             };
         }
 
-        private ref RelationScoreComp GetScore(int srcHeroEntity, int tgtHeroEntity, out int scoreEntity)
+        private ref IntValueComp<RelationScoreTag> GetScore(
+            int srcHeroEntity, 
+            EcsPackedEntity tgtHeroPackedEntity, 
+            out int scoreEntity)
         {
-            var unpacked = new int[2];
             scoreEntity = -1;
+            
+            ref var scoreRef = ref scoreRefPool.Value.Get(srcHeroEntity);
+            if (!scoreRef.Parties.TryGetValue(tgtHeroPackedEntity, out var packed) ||
+                !packed.Unpack(ecsWorld.Value, out scoreEntity))
+                throw new Exception($"Can't get relations Score");
+            
+            ref var scoreComp = ref scorePool.Value.Get(scoreEntity);
 
-            foreach (var entity in scoreFilter.Value)
-            {
-                ref var scoreComp = ref scorePool.Value.Get(entity);
-                
-                bool stale = false;
-                
-                for (int i = 0; i < 2; i++)
-                {
-                    var packed = scoreComp.Parties[i];
-                    if (!packed.Unpack(ecsWorld.Value, out var party))
-                    {
-                        stale = true;
-                        break;
-                    }                    
-                    unpacked[i] = party;
-                }
-                if (!stale && unpacked.Contains(srcHeroEntity) && unpacked.Contains(tgtHeroEntity))
-                {
-                    scoreEntity = entity;
-
-                    return ref scoreComp;
-                }                
-            }
-
-            throw new Exception($"Can't get relations Score for heroes with entities {srcHeroEntity} and {tgtHeroEntity}");
+            return ref scoreComp;            
         }
             
 

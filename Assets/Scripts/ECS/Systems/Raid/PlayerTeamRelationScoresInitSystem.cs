@@ -8,7 +8,8 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<RelationScoreComp> relationScorePool = default;       
+        private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;       
+        private readonly EcsPoolInject<RelationScoreRef> scoreRefPool = default;       
                 
         private readonly EcsFilterInject<
             Inc<HeroConfigRefComp, PlayerTeamTag>> teamMemberFilter = default;
@@ -17,26 +18,29 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var entity1 in teamMemberFilter.Value)
             {
+                ref var scoreRef = ref scoreRefPool.Value.Add(entity1);
+                scoreRef.Parties = new();
+
                 foreach (var entity2 in teamMemberFilter.Value)
                 {
                     if (entity1 == entity2)
                         continue;
 
-                    InitScore(entity1, entity2);
+                    InitScore(entity2, ref scoreRef);
                 }
 
             };
         }
 
-        private void InitScore(int entity1, int entity2)
+        private void InitScore(int entity2, ref RelationScoreRef scoreRef)
         {
             var scoreEntity = ecsWorld.Value.NewEntity();
-            ref var scoreComp = ref relationScorePool.Value.Add(scoreEntity);
-            scoreComp.Parties = new EcsPackedEntity []
-            {
-                ecsWorld.Value.PackEntity(entity1),
+            
+            scorePool.Value.Add(scoreEntity);
+
+            scoreRef.Parties.Add(
                 ecsWorld.Value.PackEntity(entity2),
-            };
+                ecsWorld.Value.PackEntity(scoreEntity));
         }        
     }
 }

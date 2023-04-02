@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Data
@@ -57,18 +56,18 @@ namespace Assets.Scripts.Data
             MaxRate >= a && MinRate <= a;
 
         public static IntRange operator +(IntRange a, IntRange b)
-            => new IntRange(a.MinRate + b.MinRate, a.MaxRate + b.MaxRate);
+            => new(a.MinRate + b.MinRate, a.MaxRate + b.MaxRate);
 
         public static IntRange operator +(IntRange a, int b)
-            => new IntRange(a.MinRate + b, a.MaxRate + b);
+            => new(a.MinRate + b, a.MaxRate + b);
 
         public static IntRange operator *(IntRange a, IntRange b)
-            => new IntRange(a.MinRate * b.MinRate, a.MaxRate * b.MaxRate);
+            => new(a.MinRate * b.MinRate, a.MaxRate * b.MaxRate);
 
         public static IntRange operator *(IntRange a, int b)
-            => new IntRange(a.MinRate * b, a.MaxRate * b);
+            => new(a.MinRate * b, a.MaxRate * b);
 
         public static IntRange operator *(IntRange a, float b)
-            => new IntRange((int)(a.MinRate * b), (int)(a.MaxRate * b));
+            => new((int)(a.MinRate * b), (int)(a.MaxRate * b));
     }
 }

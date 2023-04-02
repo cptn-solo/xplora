@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
+using System.Collections.Generic;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
@@ -12,16 +13,37 @@ namespace Assets.Scripts.ECS.Data
 
     public struct IntValueComp<T> : IIntValue
     {
+        /// <summary>
+        /// Value restriction, usefull for scores etc. that can't go negative
+        /// </summary>
+        public IntRange Boundary { get; set; }
+
         public int Value { get; set; }
 
-        public void Add(int b) =>
-            Value = Value + b;
+        public void Add(int b)
+        {
+            if (Boundary == null)
+                Value += b;
+            else
+                Value = Mathf.Clamp(Value + b, Boundary.MinRate, Boundary.MaxRate);
+        }
 
-        public void Combine(int b) =>
-            Value = Value * b;
+        public void Combine(int b)
+        {
+            if (Boundary == null)
+                Value *= b;
+            else
+                Value = Mathf.Clamp(Value * b, Boundary.MinRate, Boundary.MaxRate);
+   
+        }
 
-        public void Combine(float b) =>
-            Value = (int)(Value * b);
+        public void Combine(float b)
+        {
+            if (Boundary == null)
+                Value = (int)(Value * b);
+            else
+                Value = Mathf.Clamp((int)(Value * b), Boundary.MinRate, Boundary.MaxRate);
+        }
     }
 
     public struct IntRangeValueComp<T> : IValue<IntRange>
@@ -31,13 +53,13 @@ namespace Assets.Scripts.ECS.Data
         public int RandomValue => Value.RandomValue;
 
         public void Add(int b) =>
-            Value = Value + b;
+            Value += b;
 
         public void Combine(int b) =>
-            Value = Value * b;
+            Value *= b;
 
         public void Combine(float b) =>
-            Value = Value * b;
+            Value *= b;
     }
 
     public struct NameTag { }
@@ -61,10 +83,10 @@ namespace Assets.Scripts.ECS.Data
         public BundleIcon Icon { get; set; }
 
         public void Add(int b) =>
-            Value = Value + b;
+            Value += b;
 
         public void Combine(int b) =>
-            Value = Value * b;
+            Value *= b;
 
         public void Combine(float b) =>
             Value = (int)(Value * b);
@@ -97,10 +119,19 @@ namespace Assets.Scripts.ECS.Data
 
     public struct HeroKindRSDTag { } // stirit kinds ++, body kinds --
   
-    public struct RelationScoreComp
+    /// <summary>
+    /// Marks a value of current relation score between some parties
+    /// </summary>
+    public struct RelationScoreTag { } 
+
+    /// <summary>
+    /// Contains references to each score entity by hero instance entity,
+    /// so when event is spawned or we just need to check a score with some other guy
+    /// just pick a score entity for this guys entity
+    /// </summary>
+    public struct RelationScoreRef
     {
-        public int Value { get; set; }
-        public EcsPackedEntity[] Parties { get; set; }
+        public Dictionary<EcsPackedEntity, EcsPackedEntity> Parties { get; set; }
     }
 
     public struct BarsInfoComp {

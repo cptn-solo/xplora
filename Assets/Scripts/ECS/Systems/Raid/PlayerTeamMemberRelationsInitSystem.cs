@@ -117,6 +117,7 @@ namespace Assets.Scripts.ECS.Systems
         {
             var pool = ecsWorld.Value.GetPool<IntValueComp<T>>();
             ref var val = ref pool.Add(playerTeamMemberEntity);
+            val.Boundary = new IntRange(0, int.MaxValue);
             val.Value = Mathf.Abs(level);
 
             ecsWorld.Value.IncrementIntValue<HeroKindRSDTag>(level, playerTeamMemberEntity);

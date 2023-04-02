@@ -14,7 +14,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<OutOfPowerTag> oopTagPool = default;
         private readonly EcsPoolInject<DrainComp> drainPool = default;
 
-        private readonly EcsFilterInject<Inc<DrainComp, PowerComp>> drainFilter = default;
+        private readonly EcsFilterInject<
+            Inc<DrainComp, PowerComp>,
+            Exc<OutOfPowerTag>> drainFilter = default;
 
         public void Run(IEcsSystems systems)
         {
