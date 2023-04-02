@@ -299,9 +299,6 @@ namespace Assets.Scripts.ECS.Systems
 
             Debug.Log($"Relation event spawned between {srcName.Name} and {tgtName.Name}");
 
-            // to show current value for positive diff we should 1st substract it so total bar value will 
-            // represent a value _after_ increment. If the diff was negative we show current value as it is
-            // and change color for the diff part to some negative color (yellow). same for items below.
             var score = GetScoreValueForBar(info.Score, info.ScoreDiff);
             var delta = Mathf.Abs(info.ScoreDiff);
             var scoreMax = 30;
@@ -311,14 +308,20 @@ namespace Assets.Scripts.ECS.Systems
             info.SrcIconName = srcIconName.Name;
             info.TgtIconName = tgtIconName.Name;
             info.ActionTitles = new[] { $"OK" };
+            float scoreValue = Mathf.Min(1, (float)score / scoreMax);
+            float scoreDelta = Mathf.Min(1, (float)delta / scoreMax);
+            
+            if (scoreValue == 1 && scoreDelta < 1)
+                scoreValue -= scoreDelta; // visual adjustment (hack) for side cases when value is already maxed out
+            
             info.ScoreInfo = new()
             {
                 ScoreSign = info.Score >= 0 ? 1 : -1,
                 ScoreInfo = new()
                 {
                     Title = $"{info.Score}",
-                    Value = Mathf.Min(1, (float)score / scoreMax),
-                    Delta = Mathf.Min(1, (float)delta / scoreMax),
+                    Value = scoreValue,
+                    Delta = scoreDelta,
                     Color = info.Score > 0 ? Color.green : Color.red,
                     DeltaColor = Color.yellow,
                 }
@@ -328,21 +331,33 @@ namespace Assets.Scripts.ECS.Systems
             {
                 var item = items[i];
                 item.ItemTitle = item.Kind.Name();
+                float srcValue = Mathf.Min(1, (float)GetScoreValueForBar(item.SrcCurrentValue, item.SrcDiffValue)
+                                        / scoreMax);
+                float srcDelta = Mathf.Min(1, (float)Mathf.Abs(item.SrcDiffValue) / scoreMax);
+        
+                if (srcValue == 1 && srcDelta < 1)
+                    srcValue -= srcDelta; // visual adjustment (hack) for side cases when value is already maxed out
+                
                 item.SrcBarInfo = new()
                 {
                     Title = $"{item.SrcCurrentValue}",
-                    Value = Mathf.Min(1, (float)GetScoreValueForBar(item.SrcCurrentValue, item.SrcDiffValue)
-                        / scoreMax),
-                    Delta = Mathf.Min(1, (float)Mathf.Abs(item.SrcDiffValue) / scoreMax),
+                    Value = srcValue,
+                    Delta = srcDelta,
                     Color = Color.red,
                     DeltaColor = item.SrcDiffValue > 0 ? Color.cyan : Color.yellow,
                 };
+                float tgtValue = Mathf.Min(1, (float)GetScoreValueForBar(item.TgtCurrentValue, item.TgtDiffValue)
+                                        / scoreMax);
+                float tgtDelta = Mathf.Min(1, (float)Mathf.Abs(item.TgtDiffValue) / scoreMax);
+
+                if (tgtValue == 1 && tgtDelta < 1)
+                    tgtValue -= tgtDelta; // visual adjustment (hack) for side cases when value is already maxed out
+
                 item.TgtBarInfo = new()
                 {
                     Title = $"{item.TgtCurrentValue}",
-                    Value = Mathf.Min(1, (float)GetScoreValueForBar(item.TgtCurrentValue, item.TgtDiffValue)
-                        / scoreMax),
-                    Delta = Mathf.Min(1, (float)Mathf.Abs(item.TgtDiffValue) / scoreMax),
+                    Value = tgtValue,
+                    Delta = tgtDelta,
                     Color = Color.red,
                     DeltaColor = item.TgtDiffValue > 0 ? Color.cyan : Color.yellow,
                 };
@@ -351,7 +366,10 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             info.EventItems = items;
-
+            
+            // to show current value for positive diff we should 1st substract it so total bar value will 
+            // represent a value _after_ increment. If the diff was negative we show current value as it is
+            // and change color for the diff part to some negative color (yellow)            
             static int GetScoreValueForBar(int current, int diff) =>
                 Mathf.Sign(current) == Mathf.Sign(diff) ?
                     Mathf.Abs(current - diff) :
