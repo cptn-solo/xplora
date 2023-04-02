@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
 using UnityEngine;
-using static UnityEditor.Progress;
 using Color = UnityEngine.Color;
 
 namespace Assets.Scripts.ECS.Data
