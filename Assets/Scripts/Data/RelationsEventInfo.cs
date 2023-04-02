@@ -1,4 +1,5 @@
 ﻿using Leopotam.EcsLite;
+using UnityEngine;
 
 namespace Assets.Scripts.Data
 {
@@ -16,5 +17,17 @@ namespace Assets.Scripts.Data
         public RelationEventItemInfo[] EventItems { get; internal set; }
 
         public string[] ActionTitles { get; internal set; }
+        public int SrcRSD { get; internal set; }
+        public int SrcRSDAbs => Mathf.Abs(SrcRSD);
+
+        public HeroKindGroup SrcKindGroup { get; internal set; }
+        public int TgtRSD { get; internal set; }
+        public int TgtRSDAbs => Mathf.Abs(TgtRSD);
+
+        public HeroKindGroup TgtKindGroup { get; internal set; }
+        public EcsPackedEntity ScoreEntity { get; internal set; }
+        public int ScoreDiff { get; internal set; }
+        public int Score { get; internal set; }
+        public RelationTargetInfo Rule { get; internal set; }
     }
 }

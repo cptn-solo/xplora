@@ -5,7 +5,6 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -47,8 +46,9 @@ namespace Assets.Scripts.ECS.Systems
         }
         private void ComposeEvent(int playerEntity) // test implementation
         {
-            ref var eventInfo = ref eventInfoPool.Value.Get(playerEntity);
-            if (!eventInfo.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity))
+            ref var info = ref eventInfoPool.Value.Get(playerEntity);
+
+            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity))
             {
                 // stale/incomplete draft, exception actually but let it go for now
                 eventInfoPool.Value.Del(playerEntity);
@@ -56,12 +56,11 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             ref var config = ref heroLibraryService.Value.HeroRelationsConfig;
-            
-            var srcRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(srcHeroEntity);
-            var srcRSDAbs = Mathf.Abs(srcRSD);
 
-            var srcKindGroup = config.GetKindGroup(srcRSD);
-            var targetRules = config.GetTargetRules(srcRSD, srcKindGroup);
+            info.SrcRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(srcHeroEntity);
+            info.SrcKindGroup = config.GetKindGroup(info.SrcRSD);
+
+            var targetRules = config.GetTargetRules(info.SrcRSD, info.SrcKindGroup);
 
             if (targetRules == null)
             {
@@ -70,11 +69,63 @@ namespace Assets.Scripts.ECS.Systems
                 return;
             }
 
-            var bonusRules = targetRules.Value.KindGroupBonusRules;
+            // 1. Pick event target kind group
+            PickEventTargetGroup(targetRules,
+                out Dictionary<HeroKindGroup, RelationTargetInfo> bonusRules,
+                out HeroKindGroup targetKindGroup);
+
+            if (targetKindGroup == HeroKindGroup.NA)
+            {
+                // hardly can imagine why this happened
+                eventInfoPool.Value.Del(playerEntity);
+                throw new Exception("Can't pick relation event target group");
+            }
+
+            // 2. Pik event target hero
+            PickEventTargetHero(config, ref info, bonusRules, targetKindGroup, out int tgtHeroEntity);
+
+            if (tgtHeroEntity < 0)
+            {
+                eventInfoPool.Value.Del(playerEntity);
+                Debug.Log($"Relation event missed: no suitable target");
+                return;
+            }
+
+            // 3. updating relation score
+            UpateRelationScore(config, ref info);
+
+            // 4. updating kind values 
+            UpdateKindValues(ref info);
+
+            // 5. producing view data
+            ProduceViewData(config, ref info);
+        }
+
+        private void UpateRelationScore(
+            HeroRelationsConfig config,
+            ref RelationsEventInfo info)
+        {
+            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity) ||
+                info.TargetEntity == null ||
+                !info.TargetEntity.Value.Unpack(ecsWorld.Value, out var tgtHeroEntity))
+                return;
+
+            var scoreFactorRange = config.RelationMatrix[info.SrcKindGroup][info.TgtKindGroup];
+            var scoreFactor = scoreFactorRange.RandomValue;
+            ref var scoreComp = ref GetScore(srcHeroEntity, tgtHeroEntity, out var scoreEntity);
+            scoreComp.Value += scoreFactor;
+            info.ScoreEntity = ecsWorld.Value.PackEntity(scoreEntity);
+            info.ScoreDiff = scoreFactor;
+            info.Score = scoreComp.Value;
+        }
+
+        private void PickEventTargetGroup(RelationTargetRuleConfig? targetRules, out Dictionary<HeroKindGroup, RelationTargetInfo> bonusRules, out HeroKindGroup winnerKindGroup)
+        {
+            bonusRules = targetRules.Value.KindGroupBonusRules;
             var totalRate = 0;
             var spareRate = 0; // will accumulate spawn rate of kind groups not present in the current team
             var buff = ListPool<Tuple<HeroKindGroup, int, int>>.Get();
-            
+
             // 1. initial rate assignment (for groups present in a team)
             foreach (var ruleProbe in bonusRules)
             {
@@ -102,9 +153,9 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             // 3. decide on target group
-            var probe = Random.Range(0, totalRate + 1);
-            var winnerKindGroup = HeroKindGroup.NA;
 
+            var probe = Random.Range(0, totalRate + 1);
+            winnerKindGroup = HeroKindGroup.NA;
             foreach (var item in buff)
             {
                 if (item.Item3 < probe)
@@ -115,42 +166,42 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             ListPool<Tuple<HeroKindGroup, int, int>>.Add(buff);
+        }
 
-            if (winnerKindGroup == HeroKindGroup.NA)
-            {
-                // hardly can imagine why this happened
-                eventInfoPool.Value.Del(playerEntity);
-                throw new Exception("Can't pick relation event target group");
-            }
-
-            // 4. pick a winner
+        private void PickEventTargetHero(
+            HeroRelationsConfig config,
+            ref RelationsEventInfo info, 
+            Dictionary<HeroKindGroup, RelationTargetInfo> bonusRules, 
+            HeroKindGroup winnerKindGroup,
+            out int tgtHeroEntity)
+        {
             int[] winnerCandidates = winnerKindGroup switch
             {
                 HeroKindGroup.Neutral => neutralTagFilter.Value.AllEntities(),
                 HeroKindGroup.Spirit => spiritTagFilter.Value.AllEntities(),
                 HeroKindGroup.Body => bodyTagFilter.Value.AllEntities(),
-                _ => new int[] {},
+                _ => new int[] { },
             };
 
-            var tgtHeroEntity = -1;
-            var rule = bonusRules[winnerKindGroup];
+            tgtHeroEntity = -1;
+            info.Rule = bonusRules[winnerKindGroup];
             if (winnerKindGroup == HeroKindGroup.Neutral)
             {
                 tgtHeroEntity = winnerCandidates[Random.Range(0, winnerCandidates.Length)];
             }
             else
-            { 
+            {
                 var rivals = ListPool<int>.Get();
-                
+
                 foreach (var tmEntity in winnerCandidates)
                 {
                     var tmRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(tmEntity);
                     var tmRSDAbs = Mathf.Abs(tmRSD);
-                    if (rule.Compared > 0 && tmRSDAbs > srcRSDAbs)
+                    if (info.Rule.Compared > 0 && tmRSDAbs > info.SrcRSDAbs)
                         rivals.Add(tmEntity);
-                    else if (rule.Compared < 0 && tmRSDAbs < srcRSDAbs)
+                    else if (info.Rule.Compared < 0 && tmRSDAbs < info.SrcRSDAbs)
                         rivals.Add(tmEntity);
-                    else if (rule.Compared == 0 && tmRSDAbs == srcRSDAbs)
+                    else if (info.Rule.Compared == 0 && tmRSDAbs == info.SrcRSDAbs)
                         rivals.Add(tmEntity);
                 }
 
@@ -162,40 +213,26 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             if (tgtHeroEntity < 0)
-            {
-                eventInfoPool.Value.Del(playerEntity);
-                Debug.Log($"Relation event missed: no suitable target");
                 return;
-            }
 
-            eventInfo.TargetEntity = ecsWorld.Value.PackEntity(tgtHeroEntity);
+            info.TargetEntity = ecsWorld.Value.PackEntity(tgtHeroEntity);
+            info.TgtRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(tgtHeroEntity);
+            info.TgtKindGroup = config.GetKindGroup(info.TgtRSD);
 
-            var tgtRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(tgtHeroEntity);
-            var tgtRSDAbs = Mathf.Abs(tgtRSD);
-            var tgtKindGroup = config.GetKindGroup(tgtRSD);
-                        
-            ref var srcName = ref namePool.Value.Get(srcHeroEntity);
-            ref var srcIconName = ref iconNamePool.Value.Get(srcHeroEntity);
+        }
 
-            ref var tgtName = ref namePool.Value.Get(tgtHeroEntity);
-            ref var tgtIconName = ref iconNamePool.Value.Get(tgtHeroEntity);
-
-            Debug.Log($"Relation event spawned between {srcName.Name} and {tgtName.Name}");
-
-            // 5. updating relation score
-
-            var scoreFactorRange = config.RelationMatrix[srcKindGroup][tgtKindGroup];
-            var scoreFactor = scoreFactorRange.RandomValue;
-            ref var scoreComp = ref GetScore(srcHeroEntity, tgtHeroEntity);            
-            scoreComp.Value += scoreFactor;
-
-            // 6. updating kind values 
+        private void UpdateKindValues(ref RelationsEventInfo info)
+        {
+            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity) ||
+                info.TargetEntity == null ||
+                !info.TargetEntity.Value.Unpack(ecsWorld.Value, out var tgtHeroEntity))
+                return;
 
             var itemBuff = ListPool<RelationEventItemInfo>.Get();
             var index = new Dictionary<HeroKind, int>();
-            foreach (var bonusKind in rule.IncomingBonus.TargetKinds)
+            foreach (var bonusKind in info.Rule.IncomingBonus.TargetKinds)
             {
-                var bonus = rule.IncomingBonus.Bonus;
+                var bonus = info.Rule.IncomingBonus.Bonus;
                 var current = IncrementKindValue(srcHeroEntity, bonusKind, bonus);
                 if (index.TryGetValue(bonusKind, out var idx))
                 {
@@ -217,9 +254,9 @@ namespace Assets.Scripts.ECS.Systems
                 }
             }
 
-            foreach (var bonusKind in rule.OutgoingBonus.TargetKinds)
+            foreach (var bonusKind in info.Rule.OutgoingBonus.TargetKinds)
             {
-                var bonus = rule.OutgoingBonus.Bonus;
+                var bonus = info.Rule.OutgoingBonus.Bonus;
                 var current = IncrementKindValue(tgtHeroEntity, bonusKind, bonus);
                 if (index.TryGetValue(bonusKind, out var idx))
                 {
@@ -240,33 +277,55 @@ namespace Assets.Scripts.ECS.Systems
                     index.Add(bonusKind, itemBuff.Count - 1);
                 }
 
-            }            
+            }
 
-            // 7. producing view data
+            info.EventItems = itemBuff.ToArray();
 
-            ref var info = ref eventInfoPool.Value.Get(playerEntity);
-            var score = scoreComp.Value - scoreFactor;
-            var delta = scoreFactor;
+            ListPool<RelationEventItemInfo>.Add(itemBuff);
+        }
+
+        private void ProduceViewData(
+            HeroRelationsConfig config, 
+            ref RelationsEventInfo info)
+        {
+            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity) ||
+                info.TargetEntity == null ||
+                !info.TargetEntity.Value.Unpack(ecsWorld.Value, out var tgtHeroEntity))
+                return;
+
+            ref var srcName = ref namePool.Value.Get(srcHeroEntity);
+            ref var srcIconName = ref iconNamePool.Value.Get(srcHeroEntity);
+
+            ref var tgtName = ref namePool.Value.Get(tgtHeroEntity);
+            ref var tgtIconName = ref iconNamePool.Value.Get(tgtHeroEntity);
+
+            Debug.Log($"Relation event spawned between {srcName.Name} and {tgtName.Name}");
+
+            var score = info.Score - info.ScoreDiff;
+            var delta = info.ScoreDiff;
             var scoreMax = 30;
-            
-            var relationState = config.GetRelationState(scoreComp.Value);
-            info.EventTitle = $"Score {scoreComp.Value}: {relationState}";
+
+            var relationState = config.GetRelationState(info.Score);
+            info.EventTitle = $"Score {info.Score}: {relationState}";
             info.SrcIconName = srcIconName.Name;
             info.TgtIconName = tgtIconName.Name;
             info.ActionTitles = new[] { $"OK" };
-            info.ScoreInfo = new() { 
-                ScoreSign = scoreComp.Value >= 0 ? 1 : -1, 
-                ScoreInfo = new() { 
-                    Title = $"{scoreComp.Value}",
-                    Value = Mathf.Min(1, (float)score/scoreMax),
-                    Delta = Mathf.Min(1, (float)delta/scoreMax),
+            info.ScoreInfo = new()
+            {
+                ScoreSign = info.Score >= 0 ? 1 : -1,
+                ScoreInfo = new()
+                {
+                    Title = $"{info.Score}",
+                    Value = Mathf.Min(1, (float)score / scoreMax),
+                    Delta = Mathf.Min(1, (float)delta / scoreMax),
                     Color = score > 0 ? Color.green : Color.red,
                     DeltaColor = Color.yellow,
-                } };
-
-            for (var i = 0; i < itemBuff.Count; i++)
+                }
+            };
+            var items = info.EventItems;
+            for (var i = 0; i < items.Length; i++)
             {
-                var item = itemBuff[i];
+                var item = items[i];
                 item.ItemTitle = item.Kind.Name();
                 item.SrcBarInfo = new()
                 {
@@ -285,13 +344,10 @@ namespace Assets.Scripts.ECS.Systems
                     DeltaColor = Color.cyan,
                 };
 
-                itemBuff[i] = item;                
+                items[i] = item;
             }
 
-            info.EventItems = itemBuff.ToArray();
-
-            ListPool<RelationEventItemInfo>.Add(itemBuff);
-
+            info.EventItems = items;
         }
 
         private int IncrementKindValue(int entity, HeroKind kind, int factor)
@@ -310,13 +366,17 @@ namespace Assets.Scripts.ECS.Systems
             };
         }
 
-        private ref RelationScoreComp GetScore(int srcHeroEntity, int tgtHeroEntity)
+        private ref RelationScoreComp GetScore(int srcHeroEntity, int tgtHeroEntity, out int scoreEntity)
         {
             var unpacked = new int[2];
-            foreach (var scoreEntity in scoreFilter.Value)
+            scoreEntity = -1;
+
+            foreach (var entity in scoreFilter.Value)
             {
-                ref var scoreComp = ref scorePool.Value.Get(scoreEntity);
+                ref var scoreComp = ref scorePool.Value.Get(entity);
+                
                 bool stale = false;
+                
                 for (int i = 0; i < 2; i++)
                 {
                     var packed = scoreComp.Parties[i];
@@ -329,6 +389,8 @@ namespace Assets.Scripts.ECS.Systems
                 }
                 if (!stale && unpacked.Contains(srcHeroEntity) && unpacked.Contains(tgtHeroEntity))
                 {
+                    scoreEntity = entity;
+
                     return ref scoreComp;
                 }                
             }

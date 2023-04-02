@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 856648663466641187}
   - component: {fileID: 2778378536646167963}
   - component: {fileID: 7664545967994426508}
-  m_Layer: 5
+  m_Layer: 7
   m_Name: Bars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 2759576620818508822}
   - component: {fileID: 3800773377714576485}
   - component: {fileID: 1378264244367865577}
-  m_Layer: 5
+  m_Layer: 7
   m_Name: Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 44.75
+  m_fontSize: 42.55
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -315,7 +315,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1679214848101856639}
-  m_Layer: 5
+  m_Layer: 7
   m_Name: Specs
   m_TagString: Untagged
   m_Icon: {fileID: 0}

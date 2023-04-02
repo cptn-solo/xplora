@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3432152601175826771}
   - component: {fileID: 3432152601175826780}
   - component: {fileID: 3432152601175826782}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Assets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62,7 +62,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -101,6 +101,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: TextWithIconsContainer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1151790597437874441, guid: 119c9b1002cbf4ddba4d87429db4dcde,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2963600359012566615, guid: 119c9b1002cbf4ddba4d87429db4dcde,
         type: 3}

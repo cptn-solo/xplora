@@ -4,6 +4,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -116,7 +117,7 @@ namespace Assets.Scripts.ECS.Systems
         {
             var pool = ecsWorld.Value.GetPool<IntValueComp<T>>();
             ref var val = ref pool.Add(playerTeamMemberEntity);
-            val.Value = level;
+            val.Value = Mathf.Abs(level);
 
             ecsWorld.Value.IncrementIntValue<HeroKindRSDTag>(level, playerTeamMemberEntity);
         }

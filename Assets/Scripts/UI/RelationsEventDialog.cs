@@ -80,6 +80,7 @@ namespace Assets.Scripts.UI
                 card.transform.localScale = canvas.transform.localScale;
                 card.transform.SetParent(kindsTransform);
                 card.transform.localRotation = Quaternion.identity;
+                card.transform.localPosition = Vector3.zero;
 
                 card.SetInfo(item);
             }
