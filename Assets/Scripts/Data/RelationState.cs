@@ -3,6 +3,7 @@
     public enum RelationState
     {
         NA = 0,
+        BelowLow = 50,
         Low = 100,
         Enemies = 200,
         Bad = 300,

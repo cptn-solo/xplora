@@ -117,13 +117,13 @@ namespace Assets.Scripts.Services
             var rstHigh = val(4, 8).ParseIntValue(0, true);
 
             config.RelationStateThresholds = new[]{
-                new RelationStateValue(RelationState.Low, rstLow),
-                new RelationStateValue(RelationState.Enemies, rstEnemies),
-                new RelationStateValue(RelationState.Bad, rstBad),
-                new RelationStateValue(RelationState.Good, 0),
-                new RelationStateValue(RelationState.Friends, rstGood),
-                new RelationStateValue(RelationState.High, rstFrieds),
-                new RelationStateValue(RelationState.OverHigh, rstHigh),
+                new RelationStateValue(RelationState.BelowLow, rstLow),
+                new RelationStateValue(RelationState.Low, rstEnemies),
+                new RelationStateValue(RelationState.Enemies, rstBad),
+                new RelationStateValue(RelationState.Bad, 0),
+                new RelationStateValue(RelationState.Good, rstGood),
+                new RelationStateValue(RelationState.Friends, rstFrieds),
+                new RelationStateValue(RelationState.High, rstHigh),
             };
             
             var spiritRules = ReadTargetRules(6, 44, val);
