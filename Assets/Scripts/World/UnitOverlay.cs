@@ -12,12 +12,16 @@ namespace Assets.Scripts.World
         public void Attach(Transform anchor) =>
             this.anchor = anchor;
 
-        protected override void OnBeforeDestroy() =>
+        protected override void OnBeforeDestroy()
+        {
+            base.OnBeforeDestroy();
+
             anchor = null;
+        }
 
         private void Update()
         {
-            if (anchor == null)
+            if (anchor == null || Camera.main == null)
                 return;
 
             var pos = anchor.transform.position;

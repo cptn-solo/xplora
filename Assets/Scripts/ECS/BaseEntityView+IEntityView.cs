@@ -2,6 +2,7 @@
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.ECS
 {
@@ -15,7 +16,7 @@ namespace Assets.Scripts.ECS
         public DataLoadDelegate<T> DataLoader { get; set; }
 
         public virtual void Destroy() =>
-            GameObject.Destroy(gameObject);
+            Destroy(gameObject);
 
         public virtual void UpdateData() =>
             CurrentData = DataLoader?.Invoke(PackedEntity);
@@ -101,6 +102,11 @@ namespace Assets.Scripts.ECS
             pool.Del(entity);
         }
 
+        public void Decommision()
+        {
+            EcsService.OnManagedSceneDecomission -= Decommision;
+            OnGameObjectDestroy();
+        }
         #endregion
 
     }

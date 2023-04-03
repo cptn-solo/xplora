@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Services;
 using Leopotam.EcsLite;
+using UnityEngine.Events;
 
 namespace Assets.Scripts
 {
@@ -15,6 +16,9 @@ namespace Assets.Scripts
         public void DetachChild<C>(ITransform<C> child) where C : struct;
         public void DetachChild<C>(IDataView<C> child) where C : struct;
         public void DetachChild<C>(IItemsContainer<C> child) where C : struct;
+        
+        public void Decommision(); // drop entity view ref before destruction
+                                   // (important for disabled views)
     }
 
     public interface IEntityView<T> : IEntityView

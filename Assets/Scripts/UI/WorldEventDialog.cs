@@ -3,7 +3,6 @@ using Assets.Scripts.ECS;
 using Assets.Scripts.Services;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 using Zenject;
 
@@ -47,6 +46,8 @@ namespace Assets.Scripts.UI
 
         protected override void OnBeforeDestroy()
         {
+            base.OnBeforeDestroy();
+
             foreach (var button in actionButtons)
                 button.onClick.RemoveAllListeners();
         }

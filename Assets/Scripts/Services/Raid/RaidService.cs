@@ -97,7 +97,7 @@ namespace Assets.Scripts.Services
             {
                 worldService.PlayerUnit = null;
                 State = RaidState.NA;
-
+                DestroyEcsEntityViews();
                 if (current == Screens.Battle)
                     State = RaidState.InBattle;
                 else FinalizeRaid();

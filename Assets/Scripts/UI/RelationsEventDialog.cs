@@ -49,6 +49,8 @@ namespace Assets.Scripts.UI
 
         protected override void OnBeforeDestroy()
         {
+            base.OnBeforeDestroy();
+
             foreach (var button in actionButtons)
                 button.onClick.RemoveAllListeners();            
         }

@@ -32,6 +32,10 @@ public class TeamMemberHover : BaseEntityView<HoverTag<TeamMemberInfo>>
         }
     }
 
+    protected override void OnBeforeDestroy()
+    {
+        base.OnBeforeDestroy();
+    }
     protected override void OnBeforeStart() =>
         HeroName = null;
 }

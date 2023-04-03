@@ -39,6 +39,8 @@ public class Overlay : BaseEntityView<BarsAndEffectsInfo>
     }
     protected override void OnBeforeDestroy()
     {
+        base.OnBeforeDestroy();
+
         destroyed = true;
         anchor = null;
     }

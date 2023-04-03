@@ -32,6 +32,8 @@ namespace Assets.Scripts.Services
         public void OnEventAction<T>(int idx)
             where T : struct;
 
+        public event UnityAction OnManagedSceneDecomission;
+
     }
 
 }
