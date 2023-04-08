@@ -172,13 +172,13 @@ namespace Assets.Scripts.Services
                     "здоровье" => SpecOption.Health,
                     "скорость" => SpecOption.Speed,
                     "нетратитвыносливость" => SpecOption.UnlimitedStaminaTag,
-                    "критическийудар" => SpecOption.NA,
-                    "сопротивляемостькровотечению" => SpecOption.NA,
-                    "сопротивляемостьяду" => SpecOption.NA,
-                    "сопротивляемостьоглушению" => SpecOption.NA,
-                    "сопротивляемостьгорению" => SpecOption.NA,
-                    "сопротивляемостьхолоду" => SpecOption.NA,
-                    "споротивляемостьослеплению" => SpecOption.NA,
+                    "критическийудар" => SpecOption.CritRate,
+                    "сопротивляемостькровотечению" => SpecOption.BleedingResistanceRate,
+                    "сопротивляемостьяду" => SpecOption.PoisonResistanceRate,
+                    "сопротивляемостьоглушению" => SpecOption.StunResistanceRate,
+                    "сопротивляемостьгорению" => SpecOption.BurningResistanceRate,
+                    "сопротивляемостьхолоду" => SpecOption.FrozingResistanceRate,
+                    "споротивляемостьослеплению" => SpecOption.BlindnessResistanceRate,
                     _ => SpecOption.NA
                 };
             }

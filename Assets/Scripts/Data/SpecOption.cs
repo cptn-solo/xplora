@@ -17,5 +17,11 @@
         Speed = 600,
         UnlimitedStaminaTag = 700, // not present in Hero fields (dynamic)
         HP = 800, // not present in Hero fields (dynamic)
+        BleedingResistanceRate = 1100,
+        PoisonResistanceRate = 1200,
+        StunResistanceRate = 1300,
+        BurningResistanceRate = 1400,
+        FrozingResistanceRate = 1500,
+        BlindnessResistanceRate = 1600,
     }
 }
