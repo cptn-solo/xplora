@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
 
         public void Init(IEcsSystems systems)
         {
-            ref var relationsConfig = ref heroLibraryService.Value.HeroRelationsConfig;
+            ref var relationsConfig = ref heroLibraryService.Value.HeroRelationsConfigProcessor();
             
             foreach (var entity in filter.Value)
             {

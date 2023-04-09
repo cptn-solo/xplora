@@ -2,8 +2,17 @@
 {
     public struct EffectRuleAlgoDamageTypeBlock : IBattleEffectRule
     {
+        public EffectRuleAlgoDamageTypeBlock(string[] rawValues) : this()
+        {
+            Source = rawValues;
+            TargetDomain = rawValues[1].ParseHeroDomain();
+            DamageType = rawValues[2].ParseDamageType();
+            Flag = rawValues[3].ParseIntValue(0, true);
+            TurnsCount = rawValues[4].ParseIntValue();
+        }
+
         public RelationsEffectType EffectType => RelationsEffectType.AlgoDamageTypeBlock;
-        public string SourceString { get; set; }
+        public string[] Source { get; set; }
         public string Description { get; set; }
         
         #region IBattleEffectRule

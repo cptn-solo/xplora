@@ -29,7 +29,7 @@ namespace Assets.Scripts.ECS.Systems
 
             foreach (var visitEntity in visitFilter.Value)
             {
-                ref var relationsConfig = ref heroLibraryService.Value.HeroRelationsConfig;
+                ref var relationsConfig = ref heroLibraryService.Value.HeroRelationsConfigProcessor();
 
                 var buff = ListPool<Tuple<int, float>>.Get();
                 var total = 0f;

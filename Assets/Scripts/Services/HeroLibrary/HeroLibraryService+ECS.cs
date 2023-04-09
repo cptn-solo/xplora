@@ -66,7 +66,7 @@ namespace Assets.Scripts.Services
         /// of a Hero of a kind
         /// </summary>
         /// <returns>reference to a struct attached as a component to an ecs entity</returns>
-        private ref Hero ProcessEcsHeroConfig(int idx)
+        private ref Hero HeroConfigProcessor(int idx)
         {
             var heroPool = ecsWorld.GetPool<Hero>();
             var filter = ecsWorld.Filter<Hero>().End();
@@ -112,8 +112,6 @@ namespace Assets.Scripts.Services
 
             return ref added;
         }
-
-        private ref HeroRelationsConfig HeroRelationsConfigProcessor() => ref HeroRelationsConfig;
 
         private HeroPosition GetEcsNextFreePosition()
         {

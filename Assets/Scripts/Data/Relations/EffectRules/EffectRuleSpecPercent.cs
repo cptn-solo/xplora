@@ -6,8 +6,17 @@
     /// </summary>
     public struct EffectRuleSpecPercent : IBattleEffectRule
     {
+        public EffectRuleSpecPercent(string[] rawValues) : this()
+        {
+            Source = rawValues;
+            TargetDomain = rawValues[1].ParseHeroDomain();
+            SpecOption = rawValues[2].ParseSpecOption();
+            Value = rawValues[3].ParseIntValue(0, true);
+            TurnsCount = rawValues[4].ParseIntValue();
+        }
+
         public RelationsEffectType EffectType => RelationsEffectType.SpecPercent;
-        public string SourceString { get; set; }
+        public string[] Source { get; set; }
         public string Description { get; set; }
         
         #region IBattleEffectRule

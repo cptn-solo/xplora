@@ -6,8 +6,16 @@
     /// </summary>
     public struct EffectRuleDmgEffectBonusPercent : IBattleEffectRule
     {
+        public EffectRuleDmgEffectBonusPercent(string[] rawValues) : this()
+        {
+            Source = rawValues;
+            TargetDomain = rawValues[1].ParseHeroDomain();
+            Value = rawValues[2].ParseIntValue(0, true);
+            TurnsCount = rawValues[3].ParseIntValue();
+        }
+
         public RelationsEffectType EffectType => RelationsEffectType.DmgEffectBonusPercent;
-        public string SourceString { get; set; }
+        public string[] Source { get; set; }
         public string Description { get; set; }
         
         #region IBattleEffectRule

@@ -6,11 +6,6 @@ namespace Assets.Scripts.Services
 {
     public delegate ref HeroRelationsConfig HeroRelationsConfigProcessor();
     
-    public class HeroRelationBattleEffectConfigLoader : BaseConfigLoader
-    {
-
-    }
-    
     public class HeroRelationRulesConfigLoader : BaseConfigLoader
     {
         private readonly HeroRelationsConfigProcessor configProcessor;

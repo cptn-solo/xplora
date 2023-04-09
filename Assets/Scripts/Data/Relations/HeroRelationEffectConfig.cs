@@ -1,6 +1,6 @@
 ﻿namespace Assets.Scripts.Data
 {
-    public struct HeroRelationsEffectConfig
+    public struct HeroRelationEffectConfig
     {
         /// <summary>
         /// Config is effective for hero config with this id
@@ -8,9 +8,9 @@
         public int HeroId { get; set; }
 
         /// <summary>
-        /// Effect can be applied only to a party with a given relations score with currently analized party
+        /// Effect can be applied only to a party with a given relations state with currently analized party
         /// </summary>
-        public int TargetScore { get; set; }
+        public RelationState RelationState { get; set; }
 
         public RelationSubjectState SelfState { get; set; }
         public RelationSubjectState TargetState { get; set; }

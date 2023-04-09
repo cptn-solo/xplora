@@ -26,6 +26,10 @@ public class EditModeMenu : EditorWindow
         {
             LoadRelationsConfigFromGoogleSheet();
         }
+        else if (GUILayout.Button("Load Relation Effects Library (Google)"))
+        {
+            LoadRelationEffectsLibraryFromGoogleSheet();
+        }
         else if (GUILayout.Button("Load Terrain Attributes (Google)"))
         {
             LoadTerrainAttributes();
@@ -58,6 +62,14 @@ public class EditModeMenu : EditorWindow
         loader.LoadGoogleData();
 
         Debug.Log("The function LoadRelationsConfigFromGoogleSheet ran.");
+    }
+
+    private void LoadRelationEffectsLibraryFromGoogleSheet()
+    {
+        var loader = new HeroRelationEffectsLibraryLoader();
+        loader.LoadGoogleData();
+
+        Debug.Log("The function LoadRelationEffectsLibraryFromGoogleSheet ran.");
     }
 
     private void LoadDamageTypesFromGoogleSheet()

@@ -6,8 +6,16 @@
     /// </summary>
     public struct EffectRuleDmgEffectBonusAbs : IBattleEffectRule
     {
+        public EffectRuleDmgEffectBonusAbs(string[] rawValues) : this()
+        {
+            Source = rawValues;
+            TargetDomain = rawValues[1].ParseHeroDomain();
+            Value = rawValues[2].ParseIntValue(0, true);
+            TurnsCount = rawValues[3].ParseIntValue();
+        }
+
         public RelationsEffectType EffectType => RelationsEffectType.DmgEffectBonusAbs;
-        public string SourceString { get; set; }
+        public string[] Source { get; set; }
         public string Description { get; set; }
         
         #region IBattleEffectRule

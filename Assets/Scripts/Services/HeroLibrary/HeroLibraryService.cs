@@ -10,9 +10,6 @@ namespace Assets.Scripts.Services
         private MenuNavigationService menuNavigationService;
         private BattleManagementService battleManagementService;
 
-        public DamageTypesLibrary DamageTypesLibrary => damageTypesLib;
-        public HeroRelationsConfig HeroRelationsConfig = new();
-
         public ref Team PlayerTeam => ref GetEcsPlayerTeam();
         public ref Team EnemyTeam => ref GetEcsEnemyTeam();
 

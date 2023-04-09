@@ -53,7 +53,7 @@ namespace Assets.Scripts.ECS.Systems
                 return;
             }
 
-            ref var config = ref heroLibraryService.Value.HeroRelationsConfig;
+            ref var config = ref heroLibraryService.Value.HeroRelationsConfigProcessor();
 
             info.SrcRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(srcHeroEntity);
             info.SrcKindGroup = config.GetKindGroup(info.SrcRSD);

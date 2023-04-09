@@ -3,17 +3,21 @@
     /// <summary>
     /// спека изменить на макс/мин	Цель	Урон	Флаг	длительность (до след. N хода героя)
     /// </summary>
-    public struct EffectRuleSpecMaxMin : IEffectRule
+    public struct EffectRuleSpecMaxMin : IBattleEffectRule
     {
+        public EffectRuleSpecMaxMin(string[] rawValues) : this()
+        {
+            Source = rawValues;
+            TargetDomain = rawValues[1].ParseHeroDomain();
+            SpecOption = rawValues[2].ParseSpecOption();
+            MaxMin = rawValues[3].ParseIntValue(0, true);
+            TurnsCount = rawValues[4].ParseIntValue();
+         }
+
         public RelationsEffectType EffectType => RelationsEffectType.SpecMaxMin;
-        public string SourceString { get; set; }
+        public string[] Source { get; set; }
         public string Description { get; set; }
 
-        /// <summary>
-        /// H - rule affects subject hero's spec option
-        /// E (enemy) - rule affects subject hero's current enemy
-        /// </summary>
-        public HeroDomain TargetDomain { get; set; }
         public SpecOption SpecOption { get; set; }
 
         /// <summary>
@@ -22,10 +26,12 @@
         /// </summary>
         public int MaxMin { get; set; }
 
-        /// <summary>
-        /// For how long lasts the effect (next N turns)
-        /// </summary>
+        #region IBattleEffectRule
+        
+        public HeroDomain TargetDomain { get; set; }
         public int TurnsCount { get; set; }
+        
+        #endregion
 
     }
 }

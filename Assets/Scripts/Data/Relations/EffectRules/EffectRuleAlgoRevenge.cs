@@ -2,8 +2,15 @@
 {
     public struct EffectRuleAlgoRevenge : IBattleEffectRule
     {
+        public EffectRuleAlgoRevenge(string[] rawValues) : this()
+        {
+            Source = rawValues;
+            TargetDomain = rawValues[1].ParseHeroDomain();
+            TurnsCount = rawValues[2].ParseIntValue();
+        }
+
         public RelationsEffectType EffectType => RelationsEffectType.AlgoRevenge;
-        public string SourceString { get; set; }
+        public string[] Source { get; set; }
         public string Description { get; set; }
 
         #region IBattleEffectRule
