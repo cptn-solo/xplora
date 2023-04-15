@@ -32,9 +32,8 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var roundInfo = ref roundPool.Value.Get(roundEntity);
             if (roundInfo.QueuedHeroes.Length == 0)
-            {
                 throw new Exception("Round Queue empty");
-            }
+
             var roundSlot = roundInfo.QueuedHeroes[0];
 
             if (!roundSlot.HeroInstancePackedEntity.Unpack(out _, out var attackerInstanceEntity))

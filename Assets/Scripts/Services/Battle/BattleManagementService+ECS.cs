@@ -56,7 +56,13 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDraftTurnSystem())
                 .Add(new BattleAssignAttackerSystem())
                 .Add(new BattleAssignAttackerEffectsSystem())
+                .Add(new BattleAssignAttackerRelationEffectsSystem()) // if attacker is hero (not enemy)
+                                                                      // scans for relations and casts effects
+                                                                      // on active attacker
                 .Add(new BattleAssignTargetSystem())
+                .Add(new BattleAssignTargetRelationEffectsSystem()) // if target is hero (not enemy)
+                                                                    // scans for relations and casts effects
+                                                                    // on active target 
                 .Add(new BattleMarkTurnReadySystem()) // marks ready turns for autoplay
                 .DelHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
@@ -70,7 +76,8 @@ namespace Assets.Scripts.Services
                 // with CompletedTurnTag
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
-                .Add(new BattleReportUpdatedHeros()) // reports data back to the battle requester (raid)
+                .Add(new BattleReportUpdatedHeros()) // reports update back to the battle requester (raid)
+                .Add(new BattleReportDeadHeroes()) // reports death back to the battle requester (raid)
                 // dequeue fired items
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards

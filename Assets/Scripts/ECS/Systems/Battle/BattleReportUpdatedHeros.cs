@@ -8,12 +8,12 @@ namespace Assets.Scripts.ECS.Systems
     public class BattleReportUpdatedHeros : IEcsRunSystem
     {
         private readonly EcsPoolInject<HeroInstanceOriginRefComp> pool = default;
-        private readonly EcsPoolInject<DeadTag> deadTagPool = default;
         
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpPool = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroInstanceOriginRefComp, ProcessedHeroTag>> filter = default;
+            Inc<HeroInstanceOriginRefComp, ProcessedHeroTag>,
+            Exc<DeadTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {
@@ -24,12 +24,6 @@ namespace Assets.Scripts.ECS.Systems
                     throw new Exception("No Origin");
 
                 ref var hpComp = ref hpPool.Value.Get(entity);
-
-                if (deadTagPool.Value.Has(entity))
-                {
-                    originWorld.DelEntity(originEntity);
-                    continue;
-                }
 
                 var hpPoolOrigin = originWorld.GetPool<IntValueComp<HpTag>>();
                 if (hpPoolOrigin.Has(originEntity))

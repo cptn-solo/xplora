@@ -6,7 +6,6 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems

@@ -12,7 +12,14 @@
         /// </summary>
         public RelationState RelationState { get; set; }
 
+        /// <summary>
+        /// State (Attacking, Being Attacked, etc. of the currently analized party
+        /// </summary>
         public RelationSubjectState SelfState { get; set; }
+        
+        /// <summary>
+        /// currently not assigned by the configuration data, for future use
+        /// </summary>
         public RelationSubjectState TargetState { get; set; }
         
         /// <summary>

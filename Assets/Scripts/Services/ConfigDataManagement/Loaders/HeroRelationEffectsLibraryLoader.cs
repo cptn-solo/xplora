@@ -48,6 +48,8 @@ namespace Assets.Scripts.Services
 
             ref var config = ref configProcessor();
 
+            // Effect rules:
+
             Dictionary<RelationEffectLibraryKey, HeroRelationEffectConfig> index = new();
 
             for (int i = 0; i < heroCount; i++)
@@ -77,8 +79,8 @@ namespace Assets.Scripts.Services
                         var effectConfig = new HeroRelationEffectConfig()
                         {
                             HeroId = heroId,
-                            SelfState = RelationSubjectState.NA,
-                            TargetState = subjectState,
+                            SelfState = subjectState,
+                            TargetState = RelationSubjectState.NA,
                             RelationState = relationState,     
                             EffectRule = ruleSource.ParseRelationEffectRule()
                         };
@@ -88,6 +90,21 @@ namespace Assets.Scripts.Services
             }
 
             config.SubjectStateEffectsIndex = index;
+
+            // Additional effects spawn rate:
+
+            Dictionary<int, int> spawnRates = new();
+            var gradesCount = 4;
+            var startRow = 34;
+
+            for (int i = startRow; i < startRow + gradesCount; i++)
+            {
+                var appliedCnt = val(i, 0).ParseIntValue();
+                var spawnRate = val(i, 1).ParseIntValue();
+                spawnRates.Add(appliedCnt, spawnRate);                
+            }
+
+            config.AdditioinalEffectSpawnRate = spawnRates;
 
         }
 
