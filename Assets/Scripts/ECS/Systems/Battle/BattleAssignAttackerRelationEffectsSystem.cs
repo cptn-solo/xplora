@@ -97,6 +97,12 @@ namespace Assets.Scripts.ECS.Systems
                 $"for {heroConfig.Name} in {scope.SelfState} due to {scope.RelationState} " +
                 $"with {otherGuyHeroConfig.Name}");
 
+            // TODO: respect spawn rate from AdditioinalEffectSpawnRate:
+            // 1. add component to the entity of the current score data;
+            // 2. keep all spawned effects (EffectRules) in that component;
+            // 3. count of already spawned effects used as a wheight for spawn rate (key for 
+            // AdditioinalEffectSpawnRate queries);
+
         }
     }
 }
