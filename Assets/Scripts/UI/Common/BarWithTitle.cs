@@ -1,51 +1,18 @@
 using Assets.Scripts.Data;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Common
 {
-    public class BarWithTitle : MonoBehaviour
+    public class BarWithTitle : BaseContainableItem<BarInfo>
     {
         [SerializeField] private Image barImage;
         [SerializeField] private Image deltaImage;
         [SerializeField] private TextMeshProUGUI titleLabel;
 
-        private RectTransform rectTransform;
-
-        private BarInfo? barInfo = null;
-        private bool initialized;
-
-        private void Awake()
+        protected override void ApplyInfoValues(BarInfo info)
         {
-            rectTransform = GetComponent<RectTransform>();
-        }
-
-        private void Start()
-        {
-            initialized = true;
-
-            // if a bar was just spawned it can't read it's layout values (size of its parent)
-            // so we need to wait a frame to hange to start layout based calculations
-            StartCoroutine(ApplyBarInfo());
-        }
-
-        IEnumerator ApplyBarInfo()
-        {
-            yield return null;
-            
-            if (barInfo != null)
-                SetInfo(barInfo.Value);             
-        }
-
-        public void SetInfo(BarInfo info)
-        {
-            barInfo = info;
-
-            if (!initialized)
-                return;
-
             titleLabel.text = info.Title;
 
             barImage.color = info.Color;
@@ -107,6 +74,7 @@ namespace Assets.Scripts.UI.Common
                 deltaImage.color = info.DeltaColor;
 
             }            
+
         }
     }
-}
+ }

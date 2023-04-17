@@ -8,7 +8,7 @@ namespace Assets.Scripts.Data
 
     public partial struct Hero // Fields
     {
-        public int Id { get; internal set; }
+        public int Id { get; set; }
         public string Name { get; internal set; }
         public HeroDomain Domain { get; internal set; }
 

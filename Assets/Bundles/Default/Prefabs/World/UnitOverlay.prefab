@@ -325,11 +325,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bars
       objectReference: {fileID: 0}
-    - target: {fileID: 3649788683939917952, guid: 0e55301815ea2d14096c766276995017,
-        type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
     - target: {fileID: 8417863084310355955, guid: 0e55301815ea2d14096c766276995017,
         type: 3}
       propertyPath: m_Pivot.x

@@ -75,8 +75,10 @@ namespace Assets.Scripts.ECS.Data
     public struct HpTag { }
     public struct SpeedTag { }
 
-    public struct BuffComp<T> : IIntValue
+    public struct BuffComp<T> : IIntValue, IIdentifiable<int>
     {
+        public int Id { get; set; }
+
         public int Value { get; set; }
         public int Usages { get; set; }
         public Color IconColor { get; set; }

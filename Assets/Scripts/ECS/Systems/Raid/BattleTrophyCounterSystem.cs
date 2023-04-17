@@ -47,7 +47,8 @@ namespace Assets.Scripts.ECS.Systems
                             buffer.Add(new Asset()
                             {
                                 AssetType = trophy.AssetType,
-                                Count = trophy.Count
+                                Count = trophy.Count,
+                                Id = trophy.Id,
                             });
                         }
                     }

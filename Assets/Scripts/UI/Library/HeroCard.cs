@@ -38,7 +38,7 @@ namespace Assets.Scripts.UI.Library
                 ResolveIcons();
                 heroNameText.text = hero.Name;
                 
-                barsContainer.SetData(hero.BarsInfoShort);
+                barsContainer.SetInfo(hero.BarsInfoShort);
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Services;
 using Leopotam.EcsLite;
-using UnityEngine.Events;
 
 namespace Assets.Scripts
 {

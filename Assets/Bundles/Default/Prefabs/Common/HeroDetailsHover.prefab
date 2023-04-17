@@ -168,8 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e941af0ad2f99a042be45470f078ce0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  barPrefab: {fileID: 1043715635086603272, guid: d7763c809be2547438aeca3a5277bfab,
-    type: 3}
+  prefab: {fileID: 1043715635086603272, guid: d7763c809be2547438aeca3a5277bfab, type: 3}
 --- !u!1 &6721596993861651593
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,7 +263,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42.55
+  m_fontSize: 44.75
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

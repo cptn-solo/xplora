@@ -54,7 +54,8 @@ namespace Assets.Scripts.ECS.Systems
             pot.PotAssets = new Asset[] {
                 new Asset(){
                     AssetType = AssetType.Money,
-                    Count = potValue
+                    Count = potValue,
+                    Id = (int)AssetType.Money,
                 }
             };
         }

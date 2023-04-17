@@ -351,7 +351,7 @@ namespace Assets.Scripts.Services
         internal void DestroyEcsLibraryField()
         {
             if (!LibraryEntity.Unpack(out var world, out var entity))
-                throw new Exception("No library");
+                return;
 
             var pool = world.GetPool<LibraryFieldComp>();
 

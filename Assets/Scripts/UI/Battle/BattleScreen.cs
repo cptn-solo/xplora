@@ -1,9 +1,7 @@
 ﻿using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
-using Assets.Scripts.ECS;
 using Assets.Scripts.Services;
 using Assets.Scripts.UI.Inventory;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,7 +14,6 @@ namespace Assets.Scripts.UI.Battle
         private BattleManagementService battleManager;
         private HeroLibraryService libraryManager;
         private AudioPlaybackService audioService;
-        private MenuNavigationService navService;
 
         private BattleLog battleLog;
 
@@ -49,13 +46,11 @@ namespace Assets.Scripts.UI.Battle
         public void Construct(
             BattleManagementService battleManager,
             HeroLibraryService libraryManager,
-            AudioPlaybackService audioService,
-            MenuNavigationService navService)
+            AudioPlaybackService audioService)
         {
             this.battleManager = battleManager;
             this.libraryManager = libraryManager;
             this.audioService = audioService;
-            this.navService = navService;
 
             Initialize();
         }

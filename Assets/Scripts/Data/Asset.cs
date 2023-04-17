@@ -6,7 +6,7 @@ namespace Assets.Scripts.Data
     {
         public static int lastUsedAssetId = -1;
 
-        public int id;
+        public int Id { get; set; }
         public IEntity Owner;
         public int Count;
         public int MaxCount;
@@ -17,7 +17,6 @@ namespace Assets.Scripts.Data
         public string IconName;
         public BundleIcon IconCode;
         public string Name;
-        public int Id => id;
 
         public override string ToString() =>
             $"{AssetType} {Name} {IconName}";
@@ -26,7 +25,7 @@ namespace Assets.Scripts.Data
         {
             Asset asset = default;
             
-            asset.id = assetType != AssetType.NA ? 
+            asset.Id = assetType != AssetType.NA ? 
                 lastUsedAssetId++ : -1;
             
             asset.AssetType = assetType;

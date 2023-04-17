@@ -43,7 +43,7 @@ namespace Assets.Scripts.ECS.Systems
                     Icon = BundleIcon.Power,
                     IconColor = Color.yellow, 
                     BadgeText = $"{strength.Value}",
-                    BackgroundColor = null
+                    BackgroundColor = null,
                 };
 
                 foreach (var item in config.SortedSpawnRateInfo)

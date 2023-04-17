@@ -78,7 +78,7 @@ public class Overlay : BaseEntityView<BarsAndEffectsInfo>
             return;
 
         barsContainer.gameObject.SetActive(barsInfoBattle != null);
-        barsContainer.SetData(barsInfoBattle??new BarInfo[0]);
+        barsContainer.SetInfo(barsInfoBattle??new BarInfo[0]);
 
         effectsContainer.gameObject.SetActive(effects != null);
         effectsContainer.SetEffects(effects??new());

@@ -20,7 +20,6 @@ namespace Assets.Scripts.ECS
 
         protected virtual void OnBeforeDestroy()
         {
-            Debug.Log($"Destroying {this.GetType()}");
         }
 
         private void Start()

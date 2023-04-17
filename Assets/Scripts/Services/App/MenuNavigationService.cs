@@ -20,6 +20,11 @@ namespace Assets.Scripts.Services
             NavigateToScreen(Screens.HeroesLibrary);
         }
 
+        private void OnDestroy()
+        {
+            UIManager = null;
+        }
+
         public void NavigateToScreen(Screens screen)
         {
             Debug.Log(screen);

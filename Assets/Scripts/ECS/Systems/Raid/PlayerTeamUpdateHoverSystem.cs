@@ -56,7 +56,7 @@ namespace Assets.Scripts.ECS.Systems
                 detailsView.HeroName = barsInfo.Name;
 
                 ref var detailsBarsRef = ref detailsBarsViewRefPool.Value.Get(detailsViewEntity);
-                detailsBarsRef.Container.SetItems(barsInfo.BarsInfo);
+                detailsBarsRef.Container.SetInfo(barsInfo.BarsInfo);
 
                 PositionHoverView(hostTransform, detailsView.Transform);
             }

@@ -157,6 +157,9 @@ namespace Assets.Scripts.ECS.Systems
                         buff.Icon = BundleIcon.Sword;
                         buff.IconColor = Color.cyan;
 
+                        buff.Id = (int)BundleIcon.Sword;
+
+
                         if (!updatePool.Has(entity))
                             updatePool.Add(entity);
                     }

@@ -2,8 +2,10 @@
 
 namespace Assets.Scripts.Data
 {
-    public struct BagedIconInfo
+    public struct BagedIconInfo : IContainableItemInfo<int>
     {
+        public int Id { get; set; }
+        
         public BundleIcon Icon;
         public Color IconColor;
         public Color? BackgroundColor;

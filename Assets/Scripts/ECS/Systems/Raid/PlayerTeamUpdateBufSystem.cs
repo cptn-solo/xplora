@@ -25,7 +25,8 @@ namespace Assets.Scripts.ECS.Systems
                 var info = new BagedIconInfo {
                         BadgeText = $"x{buff.Value/100}",
                         IconColor = buff.IconColor,
-                        Icon = buff.Icon
+                        Icon = buff.Icon,
+                        Id = buff.Id,
                 };
                 containerRef.Container.SetItemInfo(info);
 

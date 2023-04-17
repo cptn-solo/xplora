@@ -1,35 +1,29 @@
 ﻿using Assets.Scripts.Data;
+using Assets.Scripts.UI.Common;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
-public class IconWithBage : MonoBehaviour
+public class IconWithBage : BaseContainableItem<BagedIconInfo>
 {
     private TextMeshProUGUI bageText;
     private Image iconImage;
 
     private Material defaultIconMaterial;
 
-    public void SetBadgeText(string text)
-    {
-        bageText.text = text;
-    }
-
-    public void SetIconByCode(BundleIcon code)
-    {
-        ResolveIcon(iconImage, code);
-    }
-
-    public void SetIconColor(Color color)
-    {
-        iconImage.color = color;
-    }
-
-    private void Awake()
+    protected override void OnAwake()
     {
         bageText = GetComponentInChildren<TextMeshProUGUI>();
         iconImage = GetComponentInChildren<Image>();
         defaultIconMaterial = iconImage.material;
+    }
+
+    protected override void ApplyInfoValues(BagedIconInfo info)
+    {
+        ResolveIcon(iconImage, info.Icon);
+        bageText.text = info.BadgeText;
+        iconImage.color = info.Icon.IconMaterial() == BundleIconMaterial.Font ?
+            info.IconColor : Color.white;
     }
 
     private void ResolveIcon(Image image, BundleIcon code)
@@ -40,16 +34,11 @@ public class IconWithBage : MonoBehaviour
         {
             image.sprite = SpriteForResourceName(code.IconFileName());
             image.enabled = true;
-            switch (code.IconMaterial())
+            image.material = code.IconMaterial() switch
             {
-                case BundleIconMaterial.Font:
-                    image.material = defaultIconMaterial;
-                    break;
-                default:
-                    image.material = null;
-                    break;
-            }
-
+                BundleIconMaterial.Font => defaultIconMaterial,
+                _ => null,
+            };
         }
     }
 

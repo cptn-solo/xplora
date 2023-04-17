@@ -25,7 +25,7 @@ namespace Assets.Scripts.ECS.Systems
                 var infos = new BarInfo[] {
                     BarInfo.EmptyBarInfo(0, $"HP: {hp}", Color.red, (float)hp / health),
                 };
-                containerRef.Container.SetItems(infos);
+                containerRef.Container.SetInfo(infos);
 
                 updateTagPool.Value.Del(entity);
             }

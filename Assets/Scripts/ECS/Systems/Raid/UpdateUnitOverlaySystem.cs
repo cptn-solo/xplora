@@ -28,7 +28,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 powerComp.StaminaBuff = staminaBuffPool.Value.Has(entity);
 
-                overlayRef.Container.SetItems(powerComp.BarsInfo);
+                overlayRef.Container.SetInfo(powerComp.BarsInfo);
             }
 
         }

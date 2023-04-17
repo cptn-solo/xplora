@@ -35,7 +35,11 @@ namespace Assets.Scripts.ECS.Systems
                     continue;
 
                 var scoreRefPool = origWorld.GetPool<RelationScoreRef>();
-                ref var scoreRef = ref scoreRefPool.Get(origEntity);
+
+                if (!scoreRefPool.Has(origEntity))
+                    continue; // battle without raid
+
+                ref var scoreRef = ref scoreRefPool.Get(origEntity); 
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Get(attackerEntity);
 
                 foreach (var party in scoreRef.Parties)

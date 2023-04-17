@@ -23,7 +23,7 @@ namespace Assets.Scripts.Data
             return team;
         }
 
-        public int Id { get; internal set; }
+        public int Id { get; set; }
         public string Name { get; internal set; }
         public AssetDict Inventory { get; internal set; } // legacy, remove
 

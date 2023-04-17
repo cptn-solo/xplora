@@ -2,7 +2,7 @@
 
 namespace Assets.Scripts.Data
 {
-    public struct BarInfo
+    public struct BarInfo : IContainableItemInfo<int>
     {
         public int Id { get; set; }
         public string Title { get; set; }

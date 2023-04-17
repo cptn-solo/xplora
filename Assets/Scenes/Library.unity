@@ -528,6 +528,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7664545967994426508, guid: fd878fdae4a61954eb2de5e637d505bf,
+        type: 3}
+      propertyPath: prefab
+      value: 
+      objectReference: {fileID: 1043715635086603272, guid: d7763c809be2547438aeca3a5277bfab,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd878fdae4a61954eb2de5e637d505bf, type: 3}
 --- !u!1 &1335400190
@@ -4897,7 +4903,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 7542885699069018076}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999748
+  m_Size: 0.99996835
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5921,7 +5927,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000102662445}
+  m_AnchoredPosition: {x: 0, y: 0.00031065886}
   m_SizeDelta: {x: 1440, y: 553.254}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &2998433099271763072

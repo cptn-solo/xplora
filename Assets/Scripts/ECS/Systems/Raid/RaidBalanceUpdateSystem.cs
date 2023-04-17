@@ -31,7 +31,8 @@ namespace Assets.Scripts.ECS.Systems
                     {
                         Icon = asset.AssetType.Icon(),
                         BadgeText = $"{asset.Count}",
-                        IconColor = Color.yellow
+                        IconColor = Color.yellow, 
+                        Id = asset.Id,
                     };
                     containerRef.Container.SetItemInfo(item);
                 }

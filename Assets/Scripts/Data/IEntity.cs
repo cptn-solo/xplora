@@ -2,10 +2,6 @@
 
 namespace Assets.Scripts.Data
 {
-    public interface IIdentifiable<T>
-    {
-        public T Id { get; }
-    }
     public interface IEntity : IIdentifiable<int>
     {
         public string Name { get; }

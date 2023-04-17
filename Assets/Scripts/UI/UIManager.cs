@@ -23,6 +23,11 @@ namespace Assets.Scripts.UI
             nav.UIManager = this;
         }
 
+        private void OnDestroy()
+        {
+            nav.UIManager = null;
+        }
+
         private void Awake() =>
             DontDestroyOnLoad(gameObject);
 
