@@ -166,7 +166,7 @@ namespace Assets.Scripts.ECS.Systems
                     break;
                 case SpecOption.Health:
                     {
-                        var updatePool = world.GetPool<UpdateTag>();
+                        var updatePool = world.GetPool<UpdateTag<HpTag>>();
                         //hp = max(health, hp*=2)
 
                         var hpPool = world.GetPool<IntValueComp<HpTag>>();
