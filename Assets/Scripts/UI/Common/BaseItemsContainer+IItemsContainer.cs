@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.UI.Common
 {
