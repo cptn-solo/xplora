@@ -1,11 +1,8 @@
 using Assets.Scripts.Services;
 using Assets.Scripts.Data;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Zenject;
-using System;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -34,14 +31,12 @@ namespace Assets.Scripts.UI.Battle
         }
 
         private TextMeshProUGUI text;        
-        private Canvas canvas;
 
         private void Awake() =>
             text = GetComponentInChildren<TextMeshProUGUI>();
 
         private void Start()
         {
-            canvas = GetComponentInParent<Canvas>();
             initialHeight = rt.rect.height;
             currentHeight = initialHeight;
         }

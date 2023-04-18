@@ -9,13 +9,12 @@ public class IconWithBage : BaseContainableItem<BagedIconInfo>
     private TextMeshProUGUI bageText;
     private Image iconImage;
 
-    private Material defaultIconMaterial;
+    protected override Image IconImage => iconImage;
 
     protected override void OnAwake()
     {
         bageText = GetComponentInChildren<TextMeshProUGUI>();
         iconImage = GetComponentInChildren<Image>();
-        defaultIconMaterial = iconImage.material;
     }
 
     protected override void ApplyInfoValues(BagedIconInfo info)
@@ -26,25 +25,5 @@ public class IconWithBage : BaseContainableItem<BagedIconInfo>
             info.IconColor : Color.white;
     }
 
-    private void ResolveIcon(Image image, BundleIcon code)
-    {
-        image.sprite = null;
-        image.enabled = false;
-        if (code != BundleIcon.NA)
-        {
-            image.sprite = SpriteForResourceName(code.IconFileName());
-            image.enabled = true;
-            image.material = code.IconMaterial() switch
-            {
-                BundleIconMaterial.Font => defaultIconMaterial,
-                _ => null,
-            };
-        }
-    }
-
-    private Sprite SpriteForResourceName(string iconName)
-    {
-        var icon = Resources.Load<Sprite>(iconName);
-        return icon;
-    }
+    
 }

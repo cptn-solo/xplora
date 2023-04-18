@@ -3,10 +3,9 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Common
 {
-    public class BaseContainableItem<T> : MonoBehaviour, IContainableItem<T>
+    public partial class BaseContainableItem<T> : MonoBehaviour, IContainableItem<T>
         where T : struct
     {
-
         protected RectTransform rectTransform;
 
         protected T? itemInfo = null;
@@ -16,7 +15,10 @@ namespace Assets.Scripts.UI.Common
         {
             rectTransform = GetComponent<RectTransform>();
             OnAwake();
+            
+            InitIconUtils(); // requires icon so after implementation had a chance to initialize it
         }
+
         protected virtual void OnAwake() { }
         protected virtual void ApplyInfoValues(T info) { }
 
