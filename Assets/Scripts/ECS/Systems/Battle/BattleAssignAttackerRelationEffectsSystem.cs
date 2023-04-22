@@ -18,6 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo, AttackerRef>> filter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> heroLibraryService = default;
+        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {
@@ -34,7 +35,7 @@ namespace Assets.Scripts.ECS.Systems
                 if (!originRef.Packed.Unpack(out var origWorld, out var origEntity))
                     continue;
 
-                var scoreRefPool = origWorld.GetPool<RelationScoreRef>();
+                var scoreRefPool = origWorld.GetPool<RelationPartiesRef>();
 
                 if (!scoreRefPool.Has(origEntity))
                     continue; // battle without raid
@@ -94,19 +95,38 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var otherGuyHeroConfig = ref libHeroPool.Get(otherGuyHeroConfigEntity);
 
-            var rule = scope.EffectRule;
-            var ruleType = rule.EffectType;
+            var ruleType = scope.EffectRule.EffectType;
+
+            if (ruleType.EffectClass() != RelationsEffectClass.Battle)
+                return; // this system process only battle effects
+
+            var rule = (IBattleEffectRule)scope.EffectRule;
+            ref var currentRound = ref battleService.Value.CurrentRound;
 
             Debug.Log($"Relations Effect of type {ruleType} was just spawned " +
                 $"for {heroConfig.Name} in {scope.SelfState} due to {scope.RelationState} " +
                 $"with {otherGuyHeroConfig.Name}");
 
-            // TODO: respect spawn rate from AdditioinalEffectSpawnRate:
             // 1. add component to the entity of the current score data;
             // 2. keep all spawned effects (EffectRules) in that component;
             // 3. count of already spawned effects used as a wheight for spawn rate (key for 
             // AdditioinalEffectSpawnRate queries);
 
+            var currentEffectsPool = origWorld.GetPool<RelationEffectsComp>();            
+            // respect spawn rate from AdditionalEffectSpawnRate:
+            ref var currentEffects = ref currentEffectsPool.Get(scoreEntity);
+            if (effectRules.TrySpawnAdditionalEffect(currentEffects.CurrentEffects.Count))
+            {
+                Debug.Log($"Spawned with respect of exisiting {currentEffects.CurrentEffects.Count} effects");
+                var effect = new EffectInstanceInfo()
+                {
+                    StartRound = currentRound.Round,
+                    EndRound = currentRound.Round + rule.TurnsCount,
+                    UsageLeft = rule.TurnsCount,
+                    Rule = rule,
+                };
+                currentEffects.SetEffect(ruleType, effect);
+            }
         }
     }
 }

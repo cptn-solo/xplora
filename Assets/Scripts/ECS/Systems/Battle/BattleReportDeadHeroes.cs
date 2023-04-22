@@ -23,8 +23,8 @@ namespace Assets.Scripts.ECS.Systems
 
                 originWorld.DelEntity(originEntity);
                 
-                var relRefFilter = originWorld.Filter<RelationScoreRef>().End();
-                var relationRefPool = originWorld.GetPool<RelationScoreRef>();               
+                var relRefFilter = originWorld.Filter<RelationPartiesRef>().End();
+                var relationRefPool = originWorld.GetPool<RelationPartiesRef>();               
                 
                 foreach (var relRefEntity in relRefFilter)
                 {

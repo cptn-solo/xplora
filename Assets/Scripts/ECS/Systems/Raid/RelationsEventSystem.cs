@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RelationsEventInfo> eventInfoPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEventItemInfo>> draftTagPool = default;
         private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
-        private readonly EcsPoolInject<RelationScoreRef> scoreRefPool = default;
+        private readonly EcsPoolInject<RelationPartiesRef> scoreRefPool = default;
                 
         private readonly EcsFilterInject<
             Inc<RelationsEventInfo, DraftTag<RelationEventItemInfo>>> filter = default; // test

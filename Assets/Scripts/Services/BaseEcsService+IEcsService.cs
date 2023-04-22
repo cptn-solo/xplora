@@ -193,7 +193,10 @@ namespace Assets.Scripts.Services
 
         public void OnEventAction<T>(int idx) where T : struct
         {
-            var filter = ecsWorld.Filter<ModalDialogTag>().Inc<T>().End(); 
+            var filter = ecsWorld.Filter<ModalDialogTag>()
+                .Inc<T>()
+                .Exc<ModalDialogAction<T>>()
+                .End(); 
             var pool = ecsWorld.GetPool<ModalDialogAction<T>>();
 
             foreach ( var entity in filter)

@@ -1,67 +1,9 @@
 ﻿using Assets.Scripts.Data;
-using Leopotam.EcsLite;
-using System.Collections.Generic;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
 namespace Assets.Scripts.ECS.Data
 {
-    public struct NameValueComp<T> : IName
-    {
-        public string Name { get; set; }
-    }
-
-    public struct IntValueComp<T> : IIntValue
-    {
-        /// <summary>
-        /// Value restriction, usefull for scores etc. that can't go negative
-        /// </summary>
-        public IntRange Boundary { get; set; }
-
-        public int Value { get; set; }
-
-        public void Add(int b)
-        {
-            if (Boundary == null)
-                Value += b;
-            else
-                Value = Mathf.Clamp(Value + b, Boundary.MinRate, Boundary.MaxRate);
-        }
-
-        public void Combine(int b)
-        {
-            if (Boundary == null)
-                Value *= b;
-            else
-                Value = Mathf.Clamp(Value * b, Boundary.MinRate, Boundary.MaxRate);
-   
-        }
-
-        public void Combine(float b)
-        {
-            if (Boundary == null)
-                Value = (int)(Value * b);
-            else
-                Value = Mathf.Clamp((int)(Value * b), Boundary.MinRate, Boundary.MaxRate);
-        }
-    }
-
-    public struct IntRangeValueComp<T> : IValue<IntRange>
-    {
-        public IntRange Value { get; set; }
-
-        public int RandomValue => Value.RandomValue;
-
-        public void Add(int b) =>
-            Value += b;
-
-        public void Combine(int b) =>
-            Value *= b;
-
-        public void Combine(float b) =>
-            Value *= b;
-    }
-
     public struct NameTag { }
     public struct IconTag { }
     public struct IdleSpriteTag { }
@@ -74,25 +16,6 @@ namespace Assets.Scripts.ECS.Data
     public struct HealthTag { }
     public struct HpTag { }
     public struct SpeedTag { }
-
-    public struct BuffComp<T> : IIntValue, IIdentifiable<int>
-    {
-        public int Id { get; set; }
-
-        public int Value { get; set; }
-        public int Usages { get; set; }
-        public Color IconColor { get; set; }
-        public BundleIcon Icon { get; set; }
-
-        public void Add(int b) =>
-            Value += b;
-
-        public void Combine(int b) =>
-            Value *= b;
-
-        public void Combine(float b) =>
-            Value = (int)(Value * b);
-    }
 
     public struct DummyBuff { }
 
@@ -120,21 +43,6 @@ namespace Assets.Scripts.ECS.Data
     public struct KindGroupSpiritTag { }
 
     public struct HeroKindRSDTag { } // stirit kinds ++, body kinds --
-  
-    /// <summary>
-    /// Marks a value of current relation score between some parties
-    /// </summary>
-    public struct RelationScoreTag { } 
-
-    /// <summary>
-    /// Contains references to each score entity by hero instance entity,
-    /// so when event is spawned or we just need to check a score with some other guy
-    /// just pick a score entity for this guys entity
-    /// </summary>
-    public struct RelationScoreRef
-    {
-        public Dictionary<EcsPackedEntity, EcsPackedEntity> Parties { get; set; }
-    }
 
     public struct BarsInfoComp {
 

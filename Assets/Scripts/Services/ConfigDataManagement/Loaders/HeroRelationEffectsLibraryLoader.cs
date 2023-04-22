@@ -104,7 +104,7 @@ namespace Assets.Scripts.Services
                 spawnRates.Add(appliedCnt, spawnRate);                
             }
 
-            config.AdditioinalEffectSpawnRate = spawnRates;
+            config.AdditionalEffectSpawnRate = spawnRates;
 
         }
 

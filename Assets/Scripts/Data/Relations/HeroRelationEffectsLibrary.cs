@@ -2,7 +2,6 @@
 
 namespace Assets.Scripts.Data
 {
-
     public struct HeroRelationEffectsLibrary
     {
         public Dictionary<RelationEffectLibraryKey, HeroRelationEffectConfig>
@@ -11,14 +10,14 @@ namespace Assets.Scripts.Data
         /// <summary>
         /// Probability (in %) of each additional effect spawn
         /// </summary>
-        public Dictionary<int, int> AdditioinalEffectSpawnRate { get; set; }
+        public Dictionary<int, int> AdditionalEffectSpawnRate { get; set; }
 
         public static HeroRelationEffectsLibrary EmptyLibrary()
         {
-            HeroRelationEffectsLibrary result = new HeroRelationEffectsLibrary()
+            HeroRelationEffectsLibrary result = new ()
             {
                 SubjectStateEffectsIndex = new Dictionary<RelationEffectLibraryKey, HeroRelationEffectConfig>(),
-                AdditioinalEffectSpawnRate = new Dictionary<int, int>()
+                AdditionalEffectSpawnRate = new Dictionary<int, int>()
             };
             return result;
         }
