@@ -67,6 +67,7 @@ namespace Assets.Scripts.Services
                 .DelHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
                 // with MakeTurnTag, AttackTag
+                .Add(new BattleShowRelationEffectsSystem()) // visualize spawned relation effects
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st

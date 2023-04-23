@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Leopotam.EcsLite;
-using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleAssignTargetRelationEffectsSystem : IEcsRunSystem
+    public class BattleAssignTargetRelationEffectsSystem : 
+        BattleAssignRelationEffectsSystem<TargetRef>
     {
-        public void Run(IEcsSystems systems)
-        {            
-        }
+        protected override RelationSubjectState SubjectState =>
+            RelationSubjectState.BeingAttacked;
     }
 }

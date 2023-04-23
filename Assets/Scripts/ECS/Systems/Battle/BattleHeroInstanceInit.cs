@@ -19,6 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<FrontlineTag> frontlineTagPool = default;
         private readonly EcsPoolInject<BacklineTag> backlineTagPool = default;
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default; // dynamic (hp)
         private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default; // mostly static (rates)
         private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
@@ -115,6 +116,9 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var effectsComp = ref effectsPool.Value.Add(heroInstanceEntity);
             effectsComp.ActiveEffects = new();
+
+            ref var relEffectsComp = ref relEffectsPool.Value.Add(heroInstanceEntity);
+            relEffectsComp.CurrentEffects = new();
 
             ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Add(heroInstanceEntity);
             barsAndEffectsComp.HealthCurrent = hpComp.Value;

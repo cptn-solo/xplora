@@ -34,6 +34,12 @@ namespace Assets.Scripts.ECS.Data
 
         public string Description => ToString();
 
+        /// <summary>
+        /// Entity of a hero from the other relation side
+        /// packed in the ecs world of relations origin (Raid)
+        /// </summary>
+        public EcsPackedEntity EffectSource { get; set; }
+
         public override string ToString()
         {
             var retval = "";

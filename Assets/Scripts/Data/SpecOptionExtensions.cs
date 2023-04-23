@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using Assets.Scripts.ECS.Data;
-
-namespace Assets.Scripts.Data
+﻿namespace Assets.Scripts.Data
 {
     public static class SpecOptionExtensions
     {
