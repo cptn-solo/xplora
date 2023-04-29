@@ -10,6 +10,7 @@
         DmgEffectPercent = 500,
         DmgEffectBonusAbs = 600,
         DmgEffectBonusPercent = 700,
+        DmgEffectBonusKey = 750, // to use as a key as no matter wich kind of the effect bonus has a party at the moment of cast
         AlgoRevenge = 800,
         AlgoTarget = 900,
         AlgoDamageTypeBlock = 1000,

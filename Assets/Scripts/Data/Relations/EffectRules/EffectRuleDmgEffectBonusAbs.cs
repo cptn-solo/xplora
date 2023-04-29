@@ -6,12 +6,18 @@
     /// </summary>
     public struct EffectRuleDmgEffectBonusAbs : IBattleEffectRule
     {
+        private readonly RelationEffectKey key;
+
+        public RelationEffectKey Key => key;
+
         public EffectRuleDmgEffectBonusAbs(string[] rawValues) : this()
         {
             Source = rawValues;
             TargetDomain = rawValues[1].ParseHeroDomain();
             Value = rawValues[2].ParseIntValue(0, true);
             TurnsCount = rawValues[3].ParseIntValue();
+
+            key = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, RelationsEffectType.DmgEffectBonusKey);        
         }
 
         public RelationsEffectType EffectType => RelationsEffectType.DmgEffectBonusAbs;

@@ -68,6 +68,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleAutoMakeTurnSystem())
                 // with MakeTurnTag, AttackTag
                 .Add(new BattleShowRelationEffectsSystem()) // visualize spawned relation effects
+                .DelHere<UpdateTag<RelationEffectInfo>>()
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
@@ -84,6 +85,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
                 .DelHere<ProcessedHeroTag>()
                 .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
+                .Add(new BattleDequeueExpiredRelationEffectsSystem()) 
                 .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
                 .Add(new BattleTerminationSystem()) // will navigate from the battle screen stopping context

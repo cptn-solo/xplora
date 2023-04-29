@@ -6,6 +6,7 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -16,6 +17,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
+        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
+
 
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool = default;
@@ -45,12 +48,13 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var effectsComp = ref effectsPool.Value.Get(attackerEntity);
             var effs = effectsComp.ActiveEffects.Keys.ToArray(); // will be used to flash used effects ===>
-
+            
             var effectDamage = 0;
             foreach (var eff in effs)
             {
-                effectDamage += libraryService.Value.DamageTypesLibrary
-                    .EffectForDamageEffect(eff).ExtraDamage;
+                var resistanceFactor = GetResistanceFactor(attackerEntity, eff);
+                effectDamage += (int)(resistanceFactor * libraryService.Value.DamageTypesLibrary
+                    .EffectForDamageEffect(eff).ExtraDamage);
                 effectsComp.UseEffect(eff, out var used);
             }
 
@@ -79,6 +83,60 @@ namespace Assets.Scripts.ECS.Systems
                 attackTagPool.Value.Del(turnEntity);
         }
 
+        private float GetResistanceFactor(int entity, DamageEffect eff)
+        {
+            var retval = 1f; 
+            ref var relationEffects = ref relEffectsPool.Value.Get(entity);
+            foreach (var relEffect in relationEffects.CurrentEffects)
+            {
+                switch (relEffect.Value.Rule.EffectType)
+                {
+                    case RelationsEffectType.NA:
+                        break;
+                    case RelationsEffectType.SpecMaxMin:
+                        break;
+                    case RelationsEffectType.SpecAbs:
+                        {
+                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
+                            if (rule.SpecOption == eff.ResistanceSpec())
+                                retval -= rule.Value / 100f;
+                        }
+                        break;
+                    case RelationsEffectType.SpecPercent:
+                        {
+                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
+                            if (rule.SpecOption == eff.ResistanceSpec())
+                                retval *= rule.Value / 100f;
+                        }
+                        break;
+                    case RelationsEffectType.DmgEffectAbs:
+                        break;
+                    case RelationsEffectType.DmgEffectPercent:
+                        break;
+                    case RelationsEffectType.DmgEffectBonusAbs:
+                        {
+                            var rule = (EffectRuleDmgEffectBonusAbs)relEffect.Value.Rule;
+                            retval += rule.Value / 100f;
+                        }
+                        break;
+                    case RelationsEffectType.DmgEffectBonusPercent:
+                        {
+                            var rule = (EffectRuleDmgEffectBonusPercent)relEffect.Value.Rule;
+                            retval *= rule.Value / 100f;
+                        }
+                        break;
+                    case RelationsEffectType.AlgoRevenge:
+                        break;
+                    case RelationsEffectType.AlgoTarget:
+                        break;
+                    case RelationsEffectType.AlgoDamageTypeBlock:
+                        break;
+                    default:
+                        break;
+                }
+            }
 
+            return retval;
+        }
     }
 }

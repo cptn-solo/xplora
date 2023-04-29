@@ -14,13 +14,14 @@ namespace Assets.Scripts.ECS.Systems
         protected virtual RelationSubjectState SubjectState => 
             RelationSubjectState.Attacking;
 
-        private const int MaxEffectsForHero = 3;
+        private const int MaxEffectsForHero = 99; // decision made to let them spawn as they are
 
         protected readonly EcsPoolInject<T> pool = default;
         protected readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         protected readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
         protected readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
         protected readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
+        protected readonly EcsPoolInject<UpdateTag<RelationEffectInfo>> updatePool = default;
 
         protected readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo, T>> filter = default;
 
@@ -52,7 +53,11 @@ namespace Assets.Scripts.ECS.Systems
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Get(heroInstanceEntity);
 
                 foreach (var party in p2pRef.Parties)
-                    TryCastRelationEffect(heroInstanceEntity, origWorld, heroConfigRef.Packed, party.Key, party.Value);
+                {
+                    if (TryCastRelationEffect(heroInstanceEntity, origWorld, heroConfigRef.Packed, party.Key, party.Value) &&
+                       !updatePool.Value.Has(heroInstanceEntity))
+                        updatePool.Value.Add(heroInstanceEntity);                 
+                }
             }
         }
 
@@ -64,7 +69,8 @@ namespace Assets.Scripts.ECS.Systems
         /// <param name="heroConfigPackedEntity">Hero Config Entity of the given hero</param>
         /// <param name="otherGuyPacked">Packed other guy entity in the origin world</param>
         /// <param name="scoreEntityPacked">Packed score entity for the given hero and the other guy</param>
-        protected void TryCastRelationEffect(
+        /// <returns>true if new effect was casted</returns>
+        protected bool TryCastRelationEffect(
             int targetEntity,
             EcsWorld origWorld,
             EcsPackedEntityWithWorld heroConfigPackedEntity,
@@ -76,7 +82,7 @@ namespace Assets.Scripts.ECS.Systems
 
             if (!scoreEntityPacked.Unpack(origWorld, out var scoreEntity))
                 throw new Exception("Stale Score Entity");
-            
+
             var relationsConfig = heroLibraryService.Value.HeroRelationsConfigProcessor();
 
             var score = origWorld.ReadIntValue<RelationScoreTag>(scoreEntity);
@@ -95,7 +101,7 @@ namespace Assets.Scripts.ECS.Systems
             var effectRules = heroLibraryService.Value.HeroRelationEffectsLibProcessor();
 
             if (!effectRules.SubjectStateEffectsIndex.TryGetValue(rulesCaseKey, out var scope))
-                return; // no effect for relation state, it's ok
+                return false; // no effect for relation state, it's ok
 
             var origWorldConfigRefPool = origWorld.GetPool<HeroConfigRefComp>();
             ref var otherGuyConfigRef = ref origWorldConfigRefPool.Get(otherGuyEntity);
@@ -107,7 +113,7 @@ namespace Assets.Scripts.ECS.Systems
             var ruleType = scope.EffectRule.EffectType;
 
             if (ruleType.EffectClass() != RelationsEffectClass.Battle)
-                return; // this system process only battle effects
+                return false; // this system process only battle effects
 
             var rule = (IBattleEffectRule)scope.EffectRule;
             ref var currentRound = ref battleService.Value.CurrentRound;
@@ -124,28 +130,32 @@ namespace Assets.Scripts.ECS.Systems
             var currentEffectsPool = origWorld.GetPool<RelationEffectsComp>();            
             // respect spawn rate from AdditionalEffectSpawnRate:
             ref var currentEffects = ref currentEffectsPool.Get(scoreEntity);
-            if (effectRules.TrySpawnAdditionalEffect(currentEffects.CurrentEffects.Count))
+            if (!effectRules.TrySpawnAdditionalEffect(currentEffects.CurrentEffects.Count))
+                return false;
+
+            Debug.Log($"Spawned with respect of exisiting {currentEffects.CurrentEffects.Count} effects");
+            
+            RelationEffectKey ruleKey = rule.Key;
+            
+            var effect = new EffectInstanceInfo()
             {
-                Debug.Log($"Spawned with respect of exisiting {currentEffects.CurrentEffects.Count} effects");
-                var effect = new EffectInstanceInfo()
-                {
-                    StartRound = currentRound.Round,
-                    EndRound = currentRound.Round + rule.TurnsCount,
-                    UsageLeft = rule.TurnsCount,
-                    Rule = rule,
-                    EffectSource = otherGuyPacked,
-                };
-                currentEffects.SetEffect(ruleType, effect);
+                StartRound = currentRound.Round,
+                EndRound = currentRound.Round + rule.TurnsCount,
+                UsageLeft = rule.TurnsCount,
+                Rule = rule,
+                EffectSource = otherGuyPacked,
+            };
+            currentEffects.SetEffect(ruleKey, effect);
 
-                // registering effect for the hero affected (in the battle world, to make it handy when needed) 
-                ref var relEffects = ref relEffectsPool.Value.Get(targetEntity);
-                if (relEffects.CurrentEffects.Count < MaxEffectsForHero || 
-                    relEffects.CurrentEffects.TryGetValue(ruleType, out _))
-                {
-                    relEffects.SetEffect(ruleType, effect);
-                }
-
+            // registering effect for the hero affected (in the battle world, to make it handy when needed) 
+            ref var relEffects = ref relEffectsPool.Value.Get(targetEntity);
+            if (relEffects.CurrentEffects.Count < MaxEffectsForHero || 
+                relEffects.CurrentEffects.TryGetValue(ruleKey, out _))
+            {
+                relEffects.SetEffect(ruleKey, effect);
             }
+
+            return true;
         }
     }
 }

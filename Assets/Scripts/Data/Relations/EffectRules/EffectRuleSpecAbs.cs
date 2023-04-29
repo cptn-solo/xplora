@@ -5,6 +5,10 @@
    /// </summary>
     public struct EffectRuleSpecAbs : IBattleEffectRule
     {
+        private readonly RelationEffectKey key;
+
+        public RelationEffectKey Key => key;
+
         public EffectRuleSpecAbs(string[] rawValues) : this()
         {
             Source = rawValues;
@@ -12,6 +16,8 @@
             SpecOption = rawValues[2].ParseSpecOption();
             Value = rawValues[3].ParseIntValue(0, true);
             TurnsCount = rawValues[4].ParseIntValue();
+
+            key = new RelationEffectKey(SpecOption, DamageEffect.NA, DamageType.NA, RelationsEffectType.NA);
         }
 
         public RelationsEffectType EffectType => RelationsEffectType.SpecAbs;

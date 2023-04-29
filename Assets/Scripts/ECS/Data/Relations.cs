@@ -1,7 +1,6 @@
 using Assets.Scripts.Data;
 using Leopotam.EcsLite;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -55,10 +54,10 @@ namespace Assets.Scripts.ECS.Data
 
     public struct RelationEffectsComp
     {
-        private Dictionary<RelationsEffectType, EffectInstanceInfo> currentEffects;
+        private Dictionary<RelationEffectKey, EffectInstanceInfo> currentEffects;
         private string description;
 
-        public Dictionary<RelationsEffectType, EffectInstanceInfo> CurrentEffects
+        public Dictionary<RelationEffectKey, EffectInstanceInfo> CurrentEffects
         {
             get => currentEffects;
             set
@@ -68,7 +67,13 @@ namespace Assets.Scripts.ECS.Data
             }
         }
 
-        public void SetEffect(RelationsEffectType type, EffectInstanceInfo effect)
+        public void Clear()
+        {
+            currentEffects.Clear();
+            description = ToString();
+        }
+
+        public void SetEffect(RelationEffectKey type, EffectInstanceInfo effect)
         {
             if (currentEffects == null) return;
 

@@ -1,7 +1,13 @@
-﻿namespace Assets.Scripts.Data
+﻿using Assets.Scripts.ECS.Data;
+
+namespace Assets.Scripts.Data
 {
     public struct EffectRuleAlgoDamageTypeBlock : IBattleEffectRule
     {
+        private readonly RelationEffectKey key;
+
+        public RelationEffectKey Key => key;
+
         public EffectRuleAlgoDamageTypeBlock(string[] rawValues) : this()
         {
             Source = rawValues;
@@ -9,6 +15,8 @@
             DamageType = rawValues[2].ParseDamageType();
             Flag = rawValues[3].ParseIntValue(0, true);
             TurnsCount = rawValues[4].ParseIntValue();
+            
+            key = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType, EffectType);
         }
 
         public RelationsEffectType EffectType => RelationsEffectType.AlgoDamageTypeBlock;

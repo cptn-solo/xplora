@@ -1,10 +1,8 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Google.Apis.Sheets.v4.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
-using UnityEngine;
 using Color = UnityEngine.Color;
 
 namespace Assets.Scripts.ECS.Systems
@@ -17,8 +15,10 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<
             Inc<ItemsContainerRef<RelationEffectInfo>,
+                RelationEffectsComp,
                 HeroInstanceOriginRefComp,
-                NameValueComp<IconTag>>
+                NameValueComp<IconTag>,
+                UpdateTag<RelationEffectInfo>>
             > filter = default;
 
         public void Run(IEcsSystems systems)

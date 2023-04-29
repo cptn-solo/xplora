@@ -19,9 +19,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RetireTag> retirePool = default;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
         private readonly EcsPoolInject<DebuffTag<IntRangeValueComp<DamageRangeTag>>> debuffTagPool = default;
+        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
 
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter = default;
         private readonly EcsFilterInject<Inc<BuffComp<IntRangeValueComp<DamageRangeTag>>>> damageBuffFilter = default;
+        private readonly EcsFilterInject<Inc<RelationEffectsComp>> relEffectsFilter = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 
@@ -36,6 +38,13 @@ namespace Assets.Scripts.ECS.Systems
                     foreach (var buffedEntity in damageBuffFilter.Value)
                         if (!debuffTagPool.Value.Has(buffedEntity))
                             debuffTagPool.Value.Add(buffedEntity);
+
+                    // clear battle relations effects
+                    foreach (var relEffEntity in relEffectsFilter.Value)
+                    {
+                        ref var relEffect = ref relEffectsPool.Value.Get(relEffEntity);
+                        relEffect.Clear();
+                    }
 
                     // tag opponent for delete from ecs and library
                     ref var battleComp = ref battlePool.Value.Get(battleEntity);

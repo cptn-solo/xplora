@@ -5,6 +5,10 @@
     /// </summary>
     public struct EffectRuleSpecMaxMin : IBattleEffectRule
     {
+        private readonly RelationEffectKey key;
+
+        public RelationEffectKey Key => key;
+
         public EffectRuleSpecMaxMin(string[] rawValues) : this()
         {
             Source = rawValues;
@@ -12,7 +16,9 @@
             SpecOption = rawValues[2].ParseSpecOption();
             MaxMin = rawValues[3].ParseIntValue(0, true);
             TurnsCount = rawValues[4].ParseIntValue();
-         }
+        
+            key = new RelationEffectKey(SpecOption, DamageEffect.NA, DamageType.NA, RelationsEffectType.NA);
+        }
 
         public RelationsEffectType EffectType => RelationsEffectType.SpecMaxMin;
         public string[] Source { get; set; }

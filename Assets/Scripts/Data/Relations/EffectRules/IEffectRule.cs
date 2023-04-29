@@ -5,5 +5,7 @@
         public RelationsEffectType EffectType { get; }
         public string[] Source { get; set; }
         public string Description { get; set; }
+        
+        RelationEffectKey Key { get; }
     }
 }

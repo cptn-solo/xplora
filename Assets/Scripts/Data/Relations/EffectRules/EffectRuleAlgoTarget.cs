@@ -2,11 +2,17 @@
 {
     public struct EffectRuleAlgoTarget : IBattleEffectRule
     {
+        private readonly RelationEffectKey key;
+
+        public RelationEffectKey Key => key;
+
         public EffectRuleAlgoTarget(string[] rawValues) : this()
         {
             Source = rawValues;
             TargetDomain = rawValues[1].ParseHeroDomain();
             TurnsCount = rawValues[2].ParseIntValue();
+
+            key = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, EffectType);
         }
 
         public RelationsEffectType EffectType => RelationsEffectType.AlgoTarget;
