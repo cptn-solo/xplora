@@ -4,8 +4,6 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
-using Random = UnityEngine.Random;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Assets.Scripts.ECS.Systems
 {

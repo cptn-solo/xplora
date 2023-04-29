@@ -19,8 +19,8 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<
             Inc<VisitedComp<TerrainAttributeComp>,
-                ActiveTraitHeroComp<TerrainAttributeComp>,
-            Exc<WorldEventInfo>>> visitFilter = default;
+                ActiveTraitHeroComp<TerrainAttributeComp>>,
+            Exc<WorldEventInfo>> visitFilter = default;
 
         private readonly EcsCustomInject<WorldService> worldService = default;
 
