@@ -5,8 +5,8 @@ namespace Assets.Scripts.Data
 {
     public struct RelationsEventInfo
     {
-        public EcsPackedEntity SourceEntity { get; set; }
-        public EcsPackedEntity? TargetEntity { get; set; }
+        public EcsPackedEntityWithWorld SourceEntity { get; set; }
+        public EcsPackedEntityWithWorld? TargetEntity { get; set; }
 
         public string EventTitle { get; internal set; }
         public string SrcIconName { get; internal set; }

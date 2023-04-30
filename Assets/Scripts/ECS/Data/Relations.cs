@@ -21,7 +21,7 @@ namespace Assets.Scripts.ECS.Data
     /// </summary>
     public struct RelationPartiesRef
     {
-        public Dictionary<EcsPackedEntity, EcsPackedEntity> Parties { get; set; }
+        public Dictionary<EcsPackedEntityWithWorld, EcsPackedEntityWithWorld> Parties { get; set; }
     }
 
     public struct EffectInstanceInfo
@@ -37,7 +37,7 @@ namespace Assets.Scripts.ECS.Data
         /// Entity of a hero from the other relation side
         /// packed in the ecs world of relations origin (Raid)
         /// </summary>
-        public EcsPackedEntity EffectSource { get; set; }
+        public EcsPackedEntityWithWorld EffectSource { get; set; }
 
         public override string ToString()
         {

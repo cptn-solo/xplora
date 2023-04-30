@@ -95,6 +95,7 @@ namespace Assets.Scripts.Services
 #endif
                 .Inject(this)
                 .Inject(libraryManager)
+                .Inject(raidService)
                 .Inject(prefs)
                 .Init();
 

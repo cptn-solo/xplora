@@ -62,7 +62,8 @@ namespace Assets.Scripts
             battleManagementService.Init(
                 menuNavigationService,
                 playerPrefsService,
-                libManagementService);
+                libManagementService,
+                raidService);
             
             audioPlaybackService.Init(
                 menuNavigationService);

@@ -6,6 +6,16 @@ namespace Assets.Scripts.ECS.Data
     public struct NameValueComp<T> : IName
     {
         public string Name { get; set; }
+        public string Value { get => Name; set => Name = value; }
+
+        public void Add(int b) =>
+            throw new System.NotImplementedException();
+
+        public void Combine(int b) =>
+            throw new System.NotImplementedException();
+
+        public void Combine(float b) =>
+            throw new System.NotImplementedException();
     }
 
     public struct IntValueComp<T> : IIntValue

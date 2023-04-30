@@ -30,8 +30,8 @@ namespace Assets.Scripts.ECS.Systems
                     pool.Value.Add(relationEntity);
 
                     partiesRef.Parties.Add(
-                        ecsWorld.Value.PackEntity(entity2),
-                        ecsWorld.Value.PackEntity(relationEntity));
+                        ecsWorld.Value.PackEntityWithWorld(entity2),
+                        ecsWorld.Value.PackEntityWithWorld(relationEntity));
                 }
             };
         }

@@ -54,7 +54,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 foreach (var party in p2pRef.Parties)
                 {
-                    if (TryCastRelationEffect(heroInstanceEntity, origWorld, heroConfigRef.Packed, party.Key, party.Value) &&
+                    if (TryCastRelationEffect(heroInstanceEntity, heroConfigRef.Packed, party.Key, party.Value) &&
                        !updatePool.Value.Has(heroInstanceEntity))
                         updatePool.Value.Add(heroInstanceEntity);                 
                 }
@@ -72,15 +72,14 @@ namespace Assets.Scripts.ECS.Systems
         /// <returns>true if new effect was casted</returns>
         protected bool TryCastRelationEffect(
             int targetEntity,
-            EcsWorld origWorld,
             EcsPackedEntityWithWorld heroConfigPackedEntity,
-            EcsPackedEntity otherGuyPacked, 
-            EcsPackedEntity scoreEntityPacked)
+            EcsPackedEntityWithWorld otherGuyPacked, 
+            EcsPackedEntityWithWorld scoreEntityPacked)
         {
-            if (!otherGuyPacked.Unpack(origWorld, out var otherGuyEntity))
+            if (!otherGuyPacked.Unpack(out var origWorld, out var otherGuyEntity))
                 throw new Exception("Stale Other Guy Entity (probably dead already)");
 
-            if (!scoreEntityPacked.Unpack(origWorld, out var scoreEntity))
+            if (!scoreEntityPacked.Unpack(out _, out var scoreEntity))
                 throw new Exception("Stale Score Entity");
 
             var relationsConfig = heroLibraryService.Value.HeroRelationsConfigProcessor();

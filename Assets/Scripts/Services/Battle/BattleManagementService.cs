@@ -10,6 +10,7 @@ namespace Assets.Scripts.Services
     {
         private HeroLibraryService libraryManager;
         private PlayerPreferencesService prefs;
+        private RaidService raidService;
 
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
@@ -164,10 +165,12 @@ namespace Assets.Scripts.Services
         internal void Init(
             MenuNavigationService menuNavigationService,
             PlayerPreferencesService playerPreferencesService,
-            HeroLibraryService libManagementService)
+            HeroLibraryService libManagementService,
+            RaidService raidService)
         {
             this.libraryManager = libManagementService;
             this.prefs = playerPreferencesService;
+            this.raidService = raidService;
 
             menuNavigationService.OnBeforeNavigateToScreen += MenuNavigationService_OnBeforeNavigateToScreen;
         }

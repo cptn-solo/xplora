@@ -14,8 +14,6 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<NameValueComp<NameTag>> namePool = default;
-        private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
         private readonly EcsPoolInject<RelationsEventInfo> eventInfoPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEventItemInfo>> draftTagPool = default;
         private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
@@ -46,7 +44,7 @@ namespace Assets.Scripts.ECS.Systems
         {
             ref var info = ref eventInfoPool.Value.Get(playerEntity);
 
-            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity))
+            if (!info.SourceEntity.Unpack(out var srcWorld, out var srcHeroEntity))
             {
                 // stale/incomplete draft, exception actually but let it go for now
                 eventInfoPool.Value.Del(playerEntity);
@@ -55,7 +53,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var config = ref heroLibraryService.Value.HeroRelationsConfigProcessor();
 
-            info.SrcRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(srcHeroEntity);
+            info.SrcRSD = srcWorld.ReadIntValue<HeroKindRSDTag>(srcHeroEntity);
             info.SrcKindGroup = config.GetKindGroup(info.SrcRSD);
 
             var targetRules = config.GetTargetRules(info.SrcRSD, info.SrcKindGroup);
@@ -103,9 +101,9 @@ namespace Assets.Scripts.ECS.Systems
             HeroRelationsConfig config,
             ref RelationsEventInfo info)
         {
-            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity) ||
+            if (!info.SourceEntity.Unpack(out _, out var srcHeroEntity) ||
                 info.TargetEntity == null ||
-                !info.TargetEntity.Value.Unpack(ecsWorld.Value, out var tgtHeroEntity))
+                !info.TargetEntity.Value.Unpack(out _, out _))
                 return;
 
             var scoreFactorRange = config.RelationMatrix[info.SrcKindGroup][info.TgtKindGroup];
@@ -213,7 +211,7 @@ namespace Assets.Scripts.ECS.Systems
             if (tgtHeroEntity < 0)
                 return;
 
-            info.TargetEntity = ecsWorld.Value.PackEntity(tgtHeroEntity);
+            info.TargetEntity = ecsWorld.Value.PackEntityWithWorld(tgtHeroEntity);
             info.TgtRSD = ecsWorld.Value.ReadIntValue<HeroKindRSDTag>(tgtHeroEntity);
             info.TgtKindGroup = config.GetKindGroup(info.TgtRSD);
 
@@ -221,9 +219,9 @@ namespace Assets.Scripts.ECS.Systems
 
         private void UpdateKindValues(ref RelationsEventInfo info)
         {
-            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity) ||
+            if (!info.SourceEntity.Unpack(out var srcWorld, out var srcHeroEntity) ||
                 info.TargetEntity == null ||
-                !info.TargetEntity.Value.Unpack(ecsWorld.Value, out var tgtHeroEntity))
+                !info.TargetEntity.Value.Unpack(out var tgtWorld, out var tgtHeroEntity))
                 return;
 
             var itemBuff = ListPool<RelationEventItemInfo>.Get();
@@ -286,18 +284,18 @@ namespace Assets.Scripts.ECS.Systems
             HeroRelationsConfig config, 
             ref RelationsEventInfo info)
         {
-            if (!info.SourceEntity.Unpack(ecsWorld.Value, out var srcHeroEntity) ||
+            if (!info.SourceEntity.Unpack(out var srcWorld, out var srcHeroEntity) ||
                 info.TargetEntity == null ||
-                !info.TargetEntity.Value.Unpack(ecsWorld.Value, out var tgtHeroEntity))
+                !info.TargetEntity.Value.Unpack(out var tgtWorld, out var tgtHeroEntity))
                 return;
 
-            ref var srcName = ref namePool.Value.Get(srcHeroEntity);
-            ref var srcIconName = ref iconNamePool.Value.Get(srcHeroEntity);
+            var srcName = srcWorld.ReadValue<NameValueComp<NameTag>, string>(srcHeroEntity);
+            var srcIconName = srcWorld.ReadValue<NameValueComp<IconTag>, string>(srcHeroEntity);
 
-            ref var tgtName = ref namePool.Value.Get(tgtHeroEntity);
-            ref var tgtIconName = ref iconNamePool.Value.Get(tgtHeroEntity);
+            var tgtName = tgtWorld.ReadValue<NameValueComp<NameTag>, string>(tgtHeroEntity);
+            var tgtIconName = tgtWorld.ReadValue<NameValueComp<IconTag>, string>(tgtHeroEntity);
 
-            Debug.Log($"Relation event spawned between {srcName.Name} and {tgtName.Name}");
+            Debug.Log($"Relation event spawned between {srcName} and {tgtName}");
 
             var score = GetScoreValueForBar(info.Score, info.ScoreDiff);
             var delta = Mathf.Abs(info.ScoreDiff);
@@ -305,8 +303,8 @@ namespace Assets.Scripts.ECS.Systems
 
             var relationState = config.GetRelationState(info.Score);
             info.EventTitle = $"Score {info.Score}: {relationState}";
-            info.SrcIconName = srcIconName.Name;
-            info.TgtIconName = tgtIconName.Name;
+            info.SrcIconName = srcIconName;
+            info.TgtIconName = tgtIconName;
             info.ActionTitles = new[] { $"OK" };
             float scoreValue = Mathf.Min(1, (float)score / scoreMax);
             float scoreDelta = Mathf.Min(1, (float)delta / scoreMax);
@@ -394,14 +392,14 @@ namespace Assets.Scripts.ECS.Systems
 
         private ref IntValueComp<RelationScoreTag> GetScore(
             int srcHeroEntity, 
-            EcsPackedEntity tgtHeroPackedEntity, 
+            EcsPackedEntityWithWorld tgtHeroPackedEntity, 
             out int scoreEntity)
         {
             scoreEntity = -1;
             
             ref var scoreRef = ref scoreRefPool.Value.Get(srcHeroEntity);
             if (!scoreRef.Parties.TryGetValue(tgtHeroPackedEntity, out var packed) ||
-                !packed.Unpack(ecsWorld.Value, out scoreEntity))
+                !packed.Unpack(out var tgtWorld, out scoreEntity))
                 throw new Exception($"Can't get relations Score");
             
             ref var scoreComp = ref scorePool.Value.Get(scoreEntity);

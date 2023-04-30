@@ -60,7 +60,7 @@ namespace Assets.Scripts.ECS.Systems
                 {
                     
                     ref var info = ref eventInfoPool.Value.Add(visitEntity);
-                    info.SourceEntity = systems.GetWorld().PackEntity(winner);
+                    info.SourceEntity = systems.GetWorld().PackEntityWithWorld(winner);
                     
                     draftTagPool.Value.Add(visitEntity);
                     

@@ -7,6 +7,8 @@ namespace Assets.Scripts.Services
     {
         protected EcsWorld ecsWorld { get; set; }
 
+        public EcsWorld EcsWorld => ecsWorld;
+
         protected IEcsSystems ecsRunSystems { get; set; }
         protected IEcsSystems ecsInitSystems { get; set; }                        
     }

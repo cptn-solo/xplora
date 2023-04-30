@@ -32,7 +32,7 @@ namespace Assets.Scripts.ECS.Data
     {
     }
 
-    public interface IName
+    public interface IName : IValue<string>
     {
         public string Name { get; }
     }

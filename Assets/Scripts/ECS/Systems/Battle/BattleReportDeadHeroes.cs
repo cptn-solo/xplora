@@ -28,19 +28,19 @@ namespace Assets.Scripts.ECS.Systems
                 
                 foreach (var relRefEntity in relRefFilter)
                 {
-                    var buff = ListPool<EcsPackedEntity>.Get();
+                    var buff = ListPool<EcsPackedEntityWithWorld>.Get();
                     
                     ref var relRef = ref relationRefPool.Get(relRefEntity);
 
                     foreach (var party in relRef.Parties.Keys)
-                        if (!party.Unpack(originWorld, out _))
+                        if (!party.Unpack(out _, out _))
                             buff.Add(party);
         
                     if (buff.Count > 0)
                         foreach (var key in buff)
                             relRef.Parties.Remove(key);
 
-                    ListPool<EcsPackedEntity>.Add(buff);
+                    ListPool<EcsPackedEntityWithWorld>.Add(buff);
                 }
             }
         }
