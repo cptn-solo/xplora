@@ -53,7 +53,7 @@ namespace Assets.Scripts.ECS.Systems
             {
                 var resistanceFactor = GetResistanceFactor(attackerEntity, eff);
                 effectDamage += (int)(resistanceFactor * libraryService.Value.DamageTypesLibrary
-                    .EffectForDamageEffect(eff).ExtraDamage);
+                    .ConfigForDamageEffect(eff).ExtraDamage);
                 effectsComp.UseEffect(eff, out var used);
             }
 

@@ -292,7 +292,7 @@ namespace Assets.Scripts.Services
         /// </summary>
         private void DestroyEcsRounds()
         {
-            if (!BattleEntity.Unpack(out var battleWorld, out var battleEntity))
+            if (!BattleEntity.Unpack(out var battleWorld, out _))
                 throw new Exception("No battle");
 
             var filter = battleWorld.Filter<BattleRoundInfo>().End();

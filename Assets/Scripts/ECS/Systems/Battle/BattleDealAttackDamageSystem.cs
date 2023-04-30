@@ -61,7 +61,7 @@ namespace Assets.Scripts.ECS.Systems
             if (turnInfo.Pierced)
             {
                 DamageEffectConfig config = libraryService.Value.DamageTypesLibrary
-                    .EffectForDamageType(attackerConfig.DamageType);
+                    .ConfigForDamageType(attackerConfig.DamageType);
                 shield = (int)(config.ShieldUseFactor / 100f * shield);
             }
 

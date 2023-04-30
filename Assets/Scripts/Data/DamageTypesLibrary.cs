@@ -17,14 +17,14 @@ namespace Assets.Scripts.Data
             return result;
         }
 
-        internal DamageEffectConfig EffectForDamageType(DamageType damageType)
+        internal DamageEffectConfig ConfigForDamageType(DamageType damageType)
         {
             if (DamageTypes.TryGetValue(damageType, out var config))
                 return config;
 
             return default;
         }
-        internal DamageEffectConfig EffectForDamageEffect(DamageEffect damageEffect)
+        internal DamageEffectConfig ConfigForDamageEffect(DamageEffect damageEffect)
         {
             if (DamageEffects.TryGetValue(damageEffect, out var config))
                 return config;

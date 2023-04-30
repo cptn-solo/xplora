@@ -86,7 +86,7 @@ namespace Assets.Scripts.ECS.Systems
             bool disableRNGToggle)
         {
             DamageEffectConfig config = libraryService.Value.DamageTypesLibrary
-                .EffectForDamageType(attacker.DamageType);
+                .ConfigForDamageType(attacker.DamageType);
 
             info = default;
 
