@@ -1,5 +1,4 @@
 ﻿using Assets.Scripts.Data;
-using System;
 using Leopotam.EcsLite;
 
 namespace Assets.Scripts

@@ -1,10 +1,7 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
-using System;
 using UnityEngine.Events;
 using Leopotam.EcsLite;
-using Assets.Scripts.UI.Battle;
-using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.Services
 {

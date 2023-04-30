@@ -1,8 +1,6 @@
 ﻿using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
-using UnityEngine;
-using UnityEngine.Events;
 
 namespace Assets.Scripts.ECS
 {

@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.Battle;
 using Assets.Scripts.UI.Inventory;
-using System;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Library

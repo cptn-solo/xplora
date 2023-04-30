@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using Zenject;
 using Assets.Scripts.ECS.Data;
-using Assets.Scripts;
 
 public class HeroDetailsHover : BaseEntityView<HoverTag<Hero>>
 {

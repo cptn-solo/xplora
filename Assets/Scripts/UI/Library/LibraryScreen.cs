@@ -2,12 +2,10 @@ using Assets.Scripts.Services;
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.UI.Inventory;
-using System;
 using UnityEngine;
 using Zenject;
 using Assets.Scripts.Battle;
 using System.Collections.Generic;
-using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.UI.Library
 {

@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.UI.Data;
-using Assets.Scripts.World;
+﻿using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 

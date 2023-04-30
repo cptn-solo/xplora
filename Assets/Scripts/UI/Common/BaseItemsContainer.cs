@@ -1,7 +1,5 @@
-﻿using Assets.Scripts.Data;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 namespace Assets.Scripts.UI.Common
 {

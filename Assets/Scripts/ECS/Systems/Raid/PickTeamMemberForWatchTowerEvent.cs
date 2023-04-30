@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {

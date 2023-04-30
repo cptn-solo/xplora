@@ -1,7 +1,5 @@
 using Assets.Scripts.Data;
-using Assets.Scripts.UI.Common;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Battle

@@ -1,6 +1,5 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.UI.Inventory;
-using System;
 using UnityEngine;
 using UnityEngine.Events;
 

@@ -1,6 +1,5 @@
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
-using Assets.Scripts.UI.Data;
 using UnityEngine;
 using Zenject;
 

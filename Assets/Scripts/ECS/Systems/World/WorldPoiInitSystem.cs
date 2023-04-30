@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using Assets.Scripts.ECS;
+﻿using Assets.Scripts.ECS;
 using Assets.Scripts.World.HexMap;
 using UnityEngine;
 

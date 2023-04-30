@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using Assets.Scripts.Services;
+﻿using Assets.Scripts.Services;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 using System;
 
 namespace Assets.Scripts.ECS.Systems

@@ -1,7 +1,4 @@
-﻿using Assets.Scripts.ECS.Data;
-using Assets.Scripts.Services;
-using Leopotam.EcsLite;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.ECS
 {

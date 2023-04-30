@@ -3,7 +3,6 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Assets.Scripts.ECS;
-using Assets.Scripts.Services;
 
 namespace Assets.Scripts.World
 {
