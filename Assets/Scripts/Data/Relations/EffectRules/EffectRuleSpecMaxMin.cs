@@ -17,7 +17,7 @@
             MaxMin = rawValues[3].ParseIntValue(0, true);
             TurnsCount = rawValues[4].ParseIntValue();
         
-            key = new RelationEffectKey(SpecOption, DamageEffect.NA, DamageType.NA, RelationsEffectType.NA);
+            key = new RelationEffectKey(SpecOption, DamageEffect.NA, DamageType.NA, RelationsEffectType.SpecKey);
         }
 
         public RelationsEffectType EffectType => RelationsEffectType.SpecMaxMin;

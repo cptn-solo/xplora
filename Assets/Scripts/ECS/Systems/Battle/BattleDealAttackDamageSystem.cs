@@ -15,7 +15,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
-        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
 
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
@@ -42,7 +41,6 @@ namespace Assets.Scripts.ECS.Systems
 
         private void DealDamage(int turnEntity)
         {
-
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
 
             ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
@@ -56,7 +54,15 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var attackerConfig = ref battleService.Value.GetHeroConfig(attackerRef.HeroInstancePackedEntity);
 
-            int shield = GetAdjustedIntValue<DefenceRateTag>(targetEntity, SpecOption.DefenceRate);
+            var damageBlockedByRelations = ecsWorld.Value.GetDamageTypeBlock(targetEntity, attackerConfig.DamageType);
+            if (damageBlockedByRelations)
+            {
+                Debug.Log($"Damage Blocked for {attackerConfig.DamageType} By Relations Effect!");
+                //TODO: communicate to UI/in-game logs
+                return;
+            }
+
+            int shield = ecsWorld.Value.GetAdjustedIntValue<DefenceRateTag>(targetEntity, SpecOption.DefenceRate);
             
             if (turnInfo.Pierced)
             {
@@ -73,7 +79,7 @@ namespace Assets.Scripts.ECS.Systems
             }
             else
             {
-                rawDamage = GetAdjustedRangedValue<DamageRangeTag>(attackerEntity, SpecOption.DamageRange);
+                rawDamage = ecsWorld.Value.GetAdjustedRangedValue<DamageRangeTag>(attackerEntity, SpecOption.DamageRange);
             }
 
             bool criticalDamage;
@@ -83,7 +89,7 @@ namespace Assets.Scripts.ECS.Systems
             }
             else
             {
-                criticalDamage = GetAdjustedBoolValue<CritRateTag>(attackerEntity, SpecOption.CritRate);
+                criticalDamage = ecsWorld.Value.GetAdjustedBoolValue<CritRateTag>(attackerEntity, SpecOption.CritRate);
             }            
 
             int damage = rawDamage;
@@ -103,90 +109,6 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
             barsAndEffectsComp.HealthCurrent = hpComp.Value;
-        }
-
-
-        private bool GetAdjustedBoolValue<T>(int entity, SpecOption specOption)
-            where T : struct
-        {
-            var adjValue = GetAdjustedIntValue<T>(entity, specOption);
-            return adjValue.RatedRandomBool();
-        }
-
-        private int GetAdjustedIntValue<T>(int entity, SpecOption specOption)
-            where T : struct
-        {
-            var rawValue = ecsWorld.Value.ReadIntValue<T>(entity);
-            var adjType = GetAdjustmentValue(entity, specOption, out var factor, out var value);
-            var adjValue = adjType switch
-            {
-                AdjustmentType.Factor => (int)(rawValue * factor),
-                AdjustmentType.Value => value,
-                _ => throw new NotImplementedException(),
-            };
-            return adjValue;
-        }
-
-        private int GetAdjustedRangedValue<T>(int entity, SpecOption specOption)
-            where T : struct
-        {
-            var rawRange = ecsWorld.Value.ReadIntRangeValue<T>(entity);
-            var rawValue = rawRange.RandomValue;
-            var adjType = GetAdjustmentValue(entity, specOption, out var factor, out var value, rawRange);
-            
-            return adjType switch
-            {
-                AdjustmentType.Factor => (int)(rawValue * factor),
-                AdjustmentType.Value => value,
-                _ => throw new NotImplementedException(),
-            };
-        }
-
-        private AdjustmentType GetAdjustmentValue(int entity, SpecOption specOption, out float factor, out int value, IntRange rangeValue = null)
-        {
-            var retval = AdjustmentType.Factor;
-
-            value = 0;
-            factor = 1f;
-            
-            ref var relationEffects = ref relEffectsPool.Value.Get(entity);
-
-            foreach (var relEffect in relationEffects.CurrentEffects)
-            {
-                if (relEffect.Key.SpecOption != specOption)
-                    continue;
-
-                switch (relEffect.Value.Rule.EffectType)
-                {
-                    case RelationsEffectType.SpecMaxMin:
-                        {
-                            if (rangeValue == null)
-                                throw new Exception("RelationsEffectType.SpecMaxMin requires ranged value");
-                            
-                            var rule = (EffectRuleSpecMaxMin)relEffect.Value.Rule;
-                            retval = AdjustmentType.Value;
-                            value = rule.MaxMin > 0 ? rangeValue.MaxRate : rangeValue.MinRate;
-                        }
-                        break;
-                    case RelationsEffectType.SpecAbs:
-                        {
-                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
-                            retval = AdjustmentType.Factor;
-                            factor += rule.Value / 100f;
-                        }
-                        break;
-                    case RelationsEffectType.SpecPercent:
-                        {
-                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
-                            factor *= rule.Value / 100f;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return retval;
         }
     }
 }

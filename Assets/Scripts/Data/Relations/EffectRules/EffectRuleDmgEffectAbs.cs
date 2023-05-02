@@ -17,7 +17,7 @@
             Value = rawValues[3].ParseIntValue(0, true);
             TurnsCount = rawValues[4].ParseIntValue();
 
-            key = new RelationEffectKey(SpecOption.NA, DamageEffect, DamageType.NA, RelationsEffectType.NA);
+            key = new RelationEffectKey(SpecOption.NA, DamageEffect, DamageType.NA, RelationsEffectType.DmgEffectKey);
         }
 
         public RelationsEffectType EffectType => RelationsEffectType.DmgEffectAbs;

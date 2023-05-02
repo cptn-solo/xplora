@@ -2,6 +2,7 @@
 {
     public enum AdjustmentType
         {
+            NA = 0,
             Value,
             Factor
         }
