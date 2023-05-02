@@ -103,6 +103,5 @@ namespace Assets.Scripts.ECS.Systems
             return retval;
         }
 
-
     }
 }

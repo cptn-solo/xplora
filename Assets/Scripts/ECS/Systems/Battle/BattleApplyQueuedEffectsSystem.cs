@@ -90,10 +90,6 @@ namespace Assets.Scripts.ECS.Systems
             {
                 switch (relEffect.Value.Rule.EffectType)
                 {
-                    case RelationsEffectType.NA:
-                        break;
-                    case RelationsEffectType.SpecMaxMin:
-                        break;
                     case RelationsEffectType.SpecAbs:
                         {
                             var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
@@ -107,28 +103,6 @@ namespace Assets.Scripts.ECS.Systems
                             if (rule.SpecOption == eff.ResistanceSpec())
                                 retval *= rule.Value / 100f;
                         }
-                        break;
-                    case RelationsEffectType.DmgEffectAbs:
-                        break;
-                    case RelationsEffectType.DmgEffectPercent:
-                        break;
-                    case RelationsEffectType.DmgEffectBonusAbs:
-                        {
-                            var rule = (EffectRuleDmgEffectBonusAbs)relEffect.Value.Rule;
-                            retval += rule.Value / 100f;
-                        }
-                        break;
-                    case RelationsEffectType.DmgEffectBonusPercent:
-                        {
-                            var rule = (EffectRuleDmgEffectBonusPercent)relEffect.Value.Rule;
-                            retval *= rule.Value / 100f;
-                        }
-                        break;
-                    case RelationsEffectType.AlgoRevenge:
-                        break;
-                    case RelationsEffectType.AlgoTarget:
-                        break;
-                    case RelationsEffectType.AlgoDamageTypeBlock:
                         break;
                     default:
                         break;
