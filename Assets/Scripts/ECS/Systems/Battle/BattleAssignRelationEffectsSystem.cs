@@ -14,8 +14,8 @@ namespace Assets.Scripts.ECS.Systems
         protected virtual RelationSubjectState SubjectState => 
             RelationSubjectState.Attacking;
 
-        private const int MaxEffectsForHero = 99; // decision made to let them spawn as they are
-
+        protected virtual void OnEffectInstanceReady(ref EffectInstanceInfo effect, int turnEntity) { }
+        
         protected readonly EcsPoolInject<T> pool = default;
         protected readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         protected readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
@@ -34,13 +34,13 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var entity in filter.Value)
             {
                 ref var heroInstanceRef = ref pool.Value.Get(entity);
-                if (!heroInstanceRef.Packed.Unpack(out _, out var heroInstanceEntity))
+                if (!heroInstanceRef.Packed.Unpack(out _, out var effectTargetEntity))
                     continue;
 
-                if (!playerTeamTagPool.Value.Has(heroInstanceEntity))
+                if (!playerTeamTagPool.Value.Has(effectTargetEntity))
                     continue;
 
-                ref var originRef = ref heroInstanceOriginRefPool.Value.Get(heroInstanceEntity);
+                ref var originRef = ref heroInstanceOriginRefPool.Value.Get(effectTargetEntity);
                 if (!originRef.Packed.Unpack(out var origWorld, out var origEntity))
                     continue;
 
@@ -50,13 +50,31 @@ namespace Assets.Scripts.ECS.Systems
                     continue; // battle without raid
 
                 ref var p2pRef = ref p2pRefPool.Get(origEntity);
-                ref var heroConfigRef = ref heroConfigRefPool.Value.Get(heroInstanceEntity);
+                ref var heroConfigRef = ref heroConfigRefPool.Value.Get(effectTargetEntity);
 
                 foreach (var party in p2pRef.Parties)
                 {
-                    if (TryCastRelationEffect(heroInstanceEntity, heroConfigRef.Packed, party.Key, party.Value) &&
-                       !updatePool.Value.Has(heroInstanceEntity))
-                        updatePool.Value.Add(heroInstanceEntity);                 
+                    if (TryCastRelationEffect(heroConfigRef.Packed, party.Key, party.Value, 
+                        out var effect))
+                    {
+                        // registering effect for the hero affected (in the battle world, to make it handy when needed) 
+                        RelationEffectKey ruleKey = effect.Rule.Key;
+                        party.Key.Unpack(out _, out var effectSourceEntity);
+                        var affectedParty = ruleKey.RelationsEffectType switch
+                        {
+                            RelationsEffectType.AlgoRevenge => effectSourceEntity,
+                            RelationsEffectType.AlgoTarget => effectSourceEntity,
+                            _ => effectTargetEntity
+                        };
+                        ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
+                        relEffects.SetEffect(ruleKey, effect);
+                        
+                        OnEffectInstanceReady(ref effect, entity);
+
+                        if (!updatePool.Value.Has(affectedParty))
+                            updatePool.Value.Add(affectedParty);
+                    }
+                       
                 }
             }
         }
@@ -71,11 +89,12 @@ namespace Assets.Scripts.ECS.Systems
         /// <param name="scoreEntityPacked">Packed score entity for the given hero and the other guy</param>
         /// <returns>true if new effect was casted</returns>
         protected bool TryCastRelationEffect(
-            int targetEntity,
             EcsPackedEntityWithWorld heroConfigPackedEntity,
             EcsPackedEntityWithWorld otherGuyPacked, 
-            EcsPackedEntityWithWorld scoreEntityPacked)
+            EcsPackedEntityWithWorld scoreEntityPacked,
+            out EffectInstanceInfo effect)
         {
+            effect = default;
             if (!otherGuyPacked.Unpack(out var origWorld, out var otherGuyEntity))
                 throw new Exception("Stale Other Guy Entity (probably dead already)");
 
@@ -133,10 +152,8 @@ namespace Assets.Scripts.ECS.Systems
                 return false;
 
             Debug.Log($"Spawned with respect of exisiting {currentEffects.CurrentEffects.Count} effects");
-            
-            RelationEffectKey ruleKey = rule.Key;
-            
-            var effect = new EffectInstanceInfo()
+                        
+            effect = new EffectInstanceInfo()
             {
                 StartRound = currentRound.Round,
                 EndRound = currentRound.Round + rule.TurnsCount,
@@ -144,15 +161,8 @@ namespace Assets.Scripts.ECS.Systems
                 Rule = rule,
                 EffectSource = otherGuyPacked,
             };
-            currentEffects.SetEffect(ruleKey, effect);
 
-            // registering effect for the hero affected (in the battle world, to make it handy when needed) 
-            ref var relEffects = ref relEffectsPool.Value.Get(targetEntity);
-            if (relEffects.CurrentEffects.Count < MaxEffectsForHero || 
-                relEffects.CurrentEffects.TryGetValue(ruleKey, out _))
-            {
-                relEffects.SetEffect(ruleKey, effect);
-            }
+            currentEffects.SetEffect(rule.Key, effect); // effect focus (if any) is omitted here, but added for battle context.
 
             return true;
         }

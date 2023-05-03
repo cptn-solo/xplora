@@ -6,9 +6,11 @@ namespace Assets.Scripts.Data
     {
         public static RelationState GetRelationState(this HeroRelationsConfig config, int score)
         {
-            foreach (var item in config.RelationStateThresholds)
+            int length = config.RelationStateThresholds.Length;
+            for (int i = 0; i < length; i++)
             {
-                if (item.Value > score)
+                RelationStateValue item = config.RelationStateThresholds[i];
+                if (item.Value > score || i == (length - 1)) // last item used for maxed out relations (over high)
                     return item.State;
             }
 

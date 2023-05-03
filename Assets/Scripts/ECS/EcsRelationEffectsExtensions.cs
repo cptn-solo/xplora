@@ -55,6 +55,28 @@ namespace Assets.Scripts.ECS
             return adjValue;
         }
 
+        public static bool GetAlgoRevengeFocus(this EcsWorld ecsWorld, int entity, out EcsPackedEntityWithWorld? focus) =>
+            ecsWorld.GetRelEffectFocus(entity, RelationsEffectType.AlgoRevenge, out focus);
+
+        public static bool GetAlgoTargetFocus(this EcsWorld ecsWorld, int entity, out EcsPackedEntityWithWorld? focus) =>
+            ecsWorld.GetRelEffectFocus(entity, RelationsEffectType.AlgoTarget, out focus);
+
+        public static bool GetRelEffectFocus(this EcsWorld ecsWorld, int entity, RelationsEffectType effectType, out EcsPackedEntityWithWorld? focus)
+        {
+            focus = null;
+            ref var relationEffects = ref ecsWorld.GetPool<RelationEffectsComp>().Get(entity);
+            foreach (var relEffect in relationEffects.CurrentEffects)
+            {
+                if (relEffect.Key.RelationsEffectType == effectType)
+                {
+                    focus = relEffect.Value.EffectFocus;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         public static AdjustmentType GetDamageEffect(this EcsWorld ecsWorld, int entity,
             DamageEffect damageEffect, out float factor, out int value, IntRange rangeValue = null)
         {

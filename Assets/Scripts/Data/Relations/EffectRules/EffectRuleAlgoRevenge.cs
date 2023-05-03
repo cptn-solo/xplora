@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using Leopotam.EcsLite;
+
+namespace Assets.Scripts.Data
 {
     public struct EffectRuleAlgoRevenge : IBattleEffectRule
     {
@@ -23,7 +25,7 @@
         
         public HeroDomain TargetDomain { get; set; }
         public int TurnsCount { get; set; }
-        
+
         #endregion
     }
 }

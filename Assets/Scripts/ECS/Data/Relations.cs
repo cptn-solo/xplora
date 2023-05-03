@@ -39,6 +39,15 @@ namespace Assets.Scripts.ECS.Data
         /// </summary>
         public EcsPackedEntityWithWorld EffectSource { get; set; }
 
+        /// <summary>
+        /// Applicable For:
+        /// - AlgoRevenge
+        /// - AlgoTarget
+        /// Keeps the reference to a hero instance being attacked by effect parties
+        /// while it is active
+        /// </summary>
+        public EcsPackedEntityWithWorld EffectFocus { get; set; } 
+
         public override string ToString()
         {
             var retval = "";
@@ -56,6 +65,9 @@ namespace Assets.Scripts.ECS.Data
     {
         private Dictionary<RelationEffectKey, EffectInstanceInfo> currentEffects;
         private string description;
+        
+        private const int MaxEffectsForHero = 99; // decision made to let them spawn as they are
+
 
         public Dictionary<RelationEffectKey, EffectInstanceInfo> CurrentEffects
         {
@@ -76,6 +88,8 @@ namespace Assets.Scripts.ECS.Data
         public void SetEffect(RelationEffectKey type, EffectInstanceInfo effect)
         {
             if (currentEffects == null) return;
+            
+            if (currentEffects.Count > MaxEffectsForHero) return;
 
             if (currentEffects.TryGetValue(type, out _))
             {

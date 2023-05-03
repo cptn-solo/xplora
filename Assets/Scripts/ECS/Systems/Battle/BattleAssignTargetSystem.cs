@@ -3,6 +3,7 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
@@ -36,8 +37,17 @@ namespace Assets.Scripts.ECS.Systems
             var isPlayerTeam = playerTeamTagPool.Value.Has(attackerInstanceEntity);
             var ranged = rangedTagPool.Value.Has(attackerInstanceEntity);
 
-            int targetEntity;
-            if (ranged)
+            if (isPlayerTeam && world.GetAlgoTargetFocus(attackerInstanceEntity, out var tgtfocus) &&
+                tgtfocus.HasValue && tgtfocus.Value.Unpack(out _, out int targetEntity))
+            {
+                Debug.Log("Target was overriden by relation AlgoTarget event");
+            }
+            else if (isPlayerTeam && world.GetAlgoRevengeFocus(attackerInstanceEntity, out var rvgFocus) &&
+                rvgFocus.HasValue && rvgFocus.Value.Unpack(out _, out targetEntity))
+            {
+                Debug.Log("Target was overriden by relation AlgoRevenge event");
+            }
+            else if (ranged)
             {
                 var filter = isPlayerTeam ?
                     TeamTagFilter<EnemyTeamTag>(world) :
