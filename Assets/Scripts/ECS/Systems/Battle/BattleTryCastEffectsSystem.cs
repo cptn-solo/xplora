@@ -148,8 +148,7 @@ namespace Assets.Scripts.ECS.Systems
         private bool GetAdjustedChanceRate(int attackerEntity, int targetEntity, DamageEffect damageEffect, int rawChanceRate)
         {
             //(?) для атакуемого может быть увеличен шанс возникновения эффекта через DmgEffectBonusKey
-            var key0 = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, RelationsEffectType.DmgEffectBonusKey);
-            var chanceRateAdj0 = ecsWorld.Value.GetRelationAdjustment(targetEntity, key0, out var factor0, out var value0);
+            var chanceRateAdj0 = ecsWorld.Value.GetDamageEffectBonus(targetEntity, out var factor0, out var value0);
             var adjustedValue0 = chanceRateAdj0 switch
             {
                 AdjustmentType.Factor => (int)(rawChanceRate * factor0),
@@ -158,8 +157,7 @@ namespace Assets.Scripts.ECS.Systems
             };
 
             //для атакующего может быть увеличен шанс возникновения эффекта через DmgEffectBonusKey
-            var key1 = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, RelationsEffectType.DmgEffectBonusKey);
-            var chanceRateAdj1 = ecsWorld.Value.GetRelationAdjustment(attackerEntity, key1, out var factor1, out var value1);
+            var chanceRateAdj1 = ecsWorld.Value.GetDamageEffectBonus(attackerEntity, out var factor1, out var value1);
             var adjustedValue1 = chanceRateAdj1 switch
             {
                 AdjustmentType.Factor => (int)(rawChanceRate * factor1),
@@ -168,8 +166,7 @@ namespace Assets.Scripts.ECS.Systems
             };
 
             //для атакующего может быть увеличен шанс возникновения конкретного эффекта через DmgEffectKey
-            var key2 = new RelationEffectKey(SpecOption.NA, damageEffect, DamageType.NA, RelationsEffectType.DmgEffectKey);
-            var chanceRateAdj2 = ecsWorld.Value.GetRelationAdjustment(attackerEntity, key2, out var factor2, out var value2);
+            var chanceRateAdj2 = ecsWorld.Value.GetDamageEffect(attackerEntity, damageEffect, out var factor2, out var value2);
             var adjustedValue2 = chanceRateAdj2 switch
             {
                 AdjustmentType.Factor => (int)(rawChanceRate * factor2),

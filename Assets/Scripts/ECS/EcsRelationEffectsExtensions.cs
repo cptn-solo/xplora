@@ -55,6 +55,20 @@ namespace Assets.Scripts.ECS
             return adjValue;
         }
 
+        public static AdjustmentType GetDamageEffect(this EcsWorld ecsWorld, int entity,
+            DamageEffect damageEffect, out float factor, out int value, IntRange rangeValue = null)
+        {
+            var key = new RelationEffectKey(SpecOption.NA, damageEffect, DamageType.NA, RelationsEffectType.DmgEffectKey);
+            return ecsWorld.GetRelationAdjustment(entity, key, out factor, out value, rangeValue);
+        }
+
+        public static AdjustmentType GetDamageEffectBonus(this EcsWorld ecsWorld, int entity,
+            out float factor, out int value, IntRange rangeValue = null)
+        {
+            var key = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, RelationsEffectType.DmgEffectBonusKey);
+            return ecsWorld.GetRelationAdjustment(entity, key, out factor, out value, rangeValue);
+        }
+
         public static AdjustmentType GetRelationAdjustment(this EcsWorld ecsWorld, int entity,
             SpecOption specOption, out float factor, out int value, IntRange rangeValue = null)
         {
@@ -72,57 +86,135 @@ namespace Assets.Scripts.ECS
 
             foreach (var relEffect in relationEffects.CurrentEffects)
             {
-                if (key.SpecOption != SpecOption.NA && relEffect.Key.SpecOption == key.SpecOption)
+                switch (key.RelationsEffectType)
                 {
-                    switch (relEffect.Value.Rule.EffectType)
-                    {
-                        case RelationsEffectType.SpecMaxMin:
-                            {
-                                if (rangeValue == null)
-                                    throw new Exception("RelationsEffectType.SpecMaxMin requires ranged value");
-
-                                var rule = (EffectRuleSpecMaxMin)relEffect.Value.Rule;
-                                value = rule.MaxMin > 0 ? rangeValue.MaxRate : rangeValue.MinRate;
-                                return AdjustmentType.Value;
-                            }
-                        case RelationsEffectType.SpecAbs:
-                            {
-                                var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
-                                factor += rule.Value / 100f;
-                                return AdjustmentType.Factor;
-                            }
-                        case RelationsEffectType.SpecPercent:
-                            {
-                                var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
-                                factor *= rule.Value / 100f;
-                                return AdjustmentType.Factor;
-                            }
-                        default:
-                            break;
-                    }
-                }
-                else if (false)
-                {            
-                    //var key = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, damageType, RelationsEffectType.AlgoDamageTypeBlock);
-
-                    //TODO: (?) для атакуемого может быть увеличен шанс возникновения эффекта через DmgEffectBonusKey
-                    //var key0 = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, RelationsEffectType.DmgEffectBonusKey);
-
-                    //TODO: для атакующего может быть увеличен шанс возникновения эффекта через DmgEffectBonusKey
-                    //var key1 = new RelationEffectKey(SpecOption.NA, DamageEffect.NA, DamageType.NA, RelationsEffectType.DmgEffectBonusKey);
-
-                    //TODO: для атакующего может быть увеличен шанс возникновения конкретного эффекта через DmgEffectKey
-                    //var key2 = new RelationEffectKey(SpecOption.NA, damageEffect, DamageType.NA, RelationsEffectType.DmgEffectKey);
-
-                }
-                else
-                {
-                    continue;
+                    case RelationsEffectType.SpecKey:
+                        if (key.SpecOption != SpecOption.NA && relEffect.Key.SpecOption == key.SpecOption)
+                            return GetSpecKeyAdjustment(relEffect.Value, out factor, out value, rangeValue);
+                        break;
+                    case RelationsEffectType.DmgEffectKey:
+                        if (key.DamageEffect != DamageEffect.NA && relEffect.Key.DamageEffect == key.DamageEffect)
+                            return GetDmgEffectKeyAdjustment(relEffect.Value, out factor, out value);
+                        break;
+                    case RelationsEffectType.DmgEffectBonusKey:
+                        if (relEffect.Key.RelationsEffectType switch
+                        {
+                            RelationsEffectType.DmgEffectBonusAbs => true,
+                            RelationsEffectType.DmgEffectBonusPercent => true,
+                            _ => false
+                        }) return GetDmgEffectBonusKeyAdjustment(relEffect.Value, out factor, out value);
+                        break;
+                    case RelationsEffectType.AlgoDamageTypeBlock:
+                        if (key.DamageType != DamageType.NA && relEffect.Key.DamageType == key.DamageType)
+                            return GetAlgoDamageTypeBlockAdjustment(relEffect.Value, out value);
+                        break;
+                    case RelationsEffectType.AlgoRevenge:
+                        //TODO:
+                        break;
+                    case RelationsEffectType.AlgoTarget:
+                        //TODO:
+                        break;
+                    default:
+                        //actually invalid entry as we are always know the key type exactly
+                        break;
                 }
             }
 
             return AdjustmentType.NA;
         }
 
+        private static AdjustmentType GetAlgoDamageTypeBlockAdjustment(EffectInstanceInfo relEffect, out int value)
+        {
+            value = 0;
+            switch (relEffect.Rule.EffectType)
+            {
+                case RelationsEffectType.AlgoDamageTypeBlock:
+                    {
+                        var rule = (EffectRuleAlgoDamageTypeBlock)relEffect.Rule;
+                        value = rule.Flag;
+                        return AdjustmentType.Value;
+                    }
+                default:
+                    return AdjustmentType.NA;
+            }
+        }
+
+        private static AdjustmentType GetDmgEffectBonusKeyAdjustment(EffectInstanceInfo relEffect, out float factor, out int value)
+        {
+            value = 0;
+            factor = 1f;
+            switch (relEffect.Rule.EffectType)
+            {
+                case RelationsEffectType.DmgEffectBonusAbs:
+                    {
+                        var rule = (EffectRuleDmgEffectBonusAbs)relEffect.Rule;
+                        factor += rule.Value / 100f;
+                        return AdjustmentType.Factor;
+                    }
+                case RelationsEffectType.DmgEffectBonusPercent:
+                    {
+                        var rule = (EffectRuleDmgEffectBonusPercent)relEffect.Rule;
+                        factor *= rule.Value / 100f;
+                        return AdjustmentType.Factor;
+                    }
+                default:
+                    return AdjustmentType.NA;
+            }
+        }
+
+        private static AdjustmentType GetDmgEffectKeyAdjustment(EffectInstanceInfo relEffect, out float factor, out int value)
+        {
+            value = 0;
+            factor = 1f;
+            switch (relEffect.Rule.EffectType)
+            {
+                case RelationsEffectType.DmgEffectAbs:
+                    {
+                        var rule = (EffectRuleDmgEffectAbs)relEffect.Rule;
+                        factor += rule.Value / 100f;
+                        return AdjustmentType.Factor;
+                    }
+                case RelationsEffectType.DmgEffectPercent:
+                    {
+                        var rule = (EffectRuleDmgEffectPercent)relEffect.Rule;
+                        factor *= rule.Value / 100f;
+                        return AdjustmentType.Factor;
+                    }
+                default:
+                    return AdjustmentType.NA;
+            }
+        }
+
+        private static AdjustmentType GetSpecKeyAdjustment(EffectInstanceInfo relEffect, out float factor, out int value, IntRange rangeValue = null)
+        {
+            value = 0;
+            factor = 1f;
+            switch (relEffect.Rule.EffectType)
+            {
+                case RelationsEffectType.SpecMaxMin:
+                    {
+                        if (rangeValue == null)
+                            throw new Exception("RelationsEffectType.SpecMaxMin requires ranged value");
+
+                        var rule = (EffectRuleSpecMaxMin)relEffect.Rule;
+                        value = rule.MaxMin > 0 ? rangeValue.MaxRate : rangeValue.MinRate;
+                        return AdjustmentType.Value;
+                    }
+                case RelationsEffectType.SpecAbs:
+                    {
+                        var rule = (EffectRuleSpecAbs)relEffect.Rule;
+                        factor += rule.Value / 100f;
+                        return AdjustmentType.Factor;
+                    }
+                case RelationsEffectType.SpecPercent:
+                    {
+                        var rule = (EffectRuleSpecAbs)relEffect.Rule;
+                        factor *= rule.Value / 100f;
+                        return AdjustmentType.Factor;
+                    }
+                default:
+                    return AdjustmentType.NA;
+            }
+        }
     }
 }
