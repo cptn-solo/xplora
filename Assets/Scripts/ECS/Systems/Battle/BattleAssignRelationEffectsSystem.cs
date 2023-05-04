@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
         protected virtual RelationSubjectState SubjectState => 
             RelationSubjectState.Attacking;
 
-        protected virtual void OnEffectInstanceReady(ref EffectInstanceInfo effect, int turnEntity) { }
+        protected readonly EcsWorldInject ecsWorld;
         
         protected readonly EcsPoolInject<T> pool = default;
         protected readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
@@ -22,6 +22,8 @@ namespace Assets.Scripts.ECS.Systems
         protected readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
         protected readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
         protected readonly EcsPoolInject<UpdateTag<RelationEffectInfo>> updatePool = default;
+        protected readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        protected readonly EcsPoolInject<PrepareRevengeComp> revengePool = default;
 
         protected readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo, T>> filter = default;
 
@@ -41,36 +43,48 @@ namespace Assets.Scripts.ECS.Systems
                     continue;
 
                 ref var originRef = ref heroInstanceOriginRefPool.Value.Get(effectTargetEntity);
-                if (!originRef.Packed.Unpack(out var origWorld, out var origEntity))
+                if (!originRef.Packed.Unpack(out var origWorld, out var effectTargetOrig))
                     continue;
 
                 var p2pRefPool = origWorld.GetPool<RelationPartiesRef>();
 
-                if (!p2pRefPool.Has(origEntity))
+                if (!p2pRefPool.Has(effectTargetOrig))
                     continue; // battle without raid
 
-                ref var p2pRef = ref p2pRefPool.Get(origEntity);
+                ref var p2pRef = ref p2pRefPool.Get(effectTargetOrig);
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Get(effectTargetEntity);
 
                 foreach (var party in p2pRef.Parties)
                 {
-                    if (TryCastRelationEffect(heroConfigRef.Packed, party.Key, party.Value, 
+                    if (TryCastRelationEffect(heroConfigRef.Packed, party.Key, originRef.Packed, party.Value, 
                         out var effect))
                     {
                         // registering effect for the hero affected (in the battle world, to make it handy when needed) 
                         RelationEffectKey ruleKey = effect.Rule.Key;
                         party.Key.Unpack(out _, out var effectSourceEntity);
-                        var affectedParty = ruleKey.RelationsEffectType switch
+
+                        var affectedParty = effectTargetEntity;
+
+                        if (ruleKey.RelationsEffectType switch { 
+                            RelationsEffectType.AlgoRevenge => true,
+                            RelationsEffectType.AlgoTarget => true,
+                            _ => false
+                            })
                         {
-                            RelationsEffectType.AlgoRevenge => effectSourceEntity,
-                            RelationsEffectType.AlgoTarget => effectSourceEntity,
-                            _ => effectTargetEntity
-                        };
+                            affectedParty = effectSourceEntity;
+
+                            ref var attackerRef = ref attackerRefPool.Value.Get(entity);
+                            effect.EffectFocus = attackerRef.Packed;
+
+                            var revengeEntity = ecsWorld.Value.NewEntity();                            
+                            ref var revengeComp = ref revengePool.Value.Add(revengeEntity);
+                            revengeComp.RevengeBy = ecsWorld.Value.PackEntityWithWorld(effectSourceEntity);
+                            revengeComp.RevengeFor = ecsWorld.Value.PackEntityWithWorld(effectTargetEntity);
+                        }
+
                         ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
                         relEffects.SetEffect(ruleKey, effect);
                         
-                        OnEffectInstanceReady(ref effect, entity);
-
                         if (!updatePool.Value.Has(affectedParty))
                             updatePool.Value.Add(affectedParty);
                     }
@@ -85,17 +99,19 @@ namespace Assets.Scripts.ECS.Systems
         /// <param name="targetEntity">Entity of a hero to wich the effect will be casted (if any)</param>
         /// <param name="origWorld">EcsWorld to take relations from</param>
         /// <param name="heroConfigPackedEntity">Hero Config Entity of the given hero</param>
-        /// <param name="otherGuyPacked">Packed other guy entity in the origin world</param>
+        /// <param name="effectSource">Packed other guy entity in the origin world</param>
+        /// <param name="effectTarget">Packed this guy entity in the origin world</param>
         /// <param name="scoreEntityPacked">Packed score entity for the given hero and the other guy</param>
         /// <returns>true if new effect was casted</returns>
         protected bool TryCastRelationEffect(
             EcsPackedEntityWithWorld heroConfigPackedEntity,
-            EcsPackedEntityWithWorld otherGuyPacked, 
+            EcsPackedEntityWithWorld effectSource,
+            EcsPackedEntityWithWorld effectTarget,
             EcsPackedEntityWithWorld scoreEntityPacked,
             out EffectInstanceInfo effect)
         {
             effect = default;
-            if (!otherGuyPacked.Unpack(out var origWorld, out var otherGuyEntity))
+            if (!effectSource.Unpack(out var origWorld, out var otherGuyEntity))
                 throw new Exception("Stale Other Guy Entity (probably dead already)");
 
             if (!scoreEntityPacked.Unpack(out _, out var scoreEntity))
@@ -159,7 +175,7 @@ namespace Assets.Scripts.ECS.Systems
                 EndRound = currentRound.Round + rule.TurnsCount,
                 UsageLeft = rule.TurnsCount,
                 Rule = rule,
-                EffectSource = otherGuyPacked,
+                EffectSource = effectSource,
             };
 
             currentEffects.SetEffect(rule.Key, effect); // effect focus (if any) is omitted here, but added for battle context.

@@ -15,6 +15,14 @@ namespace Assets.Scripts.ECS.Data
     public struct RelationScoreTag { } 
 
     /// <summary>
+    /// Marks a turn to process additional round queue manipulation to insert a hero after current turn
+    /// </summary>
+    public struct PrepareRevengeComp{ 
+        public EcsPackedEntityWithWorld RevengeFor { get; set; }
+        public EcsPackedEntityWithWorld RevengeBy { get; set; }
+    }
+
+    /// <summary>
     /// Contains references to each score entity by hero instance entity,
     /// so when event is spawned or we just need to check a score with some other guy
     /// just pick a score entity for this guys entity

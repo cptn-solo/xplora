@@ -84,6 +84,8 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
                 .DelHere<ProcessedHeroTag>()
+                .Add(new BattlePrepareRevengeTurnsSystem())
+                .DelHere<PrepareRevengeComp>()
                 .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
                 .Add(new BattleDequeueExpiredRelationEffectsSystem()) 
                 .Add(new BattleDequeueCompletedRoundSystem())
