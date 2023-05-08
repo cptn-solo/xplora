@@ -6,11 +6,18 @@ namespace Assets.Scripts.Data
     {
         public static RelationState GetRelationState(this HeroRelationsConfig config, int score)
         {
-            int length = config.RelationStateThresholds.Length;
+            var items = config.RelationStateThresholds;
+            var length = items.Length;
             for (int i = 0; i < length; i++)
             {
-                RelationStateValue item = config.RelationStateThresholds[i];
-                if (item.Value > score || i == (length - 1)) // last item used for maxed out relations (over high)
+                RelationStateValue item = items[i];
+                if (item.Value <= score) continue;
+
+                if (i < 2)
+                    return items[2].State; // enemies and below are all enemies
+                else if (i > length - 2)
+                    return items[length - 2].State; // friends an above are all friends
+                else
                     return item.State;
             }
 
