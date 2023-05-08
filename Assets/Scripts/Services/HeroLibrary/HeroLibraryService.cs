@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.ECS.Data;
+using System;
 
 namespace Assets.Scripts.Services
 {
@@ -90,5 +91,13 @@ namespace Assets.Scripts.Services
 
         internal void MoveHero(EcsPackedEntityWithWorld hero, HeroPosition pos) =>
             MoveEcsHeroToPosition(hero, pos);
+
+        internal void SetRelationScore(EcsPackedEntityWithWorld hero, float value)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SetSelectedHero(EcsPackedEntityWithWorld hero) =>
+            SetEcsSelectedHero(hero);
     }
 }

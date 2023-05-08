@@ -4,15 +4,27 @@ using Assets.Scripts.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using Zenject;
+using Assets.Scripts.Services;
 
 namespace Assets.Scripts.UI.Library
 {
     public partial class HeroCard : BaseEntityView<Hero>        
     {
+        private HeroLibraryService libraryService;
+
+        [Inject]
+        public void Construct(HeroLibraryService libraryService)
+        {
+            this.libraryService = libraryService;
+        }
 
         [SerializeField] private Image heroIconImage;
         [SerializeField] private TextMeshProUGUI heroNameText;
         [SerializeField] private BarsContainer barsContainer;
+        [SerializeField] private Slider slider;
+        [SerializeField] private Button button;
 
         private Color normalColor;
         private Image backgroundImage;
@@ -79,6 +91,27 @@ namespace Assets.Scripts.UI.Library
         {
             backgroundImage = GetComponent<Image>();
             normalColor = backgroundImage.color;
+
+            button.onClick.AddListener(OnCardClicked);
+            slider.onValueChanged.AddListener(OnSliderValueChanged);
+        }
+
+        protected override void OnBeforeDestroy()
+        {
+            button.onClick.RemoveListener(OnCardClicked);
+            slider.onValueChanged.RemoveListener(OnSliderValueChanged);
+        }
+
+        private void OnSliderValueChanged(float value)
+        {
+            if (PackedEntity.HasValue)
+                libraryService.SetRelationScore( PackedEntity.Value, value);
+        }
+
+        private void OnCardClicked()
+        {
+            if (PackedEntity.HasValue)
+                libraryService.SetSelectedHero(PackedEntity.Value);
         }
     }
 }

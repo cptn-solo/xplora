@@ -6,6 +6,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using Leopotam.EcsLite.ExtendedSystems;
 
 namespace Assets.Scripts.Services
 {
@@ -33,8 +34,14 @@ namespace Assets.Scripts.Services
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
                 .Add(new LibraryDeployCardsSystem())
+
+                .Add(new LibraryCardSelectSystem())
+                .Add(new LibraryUpdateCardSelectionSystem())
+                .DelHere<UpdateTag<SelectedTag>>()
+
                 .Add(new LibraryUpdateCardHoverSystem())
                 .Add(new LibraryUpdateCardsSystem())
+
                 .Add(new LibraryBalanceUpdateSystem())
                 .Add(new GarbageCollectorSystem())
 
@@ -44,6 +51,7 @@ namespace Assets.Scripts.Services
                 .Inject(this)
                 .Init();
 
+            TickTimer = null;
             runloopCoroutine ??= StartCoroutine(RunloopCoroutine());
         }
 
