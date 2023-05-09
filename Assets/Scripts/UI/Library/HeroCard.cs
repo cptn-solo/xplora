@@ -24,6 +24,7 @@ namespace Assets.Scripts.UI.Library
         [SerializeField] private TextMeshProUGUI heroNameText;
         [SerializeField] private BarsContainer barsContainer;
         [SerializeField] private Slider slider;
+        [SerializeField] private TextMeshProUGUI sliderValue;
         [SerializeField] private Button button;
 
         private Color normalColor;
@@ -105,13 +106,26 @@ namespace Assets.Scripts.UI.Library
         private void OnSliderValueChanged(float value)
         {
             if (PackedEntity.HasValue)
-                libraryService.SetRelationScore( PackedEntity.Value, value);
+            {
+                sliderValue.text = ((int)value).ToString();
+                libraryService.SetRelationScore(PackedEntity.Value, value);
+            }
         }
 
         private void OnCardClicked()
         {
             if (PackedEntity.HasValue)
                 libraryService.SetSelectedHero(PackedEntity.Value);
+        }
+
+        public void ToggleSliderVisibility(bool toggle) { 
+            slider.gameObject.SetActive(toggle);
+        }
+
+        public void SetSliderValue(int value)
+        {
+            sliderValue.text = value.ToString();
+            slider.SetValueWithoutNotify(value);
         }
     }
 }

@@ -7,6 +7,7 @@ using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Assets.Scripts.Services
 {
@@ -34,8 +35,8 @@ namespace Assets.Scripts.Services
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
                 .Add(new LibraryDeployCardsSystem())
-
-                .Add(new LibraryCardSelectSystem())
+                
+                // with UpdateTag<SelectedTag>
                 .Add(new LibraryUpdateCardSelectionSystem())
                 .DelHere<UpdateTag<SelectedTag>>()
 
@@ -272,7 +273,7 @@ namespace Assets.Scripts.Services
         {
 
             if (!LibraryEntity.Unpack(out var world, out var libEntity))
-                throw new Exception("No battle");
+                throw new Exception("No library");
 
             ref var libraryFiled = ref world.GetPool<LibraryFieldComp>().Get(libEntity);
 
@@ -289,7 +290,44 @@ namespace Assets.Scripts.Services
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
             ref var entityViewRef = ref entityViewRefPool.Get(entity);
             slot.Put(entityViewRef.EntityView.Transform);
-        }       
+
+            ClearEcsHeroSelection();
+        }
+
+        internal void SetEcsSelectedHero(EcsPackedEntityWithWorld? packedEntity)
+        {
+            if (packedEntity == null || !packedEntity.Value.Unpack(out var world, out var entity))
+                return;
+
+            var selectedPool = world.GetPool<SelectedTag>();
+            var selectedFilter = world.Filter<SelectedTag>().End();
+            
+            foreach (var selectedEntity in selectedFilter)
+                selectedPool.Del(selectedEntity);                    
+
+            selectedPool.Add(entity);
+            var pool = world.GetPool<UpdateTag<SelectedTag>>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);            
+        }
+
+        private void ClearEcsHeroSelection()
+        {
+            if (!LibraryEntity.Unpack(out var world, out _))
+                throw new Exception("No library");
+
+            var selectedFilter = world.Filter<SelectedTag>().Inc<EntityViewRef<Hero>>().End();
+            var selectedPool = world.GetPool<SelectedTag>();
+            var updateSelectionPool = world.GetPool<UpdateTag<SelectedTag>>();
+
+            foreach (var entity in selectedFilter)
+            {
+                selectedPool.Del(entity);
+                if (!updateSelectionPool.Has(entity))
+                    updateSelectionPool.Add(entity);                
+            }
+        }
 
         public EcsPackedEntityWithWorld[] WrapForBattle(
             EcsPackedEntityWithWorld[] heroes, EcsWorld targetWorld = null)
@@ -343,18 +381,7 @@ namespace Assets.Scripts.Services
             ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
             return retval;
-        }
-
-        internal void SetEcsSelectedHero(EcsPackedEntityWithWorld? packedEntity)
-        {
-            if (packedEntity == null || !packedEntity.Value.Unpack(out var world, out var entity))
-                return;
-
-            var pool = world.GetPool<UpdateTag<SelectedTag>>();
-
-            if (!pool.Has(entity))
-                pool.Add(entity);            
-        }
+        }        
 
         internal void DestroyEcsLibraryField()
         {

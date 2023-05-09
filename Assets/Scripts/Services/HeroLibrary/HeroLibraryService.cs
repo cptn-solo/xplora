@@ -94,7 +94,6 @@ namespace Assets.Scripts.Services
 
         internal void SetRelationScore(EcsPackedEntityWithWorld hero, float value)
         {
-            throw new NotImplementedException();
         }
 
         internal void SetSelectedHero(EcsPackedEntityWithWorld hero) =>

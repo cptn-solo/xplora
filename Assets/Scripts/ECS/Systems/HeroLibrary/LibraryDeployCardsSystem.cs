@@ -3,6 +3,7 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using Assets.Scripts.UI.Library;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -45,13 +46,15 @@ namespace Assets.Scripts.ECS.Systems
                     {
                         ref var pos = ref positionPool.Value.Get(entity);
                         var slot = field.Slots[pos.Position];
-                        var card = factoryRef.FactoryRef(ecsWorld.Value.PackEntityWithWorld(entity));
+                        var card = (HeroCard)factoryRef.FactoryRef(ecsWorld.Value.PackEntityWithWorld(entity));
                         card.DataLoader = libraryService.Value.GetDataForPackedEntity<Hero>;
                         slot.Put(card.Transform);
                         card.UpdateData();
 
                         ref var entityViewRef = ref entityViewRefPool.Value.Add(entity);
                         entityViewRef.EntityView = card;
+
+                        card.ToggleSliderVisibility(false);
                     }
                 }
             }
