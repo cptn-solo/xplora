@@ -35,7 +35,11 @@ namespace Assets.Scripts.Services
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
                 .Add(new LibraryDeployCardsSystem())
-                
+
+                // with UpdateTag<MovedTag>
+                .Add(new LibraryUpdatePlayerTeamRelationContextSystem())
+                .DelHere<UpdateTag<MovedTag>>()
+
                 // with UpdateTag<SelectedTag>
                 .Add(new LibraryUpdateCardSelectionSystem())
                 .DelHere<UpdateTag<SelectedTag>>()
@@ -283,6 +287,7 @@ namespace Assets.Scripts.Services
             var positionPool = world.GetPool<PositionComp>();
 
             ref var pos = ref positionPool.Get(entity);
+            pos.PrevPosition = pos.Position;
             pos.Position = position;
 
             var slot = libraryFiled.Slots[pos.Position];
@@ -290,6 +295,10 @@ namespace Assets.Scripts.Services
             var entityViewRefPool = world.GetPool<EntityViewRef<Hero>>();
             ref var entityViewRef = ref entityViewRefPool.Get(entity);
             slot.Put(entityViewRef.EntityView.Transform);
+
+            var moveTagPool = world.GetPool<UpdateTag<MovedTag>>();
+            if (!moveTagPool.Has(entity))
+                moveTagPool.Add(entity);
 
             ClearEcsHeroSelection();
         }
@@ -334,8 +343,7 @@ namespace Assets.Scripts.Services
         {
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
-            if (targetWorld == null)
-                targetWorld = ecsWorld;
+            targetWorld ??= ecsWorld;
 
             foreach(var packed in heroes)
             {

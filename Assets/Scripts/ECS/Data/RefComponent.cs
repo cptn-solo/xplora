@@ -22,6 +22,8 @@ namespace Assets.Scripts.ECS.Data
     public struct DestroyTag { }
     public struct GarbageTag { }
     public struct DeselectTag { }
+    public struct MovedTag { }
+    public struct MovedTag<T> { }
     public struct SelectedTag { }
     public struct SelectedTag<T> { }
     public struct HoverTag { }
@@ -207,6 +209,7 @@ namespace Assets.Scripts.ECS.Data
     /// </summary>
     public struct PositionComp
     {
+        public HeroPosition PrevPosition { get; set; } // to handle moves
         public HeroPosition Position { get; set; }
     }
 
