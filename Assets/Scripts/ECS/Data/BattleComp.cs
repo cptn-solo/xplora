@@ -20,8 +20,10 @@ namespace Assets.Scripts.ECS.Data
 
     public struct HeroConfigRefComp : IPackedWithWorldRef
     {
+        public EcsPackedEntityWithWorld HeroConfigRefPackedEntity { get; internal set; }
         public EcsPackedEntityWithWorld HeroConfigPackedEntity { get; internal set; }
         public EcsPackedEntityWithWorld Packed => HeroConfigPackedEntity;
+        public EcsPackedEntityWithWorld RefPacked => HeroConfigRefPackedEntity;
     }
 
     public struct HeroInstanceRefComp : IPackedWithWorldRef

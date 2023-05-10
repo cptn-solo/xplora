@@ -23,6 +23,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<ProduceTag, HeroComp, FieldCellComp>> produceTagFilter = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
         public void Run(IEcsSystems systems)
         {
@@ -36,11 +37,6 @@ namespace Assets.Scripts.ECS.Systems
                 {
                     producing = true;
 
-                    ref var heroComp = ref heroPool.Value.Get(entity);
-
-                    if (!heroComp.Packed.Unpack(out var libWorld, out var libEntity))
-                        throw new Exception("No Hero config");
-
                     ref var cellComp = ref cellPool.Value.Get(entity);
 
                     var isPlayerUnit = playerPool.Value.Has(entity);
@@ -53,7 +49,8 @@ namespace Assets.Scripts.ECS.Systems
 
                     callback(entityView, cellComp.CellIndex);
 
-                    var hero = libWorld.GetPool<Hero>().Get(libEntity);
+                    ref var heroComp = ref heroPool.Value.Get(entity);
+                    var hero = libraryService.Value.GetHeroConfigForConfigRefPackedEntity(heroComp.Packed);
                     entityView.SetHero(hero, isPlayerUnit);
 
                     ref var unitRef = ref unitPool.Value.Add(entity);

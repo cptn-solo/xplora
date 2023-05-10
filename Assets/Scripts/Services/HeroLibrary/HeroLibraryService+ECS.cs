@@ -34,6 +34,9 @@ namespace Assets.Scripts.Services
 
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
+                
+                .DelHere<DeadTag>() // battle kills doesn't matter for the library, just ignore the tag
+                
                 .Add(new LibraryDeployCardsSystem())
 
                 // with UpdateTag<MovedTag>
@@ -395,5 +398,27 @@ namespace Assets.Scripts.Services
 
             return default;
         }
+
+        public EcsPackedEntityWithWorld GetHeroConfigPackedForRefPacked(
+            EcsPackedEntityWithWorld configRefPacked,
+            out Hero heroConfig)
+        {
+            heroConfig = default;
+
+            if (!configRefPacked.Unpack(out var libWorld, out var configRefEntity))
+                throw new Exception("No hero config ref");
+            
+            var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
+            ref var configRef = ref configRefPool.Get(configRefEntity);
+
+            if (!configRef.Packed.Unpack(out _, out var libHeroConfig))
+                throw new Exception("No hero config");
+
+            var heroPool = libWorld.GetPool<Hero>();
+            heroConfig = heroPool.Get(libHeroConfig);
+
+            return configRef.Packed;
+        }
+
     }
 }

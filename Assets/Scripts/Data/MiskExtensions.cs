@@ -7,7 +7,7 @@ namespace Assets.Scripts.Data
         public static Hero HeroBestBySpeed(this Hero[] heroes, out int idx)
         {
             var speed = 0;
-            idx = -1;
+            idx = 0;
             for (int i = 0; i < heroes.Length; i++)
                 if (heroes[i].Speed is int s && s > speed)
                 {

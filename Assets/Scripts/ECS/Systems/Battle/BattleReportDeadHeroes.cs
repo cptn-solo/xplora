@@ -21,7 +21,9 @@ namespace Assets.Scripts.ECS.Systems
                 if (!origin.Packed.Unpack(out var originWorld, out var originEntity))
                     throw new Exception("No Origin");
 
-                originWorld.DelEntity(originEntity);
+                var deadPool = originWorld.GetPool<DeadTag>();
+                if (!deadPool.Has(originEntity))
+                    deadPool.Add(originEntity);
                 
                 var relRefFilter = originWorld.Filter<RelationPartiesRef>().End();
                 var relationRefPool = originWorld.GetPool<RelationPartiesRef>();               
@@ -33,7 +35,7 @@ namespace Assets.Scripts.ECS.Systems
                     ref var relRef = ref relationRefPool.Get(relRefEntity);
 
                     foreach (var party in relRef.Parties.Keys)
-                        if (!party.Unpack(out _, out _))
+                        if (party.EqualsTo(origin.Packed))
                             buff.Add(party);
         
                     if (buff.Count > 0)

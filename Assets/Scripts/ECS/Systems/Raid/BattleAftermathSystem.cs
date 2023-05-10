@@ -15,6 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DrainComp> drainPool = default;
         private readonly EcsPoolInject<GarbageTag> garbagePool = default;
         private readonly EcsPoolInject<RetireTag> retirePool = default;
+        private readonly EcsPoolInject<DeadTag> deadPool = default;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
         private readonly EcsPoolInject<DebuffTag<IntRangeValueComp<DamageRangeTag>>> debuffTagPool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
@@ -22,6 +23,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<BattleComp, BattleAftermathComp>> aftermathFilter = default;
         private readonly EcsFilterInject<Inc<BuffComp<IntRangeValueComp<DamageRangeTag>>>> damageBuffFilter = default;
         private readonly EcsFilterInject<Inc<RelationEffectsComp>> relEffectsFilter = default;
+        private readonly EcsFilterInject<Inc<DeadTag>> deadFilter = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 
@@ -42,6 +44,11 @@ namespace Assets.Scripts.ECS.Systems
                     {
                         ref var relEffect = ref relEffectsPool.Value.Get(relEffEntity);
                         relEffect.Clear();
+                    }
+
+                    foreach (var deadEntity in deadFilter.Value)
+                    {
+                        ecsWorld.Value.DelEntity(deadEntity);                        
                     }
 
                     // tag opponent for delete from ecs and library

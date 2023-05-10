@@ -23,6 +23,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
+        private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
         public void Init(IEcsSystems systems)
         {
@@ -42,18 +43,8 @@ namespace Assets.Scripts.ECS.Systems
 
             var heroBuffer = ListPool<Hero>.Get();
 
-            heroBuffer.AddRange(raidComp.PlayerHeroConfigRefs.Select((x) => {
-                if (!x.Unpack(out var libWorld, out var libHeroConfigRefEntity))
-                    throw new Exception("No hero config ref"); ;
-
-                var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
-                ref var configRef = ref configRefPool.Get(libHeroConfigRefEntity);
-                
-                if (!configRef.Packed.Unpack(out _, out var libHeroConfig))
-                    throw new Exception("No hero config");
-
-                var heroPool = libWorld.GetPool<Hero>();
-                ref var heroConfig = ref heroPool.Get(libHeroConfig);
+            heroBuffer.AddRange(raidComp.PlayerHeroConfigRefs.Select((x) => {                
+                var configPacked = libraryService.Value.GetHeroConfigPackedForRefPacked(x, out var heroConfig);                                              
                 return heroConfig;
             }));
             var bestSpeed = heroBuffer.ToArray().HeroBestBySpeed(out var idx);
@@ -77,26 +68,22 @@ namespace Assets.Scripts.ECS.Systems
             // create player team member entitites to track bonuses and such
             for (int i = 0; i < raidComp.PlayerHeroConfigRefs.Length; i++)
             {
-                var heroConfigRefPackedEntity = raidComp.PlayerHeroConfigRefs[i];
-                if (!heroConfigRefPackedEntity.Unpack(out var libWorld, out var libHeroConfigRefEntity))
-                    throw new Exception("No hero config ref");
-                
-                var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
-                ref var configRef = ref configRefPool.Get(libHeroConfigRefEntity);
-                
-                if (!configRef.Packed.Unpack(out _, out var libHeroConfig))
-                    throw new Exception("No hero config");
+                var configRefPacked = raidComp.PlayerHeroConfigRefs[i];
+                var configPacked = libraryService.Value.GetHeroConfigPackedForRefPacked(configRefPacked, out _);
                 
                 var playerTeamMemberEntity = ecsWorld.Value.NewEntity();
                 playerTeamTagPool.Value.Add(playerTeamMemberEntity);
 
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Add(playerTeamMemberEntity);
-                heroConfigRef.HeroConfigPackedEntity = configRef.Packed;
+                heroConfigRef.HeroConfigPackedEntity = configPacked;
+                heroConfigRef.HeroConfigRefPackedEntity = configRefPacked;
             }
 
             ListPool<Hero>.Add(heroBuffer);
 
             raidService.Value.PlayerEntity = ecsWorld.Value.PackEntityWithWorld(entity);
         }
+
+        
     }
 }

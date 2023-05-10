@@ -46,7 +46,7 @@ namespace Assets.Scripts.ECS.Systems
             var enemyNumber = (int)((float)availableCellsCount * (float)enemySpawnFactor / 100f);
             Debug.Log($"enemyNumber: {enemyNumber}");
 
-            var indexed = IndexHeroesByStrength(raidComp.OpponentHeroConfigRefs);
+            var indexed = IndexHeroRefsByStrength(raidComp.OpponentHeroConfigRefs);
             ref var config = ref raidService.Value.OpponentTeamMemberSpawnConfig();
             raidComp.OpponentsIndexedByStrength = indexed;
             raidComp.OppenentMembersSpawnConfig = config;
@@ -102,7 +102,7 @@ namespace Assets.Scripts.ECS.Systems
             throw new Exception($"No available options for team strength {teamStrength}");
         }
 
-        private static HeroIndexByStrength IndexHeroesByStrength(EcsPackedEntityWithWorld[] configRefs)
+        private static HeroIndexByStrength IndexHeroRefsByStrength(EcsPackedEntityWithWorld[] configRefs)
         {
             var heroIndexByStrength = new HeroIndexByStrength();
             foreach (var configRefPacked in configRefs)
@@ -120,12 +120,12 @@ namespace Assets.Scripts.ECS.Systems
                 if (!heroIndexByStrength.TryGetValue(heroConfig.OveralStrength, out var buffer))
                 {
                     buffer = ListPool<EcsPackedEntityWithWorld>.Get();
-                    buffer.Add(configRef.Packed);
+                    buffer.Add(configRefPacked);
                     heroIndexByStrength.Add(heroConfig.OveralStrength, buffer);
                 }
                 else
                 {
-                    buffer.Add(configRef.Packed);
+                    buffer.Add(configRefPacked);
                     heroIndexByStrength[heroConfig.OveralStrength] = buffer;
                 }
             }

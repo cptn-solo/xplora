@@ -18,20 +18,21 @@ namespace Assets.Scripts.ECS.Systems
         public void Run(IEcsSystems systems)
         {
             foreach (var entity in aftermathFilter.Value)
-            {
-                ProcessEcsDeathInBattle(entity);
-            }
+                ProcessEcsDeathInBattle();
         }
-        private void ProcessEcsDeathInBattle(int entity)
+        private void ProcessEcsDeathInBattle()
         {
-            if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out var raidEntity))
+            if (!raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out _))
                 return;
 
             if (!raidService.Value.PlayerEntity.Unpack(out _, out var playerEntity))
                 return;
 
             var heroPool = ecsWorld.Value.GetPool<HeroComp>();
-            var filter = ecsWorld.Value.Filter<PlayerTeamTag>().Inc<HeroConfigRefComp>().End();
+            var filter = ecsWorld.Value.Filter<PlayerTeamTag>()
+                .Inc<HeroConfigRefComp>()
+                .Exc<DeadTag>()
+                .End();
 
             if (filter.GetEntitiesCount() == 0)
             {
@@ -46,14 +47,12 @@ namespace Assets.Scripts.ECS.Systems
             {
                 var heroConfigRefPool = ecsWorld.Value.GetPool<HeroConfigRefComp>();
                 ref var heroConfigRef = ref heroConfigRefPool.Get(heroInstanceEntity);
+                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libConfigEntity))
+                    throw new Exception("No hero config");
 
-                if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))
-                    throw new Exception("No Hero Config");
-
-                var heroConfigPool = libWorld.GetPool<Hero>();
-                ref var heroConfig = ref heroConfigPool.Get(libEntity);
+                var heroConfig = libWorld.GetPool<Hero>().Get(libConfigEntity);
                 heroBuffer.Add(heroConfig);
-                heroPackedBuffer.Add(heroConfigRef.Packed);
+                heroPackedBuffer.Add(heroConfigRef.RefPacked);
             }
             var bestSpeed = heroBuffer.ToArray().HeroBestBySpeed(out var idx);
             var bestSpeedPacked = heroPackedBuffer[idx];
@@ -62,7 +61,6 @@ namespace Assets.Scripts.ECS.Systems
                 heroPool.Add(playerEntity);
 
             ref var heroComp = ref heroPool.Get(playerEntity);
-
             heroComp.Hero = bestSpeedPacked;
 
             ListPool<EcsPackedEntityWithWorld>.Add(heroPackedBuffer);

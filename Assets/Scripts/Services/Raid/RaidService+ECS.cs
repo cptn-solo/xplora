@@ -176,7 +176,7 @@ namespace Assets.Scripts.Services
 
         private void DeployEcsWorldUnits(int cellIndex)
         {
-            State = Data.RaidState.AwaitingUnits;
+            State = RaidState.AwaitingUnits;
 
             var producePool = ecsWorld.GetPool<ProduceTag>();
             var unitRefPool = ecsWorld.GetPool<EntityViewRef<Hero>>();
@@ -291,10 +291,7 @@ namespace Assets.Scripts.Services
             var heroPool = sourceWorld.GetPool<HeroComp>();
             ref var heroComp = ref heroPool.Get(entity);
 
-            if (!heroComp.Packed.Unpack(out var libWorld, out var libEntity))
-                throw new Exception("No Hero config");
-
-            enemyHero = libWorld.GetPool<Hero>().Get(libEntity);
+            enemyHero = libManagementService.GetHeroConfigForConfigRefPackedEntity(heroComp.Packed);
 
             return true;
         }

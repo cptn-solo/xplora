@@ -48,7 +48,7 @@ namespace Assets.Scripts.ECS.Systems
                 ref var opponentComp = ref opponentPool.Value.Get(enemyEntity);
                 ref var heroComp = ref heroCompPool.Value.Get(enemyEntity);
 
-                enemyBuffer.Add(heroComp.Hero);
+                enemyBuffer.Add(heroComp.Packed);
 
                 int teamStrength = strengthComp.Value;
                 var remainingStrength = teamStrength - opponentComp.CoverHeroStrength;
