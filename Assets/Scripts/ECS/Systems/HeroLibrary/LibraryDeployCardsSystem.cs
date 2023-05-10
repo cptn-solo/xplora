@@ -15,6 +15,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<LibraryFieldComp> fieldPool = default;
         private readonly EcsPoolInject<PositionComp> positionPool = default;
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
+        private readonly EcsPoolInject<UpdateTag<RelationsMatrixComp>> updateRelContextTagPool = default;
+        
 
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
         private readonly EcsFilterInject<Inc<LibraryFieldComp>> fieldFilter = default;
@@ -47,7 +49,7 @@ namespace Assets.Scripts.ECS.Systems
                         ref var pos = ref positionPool.Value.Get(entity);
                         var slot = field.Slots[pos.Position];
                         var card = (HeroCard)factoryRef.FactoryRef(ecsWorld.Value.PackEntityWithWorld(entity));
-                        card.DataLoader = libraryService.Value.GetHeroConfigForConfigRefPackedEntity;
+                        card.DataLoader = libraryService.Value.GetHeroConfigForLibraryHeroInstance;
                         slot.Put(card.Transform);
                         card.UpdateData();
 
@@ -58,6 +60,10 @@ namespace Assets.Scripts.ECS.Systems
                     }
                 }
             }
+
+            if (libraryService.Value.PlayerTeamEntity.Unpack(out _, out var playerTeamEntity) &&
+                !updateRelContextTagPool.Value.Has(playerTeamEntity))
+                updateRelContextTagPool.Value.Add(playerTeamEntity);
 
             libraryService.Value.NotifyIfAllDataAvailable();
         }

@@ -15,7 +15,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DrainComp> drainPool = default;
         private readonly EcsPoolInject<GarbageTag> garbagePool = default;
         private readonly EcsPoolInject<RetireTag> retirePool = default;
-        private readonly EcsPoolInject<DeadTag> deadPool = default;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
         private readonly EcsPoolInject<DebuffTag<IntRangeValueComp<DamageRangeTag>>> debuffTagPool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;

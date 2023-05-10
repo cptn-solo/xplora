@@ -61,7 +61,7 @@ namespace Assets.Scripts.ECS.Systems
                 heroPool.Add(playerEntity);
 
             ref var heroComp = ref heroPool.Get(playerEntity);
-            heroComp.Hero = bestSpeedPacked;
+            heroComp.LibHeroInstance = bestSpeedPacked;
 
             ListPool<EcsPackedEntityWithWorld>.Add(heroPackedBuffer);
             ListPool<Hero>.Add(heroBuffer);

@@ -50,7 +50,7 @@ namespace Assets.Scripts.ECS.Systems
                     callback(entityView, cellComp.CellIndex);
 
                     ref var heroComp = ref heroPool.Value.Get(entity);
-                    var hero = libraryService.Value.GetHeroConfigForConfigRefPackedEntity(heroComp.Packed);
+                    var hero = libraryService.Value.GetHeroConfigForLibraryHeroInstance(heroComp.Packed);
                     entityView.SetHero(hero, isPlayerUnit);
 
                     ref var unitRef = ref unitPool.Value.Add(entity);

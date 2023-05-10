@@ -9,8 +9,6 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
-    using Random = UnityEngine.Random;
-
     #region Tags
 
     public struct DraftTag { }
@@ -104,8 +102,8 @@ namespace Assets.Scripts.ECS.Data
 
     public struct RaidComp
     {
-        public EcsPackedEntityWithWorld[] PlayerHeroConfigRefs { get; internal set; }
-        public EcsPackedEntityWithWorld[] OpponentHeroConfigRefs { get; internal set; }
+        public EcsPackedEntityWithWorld[] PlayerLibHeroInstances { get; internal set; }
+        public EcsPackedEntityWithWorld[] OpponentLibHeroInstances { get; internal set; }
         public Asset[] Assets { get; set; }
         public Dictionary<int, List<EcsPackedEntityWithWorld>>
             OpponentsIndexedByStrength { get; internal set; }
@@ -138,9 +136,9 @@ namespace Assets.Scripts.ECS.Data
 
     public struct HeroComp : IPackedWithWorldRef
     {
-        public EcsPackedEntityWithWorld Hero { get; internal set; }
+        public EcsPackedEntityWithWorld LibHeroInstance { get; internal set; }
 
-        public EcsPackedEntityWithWorld Packed => Hero;
+        public EcsPackedEntityWithWorld Packed => LibHeroInstance;
     }
     public struct TeamComp { } // temp: reference to a team of heroes
     public struct StaminaComp { } // can be filled and drained

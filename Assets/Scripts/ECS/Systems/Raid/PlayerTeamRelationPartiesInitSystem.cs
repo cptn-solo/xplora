@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -9,31 +10,44 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld = default;
 
         private readonly EcsPoolInject<P2PRelationTag> pool = default;
-        private readonly EcsPoolInject<RelationPartiesRef> partiesRefPool = default;       
+        private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
 
         private readonly EcsFilterInject<
             Inc<HeroConfigRefComp, PlayerTeamTag>> teamMemberFilter = default;
 
         public void Init(IEcsSystems systems)
         {
-            foreach (var entity1 in teamMemberFilter.Value)
+
+            // fill matrix
+            var matrix = new Dictionary<RelationsMatrixKey, EcsPackedEntityWithWorld>();
+
+            foreach  (var entity1 in teamMemberFilter.Value)
             {
-                ref var partiesRef = ref partiesRefPool.Value.Add(entity1);
-                partiesRef.Parties = new();
-                
+                var e1Packed = ecsWorld.Value.PackEntityWithWorld(entity1);
+
                 foreach (var entity2 in teamMemberFilter.Value)
                 {
                     if (entity1 == entity2)
                         continue;
 
+                    var e2Packed = ecsWorld.Value.PackEntityWithWorld(entity2);
+
                     var relationEntity = ecsWorld.Value.NewEntity();            
                     pool.Value.Add(relationEntity);
 
-                    partiesRef.Parties.Add(
-                        ecsWorld.Value.PackEntityWithWorld(entity2),
-                        ecsWorld.Value.PackEntityWithWorld(relationEntity));
+                    var relPacked = ecsWorld.Value.PackEntityWithWorld(relationEntity);
+                    var directKey = new RelationsMatrixKey(e1Packed, e2Packed);
+                    var reverseKey = new RelationsMatrixKey(e2Packed, e1Packed);
+                    if (!matrix.TryGetValue(directKey, out _))
+                        matrix.Add(directKey, relPacked);
+
+                    if (!matrix.TryGetValue(reverseKey, out _))
+                        matrix.Add(reverseKey, relPacked);
                 }
             };
+
+            ref var matrixComp = ref matrixPool.Value.Add(ecsWorld.Value.NewEntity());
+            matrixComp.Matrix = matrix;
         }
     }
 }

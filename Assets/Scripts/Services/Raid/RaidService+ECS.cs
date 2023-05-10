@@ -291,7 +291,7 @@ namespace Assets.Scripts.Services
             var heroPool = sourceWorld.GetPool<HeroComp>();
             ref var heroComp = ref heroPool.Get(entity);
 
-            enemyHero = libManagementService.GetHeroConfigForConfigRefPackedEntity(heroComp.Packed);
+            enemyHero = libManagementService.GetHeroConfigForLibraryHeroInstance(heroComp.Packed);
 
             return true;
         }

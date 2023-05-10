@@ -46,7 +46,7 @@ namespace Assets.Scripts.ECS.Systems
             var enemyNumber = (int)((float)availableCellsCount * (float)enemySpawnFactor / 100f);
             Debug.Log($"enemyNumber: {enemyNumber}");
 
-            var indexed = IndexHeroRefsByStrength(raidComp.OpponentHeroConfigRefs);
+            var indexed = IndexHeroRefsByStrength(raidComp.OpponentLibHeroInstances);
             ref var config = ref raidService.Value.OpponentTeamMemberSpawnConfig();
             raidComp.OpponentsIndexedByStrength = indexed;
             raidComp.OppenentMembersSpawnConfig = config;
@@ -66,7 +66,7 @@ namespace Assets.Scripts.ECS.Systems
                 strength.Value = teamStrength;
 
                 ref var heroComp = ref heroPool.Value.Add(opponentEntity);
-                heroComp.Hero = spawned;
+                heroComp.LibHeroInstance = spawned;
 
                 ref var opponentComp = ref opponentPool.Value.Add(opponentEntity);
                 opponentComp.CoverHeroStrength = coverHeroStrenth;

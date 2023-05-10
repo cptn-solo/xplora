@@ -25,8 +25,8 @@ namespace Assets.Scripts.ECS.Systems
             var raidEntity = ecsWorld.Value.NewEntity();
 
             ref var raidComp = ref raidPool.Value.Add(raidEntity);
-            raidComp.PlayerHeroConfigRefs = playerHeroes;
-            raidComp.OpponentHeroConfigRefs = opponentHeroes;
+            raidComp.PlayerLibHeroInstances = playerHeroes;
+            raidComp.OpponentLibHeroInstances = opponentHeroes;
 
             raidComp.Assets = new Asset[]
             {

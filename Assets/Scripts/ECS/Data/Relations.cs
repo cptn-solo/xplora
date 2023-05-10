@@ -27,9 +27,14 @@ namespace Assets.Scripts.ECS.Data
     /// so when event is spawned or we just need to check a score with some other guy
     /// just pick a score entity for this guys entity
     /// </summary>
-    public struct RelationPartiesRef
+    public struct RelationPartiesRef_
     {
         public Dictionary<EcsPackedEntityWithWorld, EcsPackedEntityWithWorld> Parties { get; set; }
+    }
+
+    public struct RelationsMatrixComp
+    {
+        public Dictionary<RelationsMatrixKey, EcsPackedEntityWithWorld> Matrix { get; set; }
     }
 
     public struct EffectInstanceInfo

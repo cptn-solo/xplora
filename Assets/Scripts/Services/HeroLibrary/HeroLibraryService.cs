@@ -14,9 +14,9 @@ namespace Assets.Scripts.Services
         public ref Team PlayerTeam => ref GetEcsPlayerTeam();
         public ref Team EnemyTeam => ref GetEcsEnemyTeam();
 
-        public EcsPackedEntityWithWorld[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
-        public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
-        public EcsPackedEntityWithWorld[] EnemyDomainHeroes => GetEcsEnemyDomainHeroes();
+        public EcsPackedEntityWithWorld[] PlayerHeroes => GetEcsTeamHeroInstances(PlayerTeamEntity);
+        public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroInstances(EnemyTeamEntity);
+        public EcsPackedEntityWithWorld[] EnemyDomainHeroes => GetEcsEnemyDomainHeroInstances();
 
         public void Init(
             MenuNavigationService menuNavigationService,
@@ -90,6 +90,7 @@ namespace Assets.Scripts.Services
 
         internal void SetRelationScore(EcsPackedEntityWithWorld hero, float value)
         {
+            SetEcsRelationScore(hero, value);
         }
 
         internal void SetSelectedHero(EcsPackedEntityWithWorld hero) =>

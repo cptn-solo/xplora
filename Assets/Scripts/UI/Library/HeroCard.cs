@@ -4,9 +4,9 @@ using Assets.Scripts.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 using Zenject;
 using Assets.Scripts.Services;
+using System.Collections;
 
 namespace Assets.Scripts.UI.Library
 {
@@ -56,6 +56,9 @@ namespace Assets.Scripts.UI.Library
         }
 
         private bool selected;
+        private float lastCapturedSliderValue;
+        private Coroutine sliderValueCoroutine;
+
         public bool Selected
         {
             get => selected;
@@ -105,11 +108,28 @@ namespace Assets.Scripts.UI.Library
 
         private void OnSliderValueChanged(float value)
         {
+            lastCapturedSliderValue = value;
+            sliderValueCoroutine ??= StartCoroutine(DelaySliderValueChange());
+        }
+
+        private IEnumerator DelaySliderValueChange()
+        {
+            while (true)
+
+            {
+                yield return new WaitForSeconds(.5f);
+
+                if (slider.value == lastCapturedSliderValue) 
+                    break;
+            }
+
             if (PackedEntity.HasValue)
             {
-                sliderValue.text = ((int)value).ToString();
-                libraryService.SetRelationScore(PackedEntity.Value, value);
+                sliderValue.text = ((int)lastCapturedSliderValue).ToString();
+                libraryService.SetRelationScore(PackedEntity.Value, lastCapturedSliderValue);
+                sliderValueCoroutine = null;
             }
+
         }
 
         private void OnCardClicked()

@@ -32,7 +32,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            if (raidComp.PlayerHeroConfigRefs.Length <= 0)
+            if (raidComp.PlayerLibHeroInstances.Length <= 0)
                 return;
 
             var entity = ecsWorld.Value.NewEntity();
@@ -43,14 +43,14 @@ namespace Assets.Scripts.ECS.Systems
 
             var heroBuffer = ListPool<Hero>.Get();
 
-            heroBuffer.AddRange(raidComp.PlayerHeroConfigRefs.Select((x) => {                
-                var configPacked = libraryService.Value.GetHeroConfigPackedForRefPacked(x, out var heroConfig);                                              
+            heroBuffer.AddRange(raidComp.PlayerLibHeroInstances.Select((x) => {                
+                var configPacked = libraryService.Value.GetHeroConfigForLibraryHeroInstance(x, out var heroConfig);                                              
                 return heroConfig;
             }));
             var bestSpeed = heroBuffer.ToArray().HeroBestBySpeed(out var idx);
 
             ref var heroComp = ref heroPool.Value.Add(entity);
-            heroComp.Hero = raidComp.PlayerHeroConfigRefs[idx];
+            heroComp.LibHeroInstance = raidComp.PlayerLibHeroInstances[idx];
 
             ref var sightRangeComp = ref sightRangePool.Value.Add(entity);
             sightRangeComp.Range = 2;
@@ -66,10 +66,10 @@ namespace Assets.Scripts.ECS.Systems
             powerComp.CurrentValue = initialPower;
 
             // create player team member entitites to track bonuses and such
-            for (int i = 0; i < raidComp.PlayerHeroConfigRefs.Length; i++)
+            for (int i = 0; i < raidComp.PlayerLibHeroInstances.Length; i++)
             {
-                var configRefPacked = raidComp.PlayerHeroConfigRefs[i];
-                var configPacked = libraryService.Value.GetHeroConfigPackedForRefPacked(configRefPacked, out _);
+                var configRefPacked = raidComp.PlayerLibHeroInstances[i];
+                var configPacked = libraryService.Value.GetHeroConfigForLibraryHeroInstance(configRefPacked, out _);
                 
                 var playerTeamMemberEntity = ecsWorld.Value.NewEntity();
                 playerTeamTagPool.Value.Add(playerTeamMemberEntity);

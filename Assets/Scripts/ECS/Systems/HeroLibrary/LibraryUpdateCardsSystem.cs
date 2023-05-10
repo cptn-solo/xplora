@@ -10,7 +10,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsFilterInject<
-            Inc<Hero, EntityViewRef<Hero>, UpdateTag>> filter = default;
+            Inc<EntityViewRef<Hero>, UpdateTag>> filter = default;
 
         public void Run(IEcsSystems systems)
         {

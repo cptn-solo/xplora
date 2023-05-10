@@ -4,6 +4,7 @@ using Assets.Scripts.Services;
 using Assets.Scripts.UI.Library;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -12,7 +13,10 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsPoolInject<SelectedTag> selectedPool = default;
         private readonly EcsPoolInject<PositionComp> positionPool = default;
-        private readonly EcsPoolInject<Team> teamPool = default;
+        private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
+
+        private readonly EcsFilterInject<
+            Inc<RelationsMatrixComp>> matrixFilter = default;
 
         private readonly EcsFilterInject<
             Inc<HeroConfigRefComp,
@@ -57,10 +61,32 @@ namespace Assets.Scripts.ECS.Systems
                     ref var position2 = ref positionPool.Value.Get(deselectEntity);
 
                     if (selected1) // toggle sliders only if there is a selected card 
-                        card2.ToggleSliderVisibility(position2.Position.Team == playerTeamId);
+                    {
+                        var sliderVisible = position2.Position.Team == playerTeamId &&
+                            position1.Position.Team == playerTeamId;
+                        card2.ToggleSliderVisibility(sliderVisible);
+                        if (sliderVisible)
+                            SetScoreSliderValue(card2, card1.PackedEntity.Value, card2.PackedEntity.Value);
+                    }
                     else 
                         card2.ToggleSliderVisibility(false);
                 }
+            }
+        }
+
+        private void SetScoreSliderValue(HeroCard card, EcsPackedEntityWithWorld entity1, EcsPackedEntityWithWorld entity2)
+        {
+            foreach (var matrixEntity in matrixFilter.Value)
+            {
+                ref var matrixComp = ref matrixPool.Value.Get(matrixEntity);
+                if (!matrixComp.Matrix.TryGetValue(new RelationsMatrixKey(entity1, entity2), out var scoreEntityPacked))
+                    throw new Exception("No matrix value");
+
+                if (!scoreEntityPacked.Unpack(out var world, out var scoreEntity))
+                    throw new Exception("Stale score entity");
+
+                var score = world.ReadIntValue<RelationScoreTag>(scoreEntity);
+                card.SetSliderValue(score);                
             }
         }
     }

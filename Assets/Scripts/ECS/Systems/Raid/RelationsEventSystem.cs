@@ -17,8 +17,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RelationsEventInfo> eventInfoPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEventItemInfo>> draftTagPool = default;
         private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
-        private readonly EcsPoolInject<RelationPartiesRef> scoreRefPool = default;
-                
+        private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
+
+        private readonly EcsFilterInject<
+            Inc<RelationsMatrixComp>> matrixFilter = default;
+
         private readonly EcsFilterInject<
             Inc<RelationsEventInfo, DraftTag<RelationEventItemInfo>>> filter = default; // test
         private readonly EcsFilterInject<
@@ -108,7 +111,7 @@ namespace Assets.Scripts.ECS.Systems
 
             var scoreFactorRange = config.RelationMatrix[info.SrcKindGroup][info.TgtKindGroup];
             var scoreFactor = scoreFactorRange.RandomValue;
-            ref var scoreComp = ref GetScore(srcHeroEntity, info.TargetEntity.Value, out var scoreEntity);
+            ref var scoreComp = ref GetScore(info.SourceEntity, info.TargetEntity.Value, out var scoreEntity);
             scoreComp.Value += scoreFactor;
             info.ScoreEntity = ecsWorld.Value.PackEntity(scoreEntity);
             info.ScoreDiff = scoreFactor;
@@ -391,20 +394,27 @@ namespace Assets.Scripts.ECS.Systems
         }
 
         private ref IntValueComp<RelationScoreTag> GetScore(
-            int srcHeroEntity, 
+            EcsPackedEntityWithWorld srcHeroPackedEntity, 
             EcsPackedEntityWithWorld tgtHeroPackedEntity, 
             out int scoreEntity)
         {
             scoreEntity = -1;
-            
-            ref var scoreRef = ref scoreRefPool.Value.Get(srcHeroEntity);
-            if (!scoreRef.Parties.TryGetValue(tgtHeroPackedEntity, out var packed) ||
-                !packed.Unpack(out var tgtWorld, out scoreEntity))
-                throw new Exception($"Can't get relations Score");
-            
-            ref var scoreComp = ref scorePool.Value.Get(scoreEntity);
 
-            return ref scoreComp;            
+            foreach (var matrixEntity in matrixFilter.Value)
+            {
+                ref var matrixComp = ref matrixPool.Value.Get(matrixEntity);
+                if (!matrixComp.Matrix.TryGetValue(new RelationsMatrixKey(srcHeroPackedEntity, tgtHeroPackedEntity), out var scoreEntityPacked))
+                    throw new Exception("No matrix value");
+
+                if (!scoreEntityPacked.Unpack(out var world, out scoreEntity))
+                    throw new Exception("Stale score entity");
+
+                ref var scoreComp = ref scorePool.Value.Get(scoreEntity);
+
+                return ref scoreComp;   
+            }
+
+            throw new Exception("No score ref in the relations matrix");                     
         }
             
 

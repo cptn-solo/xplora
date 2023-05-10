@@ -46,50 +46,56 @@ namespace Assets.Scripts.ECS.Systems
                 if (!originRef.Packed.Unpack(out var origWorld, out var effectTargetOrig))
                     continue;
 
-                var p2pRefPool = origWorld.GetPool<RelationPartiesRef>();
-
-                if (!p2pRefPool.Has(effectTargetOrig))
-                    continue; // battle without raid
-
-                ref var p2pRef = ref p2pRefPool.Get(effectTargetOrig);
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Get(effectTargetEntity);
 
-                foreach (var party in p2pRef.Parties)
+                var matrixFilter = origWorld.Filter<RelationsMatrixComp>().End();
+                var matrixPool = origWorld.GetPool<RelationsMatrixComp>();
+
+                foreach (var matrixEntity in matrixFilter)
                 {
-                    if (TryCastRelationEffect(heroConfigRef.Packed, party.Key, originRef.Packed, party.Value, 
-                        out var effect))
+                    ref var matrixComp = ref matrixPool.Get(matrixEntity);
+                    foreach (var item in matrixComp.Matrix)
                     {
-                        // registering effect for the hero affected (in the battle world, to make it handy when needed) 
-                        RelationEffectKey ruleKey = effect.Rule.Key;
-                        party.Key.Unpack(out _, out var effectSourceEntity);
+                        // matching only one side of the key to avoid duplicates
+                        if (!item.Key.Item1.EqualsTo(originRef.Packed))
+                            continue;
 
-                        var affectedParty = effectTargetEntity;
-
-                        if (ruleKey.RelationsEffectType switch { 
-                            RelationsEffectType.AlgoRevenge => true,
-                            RelationsEffectType.AlgoTarget => true,
-                            _ => false
-                            })
+                        if (TryCastRelationEffect(heroConfigRef.Packed, item.Key.Item2, originRef.Packed, item.Value, 
+                        out var effect))
                         {
-                            affectedParty = effectSourceEntity;
+                            // registering effect for the hero affected (in the battle world, to make it handy when needed) 
+                            RelationEffectKey ruleKey = effect.Rule.Key;
+                            item.Key.Item2.Unpack(out _, out var effectSourceEntity);
 
-                            ref var attackerRef = ref attackerRefPool.Value.Get(entity);
-                            effect.EffectFocus = attackerRef.Packed;
+                            var affectedParty = effectTargetEntity;
 
-                            var revengeEntity = ecsWorld.Value.NewEntity();                            
-                            ref var revengeComp = ref revengePool.Value.Add(revengeEntity);
-                            revengeComp.RevengeBy = ecsWorld.Value.PackEntityWithWorld(effectSourceEntity);
-                            revengeComp.RevengeFor = ecsWorld.Value.PackEntityWithWorld(effectTargetEntity);
-                        }
+                            if (ruleKey.RelationsEffectType switch { 
+                                RelationsEffectType.AlgoRevenge => true,
+                                RelationsEffectType.AlgoTarget => true,
+                                _ => false
+                                })
+                            {
+                                affectedParty = effectSourceEntity;
 
-                        ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
-                        relEffects.SetEffect(ruleKey, effect);
+                                ref var attackerRef = ref attackerRefPool.Value.Get(entity);
+                                effect.EffectFocus = attackerRef.Packed;
+
+                                var revengeEntity = ecsWorld.Value.NewEntity();                            
+                                ref var revengeComp = ref revengePool.Value.Add(revengeEntity);
+                                revengeComp.RevengeBy = ecsWorld.Value.PackEntityWithWorld(effectSourceEntity);
+                                revengeComp.RevengeFor = ecsWorld.Value.PackEntityWithWorld(effectTargetEntity);
+                            }
+
+                            ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
+                            relEffects.SetEffect(ruleKey, effect);
                         
-                        if (!updatePool.Value.Has(affectedParty))
-                            updatePool.Value.Add(affectedParty);
+                            if (!updatePool.Value.Has(affectedParty))
+                                updatePool.Value.Add(affectedParty);
+                        }                        
+
                     }
-                       
                 }
+
             }
         }
 

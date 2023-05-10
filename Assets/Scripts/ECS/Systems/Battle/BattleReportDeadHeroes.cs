@@ -1,7 +1,9 @@
 ﻿using System;
+using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -25,24 +27,28 @@ namespace Assets.Scripts.ECS.Systems
                 if (!deadPool.Has(originEntity))
                     deadPool.Add(originEntity);
                 
-                var relRefFilter = originWorld.Filter<RelationPartiesRef>().End();
-                var relationRefPool = originWorld.GetPool<RelationPartiesRef>();               
-                
-                foreach (var relRefEntity in relRefFilter)
-                {
-                    var buff = ListPool<EcsPackedEntityWithWorld>.Get();
-                    
-                    ref var relRef = ref relationRefPool.Get(relRefEntity);
+                var matrixFilter = originWorld.Filter<RelationsMatrixComp>().End();
+                var matrixPool = originWorld.GetPool<RelationsMatrixComp>();
 
-                    foreach (var party in relRef.Parties.Keys)
-                        if (party.EqualsTo(origin.Packed))
-                            buff.Add(party);
-        
+                foreach (var matrixEntity in matrixFilter)
+                {
+                    ref var matrixComp = ref matrixPool.Get(matrixEntity);
+                    
+                    var buff = ListPool<RelationsMatrixKey>.Get();
+
+                    foreach (var item in matrixComp.Matrix)
+                    {
+                        if (item.Key.Item1.EqualsTo(origin.Packed) ||
+                            item.Key.Item2.EqualsTo(origin.Packed))
+                            buff.Add(item.Key);
+                    }
+
                     if (buff.Count > 0)
                         foreach (var key in buff)
-                            relRef.Parties.Remove(key);
+                            matrixComp.Matrix.Remove(key);
 
-                    ListPool<EcsPackedEntityWithWorld>.Add(buff);
+                    ListPool<RelationsMatrixKey>.Add(buff);
+                    
                 }
             }
         }

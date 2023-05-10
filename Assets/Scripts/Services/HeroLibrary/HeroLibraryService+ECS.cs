@@ -8,6 +8,7 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
 using Assets.Scripts.ECS;
+using UnityEngine;
 
 namespace Assets.Scripts.Services
 {
@@ -34,14 +35,18 @@ namespace Assets.Scripts.Services
 
             ecsRunSystems = new EcsSystems(ecsWorld);
             ecsRunSystems
-                
+
                 .DelHere<DeadTag>() // battle kills doesn't matter for the library, just ignore the tag
-                
+
                 .Add(new LibraryDeployCardsSystem())
 
                 // with UpdateTag<MovedTag>
-                .Add(new LibraryUpdatePlayerTeamRelationContextSystem())
+                .Add(new LibraryHandleHeroMoveSystem())
                 .DelHere<UpdateTag<MovedTag>>()
+
+                // with UpdateTag<RelationsMatrixComp>
+                .Add(new LibraryUpdatePlayerTeamRelationContextSystem())
+                .DelHere<UpdateTag<RelationsMatrixComp>>()
 
                 // with UpdateTag<SelectedTag>
                 .Add(new LibraryUpdateCardSelectionSystem())
@@ -193,7 +198,7 @@ namespace Assets.Scripts.Services
 
         }
 
-        private EcsPackedEntityWithWorld[] GetEcsEnemyDomainHeroes()
+        private EcsPackedEntityWithWorld[] GetEcsEnemyDomainHeroInstances()
         {
             if (!LibraryEntity.Unpack(out var world, out _))
                 throw new Exception("No Library");
@@ -221,7 +226,7 @@ namespace Assets.Scripts.Services
 
         }
 
-        private EcsPackedEntityWithWorld[] GetEcsTeamHeroes(EcsPackedEntityWithWorld teamPackeEntity)
+        private EcsPackedEntityWithWorld[] GetEcsTeamHeroInstances(EcsPackedEntityWithWorld teamPackeEntity)
         {
             if (!teamPackeEntity.Unpack(out var world, out var teamEntity))
                 throw new Exception("No Team");
@@ -303,6 +308,33 @@ namespace Assets.Scripts.Services
                 pool.Add(entity);            
         }
 
+        private void SetEcsRelationScore(EcsPackedEntityWithWorld hero, float value)
+        {
+            Debug.Log($"SetEcsRelationScore {value}");
+
+            if (!hero.Unpack(out var libWorld, out var entity))
+                throw new Exception("No relation party");
+
+            var selectedFilter = libWorld.Filter<SelectedTag>().End();
+            var matrixFilter = libWorld.Filter<RelationsMatrixComp>().End();
+            var matrixPool = ecsWorld.GetPool<RelationsMatrixComp>();
+
+            foreach (var selectedEntity in selectedFilter)
+            {
+                foreach (var matrixEntity in matrixFilter)
+                {
+                    ref var matrixComp = ref matrixPool.Get(matrixEntity);
+                    if (!matrixComp.Matrix.TryGetValue(new RelationsMatrixKey(hero, libWorld.PackEntityWithWorld(selectedEntity)), out var scoreEntityPacked))
+                        throw new Exception("No score ref in the relations matrix");
+
+                    if (!scoreEntityPacked.Unpack(out _, out var scoreEntity))
+                        throw new Exception("Stale score entity");
+
+                    ecsWorld.SetIntValue<RelationScoreTag>((int)value, scoreEntity);
+                }
+            }
+        }
+
         private void ClearEcsHeroSelection()
         {
             if (!LibraryEntity.Unpack(out var world, out _))
@@ -325,28 +357,30 @@ namespace Assets.Scripts.Services
         {
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
+            var needNewEntities = targetWorld != null;
+            targetWorld ??= ecsWorld;
+
+
             foreach(var packed in configRefsPacked)
             {
-                if (!packed.Unpack(out var libWorld, out var configRefEntity))
+                if (!packed.Unpack(out _, out var configRefEntity))
                     throw new Exception("No Hero config ref");
 
-                var libConfigRefPool = libWorld.GetPool<HeroConfigRefComp>();
+                var libConfigRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
                 ref var heroConfigRef = ref libConfigRefPool.Get(configRefEntity);
 
                 if (!heroConfigRef.Packed.Unpack(out _, out var configEntity))
                     throw new Exception("No hero config");
 
-                var entity = targetWorld != null ? targetWorld.NewEntity() : configRefEntity;
+                var entity = needNewEntities ? targetWorld.NewEntity() : configRefEntity;
 
-                if (targetWorld != null)
+                if (needNewEntities)
                 {
                     ref var configRef = ref targetWorld.GetPool<HeroConfigRefComp>().Add(entity);
                     configRef.HeroConfigPackedEntity = heroConfigRef.Packed;
                 }
 
-                ref var heroConfig = ref libWorld.GetPool<Hero>().Get(configEntity);
-
-                targetWorld ??= libWorld;
+                ref var heroConfig = ref ecsWorld.GetPool<Hero>().Get(configEntity);
                 
                 targetWorld.SetIntValue<SpeedTag>(heroConfig.Speed, entity);
                 targetWorld.SetIntValue<HealthTag>(heroConfig.Health, entity);
@@ -356,6 +390,9 @@ namespace Assets.Scripts.Services
                 targetWorld.SetIntValue<AccuracyRateTag>(heroConfig.AccuracyRate, entity);
                 targetWorld.SetIntValue<DodgeRateTag>(heroConfig.DodgeRate, entity);
                 targetWorld.SetValue<IntRangeValueComp<DamageRangeTag>, IntRange>(new IntRange(heroConfig.DamageMin, heroConfig.DamageMax), entity);
+                targetWorld.SetValue<NameValueComp<IconTag>, string>(heroConfig.IconName, entity);
+                targetWorld.SetValue<NameValueComp<NameTag>, string>(heroConfig.Name, entity);
+                targetWorld.SetValue<NameValueComp<IdleSpriteTag>, string>(heroConfig.IdleSpriteName, entity);
 
                 buffer.Add(targetWorld.PackEntityWithWorld(entity));
             }
@@ -378,7 +415,7 @@ namespace Assets.Scripts.Services
                 pool.Del(entity);
         }
 
-        internal Hero GetHeroConfigForConfigRefPackedEntity(EcsPackedEntityWithWorld? packed)
+        internal Hero GetHeroConfigForLibraryHeroInstance(EcsPackedEntityWithWorld? packed)
         {
             if (packed != null && packed.Value.Unpack(out var world, out var entity))
             {
@@ -399,17 +436,17 @@ namespace Assets.Scripts.Services
             return default;
         }
 
-        public EcsPackedEntityWithWorld GetHeroConfigPackedForRefPacked(
-            EcsPackedEntityWithWorld configRefPacked,
+        public EcsPackedEntityWithWorld GetHeroConfigForLibraryHeroInstance(
+            EcsPackedEntityWithWorld libHeroInstance,
             out Hero heroConfig)
         {
             heroConfig = default;
 
-            if (!configRefPacked.Unpack(out var libWorld, out var configRefEntity))
+            if (!libHeroInstance.Unpack(out var libWorld, out var instanceEntity))
                 throw new Exception("No hero config ref");
             
             var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
-            ref var configRef = ref configRefPool.Get(configRefEntity);
+            ref var configRef = ref configRefPool.Get(instanceEntity);
 
             if (!configRef.Packed.Unpack(out _, out var libHeroConfig))
                 throw new Exception("No hero config");
