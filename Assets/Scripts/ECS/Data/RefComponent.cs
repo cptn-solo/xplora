@@ -104,8 +104,8 @@ namespace Assets.Scripts.ECS.Data
 
     public struct RaidComp
     {
-        public EcsPackedEntityWithWorld[] PlayerHeroConfigs { get; internal set; }
-        public EcsPackedEntityWithWorld[] OpponentHeroConfigs { get; internal set; }
+        public EcsPackedEntityWithWorld[] PlayerHeroConfigRefs { get; internal set; }
+        public EcsPackedEntityWithWorld[] OpponentHeroConfigRefs { get; internal set; }
         public Asset[] Assets { get; set; }
         public Dictionary<int, List<EcsPackedEntityWithWorld>>
             OpponentsIndexedByStrength { get; internal set; }

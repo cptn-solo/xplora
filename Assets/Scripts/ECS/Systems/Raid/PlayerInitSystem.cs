@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
@@ -30,7 +31,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var raidComp = ref raidPool.Value.Get(raidEntity);
 
-            if (raidComp.PlayerHeroConfigs.Length <= 0)
+            if (raidComp.PlayerHeroConfigRefs.Length <= 0)
                 return;
 
             var entity = ecsWorld.Value.NewEntity();
@@ -41,8 +42,16 @@ namespace Assets.Scripts.ECS.Systems
 
             var heroBuffer = ListPool<Hero>.Get();
 
-            heroBuffer.AddRange(raidComp.PlayerHeroConfigs.Select((x) => {
-                x.Unpack(out var libWorld, out var libHeroConfig);
+            heroBuffer.AddRange(raidComp.PlayerHeroConfigRefs.Select((x) => {
+                if (!x.Unpack(out var libWorld, out var libHeroConfigRefEntity))
+                    throw new Exception("No hero config ref"); ;
+
+                var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
+                ref var configRef = ref configRefPool.Get(libHeroConfigRefEntity);
+                
+                if (!configRef.Packed.Unpack(out _, out var libHeroConfig))
+                    throw new Exception("No hero config");
+
                 var heroPool = libWorld.GetPool<Hero>();
                 ref var heroConfig = ref heroPool.Get(libHeroConfig);
                 return heroConfig;
@@ -50,7 +59,7 @@ namespace Assets.Scripts.ECS.Systems
             var bestSpeed = heroBuffer.ToArray().HeroBestBySpeed(out var idx);
 
             ref var heroComp = ref heroPool.Value.Add(entity);
-            heroComp.Hero = raidComp.PlayerHeroConfigs[idx];
+            heroComp.Hero = raidComp.PlayerHeroConfigRefs[idx];
 
             ref var sightRangeComp = ref sightRangePool.Value.Add(entity);
             sightRangeComp.Range = 2;
@@ -66,14 +75,23 @@ namespace Assets.Scripts.ECS.Systems
             powerComp.CurrentValue = initialPower;
 
             // create player team member entitites to track bonuses and such
-            for (int i = 0; i < raidComp.PlayerHeroConfigs.Length; i++)
+            for (int i = 0; i < raidComp.PlayerHeroConfigRefs.Length; i++)
             {
-                var heroConfigPackedEntity = raidComp.PlayerHeroConfigs[i];
+                var heroConfigRefPackedEntity = raidComp.PlayerHeroConfigRefs[i];
+                if (!heroConfigRefPackedEntity.Unpack(out var libWorld, out var libHeroConfigRefEntity))
+                    throw new Exception("No hero config ref");
+                
+                var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
+                ref var configRef = ref configRefPool.Get(libHeroConfigRefEntity);
+                
+                if (!configRef.Packed.Unpack(out _, out var libHeroConfig))
+                    throw new Exception("No hero config");
+                
                 var playerTeamMemberEntity = ecsWorld.Value.NewEntity();
                 playerTeamTagPool.Value.Add(playerTeamMemberEntity);
 
                 ref var heroConfigRef = ref heroConfigRefPool.Value.Add(playerTeamMemberEntity);
-                heroConfigRef.HeroConfigPackedEntity = heroConfigPackedEntity;
+                heroConfigRef.HeroConfigPackedEntity = configRef.Packed;
             }
 
             ListPool<Hero>.Add(heroBuffer);

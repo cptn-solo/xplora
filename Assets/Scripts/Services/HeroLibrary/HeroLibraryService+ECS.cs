@@ -7,7 +7,7 @@ using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using Leopotam.EcsLite.ExtendedSystems;
-using static UnityEngine.EventSystems.EventTrigger;
+using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.Services
 {
@@ -81,49 +81,63 @@ namespace Assets.Scripts.Services
         /// <returns>reference to a struct attached as a component to an ecs entity</returns>
         private ref Hero HeroConfigProcessor(int idx)
         {
-            var heroPool = ecsWorld.GetPool<Hero>();
-            var filter = ecsWorld.Filter<Hero>().End();
+            var configPool = ecsWorld.GetPool<Hero>();
+            var configFilter = ecsWorld.Filter<Hero>().End();
+
+            var configRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
+            var configRefFilter = ecsWorld.Filter<HeroConfigRefComp>().End();
 
             EcsPool<UpdateTag> updateTagPool = ecsWorld.GetPool<UpdateTag>();
 
-            foreach (var existingEntity in filter)
+            foreach (var existingInstance in configRefFilter)
             {
-                ref var existing = ref heroPool.Get(existingEntity);
-                if (existing.Id == idx)
-                {
-                    if (!updateTagPool.Has(existingEntity))
-                        updateTagPool.Add(existingEntity);
+                ref var existingConfigRef = ref configRefPool.Get(existingInstance);
+                
+                if (!existingConfigRef.Packed.Unpack(out _, out var existingConfigEntity))
+                    throw new Exception("No config for instance");
 
-                    return ref existing;
+                ref var existingConfig = ref configPool.Get(existingConfigEntity);
+
+                if (existingConfig.Id == idx)
+                {
+                    if (!updateTagPool.Has(existingInstance))
+                        updateTagPool.Add(existingInstance);
+
+                    return ref existingConfig;
                 }
             }
 
-            var addedEntity = ecsWorld.NewEntity();
-            ref var added = ref heroPool.Add(addedEntity);
-            added.Id = idx;
-            added.HeroType = HeroType.Human;
-            added.Inventory = Hero.DefaultInventory();
-            added.Traits = Hero.DefaultTraits();
-            added.Kinds = Hero.DefaultKinds();
-            added.Attack = Hero.DefaultAttack();
-            added.Defence = Hero.DefaultDefence();
+            var configEntity = ecsWorld.NewEntity();
+            var instanceEntity = ecsWorld.NewEntity();
+            var configEntityPacked = ecsWorld.PackEntityWithWorld(configEntity);
+            ref var configRef = ref configRefPool.Add(instanceEntity);
+            configRef.HeroConfigPackedEntity = configEntityPacked;
+
+            ref var addedConfig = ref configPool.Add(configEntity);
+            addedConfig.Id = idx;
+            addedConfig.HeroType = HeroType.Human;
+            addedConfig.Inventory = Hero.DefaultInventory();
+            addedConfig.Traits = Hero.DefaultTraits();
+            addedConfig.Kinds = Hero.DefaultKinds();
+            addedConfig.Attack = Hero.DefaultAttack();
+            addedConfig.Defence = Hero.DefaultDefence();
 
             var positionPool = ecsWorld.GetPool<PositionComp>();
-            ref var positionComp = ref positionPool.Add(addedEntity);
+            ref var positionComp = ref positionPool.Add(instanceEntity);
             positionComp.Position = GetEcsNextFreePosition();
 
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
             buffer.AddRange(HeroConfigEntities);
-            buffer.Add(ecsWorld.PackEntityWithWorld(addedEntity));
+            buffer.Add(ecsWorld.PackEntityWithWorld(configEntity));
             HeroConfigEntities = buffer.ToArray();
 
             ListPool<EcsPackedEntityWithWorld>.Add(buffer);
 
-            if (!updateTagPool.Has(addedEntity))
-                updateTagPool.Add(addedEntity);
+            if (!updateTagPool.Has(instanceEntity))
+                updateTagPool.Add(instanceEntity);
 
-            return ref added;
+            return ref addedConfig;
         }
 
         private HeroPosition GetEcsNextFreePosition()
@@ -178,44 +192,23 @@ namespace Assets.Scripts.Services
 
         private EcsPackedEntityWithWorld[] GetEcsEnemyDomainHeroes()
         {
-            if (!LibraryEntity.Unpack(out var world, out var libEntity))
+            if (!LibraryEntity.Unpack(out var world, out _))
                 throw new Exception("No Library");
 
-            var filter = world.Filter<Hero>().Inc<PositionComp>().End();
+            var filter = world.Filter<HeroConfigRefComp>().Inc<PositionComp>().End();
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
-            var pool = world.GetPool<Hero>();
+            var configPool = world.GetPool<Hero>();
+            var configRefPool = world.GetPool<HeroConfigRefComp>();
 
             foreach (var entity in filter)
             {
-                ref var hero = ref pool.Get(entity);
-                if (hero.Domain == HeroDomain.Enemy)
-                    buffer.Add(world.PackEntityWithWorld(entity));
-            }
-
-            var retval = buffer.ToArray();
-            ListPool<EcsPackedEntityWithWorld>.Add(buffer);
-
-            return retval;
-
-        }
-
-        private EcsPackedEntityWithWorld[] GetEcsNotInTeamHeroes(EcsPackedEntityWithWorld teamPackedEntity, bool aliveOnly)
-        {
-            if (!teamPackedEntity.Unpack(out var world, out var teamEntity))
-                throw new Exception("No Team");
-
-            var teamPool = world.GetPool<Team>();
-            ref var team = ref teamPool.Get(teamEntity);
-
-            var filter = world.Filter<Hero>().Inc<PositionComp>().End();
-            var posPool = world.GetPool<PositionComp>();
-            var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
-
-            foreach (var entity in filter)
-            {
-                ref var posComp = ref posPool.Get(entity);
-                if (posComp.Position.Item1 != team.Id)
-                    buffer.Add(world.PackEntityWithWorld(entity));
+                ref var configRef = ref configRefPool.Get(entity);
+                if (configRef.Packed.Unpack(out _, out var configEntity))
+                { 
+                    ref var hero = ref configPool.Get(configEntity);
+                    if (hero.Domain == HeroDomain.Enemy)
+                        buffer.Add(world.PackEntityWithWorld(entity));                    
+                }
             }
 
             var retval = buffer.ToArray();
@@ -233,7 +226,7 @@ namespace Assets.Scripts.Services
             var teamPool = world.GetPool<Team>();
             ref var team = ref teamPool.Get(teamEntity);
 
-            var filter = world.Filter<Hero>().Inc<PositionComp>().End();
+            var filter = world.Filter<HeroConfigRefComp>().Inc<PositionComp>().End();
             var posPool = world.GetPool<PositionComp>();
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
@@ -257,20 +250,6 @@ namespace Assets.Scripts.Services
 
             ref var battleField = ref world.GetPool<LibraryFieldComp>().Add(entity);
             battleField.Slots = slots;
-        }
-
-
-        private EcsPackedEntityWithWorld? GetEcsHeroAtPosition(HeroPosition position)
-        {
-            var positionPool = ecsWorld.GetPool<PositionComp>();
-            var filter = ecsWorld.Filter<Hero>().Inc<PositionComp>().End();
-            foreach (var entity in filter)
-            {
-                ref var pos = ref positionPool.Get(entity);
-                if (pos.Position.Equals(position))
-                    return ecsWorld.PackEntityWithWorld(entity);
-            }
-            return default;
         }
 
         private void MoveEcsHeroToPosition(EcsPackedEntityWithWorld packedEntity, HeroPosition position)
@@ -339,47 +318,41 @@ namespace Assets.Scripts.Services
         }
 
         public EcsPackedEntityWithWorld[] WrapForBattle(
-            EcsPackedEntityWithWorld[] heroes, EcsWorld targetWorld = null)
+            EcsPackedEntityWithWorld[] configRefsPacked, EcsWorld targetWorld = null)
         {
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
-            targetWorld ??= ecsWorld;
-
-            foreach(var packed in heroes)
+            foreach(var packed in configRefsPacked)
             {
-                if (!packed.Unpack(out var world, out var configEntity))
-                    throw new Exception("No Hero config");
+                if (!packed.Unpack(out var libWorld, out var configRefEntity))
+                    throw new Exception("No Hero config ref");
 
-                var entity = targetWorld.NewEntity();
+                var libConfigRefPool = libWorld.GetPool<HeroConfigRefComp>();
+                ref var heroConfigRef = ref libConfigRefPool.Get(configRefEntity);
 
-                ref var configRef = ref targetWorld.GetPool<HeroConfigRefComp>().Add(entity);
-                configRef.HeroConfigPackedEntity = packed;
+                if (!heroConfigRef.Packed.Unpack(out _, out var configEntity))
+                    throw new Exception("No hero config");
 
-                ref var heroConfig = ref world.GetPool<Hero>().Get(configEntity);
+                var entity = targetWorld != null ? targetWorld.NewEntity() : configRefEntity;
 
-                ref var speedComp = ref targetWorld.GetPool<IntValueComp<SpeedTag>>().Add(entity);
-                speedComp.Value = heroConfig.Speed;
+                if (targetWorld != null)
+                {
+                    ref var configRef = ref targetWorld.GetPool<HeroConfigRefComp>().Add(entity);
+                    configRef.HeroConfigPackedEntity = heroConfigRef.Packed;
+                }
 
-                ref var healthComp = ref targetWorld.GetPool< IntValueComp<HealthTag>>().Add(entity);
-                healthComp.Value = heroConfig.Health;
+                ref var heroConfig = ref libWorld.GetPool<Hero>().Get(configEntity);
 
-                ref var hpComp = ref targetWorld.GetPool< IntValueComp<HpTag>>().Add(entity);
-                hpComp.Value = heroConfig.Health;
-
-                ref var defenceRateComp = ref targetWorld.GetPool< IntValueComp<DefenceRateTag>>().Add(entity);
-                defenceRateComp.Value = heroConfig.DefenceRate;
-
-                ref var critRateComp = ref targetWorld.GetPool< IntValueComp<CritRateTag>>().Add(entity);
-                critRateComp.Value = heroConfig.CriticalHitRate;
-
-                ref var accuracyRateComp = ref targetWorld.GetPool< IntValueComp<AccuracyRateTag>>().Add(entity);
-                accuracyRateComp.Value = heroConfig.AccuracyRate;
-
-                ref var dodgeRateComp = ref targetWorld.GetPool< IntValueComp<DodgeRateTag>>().Add(entity);
-                dodgeRateComp.Value = heroConfig.DodgeRate;
-
-                ref var damageRangeComp = ref targetWorld.GetPool< IntRangeValueComp<DamageRangeTag>>().Add(entity);
-                damageRangeComp.Value = new IntRange(heroConfig.DamageMin, heroConfig.DamageMax);
+                targetWorld ??= libWorld;
+                
+                targetWorld.SetIntValue<SpeedTag>(heroConfig.Speed, entity);
+                targetWorld.SetIntValue<HealthTag>(heroConfig.Health, entity);
+                targetWorld.SetIntValue<HpTag>(heroConfig.Health, entity);
+                targetWorld.SetIntValue<DefenceRateTag>(heroConfig.DefenceRate, entity);
+                targetWorld.SetIntValue<CritRateTag>(heroConfig.CriticalHitRate, entity);
+                targetWorld.SetIntValue<AccuracyRateTag>(heroConfig.AccuracyRate, entity);
+                targetWorld.SetIntValue<DodgeRateTag>(heroConfig.DodgeRate, entity);
+                targetWorld.SetValue<IntRangeValueComp<DamageRangeTag>, IntRange>(new IntRange(heroConfig.DamageMin, heroConfig.DamageMax), entity);
 
                 buffer.Add(targetWorld.PackEntityWithWorld(entity));
             }
@@ -400,6 +373,27 @@ namespace Assets.Scripts.Services
 
             if (pool.Has(entity))
                 pool.Del(entity);
+        }
+
+        internal Hero GetHeroConfigForConfigRefPackedEntity(EcsPackedEntityWithWorld? packed)
+        {
+            if (packed != null && packed.Value.Unpack(out var world, out var entity))
+            {
+                var configRefPool = world.GetPool<HeroConfigRefComp>();
+                if (configRefPool.Has(entity))
+                {
+                    ref var configRef = ref configRefPool.Get(entity);
+                    if (configRef.Packed.Unpack(out _, out var configEntity))
+                    {
+                        var configPool = world.GetPool<Hero>();
+                        if (configPool.Has(configEntity))
+                            return configPool.Get(configEntity);
+                    }
+                }
+
+            }
+
+            return default;
         }
     }
 }

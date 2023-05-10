@@ -46,7 +46,7 @@ namespace Assets.Scripts.ECS.Systems
             var enemyNumber = (int)((float)availableCellsCount * (float)enemySpawnFactor / 100f);
             Debug.Log($"enemyNumber: {enemyNumber}");
 
-            var indexed = IndexHeroesByStrength(raidComp.OpponentHeroConfigs);
+            var indexed = IndexHeroesByStrength(raidComp.OpponentHeroConfigRefs);
             ref var config = ref raidService.Value.OpponentTeamMemberSpawnConfig();
             raidComp.OpponentsIndexedByStrength = indexed;
             raidComp.OppenentMembersSpawnConfig = config;
@@ -102,24 +102,30 @@ namespace Assets.Scripts.ECS.Systems
             throw new Exception($"No available options for team strength {teamStrength}");
         }
 
-        private static HeroIndexByStrength IndexHeroesByStrength(EcsPackedEntityWithWorld[] configs)
+        private static HeroIndexByStrength IndexHeroesByStrength(EcsPackedEntityWithWorld[] configRefs)
         {
             var heroIndexByStrength = new HeroIndexByStrength();
-            foreach (var item in configs)
+            foreach (var configRefPacked in configRefs)
             {
-                if (!item.Unpack(out var libWorld, out var entity))
-                    throw new Exception("No Hero");
+                if (!configRefPacked.Unpack(out var libWorld, out var configRefEntity))
+                    throw new Exception("No Hero config ref");
+
+                var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
+                ref var configRef = ref configRefPool.Get(configRefEntity);
+
+                if (!configRef.Packed.Unpack(out _, out var entity))
+                    throw new Exception("No Hero config");
 
                 ref var heroConfig = ref libWorld.GetPool<Hero>().Get(entity);
                 if (!heroIndexByStrength.TryGetValue(heroConfig.OveralStrength, out var buffer))
                 {
                     buffer = ListPool<EcsPackedEntityWithWorld>.Get();
-                    buffer.Add(item);
+                    buffer.Add(configRef.Packed);
                     heroIndexByStrength.Add(heroConfig.OveralStrength, buffer);
                 }
                 else
                 {
-                    buffer.Add(item);
+                    buffer.Add(configRef.Packed);
                     heroIndexByStrength[heroConfig.OveralStrength] = buffer;
                 }
             }

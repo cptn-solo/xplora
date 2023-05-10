@@ -17,6 +17,25 @@ namespace Assets.Scripts.ECS
             return en;
         }
 
+        public static int SetIntValue<T>(this EcsWorld world, int factor, int entity)
+            where T : struct =>
+            world.SetValue<IntValueComp<T>, int>(factor, entity);
+
+        public static V SetValue<T, V>(this EcsWorld world, V factor, int entity)
+            where T : struct, IValue<V>
+        {
+            var pool = world.GetPool<T>();
+
+            if (!pool.Has(entity))
+                pool.Add(entity);
+
+            ref var comp = ref pool.Get(entity);
+            comp.Value = factor;
+
+            return comp.Value;
+        }
+
+
         public static int IncrementIntValue<T>(this EcsWorld world, int factor, int entity)
             where T : struct =>
             world.IncrementValue<IntValueComp<T>, int>(factor, entity);

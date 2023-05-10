@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
         private readonly EcsFilterInject<Inc<LibraryFieldComp>> fieldFilter = default;
         private readonly EcsFilterInject<
-            Inc<Hero, PositionComp>,
+            Inc<HeroConfigRefComp, PositionComp>,
             Exc<EntityViewRef<Hero>>> filter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
@@ -47,7 +47,7 @@ namespace Assets.Scripts.ECS.Systems
                         ref var pos = ref positionPool.Value.Get(entity);
                         var slot = field.Slots[pos.Position];
                         var card = (HeroCard)factoryRef.FactoryRef(ecsWorld.Value.PackEntityWithWorld(entity));
-                        card.DataLoader = libraryService.Value.GetDataForPackedEntity<Hero>;
+                        card.DataLoader = libraryService.Value.GetHeroConfigForConfigRefPackedEntity;
                         slot.Put(card.Transform);
                         card.UpdateData();
 

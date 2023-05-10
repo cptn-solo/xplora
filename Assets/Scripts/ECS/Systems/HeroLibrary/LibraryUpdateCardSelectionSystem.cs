@@ -15,14 +15,14 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<Team> teamPool = default;
 
         private readonly EcsFilterInject<
-            Inc<Hero,
+            Inc<HeroConfigRefComp,
                 PositionComp,
                 EntityViewRef<Hero>,
                 UpdateTag<SelectedTag>>
             > toggleSelectionFilter = default; // entities to toggle selection on/off (depends on SelectedTag)
 
         private readonly EcsFilterInject<
-            Inc<Hero,
+            Inc<HeroConfigRefComp,
                 PositionComp,
                 EntityViewRef<Hero>>,
             Exc<UpdateTag<SelectedTag>>

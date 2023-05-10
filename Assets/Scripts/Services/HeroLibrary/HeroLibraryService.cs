@@ -16,7 +16,6 @@ namespace Assets.Scripts.Services
 
         public EcsPackedEntityWithWorld[] PlayerHeroes => GetEcsTeamHeroes(PlayerTeamEntity);
         public EcsPackedEntityWithWorld[] EnemyHeroes => GetEcsTeamHeroes(EnemyTeamEntity);
-        public EcsPackedEntityWithWorld[] NonPlayerTeamHeroes => GetEcsNotInTeamHeroes(PlayerTeamEntity, true);
         public EcsPackedEntityWithWorld[] EnemyDomainHeroes => GetEcsEnemyDomainHeroes();
 
         public void Init(
@@ -85,9 +84,6 @@ namespace Assets.Scripts.Services
             menuNavigationService.OnBeforeNavigateToScreen -= MenuNavigationService_OnBeforeNavigateToScreen;
             battleManagementService.OnBattleComplete -= BattleManagementService_OnBattleComplete;
         }
-
-        internal EcsPackedEntityWithWorld? HeroAtPosition(HeroPosition position) =>
-            GetEcsHeroAtPosition(position);
 
         internal void MoveHero(EcsPackedEntityWithWorld hero, HeroPosition pos) =>
             MoveEcsHeroToPosition(hero, pos);
