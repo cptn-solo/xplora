@@ -109,21 +109,16 @@ namespace Assets.Scripts.Services
                 new (val(38, 0).ParseIntRangeValue(), basisValue, val(38,1).ParseFloatRateValue()),
             };
 
-            var rstLow = val(4, 3).ParseIntValue(0, true);
-            var rstEnemies = val(4, 4).ParseIntValue(0, true);
+            var rstEnemies = val(4, 4).ParseIntValue(0, true); // no reason tu use it as everything below bad is considered enemies
             var rstBad = val(4, 5).ParseIntValue(0, true);
             var rstGood = val(4, 6).ParseIntValue(0, true);
-            var rstFrieds = val(4, 7).ParseIntValue(0, true);
-            var rstHigh = val(4, 8).ParseIntValue(0, true);
+            var rstFrieds = val(4, 7).ParseIntValue(0, true); // not used as everything above good is considered friends
 
             config.RelationStateThresholds = new[]{
-                new RelationStateValue(RelationState.BelowLow, rstLow),
-                new RelationStateValue(RelationState.Low, rstEnemies),
-                new RelationStateValue(RelationState.Enemies, rstBad),
-                new RelationStateValue(RelationState.Bad, 0),
-                new RelationStateValue(RelationState.Good, rstGood),
-                new RelationStateValue(RelationState.Friends, rstFrieds),
-                new RelationStateValue(RelationState.High, rstHigh),
+                new RelationStateValue(RelationState.Enemies, rstEnemies), // any number below rstBad will work, but we'll use this
+                new RelationStateValue(RelationState.Bad, rstBad),
+                new RelationStateValue(RelationState.Good, 0),
+                new RelationStateValue(RelationState.Friends, rstGood),
             };
             
             var spiritRules = ReadTargetRules(6, 44, val);

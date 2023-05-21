@@ -5,20 +5,25 @@ namespace Assets.Scripts.Data
     public static class HeroRelationsConfigExtensions
     {
         public static RelationState GetRelationState(this HeroRelationsConfig config, int score)
-        {
+        {            
+            if (score == 0)
+                return RelationState.NA;
+
             var items = config.RelationStateThresholds;
             var length = items.Length;
+            
             for (int i = 0; i < length; i++)
             {
                 RelationStateValue item = items[i];
-                if (item.Value <= score) continue;
 
-                if (i < 2)
-                    return items[2].State; // enemies and below are all enemies
-                else if (i > length - 2)
-                    return items[length - 2].State; // friends an above are all friends
-                else
+                if (i == 0 && score <= item.Value)
                     return item.State;
+
+                if (i == length - 1 && score >= item.Value)
+                    return item.State;
+
+                if (item.Value > score)
+                    return items[i - 1].State;
             }
 
             return RelationState.NA;

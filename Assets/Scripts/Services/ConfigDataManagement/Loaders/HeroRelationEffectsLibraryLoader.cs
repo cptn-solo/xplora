@@ -64,14 +64,14 @@ namespace Assets.Scripts.Services
                         _ => RelationSubjectState.BeingAttacked
                     };
 
-                    for (int k = 1; k < relationStateCount; k+=2)
+                    for (int k = 1; k < relationStateCount * 2; k += 2)
                     {
                         var relationState = k switch
                         {
-                            0 => RelationState.Enemies,
-                            1 => RelationState.Bad,
-                            2 => RelationState.Good,
-                            _ => RelationState.Friends,                            
+                            1 => RelationState.Enemies,
+                            3 => RelationState.Bad,
+                            5 => RelationState.Good,
+                            _ => RelationState.Friends,
                         };
                         var col = k + 3;
                         var libKey = new RelationEffectLibraryKey(heroId, subjectState, relationState);
@@ -81,7 +81,7 @@ namespace Assets.Scripts.Services
                             HeroId = heroId,
                             SelfState = subjectState,
                             TargetState = RelationSubjectState.NA,
-                            RelationState = relationState,     
+                            RelationState = relationState,
                             EffectRule = ruleSource.ParseRelationEffectRule()
                         };
                         index.Add(libKey, effectConfig);
@@ -101,7 +101,7 @@ namespace Assets.Scripts.Services
             {
                 var appliedCnt = val(i, 0).ParseIntValue();
                 var spawnRate = val(i, 1).ParseIntValue();
-                spawnRates.Add(appliedCnt, spawnRate);                
+                spawnRates.Add(appliedCnt, spawnRate);
             }
 
             config.AdditionalEffectSpawnRate = spawnRates;

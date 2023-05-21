@@ -36,7 +36,9 @@ namespace Assets.Scripts.ECS.Systems
                     
                     var buff = ListPool<RelationsMatrixKey>.Get();
 
-                    foreach (var item in matrixComp.Matrix)
+                    var matrix = matrixComp.Matrix;
+
+                    foreach (var item in matrix)
                     {
                         if (item.Key.Item1.EqualsTo(origin.Packed) ||
                             item.Key.Item2.EqualsTo(origin.Packed))
@@ -45,7 +47,9 @@ namespace Assets.Scripts.ECS.Systems
 
                     if (buff.Count > 0)
                         foreach (var key in buff)
-                            matrixComp.Matrix.Remove(key);
+                            matrix.Remove(key);
+
+                    matrixComp.Matrix = matrix;
 
                     ListPool<RelationsMatrixKey>.Add(buff);
                     

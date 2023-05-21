@@ -36,14 +36,16 @@ namespace Assets.Scripts.ECS.Systems
             if (attackerRefPool.Value.Has(turnEntity))
             {
                 ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
-                if (attackerRef.HeroInstancePackedEntity.Unpack(out _, out var attackerInstanceEntity))
+                if (attackerRef.HeroInstancePackedEntity.Unpack(out _, out var attackerInstanceEntity) &&
+                    !processedHeroPool.Value.Has(attackerInstanceEntity))
                     processedHeroPool.Value.Add(attackerInstanceEntity);
             }
 
             if (targetRefPool.Value.Has(turnEntity))
             {
                 ref var targetRef = ref targetRefPool.Value.Get(turnEntity);
-                if (targetRef.HeroInstancePackedEntity.Unpack(out _, out var targetInstanceEntity))
+                if (targetRef.HeroInstancePackedEntity.Unpack(out _, out var targetInstanceEntity) &&
+                    !processedHeroPool.Value.Has(targetInstanceEntity))
                     processedHeroPool.Value.Add(targetInstanceEntity);
             }
 

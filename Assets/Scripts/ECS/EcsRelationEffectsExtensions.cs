@@ -230,7 +230,7 @@ namespace Assets.Scripts.ECS
                     }
                 case RelationsEffectType.SpecPercent:
                     {
-                        var rule = (EffectRuleSpecAbs)relEffect.Rule;
+                        var rule = (EffectRuleSpecPercent)relEffect.Rule;
                         factor *= rule.Value / 100f;
                         return AdjustmentType.Factor;
                     }
