@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using UnityEngine;
+
+namespace Assets.Scripts.Data
 {
     /// <summary>
     /// Effect affects target's Damage Effect Bonus, so no need to specify Damage Effect explicitly
@@ -35,5 +37,27 @@
         /// value will be used as a new option value (untill the end of the effect)
         /// </summary>
         public int Value { get; set; }
+
+        /// <summary>
+        /// To use in UI just provide values for Id, HeroIcon
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="heroIcon"></param>
+        /// <returns>Info to be used in the UI</returns>
+        public RelationEffectInfo DraftEffectInfo(int id = -1, string heroIcon = "")
+        {
+            var text = Value switch { 0 => "Zero!", 100 => "100%", _ => $"{Value}%"};
+            var icon = BundleIcon.DamageBonuses;
+            var iconColor = Color.green; // Value <= 30 ? Color.red : Value >= 70 ? Color.green : Color.yellow;
+            var info = new RelationEffectInfo()
+            {
+                Id = id,
+                HeroIcon = heroIcon,
+                EffectText = text,
+                EffectIcon = icon,
+                EffectIconColor = iconColor,
+            };
+            return info;
+        }
     }
 }

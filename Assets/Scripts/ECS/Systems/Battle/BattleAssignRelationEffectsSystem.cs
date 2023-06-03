@@ -85,6 +85,12 @@ namespace Assets.Scripts.ECS.Systems
                                 revengeComp.RevengeBy = ecsWorld.Value.PackEntityWithWorld(effectSourceEntity);
                                 revengeComp.RevengeFor = ecsWorld.Value.PackEntityWithWorld(effectTargetEntity);
                             }
+                            
+                            // add info for UI
+                            var heroIconPool = origWorld.GetPool<NameValueComp<IconTag>>();
+                            ref var heroIcon = ref heroIconPool.Get(effectSourceEntity);
+                            var info = effect.Rule.DraftEffectInfo(effect.Rule.GetHashCode(), heroIcon.Name);
+                            effect.EffectInfo = info;
 
                             ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
                             relEffects.SetEffect(ruleKey, effect);

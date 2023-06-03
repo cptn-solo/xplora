@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using UnityEngine;
+
+namespace Assets.Scripts.Data
 {
     /// <summary>
     /// спека изменить на макс/мин	Цель	Урон	Флаг	длительность (до след. N хода героя)
@@ -31,6 +33,28 @@
         /// +1 => set maximium end of the ranged spec option
         /// </summary>
         public int MaxMin { get; set; }
+
+        /// <summary>
+        /// To use in UI just provide values for Id, HeroIcon
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="heroIcon"></param>
+        /// <returns>Info to be used in the UI</returns>
+        public RelationEffectInfo DraftEffectInfo(int id = -1, string heroIcon = "")
+        {
+            var text = "";
+            var icon = key.SpecOption.IconCode(MaxMin);
+            var iconColor = MaxMin == -1 ? Color.red : Color.green;
+            var info = new RelationEffectInfo()
+            {
+                Id = id,
+                HeroIcon = heroIcon,
+                EffectText = text,
+                EffectIcon = icon,
+                EffectIconColor = iconColor,
+            };
+            return info;
+        }
 
         #region IBattleEffectRule
         

@@ -2,7 +2,6 @@
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using Color = UnityEngine.Color;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -25,26 +24,10 @@ namespace Assets.Scripts.ECS.Systems
                 var buffer = ListPool<RelationEffectInfo>.Get();
 
                 foreach (var item in relationEffects.CurrentEffects)
-                {
-                    if (!item.Value.EffectSource.Unpack(out var origWorld, out var effectSourceOrigEntity))
-                        continue;
-
-                    var heroIconPool = origWorld.GetPool<NameValueComp<IconTag>>();
-                    ref var heroIcon = ref heroIconPool.Get(effectSourceOrigEntity);
-                    var effectType = item.Value.Rule.EffectType;
-                    var info = new RelationEffectInfo()
-                    {
-                        Id = (int)effectType,
-                        EffectText = $"{item.Value.Rule.Description} ({item.Value.UsageLeft})",
-                        HeroIcon = heroIcon.Name,
-                        EffectIcon = effectType.EffectIcon(),
-                        EffectIconColor = Color.yellow,
-                    };
-
-                    buffer.Add(info);
-                }
-
+                    buffer.Add(item.Value.EffectInfo);
+                
                 ref var viewRef = ref pool.Value.Get(entity);
+                viewRef.Container.Reset();
                 viewRef.Container.SetInfo(buffer.ToArray());
 
                 ListPool<RelationEffectInfo>.Add(buffer);

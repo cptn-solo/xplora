@@ -1,4 +1,6 @@
 ﻿using Leopotam.EcsLite;
+using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.Data
 {
@@ -27,5 +29,27 @@ namespace Assets.Scripts.Data
         public int TurnsCount { get; set; }
 
         #endregion
+
+        /// <summary>
+        /// To use in UI just provide values for Id, HeroIcon
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="heroIcon"></param>
+        /// <returns>Info to be used in the UI</returns>
+        public RelationEffectInfo DraftEffectInfo(int id = -1, string heroIcon = "")
+        {
+            var text = "";
+            var icon = BundleIcon.Revenge;
+            var iconColor = Color.Lerp(Color.yellow, Color.red, .5f);
+            var info = new RelationEffectInfo()
+            {
+                Id = id,
+                HeroIcon = heroIcon,
+                EffectText = text,
+                EffectIcon = icon,
+                EffectIconColor = iconColor,
+            };
+            return info;
+        }
     }
 }

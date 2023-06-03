@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using UnityEngine;
+
+namespace Assets.Scripts.Data
 {
     public struct EffectRuleAlgoTarget : IBattleEffectRule
     {
@@ -25,5 +27,27 @@
         public int TurnsCount { get; set; }
         
         #endregion
+
+        /// <summary>
+        /// To use in UI just provide values for Id, HeroIcon
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="heroIcon"></param>
+        /// <returns>Info to be used in the UI</returns>
+        public RelationEffectInfo DraftEffectInfo(int id = -1, string heroIcon = "")
+        {
+            var text = "";
+            var icon = BundleIcon.MarkTarget;
+            var iconColor = Color.Lerp(Color.yellow, Color.red, .5f);
+            var info = new RelationEffectInfo()
+            {
+                Id = id,
+                HeroIcon = heroIcon,
+                EffectText = text,
+                EffectIcon = icon,
+                EffectIconColor = iconColor,
+            };
+            return info;
+        }
     }
 }

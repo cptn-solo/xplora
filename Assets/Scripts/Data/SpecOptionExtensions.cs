@@ -16,6 +16,21 @@
                 _ => "Способность"
             };
 
+        public static BundleIcon IconCode(this SpecOption specOption, int minMax = 1) =>
+            specOption switch
+            {
+                SpecOption.DamageRange => minMax == 1 ? BundleIcon.MaxDmg : BundleIcon.MinDmg,
+                SpecOption.DefenceRate => BundleIcon.Defence,
+                SpecOption.AccuracyRate => BundleIcon.Accuracy,
+                SpecOption.DodgeRate => BundleIcon.Avoid,
+                SpecOption.CritRate => BundleIcon.CritDmg,
+                SpecOption.BleedingResistanceRate => BundleIcon.Bleeding,
+                SpecOption.StunResistanceRate => BundleIcon.Stun,
+                SpecOption.BurningResistanceRate => BundleIcon.Burning,
+                SpecOption.FrozingResistanceRate => BundleIcon.Freezing,
+                _ => BundleIcon.NA
+            };
+
         public static string BonusOptionName(this SpecOption specOption, int factor) =>
             specOption switch
             {

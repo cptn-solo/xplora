@@ -1,4 +1,6 @@
 ﻿using Assets.Scripts.ECS.Data;
+using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.Data
 {
@@ -40,5 +42,27 @@ namespace Assets.Scripts.Data
         /// 1 - set resistance to 1 (resistant)
         /// </summary>
         public int Flag { get; set; }
+
+        /// <summary>
+        /// To use in UI just provide values for Id, HeroIcon
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="heroIcon"></param>
+        /// <returns>Info to be used in the UI</returns>
+        public RelationEffectInfo DraftEffectInfo(int id = -1, string heroIcon = "")
+        {
+            var text = Flag != 0 ? "Immune!" : "";
+            var icon = key.DamageType.IconCode();
+            var iconColor = Color.Lerp(Color.white, Color.blue, .5f);
+            var info = new RelationEffectInfo()
+            {
+                Id = id,
+                HeroIcon = heroIcon,
+                EffectText = text,
+                EffectIcon = icon,
+                EffectIconColor = iconColor,
+            };
+            return info;
+        }
     }
 }

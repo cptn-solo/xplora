@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Data
+﻿using UnityEngine;
+
+namespace Assets.Scripts.Data
 {
    /// <summary>
    /// спека изменить +- знач (пп)	Цель	Хар-ка	Значение	длительность (до след. N хода героя)
@@ -40,6 +42,28 @@
         /// value will be used as an increment added to the current spec/bonus value
         /// </summary>
         public int Value { get; set; }
+
+        /// <summary>
+        /// To use in UI just provide values for Id, HeroIcon
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="heroIcon"></param>
+        /// <returns>Info to be used in the UI</returns>
+        public RelationEffectInfo DraftEffectInfo(int id = -1, string heroIcon = "")
+        {
+            var text = Value > 0 ? $"+{Value}" : $"-{Value}";
+            var icon = key.SpecOption.IconCode();
+            var iconColor = Value > 0 ? Color.green : Color.red;
+            var info = new RelationEffectInfo()
+            {
+                Id = id,
+                HeroIcon = heroIcon,
+                EffectText = text,
+                EffectIcon = icon,
+                EffectIconColor = iconColor,
+            };
+            return info;
+        }
         
     }
 }

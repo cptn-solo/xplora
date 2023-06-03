@@ -72,6 +72,8 @@ namespace Assets.Scripts.ECS.Data
 
             return retval;
         }
+
+        public RelationEffectInfo EffectInfo { get; set; }
     }
 
     public struct RelationEffectsComp
