@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
         private readonly EcsPoolInject<PositionComp> positionPool = default;
         private readonly EcsPoolInject<BattleFieldComp> battleFieldPool = default;
+        private readonly EcsPoolInject<HeroInstanceMapping> heroInstanceMappingPool = default;
 
         private readonly EcsFilterInject<Inc<BattleInfo, BattleFieldComp, DraftTag<BattleInfo>>> filter = default;
 
@@ -34,6 +35,7 @@ namespace Assets.Scripts.ECS.Systems
             battleService.Value.NotifyBattleEventListeners(battleInfo);
 
             ref var battleField = ref battleFieldPool.Value.Get(battleEntity);
+            ref var heroInstanceMappings = ref heroInstanceMappingPool.Value.Get(battleEntity);
 
             #region Player team:
 
@@ -48,7 +50,7 @@ namespace Assets.Scripts.ECS.Systems
             {
                 var sourcePosition = playerPosBuffer[0];
 
-                AddHeroBattleInstance<PlayerTeamTag>(battleWorld, packed, sourcePosition);
+                AddHeroBattleInstance<PlayerTeamTag>(battleWorld, heroInstanceMappings, packed, sourcePosition);
 
                 playerPosBuffer.RemoveAt(0);
             }
@@ -69,7 +71,7 @@ namespace Assets.Scripts.ECS.Systems
             {
                 var sourcePosition = enemyPosBuffer[0];
 
-                AddHeroBattleInstance<EnemyTeamTag>(battleWorld, packed, sourcePosition);
+                AddHeroBattleInstance<EnemyTeamTag>(battleWorld, heroInstanceMappings, packed, sourcePosition);
 
                 enemyPosBuffer.RemoveAt(0);
             }
@@ -79,8 +81,11 @@ namespace Assets.Scripts.ECS.Systems
             #endregion
         }
 
-        private void AddHeroBattleInstance<T>(EcsWorld battleWorld,
-            EcsPackedEntityWithWorld packed, HeroPosition sourcePosition)
+        private void AddHeroBattleInstance<T>(
+            EcsWorld battleWorld,
+            HeroInstanceMapping heroInstanceMappings,
+            EcsPackedEntityWithWorld originHeroInstancePacked, 
+            HeroPosition sourcePosition)
             where T: struct
         {
             var entity = battleWorld.NewEntity();
@@ -94,16 +99,20 @@ namespace Assets.Scripts.ECS.Systems
 
             // remember hero instance origin (raid or library)
             // to update HP and use bonuses from raid
-            ref var origin = ref heroInstanceOriginRefPool.Value.Add(entity);
-            origin.HeroInstancePackedEntity = packed;
+            ref var originRef = ref heroInstanceOriginRefPool.Value.Add(entity);
+            originRef.HeroInstancePackedEntity = originHeroInstancePacked;
 
             // getting hero config ref from the origin
-            if (!packed.Unpack(out var originWorld, out var originEntity))
+            if (!originHeroInstancePacked.Unpack(out var originWorld, out var originEntity))
                 throw new Exception("No Source Hero");
 
             ref var originConfigRefComp = ref originWorld.GetPool<HeroConfigRefComp>().Get(originEntity);
             ref var configRefComp = ref heroConfigRefPool.Value.Add(entity);
             configRefComp.HeroConfigPackedEntity = originConfigRefComp.Packed;
+
+            var battleHeroInstancePacked = battleWorld.PackEntityWithWorld(entity);
+            heroInstanceMappings.OriginToBattleMapping.Add(originHeroInstancePacked, battleHeroInstancePacked);
+            heroInstanceMappings.BattleToOriginMapping.Add(battleHeroInstancePacked, originHeroInstancePacked);
         }
     }
 }

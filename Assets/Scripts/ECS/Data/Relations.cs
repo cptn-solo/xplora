@@ -13,13 +13,27 @@ namespace Assets.Scripts.ECS.Data
     /// Marks a value of current relation score between some parties
     /// </summary>
     public struct RelationScoreTag { } 
-
+    
+    /// <summary>
+    /// For casting probability needs, we don't need any info about current effects, only their count
+    /// </summary>
+    public struct RelationEffectsCountTag { }    
+    
     /// <summary>
     /// Marks a turn to process additional round queue manipulation to insert a hero after current turn
     /// </summary>
-    public struct PrepareRevengeComp{ 
+    public struct PrepareRevengeComp { 
         public EcsPackedEntityWithWorld RevengeFor { get; set; }
         public EcsPackedEntityWithWorld RevengeBy { get; set; }
+    }
+
+    /// <summary>
+    /// Marks a turn to affect targeting (aiming) system so all teammates will attack an effect's focus
+    /// </summary>
+    public struct PrepareTargetComp
+    {
+        public EcsPackedEntityWithWorld TargetFor { get; set; }
+        public EcsPackedEntityWithWorld TargetBy { get; set; }
     }
 
     /// <summary>
@@ -53,6 +67,11 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld EffectSource { get; set; }
 
         /// <summary>
+        /// Score and effects count in the world of the relation origin
+        /// </summary>
+        public EcsPackedEntityWithWorld EffectP2PEntity { get; set; }
+
+        /// <summary>
         /// Applicable For:
         /// - AlgoRevenge
         /// - AlgoTarget
@@ -74,6 +93,21 @@ namespace Assets.Scripts.ECS.Data
         }
 
         public RelationEffectInfo EffectInfo { get; set; }
+    }
+
+    public struct RelEffectProbeComp
+    {
+        public EcsPackedEntityWithWorld TargetConfigRefPacked { get; internal set; }
+        public EcsPackedEntityWithWorld SourceOrigPacked { get; internal set; }
+        public EcsPackedEntityWithWorld TargetOrigPacked { get; internal set; }
+
+        /// <summary>
+        /// Score, current effects count (in the origin world), current effects info (in the battle wolrd
+        /// </summary>
+        public EcsPackedEntityWithWorld P2PEntityPacked { get; internal set; }
+        
+        public EcsPackedEntity TurnEntity { get; internal set; }
+        public RelationSubjectState SubjectState { get; internal set; }
     }
 
     public struct RelationEffectsComp

@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -30,7 +31,19 @@ namespace Assets.Scripts.ECS.Data
     {
         public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
         public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+    }
 
+    public struct HeroInstanceMapping
+    {
+        /// <summary>
+        /// Origin world entity packed used as a key, so when needed we can get a battle world entity by this key
+        /// </summary>
+        public Dictionary<EcsPackedEntityWithWorld, EcsPackedEntityWithWorld> OriginToBattleMapping { get; internal set; }
+
+        /// <summary>
+        /// Battle world entity packed used as a key, so when needed we can get an origin world entity by this key
+        /// </summary>
+        public Dictionary<EcsPackedEntityWithWorld, EcsPackedEntityWithWorld> BattleToOriginMapping { get; internal set; }
     }
 
     /// <summary>

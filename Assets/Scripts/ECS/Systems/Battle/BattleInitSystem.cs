@@ -12,6 +12,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<DraftTag<BattleInfo>> draftTagPool = default;
+        private readonly EcsPoolInject<HeroInstanceMapping> heroInstanceMappingPool = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
@@ -38,6 +39,10 @@ namespace Assets.Scripts.ECS.Systems
             //battle.EnemyHeroes = new();
 
             battle.WinnerTeamId = -1;
+
+            ref var heroInstanceMapping = ref heroInstanceMappingPool.Value.Add(entity);
+            heroInstanceMapping.OriginToBattleMapping = new();
+            heroInstanceMapping.BattleToOriginMapping = new();
 
             battleService.Value.BattleEntity = ecsWorld.Value.PackEntityWithWorld(entity);
         }

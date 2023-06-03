@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
@@ -14,8 +13,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<RelationEffectsComp>> currentEffectFilter = default;
         private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> filter = default;
 
-        private readonly EcsCustomInject<RaidService> raidService = default;
-
         public void Run(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
@@ -25,14 +22,10 @@ namespace Assets.Scripts.ECS.Systems
                 // for both battle and raid worlds and remove expired effects:
                 DequeueRelationEffects(systems.GetWorld(), roundInfo.Round);
 
-                if (raidService.Value.EcsWorld != null)
-                    DequeueRelationEffects(raidService.Value.EcsWorld, roundInfo.Round);
-
                 // enqueue view update to reflect changes (if any)
                 foreach (var effectsEntity in currentEffectFilter.Value)
                     if (!updatePool.Value.Has(effectsEntity))
-                        updatePool.Value.Add(effectsEntity);                    
-
+                        updatePool.Value.Add(effectsEntity);
             }
         }
 
@@ -50,13 +43,18 @@ namespace Assets.Scripts.ECS.Systems
                         buff.Add(item.Key);
 
                 foreach (var item in buff)
+                {
+                    var effect = relEffect.CurrentEffects[item];
+                    if (effect.EffectP2PEntity.Unpack(out var origWorld, out var p2pEntity))
+                        origWorld.IncrementIntValue<RelationEffectsCountTag>(-1, p2pEntity);
+
                     relEffect.CurrentEffects.Remove(item);
+                }
 
                 buff.Clear();
             }
             
             ListPool<RelationEffectKey>.Add(buff);
         }
-
     }
 }

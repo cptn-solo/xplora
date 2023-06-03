@@ -63,6 +63,13 @@ namespace Assets.Scripts.Services
                 .Add(new BattleAssignTargetRelationEffectsSystem()) // if target is hero (not enemy)
                                                                     // scans for relations and casts effects
                                                                     // on active target 
+                .Add(new BattleRelEffectProbeSystem()) //for all probes try cast a real effect
+                .Add(new BattlePrepareRevengeEffectSystem())
+                .Add(new BattlePrepareTargetEffectSystem()) //TODO: don't forget to reset this effect at some point
+                .Add(new BattlePrepareRelEffectVisualSystem())
+                .DelHere<RelEffectProbeComp>() 
+                .DelHere<DraftTag<EffectInstanceInfo>>() //effects (if any were spawned) will survive
+
                 .Add(new BattleMarkTurnReadySystem()) // marks ready turns for autoplay
                 .DelHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
