@@ -4,6 +4,7 @@ using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -46,6 +47,11 @@ namespace Assets.Scripts.ECS.Systems
 
                     // registering effect for the hero affected (in the battle world, to make it handy when needed) 
                     ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
+                    if (attackerRef.Packed.Unpack(out var world, out var attackerEntity))
+                    {
+                        var np = world.ReadValue<NameValueComp<NameTag>, string>(attackerEntity);
+                        Debug.Log($"Atatcker is {np}");
+                    }    
                     effect.EffectFocus = attackerRef.Packed;
 
                     var revengeEntity = ecsWorld.Value.NewEntity();

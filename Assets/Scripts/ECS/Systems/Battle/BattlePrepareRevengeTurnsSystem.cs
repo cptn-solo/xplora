@@ -4,6 +4,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -44,13 +45,23 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var revengeComp = ref revengePool.Value.Get(entity);
                 var packedRevenger = revengeComp.RevengeBy;
-                if (!revengeComp.RevengeBy.Unpack(out _, out var revengerEntity))
+                if (!revengeComp.RevengeBy.Unpack(out _, out var revengerEntity) ||
+                    !revengeComp.RevengeFor.Unpack(out _, out var revengedEntity) )
                     throw new Exception($"Stale revenger entity");
+
+                Debug.Log(
+                    $"Revenger: {world.ReadValue<NameValueComp<NameTag>, string>(revengerEntity)}" +
+                    $"For: {world.ReadValue<NameValueComp<NameTag>, string>(revengedEntity)}");
 
                 if (retiredTagPool.Value.Has(revengerEntity))
                     continue; // died hero can't revenge
 
                 var idx = buffer.FindIndex(x => x.HeroInstancePackedEntity.EqualsTo(packedRevenger));
+                if (idx != 0)
+                    Debug.Log("Reordering the round queue for the revenge");
+                else 
+                    Debug.Log("No need to reorder the round queue");
+
                 if (idx < 0)
                 {
                     RoundSlotInfo slotInfo = new ()

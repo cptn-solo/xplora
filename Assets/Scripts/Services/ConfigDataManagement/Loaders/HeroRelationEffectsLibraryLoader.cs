@@ -55,7 +55,7 @@ namespace Assets.Scripts.Services
             for (int i = 0; i < heroCount; i++)
             {
                 var heroId = i;
-                var row = i + 2;
+                var heroRow = i * 2 + 2;
                 for (int j = 0; j < stateCount; j++)
                 {
                     var subjectState = j switch
@@ -63,6 +63,7 @@ namespace Assets.Scripts.Services
                         0 => RelationSubjectState.Attacking,
                         _ => RelationSubjectState.BeingAttacked
                     };
+                    var row = heroRow + j; 
 
                     for (int k = 1; k < relationStateCount * 2; k += 2)
                     {

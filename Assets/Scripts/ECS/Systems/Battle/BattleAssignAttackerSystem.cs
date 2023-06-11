@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
 
         internal void AssignAttacker(int turnEntity)
         {
-            if (!battleService.Value.RoundEntity.Unpack(out var world, out var roundEntity))
+            if (!battleService.Value.RoundEntity.Unpack(out _, out var roundEntity))
                 throw new Exception("No Round");
 
             ref var roundInfo = ref roundPool.Value.Get(roundEntity);
@@ -52,7 +52,7 @@ namespace Assets.Scripts.ECS.Systems
             turnInfo.Attacker = roundSlot.HeroInstancePackedEntity;
 
             ref var attackerRef = ref attackerRefPool.Value.Add(turnEntity);
-            attackerRef.HeroInstancePackedEntity = world.PackEntityWithWorld(attackerInstanceEntity);
+            attackerRef.HeroInstancePackedEntity = roundSlot.HeroInstancePackedEntity;
         }
     }
 }

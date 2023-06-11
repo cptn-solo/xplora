@@ -67,7 +67,8 @@ namespace Assets.Scripts.ECS.Systems
             if (hpComp.Value > 0)
                 return false;
 
-            deadTagPool.Value.Add(heroInstanceEntity);
+            if (!deadTagPool.Value.Has(heroInstanceEntity))
+                deadTagPool.Value.Add(heroInstanceEntity);
 
             return true;
         }

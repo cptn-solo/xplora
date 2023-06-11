@@ -53,8 +53,8 @@ namespace Assets.Scripts.ECS.Systems
 
                         var relEffectProbeEntity = ecsWorld.Value.NewEntity();
                         ref var probeComp = ref relEffectProbePool.Value.Add(relEffectProbeEntity);
-                        probeComp.SourceOrigPacked = item.Key.Item1;
-                        probeComp.TargetOrigPacked = item.Key.Item2;
+                        probeComp.TargetOrigPacked = item.Key.Item1;
+                        probeComp.SourceOrigPacked = item.Key.Item2;
                         probeComp.TargetConfigRefPacked = heroConfigRef.Packed;
                         probeComp.P2PEntityPacked = item.Value;
                         probeComp.SubjectState = SubjectState;
