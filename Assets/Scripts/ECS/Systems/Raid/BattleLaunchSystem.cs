@@ -18,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<OpponentComp> opponentPool = default;
         private readonly EcsPoolInject<HeroComp> heroCompPool = default;
         private readonly EcsFilterInject<Inc<BattleComp, DraftTag>> battleFilter = default;
-        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRefComp>> teamHeroesFilter = default;
+        private readonly EcsFilterInject<Inc<PlayerTeamTag, HeroConfigRef>> teamHeroesFilter = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;

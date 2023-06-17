@@ -14,23 +14,17 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntity EnemyPackedEntity { get; internal set; }
     }
 
-    public struct BattleRefComp
+    public struct BattleRef
     {
         public EcsPackedEntity BattlePackedEntity { get; internal set; }
     }
 
-    public struct HeroConfigRefComp : IPackedWithWorldRef
+    public struct HeroConfigRef : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroConfigRefPackedEntity { get; internal set; }
         public EcsPackedEntityWithWorld HeroConfigPackedEntity { get; internal set; }
-        public EcsPackedEntityWithWorld Packed => HeroConfigPackedEntity;
-        public EcsPackedEntityWithWorld RefPacked => HeroConfigRefPackedEntity;
-    }
-
-    public struct HeroInstanceRefComp : IPackedWithWorldRef
-    {
-        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
-        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+        public readonly EcsPackedEntityWithWorld Packed => HeroConfigPackedEntity;
+        public readonly EcsPackedEntityWithWorld RefPacked => HeroConfigRefPackedEntity;
     }
 
     public struct HeroInstanceMapping
@@ -46,21 +40,11 @@ namespace Assets.Scripts.ECS.Data
         public Dictionary<EcsPackedEntityWithWorld, EcsPackedEntityWithWorld> BattleToOriginMapping { get; internal set; }
     }
 
-    /// <summary>
-    /// To be attached to a battle hero instance to track back damage and such for the raid
-    /// </summary>
-    public struct HeroInstanceOriginRefComp : IPackedWithWorldRef
-    {
-        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
-        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
-
-    }
-
-    public struct BattleTurnRefComp
+    public struct BattleTurnRef
     {
         public EcsPackedEntity TurnPackedEntity { get; internal set; }
     }
-    public struct BattleRoundRefComp
+    public struct BattleRoundRef
     {
         public EcsPackedEntity RoundPackedEntity { get; internal set; }
     }    
@@ -92,22 +76,48 @@ namespace Assets.Scripts.ECS.Data
     public struct DealDamageTag { } // turn
     public struct DealEffectsTag { } // turn
 
+    /// <summary>
+    /// To be attached to a battle hero instance to track back damage and such for the raid
+    /// </summary>
+    public struct HeroInstanceOriginRef : IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
+        public readonly EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+    }
+    
+    public struct HeroInstanceRef : IPackedWithWorldRef
+    {
+        public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; internal set; }
+        public readonly EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+    }
+
     public struct AttackerRef : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; set; }
-
-        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+        public readonly EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
     }
+
     public struct TargetRef : IPackedWithWorldRef
     {
         public EcsPackedEntityWithWorld HeroInstancePackedEntity { get; set; }
-
-        public EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
+        public readonly EcsPackedEntityWithWorld Packed => HeroInstancePackedEntity;
     }
 
+    public struct EffectFocusComp { 
+        public RelationEffectKey EffectKey { get; set; }
+        // who will be attacked
+        public EcsPackedEntityWithWorld Focused { get; internal set; }
+        // when to expire the focus
+        public int EndRound { get; internal set; }
+        // hero for whom the focused entity will be the target
+        public EcsPackedEntityWithWorld Actor { get; internal set; }
+    }
 
-
-
+    public struct PackedEntityRef<T> : IPackedWithWorldRef where T : struct
+    {
+        public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
+        public readonly EcsPackedEntityWithWorld Packed => PackedEntity;
+    }
 }
 
 

@@ -9,10 +9,10 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleReportDeadHeroes : IEcsRunSystem
     {
-        private readonly EcsPoolInject<HeroInstanceOriginRefComp> pool = default;
+        private readonly EcsPoolInject<HeroInstanceOriginRef> pool = default;
                 
         private readonly EcsFilterInject<
-            Inc<HeroInstanceOriginRefComp, ProcessedHeroTag, DeadTag>
+            Inc<HeroInstanceOriginRef, ProcessedHeroTag, DeadTag>
             > filter = default;
 
         public void Run(IEcsSystems systems)

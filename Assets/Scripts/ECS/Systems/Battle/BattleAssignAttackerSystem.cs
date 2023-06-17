@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleRoundInfo> roundPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
 
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter = default;
 

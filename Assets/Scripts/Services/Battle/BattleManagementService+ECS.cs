@@ -94,6 +94,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattlePrepareRevengeTurnsSystem())
                 .DelHere<PrepareRevengeComp>()
                 .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
+                .Add(new BattleDequeueExpiredEffectFocusSystem()) // drops focus if it's target is dead or if the focus effect expired
                 .Add(new BattleDequeueExpiredRelationEffectsSystem()) 
                 .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
@@ -128,15 +129,15 @@ namespace Assets.Scripts.Services
         }
 
 
-        public HeroInstanceRefComp[] PlayerHeroes => GetEcsPlayerHeroes();
-        public HeroInstanceRefComp[] EnemyHeroes => GetEcsEnemyHeroes();
+        public HeroInstanceRef[] PlayerHeroes => GetEcsPlayerHeroes();
+        public HeroInstanceRef[] EnemyHeroes => GetEcsEnemyHeroes();
 
         public ref Hero GetHeroConfig(EcsPackedEntityWithWorld heroInstancePackedEntity)
         {
             if (!heroInstancePackedEntity.Unpack(out var world, out var heroInstanceEntity))
                 throw new Exception("No Hero entity");
 
-            ref var configRef = ref world.GetPool<HeroConfigRefComp>().Get(heroInstanceEntity);
+            ref var configRef = ref world.GetPool<HeroConfigRef>().Get(heroInstanceEntity);
 
             if (!configRef.HeroConfigPackedEntity.Unpack(out var libWorld, out var configEntity))
                 throw new Exception("No Hero config");
@@ -209,17 +210,17 @@ namespace Assets.Scripts.Services
             return retval;
         }
 
-        private HeroInstanceRefComp[] GetEcsTaggedHeroes<T>() where T : struct
+        private HeroInstanceRef[] GetEcsTaggedHeroes<T>() where T : struct
         {
             ref var battleInfo = ref GetEcsCurrentBattle();
 
-            var filter = ecsWorld.Filter<HeroInstanceRefComp>()
+            var filter = ecsWorld.Filter<HeroInstanceRef>()
                 .Inc<T>()
                 .Exc<DeadTag>().End();
 
-            var buffer = ListPool<HeroInstanceRefComp>.Get();
+            var buffer = ListPool<HeroInstanceRef>.Get();
 
-            var heroRefPool = ecsWorld.GetPool<HeroInstanceRefComp>();
+            var heroRefPool = ecsWorld.GetPool<HeroInstanceRef>();
 
             foreach (var heroEntity in filter)
             {
@@ -228,15 +229,15 @@ namespace Assets.Scripts.Services
             }
             var retval = buffer.ToArray();
 
-            ListPool<HeroInstanceRefComp>.Add(buffer);
+            ListPool<HeroInstanceRef>.Add(buffer);
 
             return retval;
         }
 
-        private HeroInstanceRefComp[] GetEcsPlayerHeroes() =>
+        private HeroInstanceRef[] GetEcsPlayerHeroes() =>
             GetEcsTaggedHeroes<PlayerTeamTag>();
 
-        private HeroInstanceRefComp[] GetEcsEnemyHeroes() =>
+        private HeroInstanceRef[] GetEcsEnemyHeroes() =>
             GetEcsTaggedHeroes<EnemyTeamTag>();
 
         private void MakeEcsTurn()
@@ -273,7 +274,7 @@ namespace Assets.Scripts.Services
             if (packed == null || !packed.Value.Unpack(out var world, out var entity))
                 return default;
 
-            ref var heroConfigRef = ref world.GetPool<HeroConfigRefComp>().Get(entity);
+            ref var heroConfigRef = ref world.GetPool<HeroConfigRef>().Get(entity);
 
             if (!heroConfigRef.HeroConfigPackedEntity.Unpack(out var libWorld, out var configEntity))
                 return default;

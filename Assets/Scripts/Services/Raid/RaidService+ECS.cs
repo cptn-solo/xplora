@@ -205,7 +205,7 @@ namespace Assets.Scripts.Services
             if (packed == null || !packed.Value.Unpack(out var world, out var entity))
                 return default;
 
-            ref var heroConfigRef = ref world.GetPool<HeroConfigRefComp>().Get(entity);
+            ref var heroConfigRef = ref world.GetPool<HeroConfigRef>().Get(entity);
 
             if (!heroConfigRef.HeroConfigPackedEntity.Unpack(out var libWorld, out var configEntity))
                 return default;

@@ -110,7 +110,7 @@ namespace Assets.Scripts.ECS.Systems
                 if (!configRefPacked.Unpack(out var libWorld, out var configRefEntity))
                     throw new Exception("No Hero config ref");
 
-                var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
+                var configRefPool = libWorld.GetPool<HeroConfigRef>();
                 ref var configRef = ref configRefPool.Get(configRefEntity);
 
                 if (!configRef.Packed.Unpack(out _, out var entity))

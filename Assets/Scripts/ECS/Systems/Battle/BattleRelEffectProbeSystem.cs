@@ -87,7 +87,7 @@ namespace Assets.Scripts.ECS.Systems
             if (!effectRules.SubjectStateEffectsIndex.TryGetValue(rulesCaseKey, out var scope))
                 return false; // no effect for relation state, it's ok
 
-            var origWorldConfigRefPool = origWorld.GetPool<HeroConfigRefComp>();
+            var origWorldConfigRefPool = origWorld.GetPool<HeroConfigRef>();
             ref var otherGuyConfigRef = ref origWorldConfigRefPool.Get(otherGuyEntity);
             if (!otherGuyConfigRef.Packed.Unpack(out _, out var otherGuyHeroConfigEntity))
                 throw new Exception("No Hero Config for the other guy");

@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
         private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter = default;
 
@@ -47,37 +47,40 @@ namespace Assets.Scripts.ECS.Systems
             {
                 Debug.Log("Target was overriden by relation AlgoRevenge event");
             }
-            else if (ranged)
-            {
-                var filter = isPlayerTeam ?
-                    TeamTagFilter<EnemyTeamTag>(world) :
-                    TeamTagFilter<PlayerTeamTag>(world);
-                var targets = filter.AllEntities();
-                targetEntity = targets.Length > 0 ?
-                    targets[Random.Range(0, targets.Length)] :
-                    -1;
-            }
             else
             {
-                var filterFront = isPlayerTeam ?
-                    TeamTagFilter<EnemyTeamTag, FrontlineTag>(world) :
-                    TeamTagFilter<PlayerTeamTag, FrontlineTag>(world);
+                if (ranged)
+                {
+                    var filter = isPlayerTeam ?
+                        TeamTagFilter<EnemyTeamTag>(world) :
+                        TeamTagFilter<PlayerTeamTag>(world);
+                    var targets = filter.AllEntities();
+                    targetEntity = targets.Length > 0 ?
+                        targets[Random.Range(0, targets.Length)] :
+                        -1;
+                }
+                else
+                {
+                    var filterFront = isPlayerTeam ?
+                        TeamTagFilter<EnemyTeamTag, FrontlineTag>(world) :
+                        TeamTagFilter<PlayerTeamTag, FrontlineTag>(world);
 
-                var filterBack = isPlayerTeam ?
-                    TeamTagFilter<EnemyTeamTag, BacklineTag>(world) :
-                    TeamTagFilter<PlayerTeamTag, BacklineTag>(world);
+                    var filterBack = isPlayerTeam ?
+                        TeamTagFilter<EnemyTeamTag, BacklineTag>(world) :
+                        TeamTagFilter<PlayerTeamTag, BacklineTag>(world);
 
-                var frontTargets = filterFront.AllEntities();
-                var backTargets = filterBack.AllEntities();
+                    var frontTargets = filterFront.AllEntities();
+                    var backTargets = filterBack.AllEntities();
 
-                // TODO: consider range (not yet imported/parsed)
+                    // TODO: consider range (not yet imported/parsed)
 
-                targetEntity = frontTargets.Length > 0 ?
-                    frontTargets[Random.Range(0, frontTargets.Length)] :
-                    backTargets.Length > 0 ?
-                    backTargets[Random.Range(0, backTargets.Length)] :
-                    -1;
-            }
+                    targetEntity = frontTargets.Length > 0 ?
+                        frontTargets[Random.Range(0, frontTargets.Length)] :
+                        backTargets.Length > 0 ?
+                        backTargets[Random.Range(0, backTargets.Length)] :
+                        -1;
+                }
+            }            
 
             if (targetEntity != -1)
             {

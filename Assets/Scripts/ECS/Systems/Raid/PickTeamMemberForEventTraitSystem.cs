@@ -70,7 +70,7 @@ namespace Assets.Scripts.ECS.Systems
             if (!PickTheLuckyOne(trait, out var luckyHero, out var level))
                 return false;
 
-            var heroConfigRefPool = ecsWorld.Value.GetPool<HeroConfigRefComp>();
+            var heroConfigRefPool = ecsWorld.Value.GetPool<HeroConfigRef>();
             ref var heroConfigRef = ref heroConfigRefPool.Get(luckyHero);
 
             if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libEntity))

@@ -19,14 +19,14 @@ namespace Assets.Scripts.ECS.Systems
             Inc<RelationsMatrixComp>> matrixFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp,
+            Inc<HeroConfigRef,
                 PositionComp,
                 EntityViewRef<Hero>,
                 UpdateTag<SelectedTag>>
             > toggleSelectionFilter = default; // entities to toggle selection on/off (depends on SelectedTag)
 
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp,
+            Inc<HeroConfigRef,
                 PositionComp,
                 EntityViewRef<Hero>>,
             Exc<UpdateTag<SelectedTag>>

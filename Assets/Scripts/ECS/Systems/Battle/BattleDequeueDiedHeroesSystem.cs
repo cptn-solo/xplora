@@ -10,11 +10,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld = default;
 
         private readonly EcsPoolInject<RetiredTag> retiredTagPool = default;
-        private readonly EcsPoolInject<HeroInstanceRefComp> pool = default;
+        private readonly EcsPoolInject<HeroInstanceRef> pool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundPool = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroInstanceRefComp, DeadTag>,
+            Inc<HeroInstanceRef, DeadTag>,
             Exc<RetiredTag>> filter = default;
 
         public void Run(IEcsSystems systems)

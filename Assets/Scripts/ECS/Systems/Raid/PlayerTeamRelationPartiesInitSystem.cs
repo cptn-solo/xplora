@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp, PlayerTeamTag>> teamMemberFilter = default;
+            Inc<HeroConfigRef, PlayerTeamTag>> teamMemberFilter = default;
 
         public void Init(IEcsSystems systems)
         {

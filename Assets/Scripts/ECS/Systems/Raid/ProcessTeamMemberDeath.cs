@@ -30,7 +30,7 @@ namespace Assets.Scripts.ECS.Systems
 
             var heroPool = ecsWorld.Value.GetPool<HeroComp>();
             var filter = ecsWorld.Value.Filter<PlayerTeamTag>()
-                .Inc<HeroConfigRefComp>()
+                .Inc<HeroConfigRef>()
                 .Exc<DeadTag>()
                 .End();
 
@@ -45,7 +45,7 @@ namespace Assets.Scripts.ECS.Systems
 
             foreach (var heroInstanceEntity in filter)
             {
-                var heroConfigRefPool = ecsWorld.Value.GetPool<HeroConfigRefComp>();
+                var heroConfigRefPool = ecsWorld.Value.GetPool<HeroConfigRef>();
                 ref var heroConfigRef = ref heroConfigRefPool.Get(heroInstanceEntity);
                 if (!heroConfigRef.Packed.Unpack(out var libWorld, out var libConfigEntity))
                     throw new Exception("No hero config");

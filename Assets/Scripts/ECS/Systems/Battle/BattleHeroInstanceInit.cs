@@ -12,9 +12,9 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<PositionComp> positionPool = default;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
-        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool = default;
-        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceRef> heroInstanceRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceOriginRef> heroInstanceOriginRefPool = default;
 
         private readonly EcsPoolInject<FrontlineTag> frontlineTagPool = default;
         private readonly EcsPoolInject<BacklineTag> backlineTagPool = default;

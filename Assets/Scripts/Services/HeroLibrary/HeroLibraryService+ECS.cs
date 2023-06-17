@@ -92,8 +92,8 @@ namespace Assets.Scripts.Services
             var configPool = ecsWorld.GetPool<Hero>();
             var configFilter = ecsWorld.Filter<Hero>().End();
 
-            var configRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
-            var configRefFilter = ecsWorld.Filter<HeroConfigRefComp>().End();
+            var configRefPool = ecsWorld.GetPool<HeroConfigRef>();
+            var configRefFilter = ecsWorld.Filter<HeroConfigRef>().End();
 
             EcsPool<UpdateTag> updateTagPool = ecsWorld.GetPool<UpdateTag>();
 
@@ -203,10 +203,10 @@ namespace Assets.Scripts.Services
             if (!LibraryEntity.Unpack(out var world, out _))
                 throw new Exception("No Library");
 
-            var filter = world.Filter<HeroConfigRefComp>().Inc<PositionComp>().End();
+            var filter = world.Filter<HeroConfigRef>().Inc<PositionComp>().End();
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
             var configPool = world.GetPool<Hero>();
-            var configRefPool = world.GetPool<HeroConfigRefComp>();
+            var configRefPool = world.GetPool<HeroConfigRef>();
 
             foreach (var entity in filter)
             {
@@ -234,7 +234,7 @@ namespace Assets.Scripts.Services
             var teamPool = world.GetPool<Team>();
             ref var team = ref teamPool.Get(teamEntity);
 
-            var filter = world.Filter<HeroConfigRefComp>().Inc<PositionComp>().End();
+            var filter = world.Filter<HeroConfigRef>().Inc<PositionComp>().End();
             var posPool = world.GetPool<PositionComp>();
             var buffer = ListPool<EcsPackedEntityWithWorld>.Get();
 
@@ -366,7 +366,7 @@ namespace Assets.Scripts.Services
                 if (!packed.Unpack(out _, out var configRefEntity))
                     throw new Exception("No Hero config ref");
 
-                var libConfigRefPool = ecsWorld.GetPool<HeroConfigRefComp>();
+                var libConfigRefPool = ecsWorld.GetPool<HeroConfigRef>();
                 ref var heroConfigRef = ref libConfigRefPool.Get(configRefEntity);
 
                 if (!heroConfigRef.Packed.Unpack(out _, out var configEntity))
@@ -376,7 +376,7 @@ namespace Assets.Scripts.Services
 
                 if (needNewEntities)
                 {
-                    ref var configRef = ref targetWorld.GetPool<HeroConfigRefComp>().Add(entity);
+                    ref var configRef = ref targetWorld.GetPool<HeroConfigRef>().Add(entity);
                     configRef.HeroConfigPackedEntity = heroConfigRef.Packed;
                 }
 
@@ -419,7 +419,7 @@ namespace Assets.Scripts.Services
         {
             if (packed != null && packed.Value.Unpack(out var world, out var entity))
             {
-                var configRefPool = world.GetPool<HeroConfigRefComp>();
+                var configRefPool = world.GetPool<HeroConfigRef>();
                 if (configRefPool.Has(entity))
                 {
                     ref var configRef = ref configRefPool.Get(entity);
@@ -445,7 +445,7 @@ namespace Assets.Scripts.Services
             if (!libHeroInstance.Unpack(out var libWorld, out var instanceEntity))
                 throw new Exception("No hero config ref");
             
-            var configRefPool = libWorld.GetPool<HeroConfigRefComp>();
+            var configRefPool = libWorld.GetPool<HeroConfigRef>();
             ref var configRef = ref configRefPool.Get(instanceEntity);
 
             if (!configRef.Packed.Unpack(out _, out var libHeroConfig))

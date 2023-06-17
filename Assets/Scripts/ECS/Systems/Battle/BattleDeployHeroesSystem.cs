@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp, PositionComp>,
+            Inc<HeroConfigRef, PositionComp>,
             Exc<EntityViewRef<Hero>, DeadTag>> filter = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;

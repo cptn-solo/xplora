@@ -18,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<TeamMemberInfo>>> factoryFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<PlayerTeamTag, HeroConfigRefComp>,
+            Inc<PlayerTeamTag, HeroConfigRef>,
             Exc<EntityViewRef<TeamMemberInfo>>> filter = default;
 
         private readonly EcsFilterInject<

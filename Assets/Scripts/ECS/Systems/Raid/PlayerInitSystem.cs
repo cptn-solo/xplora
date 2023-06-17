@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<StaminaComp> staminaPool = default;
         private readonly EcsPoolInject<SightRangeComp> sightRangePool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
         private readonly EcsCustomInject<RaidService> raidService = default;
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;

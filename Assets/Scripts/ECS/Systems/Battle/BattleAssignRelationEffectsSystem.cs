@@ -17,8 +17,8 @@ namespace Assets.Scripts.ECS.Systems
         protected readonly EcsPoolInject<T> pool = default;
         protected readonly EcsPoolInject<RelEffectProbeComp> relEffectProbePool = default;
         protected readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
-        protected readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
-        protected readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        protected readonly EcsPoolInject<HeroInstanceOriginRef> heroInstanceOriginRefPool = default;
+        protected readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
         protected readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo, T>> filter = default;
 

@@ -8,7 +8,7 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class PlayerTeamMemberInitSystem : IEcsInitSystem
     {
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
         private readonly EcsPoolInject<IntRangeValueComp<DamageRangeTag>> damageRangeCompPool = default;
         private readonly EcsPoolInject<IntValueComp<DefenceRateTag>> defenceRateCompPool = default;
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default; // mostly static (rates)
 
-        private readonly EcsFilterInject<Inc<HeroConfigRefComp, PlayerTeamTag>> filter = default;
+        private readonly EcsFilterInject<Inc<HeroConfigRef, PlayerTeamTag>> filter = default;
 
         public void Init(IEcsSystems systems)
         {

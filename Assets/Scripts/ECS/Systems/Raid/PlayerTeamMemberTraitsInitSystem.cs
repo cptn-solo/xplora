@@ -11,9 +11,9 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
-        private readonly EcsFilterInject<Inc<HeroConfigRefComp, PlayerTeamTag>> filter = default;
+        private readonly EcsFilterInject<Inc<HeroConfigRef, PlayerTeamTag>> filter = default;
 
         public void Init(IEcsSystems systems)
         {

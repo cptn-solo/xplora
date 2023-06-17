@@ -1,6 +1,7 @@
 ﻿using System;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
+using Assets.Scripts.World;
 using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS
@@ -64,12 +65,17 @@ namespace Assets.Scripts.ECS
         public static bool GetRelEffectFocus(this EcsWorld ecsWorld, int entity, RelationsEffectType effectType, out EcsPackedEntityWithWorld? focus)
         {
             focus = null;
-            ref var relationEffects = ref ecsWorld.GetPool<RelationEffectsComp>().Get(entity);
-            foreach (var relEffect in relationEffects.CurrentEffects)
+            var filter = ecsWorld.Filter<EffectFocusComp>().End();
+            foreach (var focusEntity in filter)
             {
-                if (relEffect.Key.RelationsEffectType == effectType)
+                ref var focusComp = ref ecsWorld.GetPool<EffectFocusComp>().Get(focusEntity);
+                
+                if (!focusComp.Actor.Unpack(out var world, out var actorEntity))
+                    throw new Exception("Stale Actor");
+                
+                if (ecsWorld.Equals(world) && actorEntity == entity && focusComp.EffectKey.RelationsEffectType == effectType)
                 {
-                    focus = relEffect.Value.EffectFocus;
+                    focus = focusComp.Focused;
                     return true;
                 }
             }

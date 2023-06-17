@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> detailsBarsViewRefPool = default;
 
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp, EntityViewRef<Hero>,
+            Inc<HeroConfigRef, EntityViewRef<Hero>,
                 HoverTag>> hoverFilter = default;
 
         private readonly EcsFilterInject<

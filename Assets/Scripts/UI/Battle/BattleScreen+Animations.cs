@@ -166,10 +166,18 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnInProgress:
 
                     EnqueueTurnAnimation(() => {
-                        attackerRM.HeroAnimation.Attack(
-                            info.AttackerConfig.Ranged, targetRM.transform.position +
-                            Vector3.up * .8f);
-                        audioService.Play(SFX.Named(info.AttackerConfig.SndAttack));
+                        try
+                        {
+                            attackerRM.HeroAnimation.Attack(
+                                info.AttackerConfig.Ranged, targetRM.transform.position +
+                                Vector3.up * .8f);
+                            audioService.Play(SFX.Named(info.AttackerConfig.SndAttack));
+                        }
+                        catch (System.Exception)
+                        {
+
+                            throw;
+                        }
                     }, .8f);
 
                     if (info.Dodged)

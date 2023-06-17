@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsWorldInject ecsWorld = default;
 
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
         
         private readonly EcsPoolInject<KindGroupSpiritTag> spiritGroupPool = default;
         private readonly EcsPoolInject<KindGroupBodyTag> bodyGroupPool = default;
@@ -21,7 +21,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<IntValueComp<HeroKindRSDTag>> rsdPool = default;
         
 
-        private readonly EcsFilterInject<Inc<HeroConfigRefComp, PlayerTeamTag>> filter = default;
+        private readonly EcsFilterInject<Inc<HeroConfigRef, PlayerTeamTag>> filter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> heroLibraryService = default;
 

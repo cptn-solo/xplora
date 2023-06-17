@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<PrepareTargetComp> targetPool = default;
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
+        private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
 
         private readonly EcsFilterInject<
             Inc<
@@ -44,16 +45,23 @@ namespace Assets.Scripts.ECS.Systems
                         throw new Exception("Stale Turn Entity");
 
                     // registering effect for the hero affected (in the battle world, to make it handy when needed) 
-                    probe.SourceOrigPacked.Unpack(out _, out var effectSourceEntity);
-                    probe.TargetOrigPacked.Unpack(out _, out var effectTargetEntity);
 
                     ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
-                    effect.EffectFocus = attackerRef.Packed;
-
+                    
                     var targetEntity = ecsWorld.Value.NewEntity();
                     ref var targetComp = ref targetPool.Value.Add(targetEntity);
+                    targetComp.Focus = attackerRef.Packed;
                     targetComp.TargetBy = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
                     targetComp.TargetFor = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
+
+                    var focusEntity = ecsWorld.Value.NewEntity();
+                    // remember who is focused:
+                    ref var focus = ref focusPool.Value.Add(focusEntity);
+                    focus.EffectKey = effect.Rule.Key;
+                    focus.Focused = attackerRef.Packed;
+                    focus.Actor = targetComp.TargetFor;
+                    focus.EndRound = effect.EndRound;
+
                 }
             }
         }

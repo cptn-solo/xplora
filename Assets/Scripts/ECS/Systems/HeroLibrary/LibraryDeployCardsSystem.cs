@@ -21,7 +21,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
         private readonly EcsFilterInject<Inc<LibraryFieldComp>> fieldFilter = default;
         private readonly EcsFilterInject<
-            Inc<HeroConfigRefComp, PositionComp>,
+            Inc<HeroConfigRef, PositionComp>,
             Exc<EntityViewRef<Hero>>> filter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;

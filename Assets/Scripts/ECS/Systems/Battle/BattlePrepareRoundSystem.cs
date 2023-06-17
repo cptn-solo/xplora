@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
-        private readonly EcsPoolInject<HeroInstanceRefComp> heroInstanceRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceRef> heroInstanceRefPool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<DraftTag> draftTagPool = default;
         private readonly EcsPoolInject<IntValueComp<SpeedTag>> speedPool = default;

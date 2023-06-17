@@ -23,7 +23,11 @@ namespace Assets.Scripts.ECS.Data
     /// Marks a turn to process additional round queue manipulation to insert a hero after current turn
     /// </summary>
     public struct PrepareRevengeComp { 
+        //attack target
+        public EcsPackedEntityWithWorld Focus { get; set; }
+        // who will attack
         public EcsPackedEntityWithWorld RevengeFor { get; set; }
+        // effect source
         public EcsPackedEntityWithWorld RevengeBy { get; set; }
     }
 
@@ -32,7 +36,11 @@ namespace Assets.Scripts.ECS.Data
     /// </summary>
     public struct PrepareTargetComp
     {
+        // attack target
+        public EcsPackedEntityWithWorld Focus { get; set; }
+        // who will attack
         public EcsPackedEntityWithWorld TargetFor { get; set; }
+        // effect source
         public EcsPackedEntityWithWorld TargetBy { get; set; }
     }
 
@@ -58,7 +66,7 @@ namespace Assets.Scripts.ECS.Data
         public int EndRound { get; set; }
         public int UsageLeft { get; set; } // initially = End - Start
 
-        public string Description => ToString();
+        public readonly string Description => ToString();
 
         /// <summary>
         /// Entity of a hero from the other relation side
@@ -71,16 +79,7 @@ namespace Assets.Scripts.ECS.Data
         /// </summary>
         public EcsPackedEntityWithWorld EffectP2PEntity { get; set; }
 
-        /// <summary>
-        /// Applicable For:
-        /// - AlgoRevenge
-        /// - AlgoTarget
-        /// Keeps the reference to a hero instance being attacked by effect parties
-        /// while it is active
-        /// </summary>
-        public EcsPackedEntityWithWorld EffectFocus { get; set; } 
-
-        public override string ToString()
+        public override readonly string ToString()
         {
             var retval = "";
 

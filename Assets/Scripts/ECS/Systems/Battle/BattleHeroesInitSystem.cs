@@ -12,8 +12,8 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool = default;
-        private readonly EcsPoolInject<HeroConfigRefComp> heroConfigRefPool = default;
-        private readonly EcsPoolInject<HeroInstanceOriginRefComp> heroInstanceOriginRefPool = default;
+        private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceOriginRef> heroInstanceOriginRefPool = default;
         private readonly EcsPoolInject<PositionComp> positionPool = default;
         private readonly EcsPoolInject<BattleFieldComp> battleFieldPool = default;
         private readonly EcsPoolInject<HeroInstanceMapping> heroInstanceMappingPool = default;
@@ -106,7 +106,7 @@ namespace Assets.Scripts.ECS.Systems
             if (!originHeroInstancePacked.Unpack(out var originWorld, out var originEntity))
                 throw new Exception("No Source Hero");
 
-            ref var originConfigRefComp = ref originWorld.GetPool<HeroConfigRefComp>().Get(originEntity);
+            ref var originConfigRefComp = ref originWorld.GetPool<HeroConfigRef>().Get(originEntity);
             ref var configRefComp = ref heroConfigRefPool.Value.Add(entity);
             configRefComp.HeroConfigPackedEntity = originConfigRefComp.Packed;
 

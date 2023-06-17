@@ -18,6 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<PrepareRevengeComp> revengePool = default;
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
+        private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
 
         private readonly EcsFilterInject<
             Inc<
@@ -52,12 +53,20 @@ namespace Assets.Scripts.ECS.Systems
                         var np = world.ReadValue<NameValueComp<NameTag>, string>(attackerEntity);
                         Debug.Log($"Atatcker is {np}");
                     }    
-                    effect.EffectFocus = attackerRef.Packed;
 
                     var revengeEntity = ecsWorld.Value.NewEntity();
                     ref var revengeComp = ref revengePool.Value.Add(revengeEntity);
+                    revengeComp.Focus = attackerRef.Packed;
                     revengeComp.RevengeBy = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
                     revengeComp.RevengeFor = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
+
+                    var focusEntity = ecsWorld.Value.NewEntity();
+                    // remember who is focused:
+                    ref var focus = ref focusPool.Value.Add(focusEntity);                    
+                    focus.EffectKey = effect.Rule.Key;
+                    focus.Focused = attackerRef.Packed;
+                    focus.Actor = revengeComp.RevengeBy;
+                    focus.EndRound = effect.EndRound;
                 }
             }
         }
