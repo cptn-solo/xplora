@@ -73,7 +73,7 @@ namespace Assets.Scripts.ECS.Systems
                 foreach (var p2pRelEntity in filter.Value)
                 {
                     ref var effectsComp = ref effectsPool.Value.Add(p2pRelEntity);
-                    effectsComp .CurrentEffects = new();
+                    effectsComp.CurrentEffects = new();
 
                     ref var scoreComp = ref scorePool.Value.Add(p2pRelEntity);
                     scoreComp.Value = 0;

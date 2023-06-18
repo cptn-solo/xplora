@@ -115,6 +115,16 @@ namespace Assets.Scripts.UI.Library
                         nav.NavigateToScreen(Screens.Battle);
                     }
                     break;
+                case Actions.InstantBattle:
+                    {
+                        libManager.PrepareInstantBattle(out var playerHeroes, out var emenyHeroes);
+                        battleManager.PlayerTeamPackedEntities =
+                            libManager.WrapForBattle(playerHeroes);
+                        battleManager.EnemyTeamPackedEntities =
+                            libManager.WrapForBattle(emenyHeroes);
+                        nav.NavigateToScreen(Screens.Battle);
+                    }
+                    break;
                 case Actions.ReloadMetadata:
                     {
                         if (googleHeroesAvailable)
