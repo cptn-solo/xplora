@@ -10,8 +10,6 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleRelEffectProbeSystem : IEcsRunSystem
     {
-        private readonly EcsWorldInject ecsWorld;
-
         private readonly EcsPoolInject<RelEffectProbeComp> pool = default;
         private readonly EcsPoolInject<EffectInstanceInfo> effectsPool = default;
         private readonly EcsPoolInject<DraftTag<EffectInstanceInfo>> draftTagPool = default;        
@@ -28,11 +26,12 @@ namespace Assets.Scripts.ECS.Systems
                 ref var comp = ref pool.Value.Get(entity);
                 TryCastRelationEffect(
                     entity,
-                    comp.TargetConfigRefPacked,
                     comp.SourceOrigPacked,
+                    comp.SourceConfigRefPacked,
                     comp.TargetOrigPacked,
-                    comp.P2PEntityPacked,
-                    comp.SubjectState);
+                    comp.TargetConfigRefPacked,
+                    comp.SubjectState,
+                    comp.P2PEntityPacked);
             }
 
         }
@@ -40,22 +39,24 @@ namespace Assets.Scripts.ECS.Systems
         /// <summary>
         /// Will add relation effect if rules applied will allow to
         /// </summary>
-        /// <param name="targetEntity">Entity of a hero to wich the effect will be casted (if any)</param>
-        /// <param name="origWorld">EcsWorld to take relations from</param>
-        /// <param name="targetConfigRefPacked">Hero Config Entity of the given hero</param>
+        /// <param name="effectProbeEntity">Entity of an effect probe between two heroes</param>
         /// <param name="effectSource">Packed other guy entity in the origin world</param>
+        /// <param name="sourceConfigRefPacked">Hero Config Entity of the reletion who spawned the effect</param>
         /// <param name="effectTarget">Packed this guy entity in the origin world</param>
+        /// <param name="targetConfigRefPacked">Hero Config Entity of the given hero, effect receiver</param>
+        /// <param name="SubjectState">State of the effect target (attaking or being attacked</param>
         /// <param name="p2pEntityPacked">Packed score entity for the given hero and the other guy</param>
         /// <returns>true if new effect was casted</returns>
         private bool TryCastRelationEffect(
             int effectProbeEntity, 
-            EcsPackedEntityWithWorld targetConfigRefPacked,
             EcsPackedEntityWithWorld effectSource,
+            EcsPackedEntityWithWorld sourceConfigRefPacked,
             EcsPackedEntityWithWorld effectTarget,
-            EcsPackedEntityWithWorld p2pEntityPacked,
-            RelationSubjectState SubjectState)
+            EcsPackedEntityWithWorld targetConfigRefPacked,
+            RelationSubjectState SubjectState,
+            EcsPackedEntityWithWorld p2pEntityPacked)
         {
-            if (!effectSource.Unpack(out var origWorld, out var otherGuyEntity))
+            if (!effectSource.Unpack(out var origWorld, out var effeectSourceEntity))
                 throw new Exception("Stale Other Guy Entity (probably dead already)");
 
             if (!p2pEntityPacked.Unpack(out _, out var p2pEntity))
@@ -75,24 +76,21 @@ namespace Assets.Scripts.ECS.Systems
             var score = origWorld.ReadIntValue<RelationScoreTag>(p2pEntity);
             var relationsState = relationsConfig.GetRelationState(score);
             
-            if (!targetConfigRefPacked.Unpack(out var libWorld, out var heroConfigEntity))
-                throw new Exception("No Hero Config for current guy");
+            if (!targetConfigRefPacked.Unpack(out var libWorld, out var tgtHeroConfigEntity))
+                throw new Exception("No Hero Config for current (recepient) guy");
+
+            if (!sourceConfigRefPacked.Unpack(out _, out var srcHeroConfigEntity))
+                throw new Exception("No Hero Config for other (spawner) guy");
 
             var libHeroPool = libWorld.GetPool<Hero>();
-            ref var heroConfig = ref libHeroPool.Get(heroConfigEntity);
+            ref var tgtHeroConfig = ref libHeroPool.Get(tgtHeroConfigEntity);
+            ref var srcHeroConfig = ref libHeroPool.Get(srcHeroConfigEntity);
 
             var rulesCaseKey = new RelationEffectLibraryKey(
-                heroConfig.Id, SubjectState, relationsState);
+                srcHeroConfig.Id, SubjectState, relationsState);
 
             if (!effectRules.SubjectStateEffectsIndex.TryGetValue(rulesCaseKey, out var scope))
                 return false; // no effect for relation state, it's ok
-
-            var origWorldConfigRefPool = origWorld.GetPool<HeroConfigRef>();
-            ref var otherGuyConfigRef = ref origWorldConfigRefPool.Get(otherGuyEntity);
-            if (!otherGuyConfigRef.Packed.Unpack(out _, out var otherGuyHeroConfigEntity))
-                throw new Exception("No Hero Config for the other guy");
-
-            ref var otherGuyHeroConfig = ref libHeroPool.Get(otherGuyHeroConfigEntity);
 
             var ruleType = scope.EffectRule.EffectType;
 
@@ -103,8 +101,8 @@ namespace Assets.Scripts.ECS.Systems
             ref var currentRound = ref battleService.Value.CurrentRound;
 
             Debug.Log($"Relations Effect of type {ruleType} was just spawned " +
-                $"for {heroConfig.Name} in {scope.SelfState} due to {scope.RelationState} " +
-                $"with {otherGuyHeroConfig.Name}");
+                $"for {tgtHeroConfig.Name} in {scope.SelfState} due to {scope.RelationState} " +
+                $"with {srcHeroConfig.Name}");
 
             // 1. add component to the entity of the current score data;
             // 2. keep all spawned effects (EffectRules) in that component;

@@ -4,6 +4,7 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -46,6 +47,7 @@ namespace Assets.Scripts.ECS.Systems
 
             var heroConfigPool = libWorld.GetPool<Hero>();
             ref var attackerConfig = ref heroConfigPool.Get(heroConfigEntity);
+            Debug.Log($"Attacker: {attackerConfig.Name}");
 
             ref var turnInfo = ref turnPool.Value.Get(turnEntity);
             turnInfo.AttackerConfig = attackerConfig;

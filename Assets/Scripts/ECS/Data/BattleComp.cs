@@ -64,6 +64,7 @@ namespace Assets.Scripts.ECS.Data
     public struct MakeTurnTag { } // To activate prepared turn execution
     public struct CompletedTurnTag { } // Activate finalize
     public struct ProcessedTurnTag { } // Destroy
+    public struct FinalizedTurnTag { } // Stop changing round's queue
     public struct ProcessedHeroTag { } // To tell if a hero card can be safely dropped for dead
 
     public struct FrontlineTag { }

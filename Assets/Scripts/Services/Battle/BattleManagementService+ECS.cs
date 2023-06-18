@@ -54,6 +54,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleEnqueueTurnSystem()) // checks for empty turn and creates draft one
                 // with DraftTag
                 .Add(new BattleDraftTurnSystem())
+                .Add(new BattlePrepareRevengeTurnsSystem())
                 .Add(new BattleAssignAttackerSystem())
                 .Add(new BattleAssignAttackerEffectsSystem())
                 .Add(new BattleAssignAttackerRelationEffectsSystem()) // if attacker is hero (not enemy)
@@ -91,8 +92,6 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
                 .DelHere<ProcessedHeroTag>()
-                .Add(new BattlePrepareRevengeTurnsSystem())
-                .DelHere<PrepareRevengeComp>()
                 .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
                 .Add(new BattleDequeueExpiredEffectFocusSystem()) // drops focus if it's target is dead or if the focus effect expired
                 .Add(new BattleDequeueExpiredRelationEffectsSystem()) 

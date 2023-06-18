@@ -96,9 +96,16 @@ namespace Assets.Scripts.ECS.Data
 
     public struct RelEffectProbeComp
     {
-        public EcsPackedEntityWithWorld TargetConfigRefPacked { get; internal set; }
+        // effect source hero (spawner)
         public EcsPackedEntityWithWorld SourceOrigPacked { get; internal set; }
+        public EcsPackedEntityWithWorld SourceConfigRefPacked { get; internal set; }
+
+        // effect target hero (receiver of the effect)
         public EcsPackedEntityWithWorld TargetOrigPacked { get; internal set; }
+        public EcsPackedEntityWithWorld TargetConfigRefPacked { get; internal set; }
+
+        // target's state due to which the effect was spawned
+        public RelationSubjectState SubjectState { get; internal set; }
 
         /// <summary>
         /// Score, current effects count (in the origin world), current effects info (in the battle wolrd
@@ -106,7 +113,7 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld P2PEntityPacked { get; internal set; }
         
         public EcsPackedEntity TurnEntity { get; internal set; }
-        public RelationSubjectState SubjectState { get; internal set; }
+        
     }
 
     public struct RelationEffectsComp

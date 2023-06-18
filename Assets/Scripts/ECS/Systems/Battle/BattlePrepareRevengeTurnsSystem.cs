@@ -20,12 +20,16 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<NameValueComp<IdleSpriteTag>> idleSpriteNamePool = default;
 
         private readonly EcsFilterInject<Inc<PrepareRevengeComp>> revengeFilter = default;
+        private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>> filter = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {
             if (revengeFilter.Value.GetEntitiesCount() <= 0) 
+                return;
+
+            if (filter.Value.GetEntitiesCount() <= 0)
                 return;
 
             if (!battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
@@ -81,9 +85,11 @@ namespace Assets.Scripts.ECS.Systems
                     buffer.RemoveAt(idx);
                     buffer.Insert(0, slotInfo);
                 }
+                revengePool.Value.Del(entity);
             }
 
             roundInfo.QueuedHeroes = buffer.ToArray();
+            Debug.Log($"Queued after reorder: {roundInfo.QueuedHeroes[0].HeroName}");
         
             ListPool<RoundSlotInfo>.Add(buffer);
         }

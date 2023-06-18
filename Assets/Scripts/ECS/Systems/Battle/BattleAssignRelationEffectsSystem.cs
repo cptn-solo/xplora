@@ -2,6 +2,7 @@
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -18,7 +19,6 @@ namespace Assets.Scripts.ECS.Systems
         protected readonly EcsPoolInject<RelEffectProbeComp> relEffectProbePool = default;
         protected readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         protected readonly EcsPoolInject<HeroInstanceOriginRef> heroInstanceOriginRefPool = default;
-        protected readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
 
         protected readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo, T>> filter = default;
 
@@ -36,8 +36,10 @@ namespace Assets.Scripts.ECS.Systems
                 ref var effTargetOriginRef = ref heroInstanceOriginRefPool.Value.Get(effectTargetEntity);
                 if (!effTargetOriginRef.Packed.Unpack(out var origWorld, out var effectTargetOrig))
                     continue;
-
-                ref var heroConfigRef = ref heroConfigRefPool.Value.Get(effectTargetEntity);
+                
+                var origHeroConfigRefPool = origWorld.GetPool<HeroConfigRef>();
+                
+                ref var tgtHeroConfigRef = ref origHeroConfigRefPool.Get(effectTargetOrig);
 
                 var matrixFilter = origWorld.Filter<RelationsMatrixComp>().End();
                 var matrixPool = origWorld.GetPool<RelationsMatrixComp>();
@@ -48,16 +50,22 @@ namespace Assets.Scripts.ECS.Systems
                     foreach (var item in matrixComp.Matrix)
                     {
                         // matching only one side of the key to avoid duplicates
-                        if (!item.Key.Item1.EqualsTo(effTargetOriginRef.Packed))
+                        if (!item.Key.Item2.EqualsTo(effTargetOriginRef.Packed))
                             continue;
+
+                        if (!item.Key.Item1.Unpack(out _, out var effectSourceOrig))
+                            throw new Exception("Stale effect source");
+
+                        ref var srcHeroConfigRef = ref origHeroConfigRefPool.Get(effectSourceOrig);
 
                         var relEffectProbeEntity = ecsWorld.Value.NewEntity();
                         ref var probeComp = ref relEffectProbePool.Value.Add(relEffectProbeEntity);
-                        probeComp.TargetOrigPacked = item.Key.Item1;
-                        probeComp.SourceOrigPacked = item.Key.Item2;
-                        probeComp.TargetConfigRefPacked = heroConfigRef.Packed;
-                        probeComp.P2PEntityPacked = item.Value;
+                        probeComp.SourceOrigPacked = item.Key.Item1;
+                        probeComp.SourceConfigRefPacked = srcHeroConfigRef.Packed;
+                        probeComp.TargetOrigPacked = item.Key.Item2;
+                        probeComp.TargetConfigRefPacked = tgtHeroConfigRef.Packed;
                         probeComp.SubjectState = SubjectState;
+                        probeComp.P2PEntityPacked = item.Value;
                         probeComp.TurnEntity = systems.GetWorld().PackEntity(entity);
                     }
                 }

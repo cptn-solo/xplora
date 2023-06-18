@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Assets.Scripts.Data
+﻿namespace Assets.Scripts.Data
 {
     public struct BattleRoundInfo
     {
@@ -10,7 +7,7 @@ namespace Assets.Scripts.Data
         public int Round { get; set; }
         public RoundSlotInfo[] QueuedHeroes { get; set; }
 
-        public override string ToString()
+        public override readonly string ToString()
         {
             var full = $"Раунд #{Round}: " +
                 $"{State}, " +

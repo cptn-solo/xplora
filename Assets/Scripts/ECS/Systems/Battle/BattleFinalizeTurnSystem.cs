@@ -15,15 +15,21 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<ProcessedHeroTag> processedHeroPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
+        private readonly EcsPoolInject<FinalizedTurnTag> finalizedPool = default;
 
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, ProcessedTurnTag>> filter = default;
+        private readonly EcsFilterInject<
+            Inc<BattleTurnInfo, ProcessedTurnTag>,
+            Exc<FinalizedTurnTag>> filter = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
+            {
                 FinalizeTurn(entity);
+                finalizedPool.Value.Add(entity);
+            }
         }
 
         private void FinalizeTurn(int turnEntity)

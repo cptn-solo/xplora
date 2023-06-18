@@ -113,12 +113,12 @@ namespace Assets.Scripts.Services
                     throw new Exception("Stale config ref");
                 
                 ref var config = ref configPool.Get(configEntity);
-                if (config.Domain == HeroDomain.Hero && playerTeamBuff.Count < 4)
+                if (config.Domain == HeroDomain.Hero && playerTeamBuff.Count < 2)
                 {
                     playerTeamBuff.Add(EcsWorld.PackEntityWithWorld(entity));
                     MoveHero(playerTeamBuff[playerTeamBuff.Count - 1], new HeroPosition(0, BattleLine.Front, playerTeamBuff.Count -1));
                 }
-                if (config.Domain == HeroDomain.Enemy && enemyTeamBuff.Count < 4)
+                if (config.Domain == HeroDomain.Enemy && enemyTeamBuff.Count < 2 && config.OveralStrength == 2)
                 {
                     enemyTeamBuff.Add(EcsWorld.PackEntityWithWorld(entity));
                     MoveHero(enemyTeamBuff[enemyTeamBuff.Count - 1], new HeroPosition(1, BattleLine.Front, enemyTeamBuff.Count -1));
