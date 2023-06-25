@@ -89,6 +89,8 @@ namespace Assets.Scripts.Services
                 // with CompletedTurnTag
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
+                .Add(new BattleClearVisualsForUsedFocusSystem()) // removes focus effect (revenge/target)
+                .Add(new BattleClearVisualsForUsedRelationsEffectSystem()) // removes redundant battle effects visuals
                 .Add(new BattleReportUpdatedHeros()) // reports update back to the battle requester (raid)
                 .Add(new BattleReportDeadHeroes()) // reports death back to the battle requester (raid)
                 // dequeue fired items

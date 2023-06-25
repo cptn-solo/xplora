@@ -24,6 +24,10 @@ namespace Assets.Scripts.ECS.Systems
                 RelEffectProbeComp,
                 EffectInstanceInfo
                 >> filter = default;
+
+        private readonly EcsFilterInject<
+            Inc<PlayerTeamTag>,
+            Exc<DeadTag>> teammateFilter = default;
         
         private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
 
@@ -54,13 +58,16 @@ namespace Assets.Scripts.ECS.Systems
                     targetComp.TargetBy = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
                     targetComp.TargetFor = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
 
-                    var focusEntity = ecsWorld.Value.NewEntity();
-                    // remember who is focused:
-                    ref var focus = ref focusPool.Value.Add(focusEntity);
-                    focus.EffectKey = effect.Rule.Key;
-                    focus.Focused = attackerRef.Packed;
-                    focus.Actor = targetComp.TargetFor;
-                    focus.EndRound = effect.EndRound;
+                    foreach (var teammateEntity in teammateFilter.Value)
+                    {
+                        var focusEntity = ecsWorld.Value.NewEntity();
+                        // remember who is focused:
+                        ref var focus = ref focusPool.Value.Add(focusEntity);
+                        focus.EffectKey = effect.Rule.Key;
+                        focus.Focused = attackerRef.Packed;
+                        focus.Actor = ecsWorld.Value.PackEntityWithWorld(teammateEntity);
+                        focus.EndRound = effect.EndRound;                        
+                    }
 
                 }
             }

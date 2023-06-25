@@ -123,6 +123,7 @@ namespace Assets.Scripts.UI.Battle
             {
                 slot.DelegateProvider = slotDelegate;
                 slot.Position = new HeroPosition(teamId, line, slot.SlotIndex);
+                slot.AwakeEnabled = false;
                 slots[slot.SlotIndex] = slot;
                 dict.Add(slot.Position, slot);
             }

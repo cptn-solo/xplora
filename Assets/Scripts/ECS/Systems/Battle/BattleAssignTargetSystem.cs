@@ -17,6 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
+        private readonly EcsPoolInject<UsedFocusEntityTag> usedFocusPool = default;
 
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter = default;
 
@@ -37,15 +38,17 @@ namespace Assets.Scripts.ECS.Systems
             var isPlayerTeam = playerTeamTagPool.Value.Has(attackerInstanceEntity);
             var ranged = rangedTagPool.Value.Has(attackerInstanceEntity);
 
-            if (isPlayerTeam && world.GetAlgoTargetFocus(attackerInstanceEntity, out var tgtfocus) &&
+            if (isPlayerTeam && world.GetAlgoTargetFocus(attackerInstanceEntity, out var tgtfocus, out var focusEntity) &&
                 tgtfocus.HasValue && tgtfocus.Value.Unpack(out _, out int targetEntity))
             {
                 Debug.Log("Target was overriden by relation AlgoTarget event");
+                MarkForExpire(focusEntity);
             }
-            else if (isPlayerTeam && world.GetAlgoRevengeFocus(attackerInstanceEntity, out var rvgFocus) &&
+            else if (isPlayerTeam && world.GetAlgoRevengeFocus(attackerInstanceEntity, out var rvgFocus, out focusEntity) &&
                 rvgFocus.HasValue && rvgFocus.Value.Unpack(out _, out targetEntity))
             {
                 Debug.Log("Target was overriden by relation AlgoRevenge event");
+                MarkForExpire(focusEntity);
             }
             else
             {
@@ -100,6 +103,12 @@ namespace Assets.Scripts.ECS.Systems
 
             turnInfo.State = targetEntity == -1 ?
                 TurnState.NoTargets : TurnState.TurnPrepared;
+        }
+
+        private void MarkForExpire(int focusEntity)
+        {
+            if (!usedFocusPool.Value.Has(focusEntity))
+                usedFocusPool.Value.Add(focusEntity);
         }
 
         private EcsFilter TeamTagFilter<T, L>(EcsWorld world) where T : struct where L : struct

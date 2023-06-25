@@ -23,6 +23,7 @@ namespace Assets.Scripts.UI.Inventory
                 Put(delegateProvider.Pool(this));
             }
         }
+        public bool AwakeEnabled { get; internal set; } = true;
 
         [SerializeField] private int slotIndex;
         
@@ -41,7 +42,7 @@ namespace Assets.Scripts.UI.Inventory
         private void Awake()
         {
             backgroundImage = GetComponent<Image>();
-            backgroundImage.enabled = false;
+            backgroundImage.enabled = AwakeEnabled;
             normalColor = backgroundImage.color;
             Color.RGBToHSV(normalColor, out var h, out var s, out var v);
             acceptingColor = Color.HSVToRGB(h, s, v * 1f);

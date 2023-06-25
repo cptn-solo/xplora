@@ -1,6 +1,8 @@
 using Assets.Scripts.Data;
 using Leopotam.EcsLite;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -140,6 +142,59 @@ namespace Assets.Scripts.ECS.Data
             description = ToString();
         }
 
+        public readonly void RemoveExpired(int round,
+            out EcsPackedEntityWithWorld[] ptpToDecrement)
+        {
+            ptpToDecrement = null;
+            
+            if (currentEffects == null) return;
+
+            var buffer = ListPool<RelationEffectKey>.Get();
+            var removed = ListPool<EcsPackedEntityWithWorld>.Get();
+
+            foreach (var item in currentEffects)
+                if (item.Value.EndRound - 1 == round)
+                {
+                    buffer.Add(item.Key);
+                    removed.Add(item.Value.EffectP2PEntity);
+                }
+
+            foreach (var item in buffer)
+                currentEffects.Remove(item);
+            
+            ptpToDecrement = removed.ToArray();
+
+            ListPool<RelationEffectKey>.Add(buffer);
+            ListPool<EcsPackedEntityWithWorld>.Add(removed);
+        }
+        
+        internal readonly void RemoveByType(RelationsEffectType relationsEffectType, 
+            out EcsPackedEntityWithWorld[] ptpToDecrement)
+        {
+            ptpToDecrement = null;
+
+            if (currentEffects == null) return;
+
+            var buffer = ListPool<RelationEffectKey>.Get();
+            var removed = ListPool<EcsPackedEntityWithWorld>.Get();
+
+            foreach (var item in currentEffects)
+                if (item.Value.Rule.EffectType == relationsEffectType)
+                {
+                    buffer.Add(item.Key);
+                    removed.Add(item.Value.EffectP2PEntity);
+                }
+
+            foreach (var item in buffer)
+                currentEffects.Remove(item);
+            
+            ptpToDecrement = removed.ToArray();
+
+            ListPool<RelationEffectKey>.Add(buffer);            
+            ListPool<EcsPackedEntityWithWorld>.Add(removed);
+        }
+
+
         public void SetEffect(RelationEffectKey type, EffectInstanceInfo effect)
         {
             if (currentEffects == null) return;
@@ -157,7 +212,7 @@ namespace Assets.Scripts.ECS.Data
             description = ToString();
         }
         
-        public string Description => description;
+        public readonly string Description => description;
 
         public override string ToString()
         {
@@ -176,5 +231,6 @@ namespace Assets.Scripts.ECS.Data
          
             return retval;
         }
+
     }
 }

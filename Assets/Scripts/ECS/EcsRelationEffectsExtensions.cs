@@ -56,28 +56,38 @@ namespace Assets.Scripts.ECS
             return adjValue;
         }
 
-        public static bool GetAlgoRevengeFocus(this EcsWorld ecsWorld, int entity, out EcsPackedEntityWithWorld? focus) =>
-            ecsWorld.GetRelEffectFocus(entity, RelationsEffectType.AlgoRevenge, out focus);
+        public static bool GetAlgoRevengeFocus(this EcsWorld ecsWorld, int entity, out EcsPackedEntityWithWorld? focus, out int focusEntity) =>
+            ecsWorld.GetRelEffectFocus(entity, RelationsEffectType.AlgoRevenge, out focus, out focusEntity);
 
-        public static bool GetAlgoTargetFocus(this EcsWorld ecsWorld, int entity, out EcsPackedEntityWithWorld? focus) =>
-            ecsWorld.GetRelEffectFocus(entity, RelationsEffectType.AlgoTarget, out focus);
+        public static bool GetAlgoTargetFocus(this EcsWorld ecsWorld, int entity, out EcsPackedEntityWithWorld? focus, out int focusEntity) =>
+            ecsWorld.GetRelEffectFocus(entity, RelationsEffectType.AlgoTarget, out focus, out focusEntity);
 
-        public static bool GetRelEffectFocus(this EcsWorld ecsWorld, int entity, RelationsEffectType effectType, out EcsPackedEntityWithWorld? focus)
+        public static bool GetRelEffectFocus(this EcsWorld ecsWorld, int actorProbe, RelationsEffectType effectType, 
+            out EcsPackedEntityWithWorld? focus,
+            out int focusEntity)
         {
             focus = null;
+            focusEntity = -1;
             var filter = ecsWorld.Filter<EffectFocusComp>().End();
-            foreach (var focusEntity in filter)
+            foreach (var entity in filter)
             {
-                ref var focusComp = ref ecsWorld.GetPool<EffectFocusComp>().Get(focusEntity);
-                
+                ref var focusComp = ref ecsWorld.GetPool<EffectFocusComp>().Get(entity);
+
                 if (!focusComp.Actor.Unpack(out var world, out var actorEntity))
                     throw new Exception("Stale Actor");
-                
-                if (ecsWorld.Equals(world) && actorEntity == entity && focusComp.EffectKey.RelationsEffectType == effectType)
+
+                if (!ecsWorld.Equals(world))
+                    continue;
+
+                if (focusComp.EffectKey.RelationsEffectType != effectType)
+                    continue;
+
+                if (actorEntity == actorProbe)
                 {
                     focus = focusComp.Focused;
+                    focusEntity = entity;
                     return true;
-                }
+                }    
             }
             return false;
         }

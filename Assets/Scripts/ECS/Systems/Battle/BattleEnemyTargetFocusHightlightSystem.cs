@@ -5,6 +5,7 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -42,7 +43,8 @@ namespace Assets.Scripts.ECS.Systems
 
                 var rt = (RectTransform)anchor.transform;
                 var iconRt = (RectTransform)icon.transform;
-                iconRt.anchoredPosition = rt.rect.center + Vector2.up * rt.rect.height;
+                float randomOffset = Random.Range(-.2f, .2f);
+                iconRt.anchoredPosition = rt.rect.center * randomOffset + Vector2.up * rt.rect.height;
                 
                 icon.SetInfo(new BundleIconInfo
                 {
