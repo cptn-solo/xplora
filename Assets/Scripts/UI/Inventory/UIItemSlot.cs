@@ -41,6 +41,7 @@ namespace Assets.Scripts.UI.Inventory
         private void Awake()
         {
             backgroundImage = GetComponent<Image>();
+            backgroundImage.enabled = false;
             normalColor = backgroundImage.color;
             Color.RGBToHSV(normalColor, out var h, out var s, out var v);
             acceptingColor = Color.HSVToRGB(h, s, v * 1f);

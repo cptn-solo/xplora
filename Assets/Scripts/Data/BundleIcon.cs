@@ -35,6 +35,7 @@
                 BundleIcon.PowerDmg => "Icons/power_dmg",
                 BundleIcon.Revenge => "Icons/revenge",
                 BundleIcon.Stun => "Icons/stun",
+                BundleIcon.AimTarget => "Icons/enemy_target",
 
                 _ => ""
             };
@@ -90,5 +91,7 @@
         PowerDmg = 1180,
         Revenge = 1190,
         Stun = 1200,
+
+        AimTarget = 1210, // target highliter for revenge/target battle relation effects
     }
 }

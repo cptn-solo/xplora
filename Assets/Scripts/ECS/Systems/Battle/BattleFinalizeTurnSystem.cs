@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
         private readonly EcsPoolInject<FinalizedTurnTag> finalizedPool = default;
-
+        
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, ProcessedTurnTag>,
             Exc<FinalizedTurnTag>> filter = default;

@@ -3,6 +3,7 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -12,6 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
         private readonly EcsPoolInject<RetiredTag> retiredTagPool = default;
         private readonly EcsPoolInject<GarbageTag> garbageTagPool = default;
+        private readonly EcsPoolInject<TransformRef<AimTargetTag>> aimIconPool = default;
         
         private readonly EcsFilterInject<Inc<EffectFocusComp>> filter = default;
         private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> completeRoundFilter = default;
@@ -34,6 +36,12 @@ namespace Assets.Scripts.ECS.Systems
                         !garbageTagPool.Value.Has(entity))
                         garbageTagPool.Value.Add(entity);
                 }
+
+                if (garbageTagPool.Value.Has(entity) && aimIconPool.Value.Has(entity))
+                {
+                    ref var aimIconRef = ref aimIconPool.Value.Get(entity);
+                    GameObject.Destroy(aimIconRef.Transform.gameObject);
+                }                    
             }
         }
     }

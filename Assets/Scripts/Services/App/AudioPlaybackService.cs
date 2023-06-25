@@ -25,6 +25,9 @@ namespace Assets.Scripts.Services
 
         public void Play(SFX sfx)
         {
+            if ((sfx.FileName ?? "").Length == 0)
+                return;
+
             if (sfx.IsMusic)
             {
                 currentTheme = sfx;

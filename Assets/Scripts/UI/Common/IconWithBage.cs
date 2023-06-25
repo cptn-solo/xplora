@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Data;
+﻿using Assets.Scripts;
+using Assets.Scripts.Data;
 using Assets.Scripts.UI.Common;
 using TMPro;
 using UnityEngine;

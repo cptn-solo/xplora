@@ -76,6 +76,7 @@ namespace Assets.Scripts.ECS.Data
     public struct AttackTag { } // turn
     public struct DealDamageTag { } // turn
     public struct DealEffectsTag { } // turn
+    public struct AimTargetTag { } // icon to highlight aim target (added to bundle icon host)
 
     /// <summary>
     /// To be attached to a battle hero instance to track back damage and such for the raid

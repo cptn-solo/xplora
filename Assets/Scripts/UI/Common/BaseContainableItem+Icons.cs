@@ -7,9 +7,10 @@ namespace Assets.Scripts.UI.Common
     public partial class BaseContainableItem<T>
         where T : struct
     {
+        
         protected Material defaultIconMaterial;
         protected virtual Image IconImage { get { return null; } }
-
+                
         protected void InitIconUtils()
         {
             defaultIconMaterial = IconImage != null ? IconImage.material : null;
