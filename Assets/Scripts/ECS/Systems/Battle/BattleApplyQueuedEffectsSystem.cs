@@ -17,7 +17,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
-
+        private readonly EcsPoolInject<DamageEffectVisualsInfo> damageEffectsVisualsPool = default;
+        private readonly EcsPoolInject<SceneVisualsQueueComp> turnVisualsPool = default;
 
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool = default;
@@ -47,7 +48,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var effectsComp = ref effectsPool.Value.Get(attackerEntity);
             var effs = effectsComp.ActiveEffects.Keys.ToArray(); // will be used to flash used effects ===>
-            
+
             var effectDamage = 0;
             foreach (var eff in effs)
             {
@@ -67,19 +68,43 @@ namespace Assets.Scripts.ECS.Systems
             barsAndEffectsComp.HealthCurrent = hpComp.Value;
 
             // intermediate turn info, no round turn override to preserve pre-calculated target:
-            var effectsInfo = new BattleTurnInfo() {
+            var lethal = hpComp.Value <= 0;
+            var effectsInfo = new BattleTurnInfo()
+            {
                 Turn = turnInfo.Turn,
                 Attacker = turnInfo.Attacker,
                 Damage = effectDamage,
                 AttackerEffects = effs,
-                Lethal = hpComp.Value <= 0,
+                Lethal = lethal,
                 State = TurnState.TurnEffects,
             };
 
             battleService.Value.NotifyTurnEventListeners(effectsInfo);
 
+            ScheduleSceneVisuals(world, turnEntity, turnInfo.Attacker, effectDamage, effs, lethal);
+
             if (hpComp.Value <= 0)
                 attackTagPool.Value.Del(turnEntity);
+        }
+
+        private void ScheduleSceneVisuals(
+            EcsWorld world, 
+            int turnEntity, // turn to attach visuals to
+            EcsPackedEntityWithWorld? subject, // entity to look views for
+            int damage, // damage animation to apply 
+            DamageEffect[] effects, // effects animation to apply
+            bool lethal) // lethal animation to apply
+        {
+            var uiEvent = world.NewEntity();
+            
+            ref var eventInfo = ref damageEffectsVisualsPool.Value.Add(uiEvent);
+            eventInfo.SubjectEntity = subject.Value;
+            eventInfo.Effects = effects;
+            eventInfo.EffectsDamage = damage;
+            eventInfo.Lethal = lethal;
+         
+            ref var turnVisuals = ref turnVisualsPool.Value.Get(turnEntity);
+            turnVisuals.QueuedVisuals.Add(world.PackEntity(uiEvent));
         }
 
         private float GetResistanceFactor(int entity, DamageEffect eff)

@@ -46,7 +46,7 @@ namespace Assets.Scripts.ECS.Systems
             battleService.Value.NotifyTurnEventListeners(); // inprogress - will queue
                                                             // attack / damage
                                                             // animations
-
+            
             turnInfo.State = TurnState.TurnCompleted;
             completeTagPool.Value.Add(turnEntity);
 

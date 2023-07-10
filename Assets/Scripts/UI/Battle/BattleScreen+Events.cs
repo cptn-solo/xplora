@@ -63,8 +63,8 @@ namespace Assets.Scripts.UI.Battle
             {
                 case TurnState.PrepareTurn:
                     {
-                        ResetTurnProcessingQueue();
-                        //EnqueueOrAuto(turnInfo);
+                        // migration to the ecs
+                        // ResetTurnProcessingQueue();
                     }
                     break;
                 case TurnState.TurnPrepared:
@@ -74,7 +74,8 @@ namespace Assets.Scripts.UI.Battle
                 case TurnState.TurnCompleted:
                 case TurnState.NoTargets:
                     {
-                        EnqueueOrAuto(turnInfo);
+                        // migration to the ecs
+                        // EnqueueOrAuto(turnInfo);
                     }
                     break;
                 case TurnState.TurnProcessed:

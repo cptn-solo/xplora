@@ -132,11 +132,6 @@ namespace Assets.Scripts.Services
             }
         }
 
-        internal void MakeTurn()
-        {
-            MakeEcsTurn();
-        }
-
         internal void NotiifyBattleComplete(bool won, Asset[] potAssets)
         {
             OnBattleComplete?.Invoke(won, potAssets);

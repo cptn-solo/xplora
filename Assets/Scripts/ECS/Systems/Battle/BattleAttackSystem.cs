@@ -54,10 +54,19 @@ namespace Assets.Scripts.ECS.Systems
                 dealDamageTagPool.Value.Add(turnEntity);
                 dealEffectsTagPool.Value.Add(turnEntity);
             }
+            else
+            {
+                ScheduleSceneVisuals();// TODO: animate miss/dodge
+            }
 
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
             turnInfo.Dodged = dodged;
             turnInfo.State = TurnState.TurnInProgress;
+        }
+
+        private void ScheduleSceneVisuals()
+        {
+
         }
     }
 }

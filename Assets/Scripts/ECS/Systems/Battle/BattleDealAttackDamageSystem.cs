@@ -109,6 +109,13 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
             barsAndEffectsComp.HealthCurrent = hpComp.Value;
+
+            ScheduleSceneVisuals(); // TODO: animate move and attack with some damage dealing
+        }
+
+        private void ScheduleSceneVisuals()
+        {
+
         }
     }
 }

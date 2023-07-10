@@ -244,14 +244,6 @@ namespace Assets.Scripts.Services
         private HeroInstanceRef[] GetEcsEnemyHeroes() =>
             GetEcsTaggedHeroes<EnemyTeamTag>();
 
-        private void MakeEcsTurn()
-        {
-            if (!TurnEntity.Unpack(out var world, out var entity))
-                throw new Exception("No turn");
-
-            world.GetPool<MakeTurnTag>().Add(entity);
-        }
-
         private void SetEcsTurnProcessed()
         {
             if (!TurnEntity.Unpack(out var world, out var entity))

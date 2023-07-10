@@ -68,6 +68,8 @@ namespace Assets.Scripts.ECS.Systems
                 if (damageEffect.Config.Effect == DamageEffect.Pierced)
                 {
                     turnInfo.Pierced = true;
+
+                    ScheduleSceneVisuals(); // TODO: animate armor piencing
                 }
                 else
                 {
@@ -87,8 +89,15 @@ namespace Assets.Scripts.ECS.Systems
                     ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
                     barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
                     barsAndEffectsComp.HealthCurrent = hpComp.Value;
+
+                    ScheduleSceneVisuals(); // TODO: animate effect with damage and such
                 }
             }
+        }
+
+        private void ScheduleSceneVisuals()
+        {
+
         }
 
         private bool TryCast(
