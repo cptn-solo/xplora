@@ -34,7 +34,7 @@ namespace Assets.Scripts.ECS.Systems
             ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
             ref var targetRef = ref targetRefPool.Value.Get(turnEntity);
 
-            if (!attackerRef.Packed.Unpack(out _, out var attackerEntity))
+            if (!attackerRef.Packed.Unpack(out var world, out var attackerEntity))
                 throw new Exception("No attacker");
 
             if (!targetRef.Packed.Unpack(out _, out var targetEntity))
@@ -54,19 +54,11 @@ namespace Assets.Scripts.ECS.Systems
                 dealDamageTagPool.Value.Add(turnEntity);
                 dealEffectsTagPool.Value.Add(turnEntity);
             }
-            else
-            {
-                ScheduleSceneVisuals();// TODO: animate miss/dodge
-            }
 
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
             turnInfo.Dodged = dodged;
             turnInfo.State = TurnState.TurnInProgress;
         }
 
-        private void ScheduleSceneVisuals()
-        {
-
-        }
     }
 }

@@ -6,7 +6,6 @@ using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -23,7 +22,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
         private readonly EcsPoolInject<EffectsComp> effectsPool = default;
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealEffectsTag>> filter = default;
@@ -68,8 +66,6 @@ namespace Assets.Scripts.ECS.Systems
                 if (damageEffect.Config.Effect == DamageEffect.Pierced)
                 {
                     turnInfo.Pierced = true;
-
-                    ScheduleSceneVisuals(); // TODO: animate armor piencing
                 }
                 else
                 {
@@ -85,19 +81,8 @@ namespace Assets.Scripts.ECS.Systems
                     ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
                     hpComp.Value = Mathf.Max(0, hpComp.Value - turnInfo.ExtraDamage);
-
-                    ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
-                    barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
-                    barsAndEffectsComp.HealthCurrent = hpComp.Value;
-
-                    ScheduleSceneVisuals(); // TODO: animate effect with damage and such
                 }
             }
-        }
-
-        private void ScheduleSceneVisuals()
-        {
-
         }
 
         private bool TryCast(

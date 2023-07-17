@@ -19,9 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
 
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
-
 
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealDamageTag>> filter = default;
@@ -106,16 +104,6 @@ namespace Assets.Scripts.ECS.Systems
             ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
 
             hpComp.Value = Mathf.Max(0, hpComp.Value - damage);
-
-            ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
-            barsAndEffectsComp.HealthCurrent = hpComp.Value;
-
-            ScheduleSceneVisuals(); // TODO: animate move and attack with some damage dealing
-        }
-
-        private void ScheduleSceneVisuals()
-        {
-
         }
     }
 }

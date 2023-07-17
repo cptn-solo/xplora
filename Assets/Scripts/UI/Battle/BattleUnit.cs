@@ -1,6 +1,8 @@
 using Assets.Scripts.ECS;
 using Assets.Scripts.Data;
 using UnityEngine;
+using Leopotam.EcsLite;
+using System;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -42,5 +44,14 @@ namespace Assets.Scripts.UI.Battle
             if (heroAnimation != null)
                 heroAnimation.HideOverlay();
         }
+
+        public override void Visualize<V>(V visualInfo, EcsPackedEntityWithWorld visualEntity)
+        {
+            if (heroAnimation != null)
+                heroAnimation.Visualize(() => base.Visualize(visualInfo, visualEntity), visualInfo);
+            else
+                base.Visualize(visualInfo, visualEntity);
+        }
     }
+
 }

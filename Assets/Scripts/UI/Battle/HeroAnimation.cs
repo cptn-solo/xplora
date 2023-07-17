@@ -1,6 +1,12 @@
 using Assets.Scripts.Data;
+using Assets.Scripts.UI.Data;
+using System;
 using System.Collections;
 using UnityEngine;
+using Assets.Scripts.Services;
+using Zenject;
+using Assets.Scripts.ECS.Data;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -15,6 +21,9 @@ namespace Assets.Scripts.UI.Battle
         private const string AnimStageIdle = "Idle";
 
         private Animator animator;
+        private Hero? heroConfig = null;
+        private AudioPlaybackService audioService = null;
+        private Coroutine visualizerCoroutine = null;
 
         [SerializeField] private Transform rangedAttack;
 
@@ -25,6 +34,12 @@ namespace Assets.Scripts.UI.Battle
         private Overlay overlay;
         private Vector3 scaleBeforeMove = Vector3.zero;
         private Vector3 initialPosition;
+
+        [Inject]
+        public void Construct(AudioPlaybackService audioService)
+        { 
+            this.audioService = audioService;
+        }
 
         public void SetOverlay(Overlay overlay)
         {
@@ -68,6 +83,8 @@ namespace Assets.Scripts.UI.Battle
 
         internal void SetHero(Hero? hero, bool isPlayerTeam = false)
         {
+            heroConfig = hero;
+
             if (hero == null)
             {    
                 animator.runtimeAnimatorController = null;
@@ -114,6 +131,7 @@ namespace Assets.Scripts.UI.Battle
         {
             overlay.FlashEffect(effect);
         }
+        
         internal void Run(float sec = -1f, Vector3 position = default)
         {
             StartCoroutine(TimedAnimationCorotine(AnimBoolRun, sec));
@@ -125,12 +143,13 @@ namespace Assets.Scripts.UI.Battle
             StartCoroutine(TimedAnimationCorotine(AnimBoolAttack, range ? 1 : -1));
             if (range)
                 StartCoroutine(RangeAttackCoroutine(position, .5f));
-
         }
+
         public void Hit()
         {
             StartCoroutine(TimedAnimationCorotine(AnimBoolHit));
         }
+        
         public void Death()
         {
             StartCoroutine(DeathAnimationCorotine());
@@ -174,6 +193,7 @@ namespace Assets.Scripts.UI.Battle
             animator.SetBool(AnimBoolDeath, true);
         }
         private Vector3 debugPos = default;
+
         private IEnumerator RangeAttackCoroutine(Vector3 position = default, float sec = -1f)
         {
             animator.SetBool(AnimBoolRangeAttack, true);
@@ -231,6 +251,176 @@ namespace Assets.Scripts.UI.Battle
                 transform.localScale = scaleBeforeMove;
                 scaleBeforeMove = Vector3.zero;
             }
+        }
+
+        internal void Visualize<V>(Action callback, V visualInfo) where V : struct, ISceneVisualsInfo
+        {
+            if (heroConfig ==  null)
+            {
+                callback();
+                return;
+            }
+
+            if (visualizerCoroutine  != null) {
+                StopCoroutine(visualizerCoroutine);
+                visualizerCoroutine = null;
+                Debug.Log(@"visualizer running already, stopping");
+            }
+
+            var hero = heroConfig.Value;
+            if (visualInfo is DamageEffectVisualsInfo dev)
+                visualizerCoroutine = StartCoroutine(DamageEffectsVisualsCor(dev, hero, callback));
+            else if (visualInfo is ArmorPiercedVisualsInfo apv)
+                visualizerCoroutine = StartCoroutine(ArmorPiercedVisualCor(apv, hero, callback));
+            else if (visualInfo is TakingDamageVisualsInfo tdv)
+                visualizerCoroutine = StartCoroutine(TakingDamageVisualCor(tdv, hero, callback));
+            else if (visualInfo is AttackDodgeVisualsInfo adv)
+                visualizerCoroutine = StartCoroutine(AttackDodgeVisualCor(adv, hero, callback));
+            else if (visualInfo is AttackerAttackVisualsInfo aav)
+                visualizerCoroutine = StartCoroutine(AttackerAttackVisualCor(aav, hero, callback));
+            else if (visualInfo is AttackMoveVisualsInfo amv)
+                visualizerCoroutine = StartCoroutine(AttackMoveVisualCor(amv, hero, callback));
+            else if (visualInfo is DeathVisualsInfo dv)
+                visualizerCoroutine = StartCoroutine(DeathVisualCor(dv, hero, callback));
+            else if (visualInfo is HitVisualsInfo hv) // TODO: better merge into attack/effects
+                visualizerCoroutine = StartCoroutine(HitVisualCor(hv, hero, callback));
+        }
+
+        private IEnumerator HitVisualCor(
+            HitVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+            Hit();
+
+            yield return defaultWait;
+
+            callback();
+        }
+
+        private IEnumerator DeathVisualCor(
+            DeathVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+
+            Death();
+            audioService.Play(SFX.Named(hero.SndDied));
+
+            yield return waitOneSec;
+
+            callback();
+        }
+
+        private IEnumerator AttackMoveVisualCor(
+            AttackMoveVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+            var attackerMove = info.TargetTransform.position -
+                transform.position;
+            var attackerPos = transform.position + attackerMove +
+                info.TargetTransform.right * 1.5f;
+
+            var move = 1.0f;
+            Run(move, attackerPos);
+
+            yield return new WaitForSecondsRealtime(1.3f);
+
+            callback();
+        }
+
+        private IEnumerator AttackerAttackVisualCor(
+            AttackerAttackVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+
+            Attack(
+                info.Ranged, 
+                info.TargetTransform.position + Vector3.up * .8f);
+            audioService.Play(SFX.Named(hero.SndAttack));
+
+            yield return new WaitForSecondsRealtime(.8f);
+
+            callback();
+        }
+
+        private IEnumerator AttackDodgeVisualCor(
+            AttackDodgeVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+            SetOverlayInfo(TurnStageInfo.Dodged);
+            audioService.Play(SFX.Named(hero.SndDodged));
+
+            yield return waitOneSec;
+
+            callback();
+        }
+
+        private IEnumerator TakingDamageVisualCor(
+            TakingDamageVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+            if (info.Critical)
+            {
+                SetOverlayInfo(TurnStageInfo.Critical(info.Damage));
+                audioService.Play(SFX.Named(hero.SndCritHit));
+            }
+            else
+            {
+                SetOverlayInfo(TurnStageInfo.JustDamage(info.Damage));
+                audioService.Play(SFX.Named(hero.SndHit));
+            }
+
+            yield return waitOneSec;
+
+            callback();
+        }
+
+        private IEnumerator ArmorPiercedVisualCor(
+            ArmorPiercedVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+            SetOverlayInfo(TurnStageInfo.Pierced(info.Damage));
+            audioService.Play(SFX.Named(hero.SndPierced));
+            
+            yield return waitOneSec;
+
+            callback();
+        }
+
+        private IEnumerator DamageEffectsVisualsCor(
+            DamageEffectVisualsInfo info, 
+            Hero hero, 
+            Action callback) 
+        {
+            foreach (var effect in info.Effects)
+            {
+
+                FlashEffect(effect);
+                SetOverlayInfo(TurnStageInfo.EffectDamage(effect, info.EffectsDamage));
+                Hit();
+
+                var sfxName = effect switch
+                {
+                    DamageEffect.Bleeding => hero.SndBleeding,
+                    DamageEffect.Burning => hero.SndBurning,
+                    DamageEffect.Frozing => hero.SndFreezed,
+                    DamageEffect.Stunned => hero.SndStunned,
+                    _ => ""
+                };
+
+                if (sfxName != "")
+                    audioService.Play(SFX.Named(sfxName));
+
+                yield return defaultWait;
+            }
+
+            callback();
         }
     }
 }

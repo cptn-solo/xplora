@@ -63,6 +63,10 @@ namespace Assets.Scripts.ECS.Data
     public struct ReadyTurnTag { } // Ready to make turn
     public struct MakeTurnTag { } // To activate prepared turn execution
     public struct CompletedTurnTag { } // Activate finalize
+    public struct ScheduleVisualsTag { } // Visuals prepared for the complete turn
+    public struct AwaitingVisualsTag { } // Awaiting for animation to complete
+    public struct RunningVisualsTag { } // Running visual, active or not. 
+    public struct ActiveVisualsTag { } // Running and Active visual. Final state before being removed after UI will report completion
     public struct ProcessedTurnTag { } // Destroy
     public struct FinalizedTurnTag { } // Stop changing round's queue
     public struct ProcessedHeroTag { } // To tell if a hero card can be safely dropped for dead
@@ -73,6 +77,12 @@ namespace Assets.Scripts.ECS.Data
     public struct RangedTag { } // hero
     public struct SkippedTag { } // turn
     public struct AttackerEffectsTag { } // turn
+    public struct AttackerEffectsInfoComp {
+        public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+        public DamageEffect[] Effects;
+        public int EffectsDamage;
+        public bool Lethal;
+    } // turn
     public struct AttackTag { } // turn
     public struct DealDamageTag { } // turn
     public struct DealEffectsTag { } // turn

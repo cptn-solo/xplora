@@ -105,6 +105,14 @@ namespace Assets.Scripts.ECS
             EcsService.OnManagedSceneDecomission -= Decommision;
             OnGameObjectDestroy();
         }
+
+        public virtual void Visualize<V>(V visualInfo, EcsPackedEntityWithWorld visualEntity) where V : struct, ISceneVisualsInfo
+        {
+            // base implementation is just mark visual as complete by removing it's entity from the world:
+            // override if there is some animation to be played for the visualInfo
+            if (visualEntity.Unpack(out var world, out var entity))
+                world.DelEntity(entity);
+        }
         #endregion
 
     }

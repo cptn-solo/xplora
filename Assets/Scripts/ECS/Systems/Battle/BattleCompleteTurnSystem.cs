@@ -14,6 +14,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<CompletedTurnTag> completeTagPool = default;
+        private readonly EcsPoolInject<ScheduleVisualsTag> scheduleVisualsTagPool = default;
 
         private readonly EcsPoolInject<DeadTag> deadTagPool = default;
 
@@ -29,6 +30,10 @@ namespace Assets.Scripts.ECS.Systems
             {
                 CompleteTurn(entity);
                 makeTurnTagPool.Value.Del(entity);
+
+                // if not Fast Forward
+                if (battleService.Value.PlayMode != BattleMode.Fastforward)
+                   scheduleVisualsTagPool.Value.Add(entity);
             }
         }
 

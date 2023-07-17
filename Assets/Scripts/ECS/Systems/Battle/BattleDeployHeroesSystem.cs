@@ -16,6 +16,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<PositionComp> positionPool = default;
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
+        private readonly EcsPoolInject<TransformRef<VisualsTransformTag>> transformRefPool = default;
         private readonly EcsPoolInject<BattleFieldComp> battleFieldPool = default;
 
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<Hero>>> factoryFilter = default;
@@ -50,6 +51,9 @@ namespace Assets.Scripts.ECS.Systems
 
                     ref var entityViewRef = ref entityViewRefPool.Value.Add(entity);
                     entityViewRef.EntityView = card;
+
+                    ref var transformRef = ref transformRefPool.Value.Add(entity);
+                    transformRef.Transform = card.HeroAnimation.transform;
                 }
             }
         }

@@ -81,14 +81,32 @@ namespace Assets.Scripts.Services
                 .Add(new BattleShowRelationEffectsSystem()) // visualize spawned relation effects
                 .DelHere<UpdateTag<RelationEffectInfo>>()
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
+                // with AttackTag
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
                 .Add(new BattleDealAttackDamageSystem())
                 .DelHere<AttackTag>()
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
-                // with CompletedTurnTag
+                // with CompletedTurnTag (if not Fast Forward mode)
+                .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue
+                // with AwaitVisualsTag
+                .Add(new BattleRunSceneVisualsSystem())
+                .Add(new BattleSceneVisualSystem<DamageEffectVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<ArmorPiercedVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<TakingDamageVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<AttackDodgeVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<AttackMoveVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<AttackerAttackVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<HitVisualsInfo, Hero>())                
+                .Add(new BattleSceneVisualSystem<DeathVisualsInfo, Hero>())                
+                .Add(new BattleSceneVisualSystem<DeathVisualsInfo, BarsAndEffectsInfo>())
+                .Add(new BattleSceneVisualSystem<EffectsBarVisualsInfo, BarsAndEffectsInfo>())
+                .Add(new BattleSceneVisualSystem<HealthBarVisualsInfo, BarsAndEffectsInfo>())
+                .Add(new BattleCompleteSceneVisualsSystem())
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
+                // with ProcessedTurnTag
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
+                // with FinalizedTurnTag
                 .Add(new BattleClearVisualsForUsedFocusSystem()) // removes focus effect (revenge/target)
                 .Add(new BattleClearVisualsForUsedRelationsEffectSystem()) // removes redundant battle effects visuals
                 .Add(new BattleReportUpdatedHeros()) // reports update back to the battle requester (raid)

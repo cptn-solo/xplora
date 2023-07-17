@@ -15,6 +15,12 @@ namespace Assets.Scripts.Data
         };
 
         public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }
+        public void SetInstantEffects(DamageEffect[] effects)
+        {
+            ActiveEffects = new Dictionary<DamageEffect, int>();
+            foreach (var item in effects)
+                ActiveEffects.Add(item, 0);
+        }
 
     }
 

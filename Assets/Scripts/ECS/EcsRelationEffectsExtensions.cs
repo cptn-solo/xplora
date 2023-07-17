@@ -1,7 +1,6 @@
 ﻿using System;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Assets.Scripts.World;
 using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS
