@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Assets.Scripts.UI.Battle;
 using Leopotam.EcsLite;
-using Assets.Scripts;
 
 public class Overlay : BaseEntityView<BarsAndEffectsInfo>
 {

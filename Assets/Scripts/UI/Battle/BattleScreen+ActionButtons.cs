@@ -53,8 +53,6 @@ namespace Assets.Scripts.UI.Battle
 
                 case Actions.AutoBattle:
                     {
-                        ResetTurnProcessingQueue();
-
                         battleManager.FastForwardPlay();
 
                         UpdateActionButtons();
