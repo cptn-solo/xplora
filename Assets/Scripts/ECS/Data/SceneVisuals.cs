@@ -32,7 +32,10 @@ public struct EffectsBarVisualsInfo : ISceneVisualsInfo
 public struct HealthBarVisualsInfo : ISceneVisualsInfo
 {
     public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+    public BarInfo[] BarsInfoBattle { get; internal set; }
+
     public int Damage; // for future use, to show diff maybe
+    public int Health;
     public int HealthCurrent;
 }
 
@@ -99,6 +102,11 @@ public struct AttackerAttackVisualsInfo : ISceneVisualsInfo
     //info.AttackerConfig.Ranged
     //targetRM.transform.position
     //info.AttackerConfig.SndAttack
+}
+
+public struct AttackerMoveBackVisualsInfo : ISceneVisualsInfo
+{ 
+    public EcsPackedEntityWithWorld SubjectEntity { get; set; }
 }
 
 public struct SceneVisualsQueueComp

@@ -88,15 +88,18 @@ namespace Assets.Scripts.Services
                 .DelHere<AttackTag>()
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
                 // with CompletedTurnTag (if not Fast Forward mode)
-                .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue
+                .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
+                .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
+                .Add(new BattleScheduleSceneVisualsCompleteSystem()) // toggles AwaitVisualsTag to prevent reuse of the Schedule systems above
                 // with AwaitVisualsTag
-                .Add(new BattleRunSceneVisualsSystem())
+                .Add(new BattleRunSceneVisualsSystem()) // assigns visualizers so next systems could actually apply visuals
                 .Add(new BattleSceneVisualSystem<DamageEffectVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<ArmorPiercedVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<TakingDamageVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<AttackDodgeVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<AttackMoveVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<AttackerAttackVisualsInfo, Hero>())
+                .Add(new BattleSceneVisualSystem<AttackerMoveBackVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<HitVisualsInfo, Hero>())                
                 .Add(new BattleSceneVisualSystem<DeathVisualsInfo, Hero>())                
                 .Add(new BattleSceneVisualSystem<DeathVisualsInfo, BarsAndEffectsInfo>())

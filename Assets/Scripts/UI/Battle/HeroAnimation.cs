@@ -5,8 +5,6 @@ using System.Collections;
 using UnityEngine;
 using Assets.Scripts.Services;
 using Zenject;
-using Assets.Scripts.ECS.Data;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Assets.Scripts.UI.Battle
 {
@@ -284,7 +282,24 @@ namespace Assets.Scripts.UI.Battle
                 visualizerCoroutine = StartCoroutine(DeathVisualCor(dv, hero, callback));
             else if (visualInfo is HitVisualsInfo hv) // TODO: better merge into attack/effects
                 visualizerCoroutine = StartCoroutine(HitVisualCor(hv, hero, callback));
+            else if (visualInfo is AttackerMoveBackVisualsInfo mbv)
+                visualizerCoroutine = StartCoroutine(MoveBackVisualCor(mbv, hero, callback));
+            else 
+                callback();
         }
+
+        private IEnumerator MoveBackVisualCor(
+            AttackerMoveBackVisualsInfo info,
+            Hero hero,
+            Action callback)
+        {
+            MoveSpriteBack();
+
+            yield return defaultWait;
+
+            callback();
+        }
+
 
         private IEnumerator HitVisualCor(
             HitVisualsInfo info,

@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Assets.Scripts.UI.Battle;
+using Leopotam.EcsLite;
+using Assets.Scripts;
 
 public class Overlay : BaseEntityView<BarsAndEffectsInfo>
 {
@@ -100,6 +103,25 @@ public class Overlay : BaseEntityView<BarsAndEffectsInfo>
         var data = DataLoader(PackedEntity.Value);
         SetBarsEndEffectsInfo(data.BarsInfoBattle, data.ActiveEffects);
     }
+
+    public override void Visualize<V>(V visualInfo, EcsPackedEntityWithWorld visualEntity)
+    {
+        if (visualInfo is EffectsBarVisualsInfo ebv)
+        {
+            effectsContainer.SetEffects(ebv.ActiveEffects);
+        }
+        else if (visualInfo is HealthBarVisualsInfo hbv)
+        {
+            barsContainer.SetInfo(hbv.BarsInfoBattle);
+        }
+        else if (visualInfo is DeathVisualsInfo dv)
+        {
+            ResetBarsAndEffects();
+        }
+        
+        base.Visualize(visualInfo, visualEntity);
+    }
+
 
     #endregion
 }

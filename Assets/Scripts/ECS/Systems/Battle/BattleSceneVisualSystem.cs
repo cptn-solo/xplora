@@ -21,14 +21,15 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var entity in filter.Value)
             {
+                pool.Value.Add(entity);
+
                 ref var visualInfo = ref visualPool.Value.Get(entity);
                 if (visualInfo.SubjectEntity.Unpack(out var world, out var viewEntity) &&
                     world.Equals(systems.GetWorld()))
                 {
+                    // will delete entity if no visualizer implemented
                     AssignVisualizer(entity, visualInfo, world, viewEntity);
                 }
-
-                pool.Value.Add(entity);
             }
         }
 

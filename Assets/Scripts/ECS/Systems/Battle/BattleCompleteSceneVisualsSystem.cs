@@ -10,7 +10,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RunningVisualsTag> runPool = default;
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, RunningVisualsTag>> filter1 = default;
+            Inc<BattleTurnInfo, RunningVisualsTag>,
+            Exc<GarbageTag>> filter1 = default;
 
         private readonly EcsFilterInject<
             Inc<RunningVisualsTag>,

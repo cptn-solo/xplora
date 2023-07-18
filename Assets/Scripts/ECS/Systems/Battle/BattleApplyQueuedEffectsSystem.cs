@@ -25,7 +25,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, AttackerEffectsTag>> filter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
-        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
         public void Run(IEcsSystems systems)
         {

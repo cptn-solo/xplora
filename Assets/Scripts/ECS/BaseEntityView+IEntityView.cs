@@ -111,7 +111,7 @@ namespace Assets.Scripts.ECS
             // base implementation is just mark visual as complete by removing it's entity from the world:
             // override if there is some animation to be played for the visualInfo
             if (visualEntity.Unpack(out var world, out var entity))
-                world.DelEntity(entity);
+                world.GetPool<GarbageTag>().Add(entity);
         }
         #endregion
 
