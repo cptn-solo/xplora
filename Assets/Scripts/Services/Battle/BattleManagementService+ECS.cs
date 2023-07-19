@@ -87,7 +87,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDealAttackDamageSystem())
                 .DelHere<AttackTag>()
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
-                // with CompletedTurnTag (if not Fast Forward mode)
+                // with CompletedTurnTag+ScheduleVisualsTag (if not Fast Forward mode)
                 .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
                 .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
                 .Add(new BattleScheduleSceneVisualsCompleteSystem()) // toggles AwaitVisualsTag to prevent reuse of the Schedule systems above

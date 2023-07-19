@@ -9,6 +9,8 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<ItemsContainerRef<RelationEffectInfo>> pool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
+        private readonly EcsPoolInject<RelationEffectsPendingComp> pendingPool = default;
+        
 
         private readonly EcsFilterInject<
             Inc<ItemsContainerRef<RelationEffectInfo>,
@@ -22,10 +24,19 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var relationEffects = ref relEffectsPool.Value.Get(entity);
                 var buffer = ListPool<RelationEffectInfo>.Get();
+                var world = systems.GetWorld();
 
                 foreach (var item in relationEffects.CurrentEffects)
+                {
                     buffer.Add(item.Value.EffectInfo);
-                
+
+                    var scheduleEntity = world.NewEntity();
+                    ref var pendingComp = ref pendingPool.Value.Add(scheduleEntity);
+                    pendingComp.EffectSource = item.Value.EffectSource;
+                    pendingComp.EffectTarget = world.PackEntityWithWorld(entity);
+                    pendingComp.EffectInfo = item.Value.EffectInfo;
+                }
+
                 ref var viewRef = ref pool.Value.Get(entity);
                 viewRef.Container.Reset();
                 viewRef.Container.SetInfo(buffer.ToArray());

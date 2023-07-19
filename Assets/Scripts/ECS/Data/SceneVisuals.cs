@@ -13,6 +13,16 @@ public interface ISceneVisualsInfo
 
 public struct VisualsTransformTag { }
 
+/// <summary>
+/// Capture the effect to visualize cast at the beginning of the visualization stage
+/// </summary>
+public struct RelationEffectsPendingComp { 
+    public EcsPackedEntityWithWorld EffectSource { get; set; }
+    public EcsPackedEntityWithWorld EffectTarget { get; set; }
+    public RelationEffectInfo EffectInfo { get; set; }  
+
+}
+
 public struct DamageEffectVisualsInfo : ISceneVisualsInfo
 {
     // turn active hero (attacker)
