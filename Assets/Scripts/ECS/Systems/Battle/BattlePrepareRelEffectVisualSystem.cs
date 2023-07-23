@@ -64,6 +64,7 @@ namespace Assets.Scripts.ECS.Systems
                         PrepareVisualForEffect(probe.SourceOrigPacked, targetParty, ref effect);
                         break;
                 }
+                effect.UsageLeft--;
             }
         }
 

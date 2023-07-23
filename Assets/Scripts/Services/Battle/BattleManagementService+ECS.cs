@@ -49,12 +49,12 @@ namespace Assets.Scripts.Services
                 .Add(new BattleWinCheckSystem()) // check if battle is already won 
                 .Add(new BattleCompleteSystem()) // report won/retreated battle
                 .Add(new BattleNotifyResultsSystem()) // if complete will notify UI and schedule battle shutdown
-                // with battle in progress tag
+                                                      // with battle in progress tag
                 .Add(new BattleEnqueueRoundSystem()) // check queue length and add if needed
                 .Add(new BattlePrepareRoundSystem()) // prepare added round (heroes queue)
                 .Add(new BattleRoundStartSystem()) // picks 1st round and marks it as inprogress
                 .Add(new BattleEnqueueTurnSystem()) // checks for empty turn and creates draft one
-                // with DraftTag
+                                                    // with DraftTag
                 .Add(new BattleDraftTurnSystem())
                 .Add(new BattlePrepareRevengeTurnsSystem())
                 .Add(new BattleAssignAttackerSystem())
@@ -71,26 +71,32 @@ namespace Assets.Scripts.Services
                 .Add(new BattlePrepareTargetEffectSystem()) //TODO: don't forget to reset this effect at some point
                 .Add(new BattleEnemyTargetFocusHightlightSystem())
                 .Add(new BattlePrepareRelEffectVisualSystem())
-                .DelHere<RelEffectProbeComp>() 
+                .DelHere<RelEffectProbeComp>()
                 .DelHere<DraftTag<EffectInstanceInfo>>() //effects (if any were spawned) will survive
 
                 .Add(new BattleMarkTurnReadySystem()) // marks ready turns for autoplay
                 .DelHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
+                
                 // with MakeTurnTag, AttackTag
                 .Add(new BattleShowRelationEffectsSystem()) // visualize spawned relation effects
                 .DelHere<UpdateTag<RelationEffectInfo>>()
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
-                // with AttackTag
+                                                           // with AttackTag
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
                 .Add(new BattleDealAttackDamageSystem())
                 .DelHere<AttackTag>()
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
+                
                 // with CompletedTurnTag+ScheduleVisualsTag (if not Fast Forward mode)
+                .Add(new BattleScheduleRelationEffectVisualSystem<AttackerRef>())
+                .Add(new BattleScheduleRelationEffectVisualSystem<TargetRef>())
+                .DelHere<RelationEffectsPendingComp>()
                 .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
                 .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
                 .Add(new BattleScheduleSceneVisualsCompleteSystem()) // toggles AwaitVisualsTag to prevent reuse of the Schedule systems above
+                
                 // with AwaitVisualsTag
                 .Add(new BattleRunSceneVisualsSystem()) // assigns visualizers so next systems could actually apply visuals
                 .Add(new BattleSceneVisualSystem<DamageEffectVisualsInfo, Hero>())
@@ -107,13 +113,17 @@ namespace Assets.Scripts.Services
                 .Add(new BattleSceneVisualSystem<HealthBarVisualsInfo, BarsAndEffectsInfo>())
                 .Add(new BattleCompleteSceneVisualsSystem())
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
+                
                 // with ProcessedTurnTag
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
+                
                 // with FinalizedTurnTag
                 .Add(new BattleClearVisualsForUsedFocusSystem()) // removes focus effect (revenge/target)
                 .Add(new BattleClearVisualsForUsedRelationsEffectSystem()) // removes redundant battle effects visuals
+                .Add(new BattleClearUsedRelationsEffectSystem()) // removes used effect instance entities (usage left == 0)
                 .Add(new BattleReportUpdatedHeros()) // reports update back to the battle requester (raid)
                 .Add(new BattleReportDeadHeroes()) // reports death back to the battle requester (raid)
+                
                 // dequeue fired items
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
