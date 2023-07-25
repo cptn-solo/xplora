@@ -54,8 +54,8 @@ namespace Assets.Scripts.ECS.Systems
                     throw new Exception($"Stale revenger entity");
 
                 Debug.Log(
-                    $"Revenger: {world.ReadValue<NameValueComp<NameTag>, string>(revengerEntity)}" +
-                    $"For: {world.ReadValue<NameValueComp<NameTag>, string>(revengedEntity)}");
+                    $"Revenger (effect target): {world.ReadValue<NameValueComp<NameTag>, string>(revengerEntity)}" +
+                    $"For (effect source): {world.ReadValue<NameValueComp<NameTag>, string>(revengedEntity)}");
 
                 if (retiredTagPool.Value.Has(revengerEntity))
                     continue; // died hero can't revenge

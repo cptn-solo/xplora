@@ -1,17 +1,29 @@
-﻿using Assets.Scripts.Data;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleSceneVisualSystem<T, V> : IEcsRunSystem
+    public class BattleSceneVisualSystem<T, V> : BattleSceneVisualSystem<T>
         where T : struct, ISceneVisualsInfo
         where V : struct
     {
+        protected readonly EcsPoolInject<EntityViewRef<V>> viewRefPool = default;
+
+        protected override void AssignVisualizer(int entity, T visualInfo, EcsWorld world, int viewEntity)
+        {
+            ref var viewRef = ref viewRefPool.Value.Get(viewEntity);
+            var view = viewRef.EntityView;
+            view.Visualize<T>(visualInfo, world.PackEntityWithWorld(entity));
+        }
+    }
+
+    public class BattleSceneVisualSystem<T> : IEcsRunSystem
+        where T : struct, ISceneVisualsInfo
+    {
         protected readonly EcsPoolInject<T> visualPool = default;
-        protected readonly EcsPoolInject<ActiveVisualsTag> pool = default;
-        protected readonly EcsPoolInject<EntityViewRef<V>> pool1 = default;
+        protected readonly EcsPoolInject<ActiveVisualsTag> activeVisualsTagPool = default;
 
         protected readonly EcsFilterInject<
             Inc<T, RunningVisualsTag>,
@@ -21,7 +33,7 @@ namespace Assets.Scripts.ECS.Systems
         {
             foreach (var entity in filter.Value)
             {
-                pool.Value.Add(entity);
+                activeVisualsTagPool.Value.Add(entity);
 
                 ref var visualInfo = ref visualPool.Value.Get(entity);
                 if (visualInfo.SubjectEntity.Unpack(out var world, out var viewEntity) &&
@@ -32,12 +44,14 @@ namespace Assets.Scripts.ECS.Systems
                 }
             }
         }
-
         protected virtual void AssignVisualizer(int entity, T visualInfo, EcsWorld world, int viewEntity)
         {
-            ref var viewRef = ref pool1.Value.Get(viewEntity);
-            var view = viewRef.EntityView;
-            view.Visualize<T>(visualInfo, world.PackEntityWithWorld(entity));
+            // base implementation is just mark visual as complete by removing it's entity from the world:
+            // override if there is some animation to be played for the visualInfo
+            // or call immediately after view update
+            world.GetPool<GarbageTag>().Add(entity);
+
         }
+
     }
 }

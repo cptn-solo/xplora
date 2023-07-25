@@ -79,7 +79,6 @@ namespace Assets.Scripts.Services
                 .Add(new BattleAutoMakeTurnSystem())
                 
                 // with MakeTurnTag, AttackTag
-                .Add(new BattleShowRelationEffectsSystem()) // visualize spawned relation effects
                 .DelHere<UpdateTag<RelationEffectInfo>>()
                 .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
                                                            // with AttackTag
@@ -99,6 +98,8 @@ namespace Assets.Scripts.Services
                 
                 // with AwaitVisualsTag
                 .Add(new BattleRunSceneVisualsSystem()) // assigns visualizers so next systems could actually apply visuals
+                .Add(new BattleSceneRelationEffectResetVisualSystem()) // subclass for effects container panel
+                .Add(new BattleSceneRelationEffectCastVisualSystem()) // subclass for effects container panel
                 .Add(new BattleSceneVisualSystem<DamageEffectVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<ArmorPiercedVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<TakingDamageVisualsInfo, Hero>())

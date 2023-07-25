@@ -11,8 +11,10 @@ namespace Assets.Scripts.UI.Battle
         [SerializeField] private Image heroIcon;
         [SerializeField] private Image effectIcon;
         [SerializeField] private TextMeshProUGUI effectText;
+        [SerializeField] private Transform movableCard;
 
         protected override Image IconImage => effectIcon;
+        public override Transform MovableCard => movableCard;
 
         protected override void ApplyInfoValues(RelationEffectInfo info)
         {

@@ -20,7 +20,24 @@ public struct RelationEffectsPendingComp {
     public EcsPackedEntityWithWorld EffectSource { get; set; }
     public EcsPackedEntityWithWorld EffectTarget { get; set; }
     public RelationEffectInfo EffectInfo { get; set; }  
+}
 
+/// <summary>
+/// Resets effects panel before turn will recast new (current) ones
+/// </summary>
+public struct RelEffectResetVisualsInfo : ISceneVisualsInfo
+{
+    // to whom the effect will be casted (effect source hero image move)
+    public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+}
+
+public struct RelEffectCastVisualsInfo : ISceneVisualsInfo
+{
+    // to whom the effect will be casted (effect source hero image move)
+    public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+    // animation starting point
+    public Transform SourceTransform;
+    public RelationEffectInfo EffectInfo { get; set; }
 }
 
 public struct DamageEffectVisualsInfo : ISceneVisualsInfo

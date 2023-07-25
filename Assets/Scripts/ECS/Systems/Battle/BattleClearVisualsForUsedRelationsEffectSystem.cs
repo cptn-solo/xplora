@@ -7,7 +7,6 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     public class BattleClearVisualsForUsedRelationsEffectSystem : IEcsRunSystem
     {
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;

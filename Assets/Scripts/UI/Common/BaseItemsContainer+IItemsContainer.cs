@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Data;
+using System;
+using UnityEngine;
 
 namespace Assets.Scripts.UI.Common
 {
@@ -14,6 +16,14 @@ namespace Assets.Scripts.UI.Common
                 UpdateItem(info, item);
             else
                 AddItem(info);
+        }
+
+        public void SetItemInfoAnimatedMove(T info, Transform sourceTransform)
+        {
+            if (itemsIndex.TryGetValue(info.Id, out var item))
+                UpdateItemAnimated(info, item, sourceTransform);
+            else
+                AddItemAnimated(info, sourceTransform);
         }
 
         public void Reset()
@@ -79,5 +89,6 @@ namespace Assets.Scripts.UI.Common
         {
             DetachFromEntityView();
         }
+
     }
 }
