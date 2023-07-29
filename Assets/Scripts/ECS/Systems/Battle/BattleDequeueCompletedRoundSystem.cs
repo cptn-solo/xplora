@@ -7,7 +7,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDequeueCompletedRoundSystem : IEcsRunSystem
+    public class BattleDequeueCompletedRoundSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<RoundShortageTag> roundShortageTagPool = default;
@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
                 DequeueRound(entity);

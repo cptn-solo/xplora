@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamUpdateHoverSystem : UpdateCardHoverSystem, IEcsRunSystem
+    public class PlayerTeamUpdateHoverSystem : UpdateCardHoverSystem
     {
         private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default;
 
@@ -23,7 +23,7 @@ namespace Assets.Scripts.ECS.Systems
                 ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
 
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in hoverFilter.Value)
             {

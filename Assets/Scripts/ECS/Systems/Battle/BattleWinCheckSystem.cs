@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleWinCheckSystem : IEcsRunSystem
+    public class BattleWinCheckSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
 
@@ -18,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<PlayerTeamTag>, Exc<DeadTag>> playerHeroes = default;
         private readonly EcsFilterInject<Inc<EnemyTeamTag>, Exc<DeadTag>> enemyHeroes = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

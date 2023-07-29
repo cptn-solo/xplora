@@ -7,7 +7,7 @@ using System;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class BattleAssignRelationEffectsSystem<T> : IEcsRunSystem
+    public class BattleAssignRelationEffectsSystem<T> : BaseEcsSystem
         where T : struct, IPackedWithWorldRef
     {
         protected virtual RelationSubjectState SubjectState => 
@@ -22,7 +22,7 @@ namespace Assets.Scripts.ECS.Systems
 
         protected readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo, T>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleEnqueueTurnSystem : IEcsRunSystem
+    public class BattleEnqueueTurnSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -17,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<Inc<BattleTurnInfo>> turnInfoFilter = default;
         private readonly EcsFilterInject<Inc<BattleInfo, BattleInProgressTag>> battleFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (battleFilter.Value.GetEntitiesCount() == 0)
                 return;

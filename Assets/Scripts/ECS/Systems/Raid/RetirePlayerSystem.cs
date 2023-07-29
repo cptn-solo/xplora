@@ -5,13 +5,13 @@ using Leopotam.EcsLite.Di;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class RetirePlayerSystem : IEcsRunSystem
+    public class RetirePlayerSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<GarbageTag> garbagePool = default;
 
         private readonly EcsFilterInject<Inc<PlayerComp, RetireTag>> playerToRetireFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in playerToRetireFilter.Value)
                 garbagePool.Value.Add(entity);

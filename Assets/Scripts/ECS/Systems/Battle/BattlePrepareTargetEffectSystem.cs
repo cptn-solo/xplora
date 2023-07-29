@@ -7,7 +7,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattlePrepareTargetEffectSystem : IEcsRunSystem
+    public class BattlePrepareTargetEffectSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld;
 
@@ -17,6 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<PrepareTargetComp> targetPool = default;
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
+        private readonly EcsPoolInject<DraftTag<RelationEffectsFocusPendingComp>> draftTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<
@@ -31,7 +32,7 @@ namespace Assets.Scripts.ECS.Systems
         
         private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!battleManagementService.Value.BattleEntity.Unpack(out _, out var battleEntity))
                 throw new Exception("No battle!");
@@ -49,7 +50,6 @@ namespace Assets.Scripts.ECS.Systems
                         throw new Exception("Stale Turn Entity");
 
                     // registering effect for the hero affected (in the battle world, to make it handy when needed) 
-
                     ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
                     
                     var targetEntity = ecsWorld.Value.NewEntity();
@@ -60,13 +60,19 @@ namespace Assets.Scripts.ECS.Systems
 
                     foreach (var teammateEntity in teammateFilter.Value)
                     {
-                        var focusEntity = ecsWorld.Value.NewEntity();
-                        // remember who is focused:
-                        ref var focus = ref focusPool.Value.Add(focusEntity);
+                        // remember who is focused: (focus may exest from prev. turn, so will be overriden)
+
+                        if (!focusPool.Value.Has(teammateEntity))
+                            focusPool.Value.Add(teammateEntity);
+
+                        ref var focus = ref focusPool.Value.Get(teammateEntity);
                         focus.EffectKey = effect.Rule.Key;
                         focus.Focused = attackerRef.Packed;
                         focus.Actor = ecsWorld.Value.PackEntityWithWorld(teammateEntity);
-                        focus.EndRound = effect.EndRound;                        
+                        focus.TurnEntity = probe.TurnEntity;
+                        focus.EndRound = effect.EndRound;
+
+                        draftTagPool.Value.Add(teammateEntity);
                     }
 
                 }

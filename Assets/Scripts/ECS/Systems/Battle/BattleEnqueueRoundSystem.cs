@@ -7,7 +7,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleEnqueueRoundSystem : IEcsRunSystem
+    public class BattleEnqueueRoundSystem : BaseEcsSystem
     {
         private const int minRoundsQueue = 4;
 
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in battleFilter.Value)
             {

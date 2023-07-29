@@ -77,11 +77,11 @@ namespace Assets.Scripts.ECS.Data
     public struct RangedTag { } // hero
     public struct SkippedTag { } // turn
     public struct AttackerEffectsTag { } // turn
-    public struct AttackerEffectsInfoComp {
+    public struct TargetEffectsTag { } // turn
+    public struct SubjectEffectsInfoComp {
         public EcsPackedEntityWithWorld SubjectEntity { get; set; }
         public DamageEffect[] Effects;
         public int EffectsDamage;
-        public bool Lethal;
     } // turn
     public struct AttackTag { } // turn
     public struct DealDamageTag { } // turn
@@ -124,6 +124,9 @@ namespace Assets.Scripts.ECS.Data
         public int EndRound { get; internal set; }
         // hero for whom the focused entity will be the target
         public EcsPackedEntityWithWorld Actor { get; internal set; }
+        
+        // turn the effect had happend on
+        public EcsPackedEntity TurnEntity;
     }
 
     public struct PackedEntityRef<T> : IPackedWithWorldRef where T : struct
@@ -131,6 +134,20 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
         public readonly EcsPackedEntityWithWorld Packed => PackedEntity;
     }
+
+    public struct DamageTag { }
+    public struct CriticalTag { }
+    public struct LethalTag { }
+    public struct DodgedTag { }
+    public struct MissedTag { }
+
+
+    public struct StunnedTag { }
+    public struct BleedingTag { }
+    public struct PiercedTag { }
+    public struct BurningTag { }
+    public struct FrozingTag { }
+
 }
 
 

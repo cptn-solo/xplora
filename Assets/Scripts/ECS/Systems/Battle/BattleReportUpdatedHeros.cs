@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleReportUpdatedHeros : IEcsRunSystem
+    public class BattleReportUpdatedHeros : BaseEcsSystem
     {
         private readonly EcsPoolInject<HeroInstanceOriginRef> pool = default;
         
@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<HeroInstanceOriginRef, ProcessedHeroTag>,
             Exc<DeadTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

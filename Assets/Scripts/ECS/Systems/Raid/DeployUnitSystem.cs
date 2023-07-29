@@ -8,7 +8,7 @@ using Assets.Scripts.World;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class DeployUnitSystem : IEcsRunSystem
+    public class DeployUnitSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -25,7 +25,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<RaidService> raidService = default;
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             bool producing = false;
 

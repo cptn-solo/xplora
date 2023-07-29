@@ -8,7 +8,7 @@ using Leopotam.EcsLite.Di;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class BattleHeroInstanceInit : IEcsRunSystem
+    public class BattleHeroInstanceInit : BaseEcsSystem
     {
         private readonly EcsPoolInject<PositionComp> positionPool = default;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
@@ -35,7 +35,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!battleService.Value.BattleEntity.Unpack(out var battleWorld, out var battleEntity))
                 return;

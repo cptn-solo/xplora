@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class LibraryUpdateCardHoverSystem : UpdateCardHoverSystem, IEcsRunSystem
+    public class LibraryUpdateCardHoverSystem : UpdateCardHoverSystem
     {
         private readonly EcsPoolInject<Hero> heroConfigPool = default;
 
@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
                 >> detailsViewFilter = default;
 
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in hoverFilter.Value)
             {

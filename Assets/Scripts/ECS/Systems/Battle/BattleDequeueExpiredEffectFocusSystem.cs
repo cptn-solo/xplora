@@ -3,45 +3,52 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDequeueExpiredEffectFocusSystem : IEcsRunSystem
+    public class BattleDequeueExpiredEffectFocusSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
+        private readonly EcsPoolInject<TransformRef<AimTargetTag>> aimTagPool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
         private readonly EcsPoolInject<RetiredTag> retiredTagPool = default;
-        private readonly EcsPoolInject<GarbageTag> garbageTagPool = default;
-        private readonly EcsPoolInject<TransformRef<AimTargetTag>> aimIconPool = default;
         
         private readonly EcsFilterInject<Inc<EffectFocusComp>> filter = default;
         private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> completeRoundFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value) {
+
                 ref var focus = ref focusPool.Value.Get(entity);
+                bool expire = false;
+
                 if (!focus.Focused.Unpack(out var world, out var focusedEntity))
                     throw new Exception("Stale Focused Ref");
 
-                if (retiredTagPool.Value.Has(focusedEntity) &&
-                    !garbageTagPool.Value.Has(entity))
-                    garbageTagPool.Value.Add(entity);
+                if (!focus.Actor.Unpack(out _, out var actorEntity))
+                    throw new Exception("Stale Focus Actor Ref");
+
+                if (retiredTagPool.Value.Has(focusedEntity))
+                    expire = true;
+
 
                 foreach (var roundEntity in completeRoundFilter.Value)
                 {
                     ref var roundInfo = ref roundInfoPool.Value.Get(roundEntity);
-                    if (roundInfo.Round <= focus.EndRound &&
-                        !garbageTagPool.Value.Has(entity))
-                        garbageTagPool.Value.Add(entity);
+                    if (roundInfo.Round <= focus.EndRound)
+                        expire = true;
                 }
 
-                if (garbageTagPool.Value.Has(entity) && aimIconPool.Value.Has(entity))
+                if (expire)
                 {
-                    ref var aimIconRef = ref aimIconPool.Value.Get(entity);
-                    GameObject.Destroy(aimIconRef.Transform.gameObject);
-                }                    
+                    focusPool.Value.Del(entity);
+
+                    if (aimTagPool.Value.Has(actorEntity))
+                        aimTagPool.Value.Del(actorEntity);
+                }
+
+
             }
         }
     }

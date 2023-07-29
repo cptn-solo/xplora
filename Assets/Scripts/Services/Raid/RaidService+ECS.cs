@@ -7,6 +7,7 @@ using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
 using System;
 using UnityEngine;
+using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.Services
 {
@@ -23,8 +24,8 @@ namespace Assets.Scripts.Services
         private void InitEcsWorld()
         {
             ecsWorld = new EcsWorld();
-            ecsInitSystems = new EcsSystems(ecsWorld);
-            ecsRunSystems = new EcsSystems(ecsWorld);
+            ecsInitSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
+            ecsRunSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
 
             ecsInitSystems
                 .Add(new RaidInitSystem())
@@ -58,17 +59,17 @@ namespace Assets.Scripts.Services
                 .Add(new BattleTrophyCounterSystem())
                 .Add(new RaidBalanceUpdateSystem())
                 .Add(new PlayerTeamUpdateDebufSystem<IntRangeValueComp<DamageRangeTag>>()) //remove buff and icons update on team cards
-                .DelHere<BattleAftermathComp>()
+                .CleanupHere<BattleAftermathComp>()
                 .Add(new RemoveWorldPoiSystem())
                 .Add(new RaidTeardownSystem())
                 .Add(new RetireEnemySystem())
                 .Add(new RetirePlayerSystem())
                 .Add(new MoveToCellSystem())
                 .Add(new RelationsEventTriggerSystem())
-                .DelHere<VisitCellComp>()
+                .CleanupHere<VisitCellComp>()
                 .Add(new DeployUnitSystem())
                 .Add(new DeployUnitOverlaySystem())
-                .DelHere<ProduceTag>()
+                .CleanupHere<ProduceTag>()
                 .Add(new UpdateUnitStrengthSystem())
                 .Add(new PickTeamMemberForWatchTowerEvent())
                 .Add(new PickTeamMemberForTerrainAttributeEvent())
@@ -77,26 +78,26 @@ namespace Assets.Scripts.Services
                 .Add(new VisitWatchTowerSystem())
                 .Add(new VisitTerrainAttributeSystem())
                 .Add(new RelationsEventSystem())
-                .DelHere<VisitedComp<OpponentComp>>()
-                .DelHere<VisitedComp<HPSourceComp>>()
-                .DelHere<VisitedComp<PowerSourceComp>>()
-                .DelHere<VisitedComp<WatchTowerComp>>()
-                .DelHere<VisitedComp<TerrainAttributeComp>>()
+                .CleanupHere<VisitedComp<OpponentComp>>()
+                .CleanupHere<VisitedComp<HPSourceComp>>()
+                .CleanupHere<VisitedComp<PowerSourceComp>>()
+                .CleanupHere<VisitedComp<WatchTowerComp>>()
+                .CleanupHere<VisitedComp<TerrainAttributeComp>>()
                 .Add(new ShowDialogSystem<WorldEventInfo>())
                 .Add(new ShowDialogSystem<RelationsEventInfo>())
                 .Add(new ProcessWorldEventAction())
                 .Add(new ProcessRelationsEventAction())
                 .Add(new RefillSystem())
-                .DelHere<RefillComp>()
+                .CleanupHere<RefillComp>()
                 .Add(new DrainSystem())
-                .DelHere<DrainComp>()
+                .CleanupHere<DrainComp>()
                 .Add(new UpdateUnitOverlaySystem())
-                .DelHere<UpdateTag>()
+                .CleanupHere<UpdateTag>()
                 .Add(new BattleLaunchSystem())
-                .DelHere<DraftTag>()
+                .CleanupHere<DraftTag>()
                 .Add(new DestroyUnitOverlaySystem())
                 .Add(new DestroyUnitSystem())
-                .DelHere<DestroyTag>()
+                .CleanupHere<DestroyTag>()
                 .Add(new GarbageCollectorSystem())
                 .Add(new RaidTerminationSystem())
 #if UNITY_EDITOR

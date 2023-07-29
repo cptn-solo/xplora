@@ -8,7 +8,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDeployHeroesSystem : IEcsRunSystem
+    public class BattleDeployHeroesSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!battleService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
                 throw new Exception("No battle");

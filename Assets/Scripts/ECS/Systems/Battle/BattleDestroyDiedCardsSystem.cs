@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDestroyDiedCardsSystem : IEcsRunSystem
+    public class BattleDestroyDiedCardsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EntityViewRef<Hero>> cardViewRefPool = default;
         private readonly EcsPoolInject<EntityViewRef<BarsAndEffectsInfo>> overlayViewRefPool = default;
@@ -17,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
                 ProcessedHeroTag,
                 RetiredTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

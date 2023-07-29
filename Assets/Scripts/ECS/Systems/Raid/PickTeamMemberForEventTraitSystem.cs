@@ -7,7 +7,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PickTeamMemberForEventTraitSystem<T> : IEcsRunSystem
+    public class PickTeamMemberForEventTraitSystem<T> : BaseEcsSystem
         where T : struct
     {
         protected readonly EcsWorldInject ecsWorld;
@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
         protected readonly EcsCustomInject<RaidService> raidService;
         protected readonly EcsCustomInject<WorldService> worldService;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in visitFilter.Value)
             {

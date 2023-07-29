@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattlePrepareRoundSystem : IEcsRunSystem
+    public class BattlePrepareRoundSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in roundInfoFilter.Value)
             {

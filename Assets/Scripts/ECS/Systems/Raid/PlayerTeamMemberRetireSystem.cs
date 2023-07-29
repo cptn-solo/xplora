@@ -2,9 +2,9 @@
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamMemberRetireSystem : IEcsRunSystem
+    public class PlayerTeamMemberRetireSystem : BaseEcsSystem
     {
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
         }
     }

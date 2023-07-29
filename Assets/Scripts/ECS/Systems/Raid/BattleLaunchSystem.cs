@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class BattleLaunchSystem : IEcsRunSystem
+    public class BattleLaunchSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach(var entity in battleFilter.Value)
             {

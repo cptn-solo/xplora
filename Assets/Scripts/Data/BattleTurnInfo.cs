@@ -10,17 +10,9 @@ namespace Assets.Scripts.Data
         public Hero TargetConfig { get; set; }
         public EcsPackedEntityWithWorld? Target { get; set; }
         public int Turn { get; set; }
-        public int Damage { get; set; }
-        public DamageEffect[] TargetEffects { get; set; }
-        public DamageEffect[] AttackerEffects { get; set; }
 
         // effects
-        public bool Lethal { get; set; }
-        public bool Critical { get; set; }
-        public bool Dodged { get; set; }
-        public bool Pierced { get; set; }
 
-        public int ExtraDamage { get; set; } // from effect applied by an attacker in current turn
         public override string ToString()
         {
             var prepared = $"Ход #{Turn}: " +
@@ -28,37 +20,17 @@ namespace Assets.Scripts.Data
                 $"{AttackerConfig} " +
                 $">>> {TargetConfig}";
 
-            var attackerEff = "";
-            if (AttackerEffects != null)
-                foreach (var ef in AttackerEffects)
-                    attackerEff += $"+{ef}";
-
-            var targetEff = "";
-            if (TargetEffects != null)
-                foreach (var ef in TargetEffects)
-                    targetEff += $"+{ef}";
-
-            if (targetEff.Length > 0 && ExtraDamage > 0)
-                targetEff += $"{-ExtraDamage}";
 
             var completed = $"Ход #{Turn}: " +
                 $"{State}, " +
                 $"{AttackerConfig}, " +
                 $">>> {TargetConfig}, " +
-                $"-{Damage}" +
-                $"[{targetEff}]" +
                 $"[ " +
-                (Lethal ? $"Lethal " : $"") + 
-                (Critical ? $"Crit " : $"") +
-                (Dodged ? $"Dodged " : $"") +
-                (Pierced ? $"Pierced " : $"") +
                 $"]";
-            
+
             var effects = $"Ход #{Turn}: " +
                 $"{State}, " +
-                $"{AttackerConfig}, " +
-                $"-{Damage}" +
-                $"[{attackerEff}]";
+                $"{AttackerConfig}";
             
             var skipped = $"Ход #{Turn}: " +
                 $"{State}, " +

@@ -8,17 +8,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDealAttackDamageSystem : IEcsRunSystem
+    public class BattleDealAttackDamageSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
-
-        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
-        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
-
         private readonly EcsPoolInject<DealDamageTag> dealDamageTagPool = default;
 
         private readonly EcsFilterInject<
@@ -28,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
         private readonly EcsCustomInject<PlayerPreferencesService> prefs = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
@@ -62,7 +58,7 @@ namespace Assets.Scripts.ECS.Systems
 
             int shield = ecsWorld.Value.GetAdjustedIntValue<DefenceRateTag>(targetEntity, SpecOption.DefenceRate);
             
-            if (turnInfo.Pierced)
+            if (ecsWorld.Value.CheckForActiveEffect<PiercedTag>(targetEntity))
             {
                 DamageEffectConfig config = libraryService.Value.DamageTypesLibrary
                     .ConfigForDamageType(attackerConfig.DamageType);
@@ -97,13 +93,10 @@ namespace Assets.Scripts.ECS.Systems
                                            // this is only possible due to
                                            // roundings. changing 0 to 1
 
-            turnInfo.Damage += damage;
-            turnInfo.Critical = criticalDamage;
-
-            ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
-            ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
-
-            hpComp.Value = Mathf.Max(0, hpComp.Value - damage);
+            ecsWorld.Value.IncrementIntValue<DamageTag>(damage, targetEntity);
+            
+            if (criticalDamage)
+                ecsWorld.Value.CastEffect(DamageEffect.Critical, targetEntity, turnInfo.Turn);            
         }
     }
 }

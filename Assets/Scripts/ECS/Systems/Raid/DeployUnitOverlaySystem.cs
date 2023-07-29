@@ -6,7 +6,7 @@ using Assets.Scripts.World;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class DeployUnitOverlaySystem : IEcsRunSystem
+    public class DeployUnitOverlaySystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -22,7 +22,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<ProduceTag, EntityViewRef<Hero>>,
             Exc<EntityViewRef<UnitInfo>>> produceTagFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var factoryRefEntity in factoryRefFilter.Value)
             {

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleRelEffectProbeSystem : IEcsRunSystem
+    public class BattleRelEffectProbeSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<RelEffectProbeComp> pool = default;
         private readonly EcsPoolInject<EffectInstanceInfo> effectsPool = default;
@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<HeroLibraryService> heroLibraryService = default;
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

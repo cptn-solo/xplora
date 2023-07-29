@@ -7,7 +7,7 @@ using Assets.Scripts.UI.Library;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class LibraryDeployCardsSystem : IEcsRunSystem
+    public class LibraryDeployCardsSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (filter.Value.GetEntitiesCount() == 0)
                 return;

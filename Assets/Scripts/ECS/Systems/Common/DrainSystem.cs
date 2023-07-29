@@ -7,7 +7,7 @@ namespace Assets.Scripts.ECS.Systems
     /// <summary>
     /// Drains power from source
     /// </summary>
-    public class DrainSystem : IEcsRunSystem
+    public class DrainSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<PowerComp> powerPool = default;
         private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
@@ -18,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<DrainComp, PowerComp>,
             Exc<OutOfPowerTag>> drainFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in drainFilter.Value)
             {

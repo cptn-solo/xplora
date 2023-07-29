@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class LibraryUpdatePlayerTeamRelationContextSystem : IEcsRunSystem
+    public class LibraryUpdatePlayerTeamRelationContextSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<UpdateTag<RelationsMatrixComp>>> updateFilter = default;
 
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var updateEntity in updateFilter.Value)
             {

@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
     /// processed separately as there are some times no pair but only one of them
     /// </summary>
     /// <typeparam name="T">AttackerRef or TargetRef</typeparam>
-    public class BattleScheduleRelationEffectVisualSystem<T> : IEcsRunSystem 
+    public class BattleScheduleRelationEffectVisualSystem<T> : BaseEcsSystem 
         where T : struct, IPackedWithWorldRef
     {
         private readonly EcsPoolInject<T> subjectRefPool = default;
@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<RelationEffectsPendingComp>> scheduleFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             var world = systems.GetWorld();
 
@@ -37,15 +37,23 @@ namespace Assets.Scripts.ECS.Systems
                 if (!subjectRef.Packed.Unpack(out _, out var subjectEntity))
                     throw new Exception("No Subject entity (attacker or target)");
 
-                ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectResetVisualsInfo>(turnEntity);
-                resetRelEffectVisualsInfo.SubjectEntity = subjectRef.Packed;
-
                 foreach (var scheduleEntity in scheduleFilter.Value)
                 {
                     ref var pendingRelEffectsComp = ref pendingPool.Value.Get(scheduleEntity);
                     
                     if (!pendingRelEffectsComp.EffectTarget.EqualsTo(subjectRef.Packed))
+                    {
+                        // hunting a bug:
+                        // Note reg. found problem: we're looking for Effect target wich is Frencis here, 
+                        // but the turn itself is still on Osiris-Vampire, so we'll fail unless we'll change
+                        // the key to the turn itself, not attacker/target (like we've done already for another
+                        // system don't remember - ah, focus it was)
+                        //Debug.Break();
+                        //systems.GetShared<SharedEcsContext>().Pause(true);
+                        //return;
+                        // end hunting
                         continue;
+                    }
 
                     ref var castRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectCastVisualsInfo>(turnEntity);
                     castRelEffectVisualsInfo.SubjectEntity = subjectRef.Packed;
@@ -68,6 +76,8 @@ namespace Assets.Scripts.ECS.Systems
 
                     ref var viewRef = ref transformRefPool.Value.Get(viewRefEntity);
                     castRelEffectVisualsInfo.SourceTransform = viewRef.Transform;
+
+                    pendingPool.Value.Del(scheduleEntity);
 
                 }
             }

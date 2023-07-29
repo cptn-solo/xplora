@@ -8,7 +8,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class LibraryUpdateCardSelectionSystem : IEcsRunSystem
+    public class LibraryUpdateCardSelectionSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsPoolInject<SelectedTag> selectedPool = default;
@@ -34,7 +34,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var toggleEntity in toggleSelectionFilter.Value)
             {

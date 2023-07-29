@@ -1,8 +1,26 @@
 ﻿using Assets.Scripts.Data;
+using Leopotam.EcsLite;
 using System.Collections.Generic;
 
 namespace Assets.Scripts.ECS.Data
 {
+    public struct ActiveEffectComp
+    {
+        public DamageEffect Effect;
+        public int EffectDamage;
+        public EcsPackedEntityWithWorld Subject;
+        public int TurnAttached;
+        public readonly bool SkipTurn
+        {
+            get => Effect switch
+            {
+                DamageEffect.Frozing => true,
+                DamageEffect.Stunned => true,
+                _ => false
+            };
+        }
+    }
+
     public struct EffectsComp
     {
         public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }

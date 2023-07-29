@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Battle;
 using Assets.Scripts.Data;
+using Assets.Scripts.ECS;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
@@ -29,14 +30,14 @@ namespace Assets.Scripts.Services
 
             ecsWorld = new EcsWorld();
 
-            ecsInitSystems = new EcsSystems(ecsWorld);
+            ecsInitSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
             ecsInitSystems
                 .Add(new BattleInitSystem())
                 .Inject(this)
                 .Inject(libraryManager)
                 .Init();
 
-            ecsRunSystems = new EcsSystems(ecsWorld);
+            ecsRunSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
             ecsRunSystems
                 .Add(new BattleHeroesInitSystem())
                 .Add(new BattleHeroInstanceInit())
@@ -71,35 +72,47 @@ namespace Assets.Scripts.Services
                 .Add(new BattlePrepareTargetEffectSystem()) //TODO: don't forget to reset this effect at some point
                 .Add(new BattleEnemyTargetFocusHightlightSystem())
                 .Add(new BattlePrepareRelEffectVisualSystem())
-                .DelHere<RelEffectProbeComp>()
-                .DelHere<DraftTag<EffectInstanceInfo>>() //effects (if any were spawned) will survive
+                .CleanupHere<RelEffectProbeComp>()
+                .CleanupHere<DraftTag<EffectInstanceInfo>>() //effects (if any were spawned) will survive
+                .CleanupHere<DraftTag<RelationEffectsFocusPendingComp>>() //focus entity will carry the pending visual for focus
 
                 .Add(new BattleMarkTurnReadySystem()) // marks ready turns for autoplay
-                .DelHere<DraftTag>()
+                .CleanupHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
                 
                 // with MakeTurnTag, AttackTag
-                .DelHere<UpdateTag<RelationEffectInfo>>()
-                .Add(new BattleApplyQueuedEffectsSystem()) // will skip next if died
+                .Add(new BattleApplyQueuedEffectsSystem<AttackerRef, AttackerEffectsTag>()) // will skip next if died
                                                            // with AttackTag
+                .Add(new BattleProcessDamageSystem()) // 1st pass, applying damage from queued effects
+                .Add(new BattleCheckLethalDamageSystem()) // removes AttackTag if lethad damage already dealt
+
+                 // withMakeTurnTag, AttackTag
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
+                .Add(new BattleApplyQueuedEffectsSystem<TargetRef, TargetEffectsTag>()) // will skip next if died
+                .Add(new BattleProcessDamageSystem()) // 2nd pass, applying damage from queued effects
                 .Add(new BattleDealAttackDamageSystem())
-                .DelHere<AttackTag>()
+                .Add(new BattleProcessDamageSystem()) // 3d pass, applying damage from the attack
+                .CleanupHere<AttackTag>()
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
                 
                 // with CompletedTurnTag+ScheduleVisualsTag (if not Fast Forward mode)
-                .Add(new BattleScheduleRelationEffectVisualSystem<AttackerRef>())
-                .Add(new BattleScheduleRelationEffectVisualSystem<TargetRef>())
-                .DelHere<RelationEffectsPendingComp>()
                 .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
+                .Add(new BattleScheduleRelationEffectVisualSystem<AttackerRef>())
+                .Add(new BattleScheduleRelationEffectFocusVisualSystem())
                 .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
+                .Add(new BattleScheduleRelationEffectVisualSystem<TargetRef>())
+                .Add(new BattleScheduleRelationEffectFocusResetVisualSystem()) // schedules remove of used focus icons
+                .Add(new BattleScheduleRelationEffectResetVisualSystem<AttackerRef>())
+                .Add(new BattleScheduleRelationEffectResetVisualSystem<TargetRef>())
                 .Add(new BattleScheduleSceneVisualsCompleteSystem()) // toggles AwaitVisualsTag to prevent reuse of the Schedule systems above
-                
-                // with AwaitVisualsTag
+                // with AwaitVisualsTag                
                 .Add(new BattleRunSceneVisualsSystem()) // assigns visualizers so next systems could actually apply visuals
+
+                /// order of the following systems souldn't matter actually as they are executed one per tick (i believe)
                 .Add(new BattleSceneRelationEffectResetVisualSystem()) // subclass for effects container panel
                 .Add(new BattleSceneRelationEffectCastVisualSystem()) // subclass for effects container panel
+                .Add(new BattleSceneRelationEffectFocusCastVisualSystem()) // subclass for effects container panel
                 .Add(new BattleSceneVisualSystem<DamageEffectVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<ArmorPiercedVisualsInfo, Hero>())
                 .Add(new BattleSceneVisualSystem<TakingDamageVisualsInfo, Hero>())
@@ -112,6 +125,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleSceneVisualSystem<DeathVisualsInfo, BarsAndEffectsInfo>())
                 .Add(new BattleSceneVisualSystem<EffectsBarVisualsInfo, BarsAndEffectsInfo>())
                 .Add(new BattleSceneVisualSystem<HealthBarVisualsInfo, BarsAndEffectsInfo>())
+                .Add(new BattleSceneRelationEffectFocusResetVisualSystem()) // removes focus icon from target before new one can be popped in
                 .Add(new BattleCompleteSceneVisualsSystem())
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 
@@ -128,7 +142,7 @@ namespace Assets.Scripts.Services
                 // dequeue fired items
                 .Add(new BattleDequeueDiedHeroesSystem()) // retires died heroes
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
-                .DelHere<ProcessedHeroTag>()
+                .CleanupHere<ProcessedHeroTag>()
                 .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
                 .Add(new BattleDequeueExpiredEffectFocusSystem()) // drops focus if it's target is dead or if the focus effect expired
                 .Add(new BattleDequeueExpiredRelationEffectsSystem()) 

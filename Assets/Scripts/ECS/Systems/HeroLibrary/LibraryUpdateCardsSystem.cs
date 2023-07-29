@@ -5,14 +5,14 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class LibraryUpdateCardsSystem : IEcsRunSystem
+    public class LibraryUpdateCardsSystem : BaseEcsSystem
     {        
         private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
         private readonly EcsFilterInject<
             Inc<EntityViewRef<Hero>, UpdateTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

@@ -6,7 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamCardsSpawnSystem : IEcsRunSystem
+    public class PlayerTeamCardsSpawnSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -26,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (containerFilter.Value.GetEntitiesCount() == 0)
                 return;

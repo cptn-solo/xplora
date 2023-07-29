@@ -4,12 +4,11 @@ using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class BattlePrepareRevengeEffectSystem : IEcsRunSystem
+    public class BattlePrepareRevengeEffectSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld;
 
@@ -19,6 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<PrepareRevengeComp> revengePool = default;
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
+        private readonly EcsPoolInject<DraftTag<RelationEffectsFocusPendingComp>> draftTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<
@@ -29,7 +29,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!battleManagementService.Value.BattleEntity.Unpack(out _, out var battleEntity))
                 throw new Exception("No battle!");
@@ -48,11 +48,6 @@ namespace Assets.Scripts.ECS.Systems
 
                     // registering effect for the hero affected (in the battle world, to make it handy when needed) 
                     ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
-                    if (attackerRef.Packed.Unpack(out var world, out var attackerEntity))
-                    {
-                        var np = world.ReadValue<NameValueComp<NameTag>, string>(attackerEntity);
-                        Debug.Log($"Atatcker is {np}");
-                    }    
 
                     var revengeEntity = ecsWorld.Value.NewEntity();
                     ref var revengeComp = ref revengePool.Value.Add(revengeEntity);
@@ -60,13 +55,22 @@ namespace Assets.Scripts.ECS.Systems
                     revengeComp.RevengeBy = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
                     revengeComp.RevengeFor = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
 
-                    var focusEntity = ecsWorld.Value.NewEntity();
-                    // remember who is focused:
-                    ref var focus = ref focusPool.Value.Add(focusEntity);                    
+
+                    if (!revengeComp.RevengeBy.Unpack(out _, out var revenger))
+                        throw new Exception("Stale actor for focus");
+
+                    // remember who is focused: (focus may exest from prev. turn, so will be overriden)
+                    if (!focusPool.Value.Has(revenger))
+                        focusPool.Value.Add(revenger);
+                    
+                    ref var focus = ref focusPool.Value.Get(revenger);                    
                     focus.EffectKey = effect.Rule.Key;
                     focus.Focused = attackerRef.Packed;
                     focus.Actor = revengeComp.RevengeBy;
+                    focus.TurnEntity = probe.TurnEntity;
                     focus.EndRound = effect.EndRound;
+
+                    draftTagPool.Value.Add(revenger);
                 }
             }
         }

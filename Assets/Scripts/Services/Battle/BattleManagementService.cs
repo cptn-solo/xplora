@@ -76,15 +76,6 @@ namespace Assets.Scripts.Services
                 _ => false
             };
 
-        public bool CanCompleteTurn =>
-            CurrentTurn.State switch
-            {
-                TurnState.TurnPrepared => true,
-                TurnState.TurnSkipped => true,
-                _ => false
-            };
-
-
         /// <summary>
         ///     Flag to let the battle screen know if it should reset the battle/queue
         /// </summary>

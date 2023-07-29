@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerPositionSystem : IEcsRunSystem
+    public class PlayerPositionSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool = default;
 
@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<WorldService> worldService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             var count = positionFilter.Value.GetEntitiesCount();
 

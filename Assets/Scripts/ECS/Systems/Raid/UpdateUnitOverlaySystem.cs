@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class UpdateUnitOverlaySystem : IEcsRunSystem
+    public class UpdateUnitOverlaySystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<PowerComp> powerPool = default;
         private readonly EcsPoolInject<BuffComp<NoStaminaDrainBuffTag>> staminaBuffPool = default;
@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<UpdateTag, ItemsContainerRef<BarInfo>, PowerComp>> updateFilter = default;
 
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in updateFilter.Value)
             {

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleHeroesInitSystem : IEcsRunSystem
+    public class BattleHeroesInitSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<DraftTag<Hero>> draftHeroTagPool = default;
@@ -22,7 +22,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!battleService.Value.BattleEntity.Unpack(out var battleWorld, out var battleEntity))
                 return;

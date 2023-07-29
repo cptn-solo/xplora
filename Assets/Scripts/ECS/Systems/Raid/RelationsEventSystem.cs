@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RelationsEventSystem : IEcsRunSystem
+    public class RelationsEventSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -36,7 +36,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<HeroLibraryService> heroLibraryService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value) {
                 ComposeEvent(entity);

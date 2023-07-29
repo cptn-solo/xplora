@@ -8,14 +8,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public partial class BattlePrepareRelEffectVisualSystem : IEcsRunSystem
+    public partial class BattlePrepareRelEffectVisualSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
         private readonly EcsPoolInject<EffectInstanceInfo> pool = default;
         private readonly EcsPoolInject<RelEffectProbeComp> probePool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
-        private readonly EcsPoolInject<UpdateTag<RelationEffectInfo>> updatePool = default;
        
         // trying to catch effects here so both source and target are obvious
         private readonly EcsPoolInject<RelationEffectsPendingComp> pendingPool = default;
@@ -34,7 +33,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!battleManagementService.Value.BattleEntity.Unpack(out _, out var battleEntity))
                 throw new Exception("No battle!");
@@ -96,10 +95,6 @@ namespace Assets.Scripts.ECS.Systems
             pendingVisual.EffectSource = world.PackEntityWithWorld(sourceParty);
             pendingVisual.EffectTarget = world.PackEntityWithWorld(affectedParty);
             pendingVisual.EffectInfo = info;
-
-            if (!updatePool.Value.Has(affectedParty))
-                updatePool.Value.Add(affectedParty);
-
         }
     }
 }

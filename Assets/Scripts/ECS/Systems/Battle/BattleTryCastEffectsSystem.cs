@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.Services;
@@ -9,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleTryCastEffectsSystem : IEcsRunSystem
+    public class BattleTryCastEffectsSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -18,10 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
-
-        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
-        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
-        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<TargetEffectsTag> targetEffectsTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, MakeTurnTag, AttackTag, DealEffectsTag>> filter = default;
@@ -30,7 +26,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
@@ -65,23 +61,20 @@ namespace Assets.Scripts.ECS.Systems
             {
                 if (damageEffect.Config.Effect == DamageEffect.Pierced)
                 {
-                    turnInfo.Pierced = true;
+                    ecsWorld.Value.CastEffect(DamageEffect.Pierced, targetRef.Packed, turnInfo.Turn);
                 }
                 else
                 {
-                    turnInfo.TargetEffects = turnInfo.TargetEffects.Concat(
-                        new DamageEffect[]{ damageEffect.Config.Effect }).ToArray();
-                    turnInfo.ExtraDamage = damageEffect.Config.ExtraDamage;
-                    turnInfo.Damage += turnInfo.ExtraDamage;
+                    var effectDamage = damageEffect.Config.ExtraDamage;
 
-                    ref var effectsComp = ref effectsPool.Value.Get(targetEntity);
-                    effectsComp.EnqueEffect(damageEffect);
+                    ref var effect = ref ecsWorld.Value.CastEffect(damageEffect.Config.Effect, targetRef.Packed, turnInfo.Turn);
+                    effect.EffectDamage = effectDamage;
 
-                    ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
-                    ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
-
-                    hpComp.Value = Mathf.Max(0, hpComp.Value - turnInfo.ExtraDamage);
+                    ecsWorld.Value.IncrementIntValue<DamageTag>(effectDamage, targetEntity);
                 }
+
+                if (!targetEffectsTagPool.Value.Has(turnEntity))
+                    targetEffectsTagPool.Value.Add(turnEntity);
             }
         }
 

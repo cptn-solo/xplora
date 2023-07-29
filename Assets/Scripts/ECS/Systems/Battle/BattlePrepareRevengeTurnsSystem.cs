@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattlePrepareRevengeTurnsSystem : IEcsRunSystem
+    public class BattlePrepareRevengeTurnsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (revengeFilter.Value.GetEntitiesCount() <= 0) 
                 return;

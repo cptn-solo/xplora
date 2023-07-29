@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class UpdateCardHoverSystem
+    public class UpdateCardHoverSystem : BaseEcsSystem
     {
         protected readonly EcsPoolInject<EntityViewRef<CameraTag>> cameraRefPool = default;
 

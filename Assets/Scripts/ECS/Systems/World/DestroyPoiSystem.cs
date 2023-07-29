@@ -5,13 +5,13 @@ using Leopotam.EcsLite.Di;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class DestroyPoiSystem : IEcsRunSystem
+    public class DestroyPoiSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool = default;
 
         private readonly EcsFilterInject<Inc<DestroyTag, EntityViewRef<bool>>> destroyTagFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in destroyTagFilter.Value)
             {

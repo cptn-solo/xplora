@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleRunSceneVisualsSystem : IEcsRunSystem
+    public class BattleRunSceneVisualsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<SceneVisualsQueueComp> visualsQueueComp = default;
         private readonly EcsPoolInject<RunningVisualsTag> runPool = default;
@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<BattleTurnInfo, AwaitingVisualsTag, SceneVisualsQueueComp>,
             Exc<RunningVisualsTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var turnEntity in filter.Value) 
             {

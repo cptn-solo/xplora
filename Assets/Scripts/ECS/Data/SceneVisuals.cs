@@ -22,6 +22,34 @@ public struct RelationEffectsPendingComp {
     public RelationEffectInfo EffectInfo { get; set; }  
 }
 
+public struct RelationEffectsFocusPendingComp
+{
+    public EcsPackedEntity TurnEntity; // turn to match effect to
+    public EcsPackedEntityWithWorld EffectSource { get; set; }
+    public EcsPackedEntityWithWorld EffectTarget { get; set; }
+    public EcsPackedEntityWithWorld FocusEntity { get; set; }
+
+    internal RelationsEffectType EffectType; // target or revenge
+}
+
+public struct RelationEffectsFocusResetInfo : ISceneVisualsInfo
+{
+    public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+    //entity to keep track of the focus icon (there are several focus possible for one targeted hero, so they are separate)
+    internal EcsPackedEntityWithWorld FocusEntity;
+}
+
+public struct RelationEffectsFocusCastInfo : ISceneVisualsInfo
+{
+    public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+    // animation starting point
+    public Transform SourceTransform;
+    //actually Subject's transform of visuals anchor
+    public Transform TargetTransform; 
+
+    internal BundleIconInfo FocusInfo;
+}
+
 /// <summary>
 /// Resets effects panel before turn will recast new (current) ones
 /// </summary>
@@ -46,7 +74,6 @@ public struct DamageEffectVisualsInfo : ISceneVisualsInfo
     public EcsPackedEntityWithWorld SubjectEntity { get; set; }
     public int EffectsDamage;
     public DamageEffect[] Effects;
-    public bool Lethal;
 }
 
 public struct EffectsBarVisualsInfo : ISceneVisualsInfo

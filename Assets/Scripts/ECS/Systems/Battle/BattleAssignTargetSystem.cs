@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class BattleAssignTargetSystem : IEcsRunSystem
+    public class BattleAssignTargetSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleTurnInfo> turnPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
@@ -21,7 +21,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
                 AssignTarget(entity);

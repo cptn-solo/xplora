@@ -6,7 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleStartSystem : IEcsRunSystem
+    public class BattleStartSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInProgressTag> battleInProgressTagPool = default;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (battleService.Value.PlayMode switch
             {

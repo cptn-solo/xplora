@@ -7,10 +7,9 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleClearVisualsForUsedRelationsEffectSystem : IEcsRunSystem
+    public class BattleClearVisualsForUsedRelationsEffectSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
-        private readonly EcsPoolInject<UpdateTag<RelationEffectInfo>> updatePool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
 
         private readonly EcsFilterInject<
@@ -20,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
@@ -39,9 +38,6 @@ namespace Assets.Scripts.ECS.Systems
                         if (item.Unpack(out var origWorld, out var origEntity))
                             origWorld.IncrementIntValue<RelationEffectsCountTag>(-1, origEntity);
                 }
-
-                if (!updatePool.Value.Has(entity))
-                    updatePool.Value.Add(entity);
             }
         }
     }

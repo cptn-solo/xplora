@@ -26,31 +26,31 @@ namespace Assets.Scripts.Services
         {
             ecsWorld = new EcsWorld();
 
-            ecsInitSystems = new EcsSystems(ecsWorld);
+            ecsInitSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
             ecsInitSystems
                 .Add(new LibraryInitSystem())
                 .Add(new TeamInitSystem())
                 .Inject(this)
                 .Init();
 
-            ecsRunSystems = new EcsSystems(ecsWorld);
+            ecsRunSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
             ecsRunSystems
 
-                .DelHere<DeadTag>() // battle kills doesn't matter for the library, just ignore the tag
+                .CleanupHere<DeadTag>() // battle kills doesn't matter for the library, just ignore the tag
 
                 .Add(new LibraryDeployCardsSystem())
 
                 // with UpdateTag<MovedTag>
                 .Add(new LibraryHandleHeroMoveSystem())
-                .DelHere<UpdateTag<MovedTag>>()
+                .CleanupHere<UpdateTag<MovedTag>>()
 
                 // with UpdateTag<RelationsMatrixComp>
                 .Add(new LibraryUpdatePlayerTeamRelationContextSystem())
-                .DelHere<UpdateTag<RelationsMatrixComp>>()
+                .CleanupHere<UpdateTag<RelationsMatrixComp>>()
 
                 // with UpdateTag<SelectedTag>
                 .Add(new LibraryUpdateCardSelectionSystem())
-                .DelHere<UpdateTag<SelectedTag>>()
+                .CleanupHere<UpdateTag<SelectedTag>>()
 
                 .Add(new LibraryUpdateCardHoverSystem())
                 .Add(new LibraryUpdateCardsSystem())

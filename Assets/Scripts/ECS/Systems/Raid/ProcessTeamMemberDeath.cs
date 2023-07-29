@@ -7,7 +7,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class ProcessTeamMemberDeath : IEcsRunSystem
+    public class ProcessTeamMemberDeath : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in aftermathFilter.Value)
                 ProcessEcsDeathInBattle();

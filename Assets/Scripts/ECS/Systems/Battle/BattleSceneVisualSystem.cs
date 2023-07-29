@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         }
     }
 
-    public class BattleSceneVisualSystem<T> : IEcsRunSystem
+    public class BattleSceneVisualSystem<T> : BaseEcsSystem
         where T : struct, ISceneVisualsInfo
     {
         protected readonly EcsPoolInject<T> visualPool = default;
@@ -29,7 +29,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<T, RunningVisualsTag>,
             Exc<ActiveVisualsTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

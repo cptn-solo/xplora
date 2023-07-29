@@ -4,7 +4,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamUpdateBarsInfoSystem : IEcsRunSystem
+    public class PlayerTeamUpdateBarsInfoSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default;
         private readonly EcsPoolInject<UpdateTag<BarsInfoComp>> updatePool = default;
@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, UpdateTag<BarsInfoComp>>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

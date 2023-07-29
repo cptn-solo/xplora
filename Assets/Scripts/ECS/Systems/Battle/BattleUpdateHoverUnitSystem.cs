@@ -3,11 +3,10 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using UnityEngine;
-using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleUpdateHoverUnitSystem : UpdateCardHoverSystem, IEcsRunSystem
+    public class BattleUpdateHoverUnitSystem : UpdateCardHoverSystem
     {
         private readonly EcsPoolInject<BarsInfoComp> barsInfoPool = default;
 
@@ -24,7 +23,7 @@ namespace Assets.Scripts.ECS.Systems
                 ItemsContainerRef<BarInfo>>> detailsViewFilter = default;
 
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in hoverFilter.Value)
             {

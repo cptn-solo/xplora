@@ -6,14 +6,14 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleScheduleSceneVisualsQueuedEffectsSystem : IEcsRunSystem
+    public class BattleScheduleSceneVisualsQueuedEffectsSystem : BaseEcsSystem
     {
 
         #region pools
 
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
-        private readonly EcsPoolInject<AttackerEffectsInfoComp> appliedEffectsCompPool = default;
+        private readonly EcsPoolInject<SubjectEffectsInfoComp> appliedEffectsCompPool = default;
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
@@ -23,11 +23,11 @@ namespace Assets.Scripts.ECS.Systems
         #endregion
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag, AttackerRef, AttackerEffectsInfoComp>,
+            Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag, AttackerRef, SubjectEffectsInfoComp>,
             Exc<AwaitingVisualsTag>> filter = default;
 
         // attacker effects were scheduled:
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             var world = systems.GetWorld();
 
@@ -49,7 +49,6 @@ namespace Assets.Scripts.ECS.Systems
                 appliedEffects.SubjectEntity = effects.SubjectEntity;
                 appliedEffects.Effects = effects.Effects;
                 appliedEffects.EffectsDamage = effects.EffectsDamage;
-                appliedEffects.Lethal = effects.Lethal;
 
                 if (effects.SubjectEntity.Unpack(out _, out var effectsSubject))
                 {

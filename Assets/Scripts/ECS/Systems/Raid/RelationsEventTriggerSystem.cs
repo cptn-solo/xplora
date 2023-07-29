@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RelationsEventTriggerSystem : IEcsRunSystem
+    public class RelationsEventTriggerSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<NameValueComp<NameTag>> namePool = default;
         private readonly EcsPoolInject<RelationsEventInfo> eventInfoPool = default;
@@ -22,7 +22,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<HeroLibraryService> heroLibraryService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (existingFilter.Value.GetEntitiesCount() > 0)
                 return;

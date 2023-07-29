@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleAutoProcessTurnSystem : IEcsRunSystem
+    public class BattleAutoProcessTurnSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<ProcessedTurnTag> processedTagPool = default;
 
@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<BattleTurnInfo, CompletedTurnTag>,
             Exc<AwaitingVisualsTag, RunningVisualsTag, ProcessedTurnTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
                 processedTagPool.Value.Add(entity);

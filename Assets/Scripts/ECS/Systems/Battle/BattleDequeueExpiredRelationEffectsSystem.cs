@@ -5,15 +5,13 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDequeueExpiredRelationEffectsSystem : IEcsRunSystem
+    public class BattleDequeueExpiredRelationEffectsSystem : BaseEcsSystem
     {
-        private readonly EcsPoolInject<UpdateTag<RelationEffectInfo>> updatePool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
 
-        private readonly EcsFilterInject<Inc<RelationEffectsComp>> currentEffectFilter = default;
         private readonly EcsFilterInject<Inc<BattleRoundInfo, GarbageTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
@@ -21,11 +19,6 @@ namespace Assets.Scripts.ECS.Systems
          
                 // for both battle and raid worlds and remove expired effects:
                 DequeueRelationEffects(systems.GetWorld(), roundInfo.Round);
-
-                // enqueue view update to reflect changes (if any)
-                foreach (var effectsEntity in currentEffectFilter.Value)
-                    if (!updatePool.Value.Has(effectsEntity))
-                        updatePool.Value.Add(effectsEntity);
             }
         }
 

@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RemoveWorldPoiSystem : IEcsRunSystem
+    public class RemoveWorldPoiSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool = default;
         private readonly EcsPoolInject<GarbageTag> garbagePool = default;
@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<WorldService> worldService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in opponentToRetireFilter.Value)
             {

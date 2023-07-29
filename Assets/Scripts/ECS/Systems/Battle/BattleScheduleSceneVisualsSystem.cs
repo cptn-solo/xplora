@@ -6,7 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleScheduleSceneVisualsSystem : IEcsRunSystem
+    public class BattleScheduleSceneVisualsSystem : BaseEcsSystem
     {
         #region pools
         
@@ -16,11 +16,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
-        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
+        private readonly EcsPoolInject<SubjectEffectsInfoComp> appliedEffectsCompPool = default;
         private readonly EcsPoolInject<DeadTag> deadTagPool = default;
         private readonly EcsPoolInject<RangedTag> rangedTagPool = default;
         private readonly EcsPoolInject<TransformRef<VisualsTransformTag>> transformRefPool = default;
-        
+
         #endregion
 
         private readonly EcsFilterInject<
@@ -29,7 +29,7 @@ namespace Assets.Scripts.ECS.Systems
         
 
         // not skipped (both attacker and target present):
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             var world = systems.GetWorld();
 
@@ -69,7 +69,7 @@ namespace Assets.Scripts.ECS.Systems
 
 
                 // if dodged:
-                if (turnInfo.Dodged)
+                if (world.CheckForActiveEffect<DodgedTag>(targetEntity))
                 {
                     ref var dodgeVisualsInfo = ref world.ScheduleSceneVisuals<AttackDodgeVisualsInfo>(turnEntity);
                     dodgeVisualsInfo.SubjectEntity = targetRef.Packed;
@@ -81,34 +81,36 @@ namespace Assets.Scripts.ECS.Systems
                     hitVisualsInfo.SubjectEntity = targetRef.Packed;
 
                     // if target effects (esp. armor pierced)
-                    if (turnInfo.Pierced)
+                    if (world.CheckForActiveEffect<PiercedTag>(targetEntity))
                     {
                         ref var piercedEffectVisualsInfo = ref world.ScheduleSceneVisuals<ArmorPiercedVisualsInfo>(turnEntity);
                         piercedEffectVisualsInfo.SubjectEntity = targetRef.Packed;
-                        piercedEffectVisualsInfo.Damage = turnInfo.Damage;
+                        piercedEffectVisualsInfo.Damage = world.ReadIntValue<DamageTag>(targetEntity);
                     }
-                    else if (turnInfo.TargetEffects.Length > 0)
+                    else if (appliedEffectsCompPool.Value.Has(targetEntity))
                     {
+
+                        ref var currentEffectsComp = ref appliedEffectsCompPool.Value.Get(targetEntity);
                         ref var appliedEffects = ref world.ScheduleSceneVisuals<DamageEffectVisualsInfo>(turnEntity);
                         appliedEffects.SubjectEntity = targetRef.Packed;
-                        appliedEffects.Effects = turnInfo.TargetEffects;
+                        appliedEffects.Effects = currentEffectsComp.Effects;
                         // probably should ignore damage while visualizing effects as we do have a dedicated stage for damage (bars) later
-                        appliedEffects.EffectsDamage = turnInfo.ExtraDamage;
-                        appliedEffects.Lethal = turnInfo.Lethal;
+                        appliedEffects.EffectsDamage = currentEffectsComp.EffectsDamage;
 
                         ref var efffectsBarEffects = ref world.ScheduleSceneVisuals<EffectsBarVisualsInfo>(turnEntity);
                         efffectsBarEffects.SubjectEntity = targetRef.Packed;
-                        efffectsBarEffects.InstantEffects = turnInfo.TargetEffects;
+                        efffectsBarEffects.InstantEffects = currentEffectsComp.Effects;
                     }
 
                     // if damage dealt
-                    if (turnInfo.Damage > 0)
+                    var currentDamage = world.ReadIntValue<DamageTag>(targetEntity);
+                    if (currentDamage > 0)
                     {
                         ref var damageVisualsInfo = ref world.ScheduleSceneVisuals<TakingDamageVisualsInfo>(turnEntity);
                         damageVisualsInfo.SubjectEntity = targetRef.Packed;
-                        damageVisualsInfo.Damage = turnInfo.Damage;
-                        damageVisualsInfo.Critical = turnInfo.Critical;
-                        damageVisualsInfo.Lethal = turnInfo.Lethal;
+                        damageVisualsInfo.Damage = currentDamage;
+                        damageVisualsInfo.Critical = world.CheckForActiveEffect<CriticalTag>(targetEntity);
+                        damageVisualsInfo.Lethal = world.CheckForActiveEffect<LethalTag>(targetEntity);
 
                         ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
                         ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
@@ -122,7 +124,7 @@ namespace Assets.Scripts.ECS.Systems
                         hpBarEffects.SubjectEntity = targetRef.Packed;
                         hpBarEffects.Health = healthComp.Value;
                         hpBarEffects.HealthCurrent = hpComp.Value;
-                        hpBarEffects.Damage = turnInfo.Damage;
+                        hpBarEffects.Damage = currentDamage;
                         hpBarEffects.BarsInfoBattle = barsAndEffectsComp.BarsInfoBattle;
                     }
                 }
@@ -134,11 +136,11 @@ namespace Assets.Scripts.ECS.Systems
                 }
                 else
                 {
+                    var activeEffects = world.GetActiveEffects(targetRef.Packed);
                     // current effects if exist (or cleanup if not):
-                    ref var effectsComp = ref effectsPool.Value.Get(targetEntity);
                     ref var effectsBarEffects = ref world.ScheduleSceneVisuals<EffectsBarVisualsInfo>(turnEntity);
                     effectsBarEffects.SubjectEntity = targetRef.Packed;
-                    effectsBarEffects.ActiveEffects = effectsComp.ActiveEffects;
+                    effectsBarEffects.ActiveEffects = activeEffects;
                 }
 
                 if (!ranged)
