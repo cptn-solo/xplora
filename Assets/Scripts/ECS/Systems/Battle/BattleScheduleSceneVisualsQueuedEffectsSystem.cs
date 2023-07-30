@@ -17,7 +17,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
-        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
         private readonly EcsPoolInject<DeadTag> deadTagPool = default;
 
         #endregion
@@ -83,10 +82,10 @@ namespace Assets.Scripts.ECS.Systems
                 {
                     {
                         // current effects if exist (or cleanup if not):
-                        ref var effectsComp = ref effectsPool.Value.Get(attackerEntity);
+                        var activeEffects = world.GetActiveEffects(attackerRef.Packed);
                         ref var effectsBarEffects = ref world.ScheduleSceneVisuals<EffectsBarVisualsInfo>(turnEntity);
                         effectsBarEffects.SubjectEntity = attackerRef.Packed;
-                        effectsBarEffects.ActiveEffects = effectsComp.ActiveEffects;
+                        effectsBarEffects.ActiveEffects = activeEffects;
                     }
                 }
             }

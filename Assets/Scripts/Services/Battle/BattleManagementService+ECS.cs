@@ -57,7 +57,12 @@ namespace Assets.Scripts.Services
                 .Add(new BattleEnqueueTurnSystem()) // checks for empty turn and creates draft one
                                                     // with DraftTag
                 .Add(new BattleDraftTurnSystem())
-                .Add(new BattlePrepareRevengeTurnsSystem())
+                
+                // ### TURN PREPARE FROM DRAFT ###
+                
+                .Add(new BattlePrepareRevengeTurnsSystem()) // overrides current round's queue
+                                                            // to insert the revenger
+
                 .Add(new BattleAssignAttackerSystem())
                 .Add(new BattleAssignAttackerEffectsSystem())
                 .Add(new BattleAssignAttackerRelationEffectsSystem()) // if attacker is hero (not enemy)
@@ -80,62 +85,64 @@ namespace Assets.Scripts.Services
                 .CleanupHere<DraftTag>()
                 .Add(new BattleAutoMakeTurnSystem())
                 
+                // ### TURN START ###
+
                 // with MakeTurnTag, AttackTag
                 .Add(new BattleApplyQueuedEffectsSystem<AttackerRef, AttackerEffectsTag>()) // will skip next if died
                                                            // with AttackTag
                 .Add(new BattleProcessDamageSystem()) // 1st pass, applying damage from queued effects
-                .Add(new BattleCheckLethalDamageSystem()) // removes AttackTag if lethad damage already dealt
+                .Add(new BattleCheckIfAttackPossibleSystem<AttackerRef, LethalTag>()) // removes AttackTag if lethad damage already dealt
+
+                // #### ATTACK ###
 
                  // withMakeTurnTag, AttackTag
                 .Add(new BattleAttackSystem()) // tries to attack but can dodge/miss
+                .Add(new BattleCheckIfAttackPossibleSystem<AttackerRef, MissedTag>()) // removes AttackTag if lethad damage already dealt
+                .Add(new BattleCheckIfAttackPossibleSystem<TargetRef, DodgedTag>()) // removes AttackTag if lethad damage already dealt
+
                 .Add(new BattleTryCastEffectsSystem()) // can pierce shield so goes 1st
-                .Add(new BattleApplyQueuedEffectsSystem<TargetRef, TargetEffectsTag>()) // will skip next if died
+                
+                .Add(new BattleApplyQueuedEffectsSystem<TargetRef, TargetEffectsTag>()) // queue visuals, clear used
                 .Add(new BattleProcessDamageSystem()) // 2nd pass, applying damage from queued effects
+                
                 .Add(new BattleDealAttackDamageSystem())
                 .Add(new BattleProcessDamageSystem()) // 3d pass, applying damage from the attack
                 .CleanupHere<AttackTag>()
+                
+                // ### SUMMARY ###
+
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
                 
+                // ### SCHEDULE VISUALS ###
+                
                 // with CompletedTurnTag+ScheduleVisualsTag (if not Fast Forward mode)
-                .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
-                .Add(new BattleScheduleRelationEffectVisualSystem<AttackerRef>())
-                .Add(new BattleScheduleRelationEffectFocusVisualSystem())
-                .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
-                .Add(new BattleScheduleRelationEffectVisualSystem<TargetRef>())
-                .Add(new BattleScheduleRelationEffectFocusResetVisualSystem()) // schedules remove of used focus icons
-                .Add(new BattleScheduleRelationEffectResetVisualSystem<AttackerRef>())
-                .Add(new BattleScheduleRelationEffectResetVisualSystem<TargetRef>())
+                .AddSchedulers()
                 .Add(new BattleScheduleSceneVisualsCompleteSystem()) // toggles AwaitVisualsTag to prevent reuse of the Schedule systems above
                 // with AwaitVisualsTag                
                 .Add(new BattleRunSceneVisualsSystem()) // assigns visualizers so next systems could actually apply visuals
 
+                // ### VISUALS (ANIMATION) ###
+
                 /// order of the following systems souldn't matter actually as they are executed one per tick (i believe)
-                .Add(new BattleSceneRelationEffectResetVisualSystem()) // subclass for effects container panel
-                .Add(new BattleSceneRelationEffectCastVisualSystem()) // subclass for effects container panel
-                .Add(new BattleSceneRelationEffectFocusCastVisualSystem()) // subclass for effects container panel
-                .Add(new BattleSceneVisualSystem<DamageEffectVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<ArmorPiercedVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<TakingDamageVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<AttackDodgeVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<AttackMoveVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<AttackerAttackVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<AttackerMoveBackVisualsInfo, Hero>())
-                .Add(new BattleSceneVisualSystem<HitVisualsInfo, Hero>())                
-                .Add(new BattleSceneVisualSystem<DeathVisualsInfo, Hero>())                
-                .Add(new BattleSceneVisualSystem<DeathVisualsInfo, BarsAndEffectsInfo>())
-                .Add(new BattleSceneVisualSystem<EffectsBarVisualsInfo, BarsAndEffectsInfo>())
-                .Add(new BattleSceneVisualSystem<HealthBarVisualsInfo, BarsAndEffectsInfo>())
-                .Add(new BattleSceneRelationEffectFocusResetVisualSystem()) // removes focus icon from target before new one can be popped in
+                .AddVisualizers()
                 .Add(new BattleCompleteSceneVisualsSystem())
+
+                // ### FINALIZE ###
+                
+                // set turn processed immediately on complete if no visuals pending
                 .Add(new BattleAutoProcessTurnSystem()) // for fast forward play
                 
                 // with ProcessedTurnTag
                 .Add(new BattleFinalizeTurnSystem()) // removes turn and died heroes
                 
+                // ### CLEANUP ###
+
                 // with FinalizedTurnTag
-                .Add(new BattleClearVisualsForUsedFocusSystem()) // removes focus effect (revenge/target)
-                .Add(new BattleClearVisualsForUsedRelationsEffectSystem()) // removes redundant battle effects visuals
-                .Add(new BattleClearUsedRelationsEffectSystem()) // removes used effect instance entities (usage left == 0)
+                .Add(new BattleClearUsedFocusSystem()) // removes focus effect (revenge/target)
+                .Add(new BattleClearUsedRelationsEffectSystem()) // removes redundant battle effects visuals
+                .Add(new BattleClearUsedEffectsSystem<DamageTag>()) // raw damage and other damage effects
+                .Add(new BattleClearUsedEffectsSystem<CriticalTag>()) // raw damage and other damage effects
+                .Add(new BattleClearUsedEffectsSystem<LethalTag>()) // raw damage and other damage effects
                 .Add(new BattleReportUpdatedHeros()) // reports update back to the battle requester (raid)
                 .Add(new BattleReportDeadHeroes()) // reports death back to the battle requester (raid)
                 
@@ -144,8 +151,6 @@ namespace Assets.Scripts.Services
                 .Add(new BattleDestroyDiedCardsSystem()) // for fastforward mode will destroy retired cards
                 .CleanupHere<ProcessedHeroTag>()
                 .Add(new BattleDetectCompletedRoundSystem()) // marks all empty rounds as garbage
-                .Add(new BattleDequeueExpiredEffectFocusSystem()) // drops focus if it's target is dead or if the focus effect expired
-                .Add(new BattleDequeueExpiredRelationEffectsSystem()) 
                 .Add(new BattleDequeueCompletedRoundSystem())
                 .Add(new GarbageCollectorSystem()) // will delete rounds and turns but not heroes
                 .Add(new BattleTerminationSystem()) // will navigate from the battle screen stopping context

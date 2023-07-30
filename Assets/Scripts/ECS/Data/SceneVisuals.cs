@@ -24,7 +24,6 @@ public struct RelationEffectsPendingComp {
 
 public struct RelationEffectsFocusPendingComp
 {
-    public EcsPackedEntity TurnEntity; // turn to match effect to
     public EcsPackedEntityWithWorld EffectSource { get; set; }
     public EcsPackedEntityWithWorld EffectTarget { get; set; }
     public EcsPackedEntityWithWorld FocusEntity { get; set; }
@@ -57,6 +56,7 @@ public struct RelEffectResetVisualsInfo : ISceneVisualsInfo
 {
     // to whom the effect will be casted (effect source hero image move)
     public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+    public RelationEffectInfo[] CurrentEffects { get; internal set; }
 }
 
 public struct RelEffectCastVisualsInfo : ISceneVisualsInfo

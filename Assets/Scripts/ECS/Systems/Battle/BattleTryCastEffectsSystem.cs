@@ -69,6 +69,7 @@ namespace Assets.Scripts.ECS.Systems
 
                     ref var effect = ref ecsWorld.Value.CastEffect(damageEffect.Config.Effect, targetRef.Packed, turnInfo.Turn);
                     effect.EffectDamage = effectDamage;
+                    effect.TurnsActive = damageEffect.Config.TurnsActive;
 
                     ecsWorld.Value.IncrementIntValue<DamageTag>(effectDamage, targetEntity);
                 }

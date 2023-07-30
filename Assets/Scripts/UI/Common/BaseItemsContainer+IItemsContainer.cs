@@ -37,8 +37,14 @@ namespace Assets.Scripts.UI.Common
 
         public void SetInfo(T[] value)
         {
-             if (items.Length != value.Length)
+            if (value == null)
             {
+                Reset();
+                return;
+            }
+
+            if (items.Length != value.Length)
+             {
                 foreach (var item in itemsIndex)
                     GameObject.Destroy(item.Value.gameObject);
 

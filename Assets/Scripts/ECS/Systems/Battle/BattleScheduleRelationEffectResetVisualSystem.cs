@@ -10,6 +10,7 @@ namespace Assets.Scripts.ECS.Systems
         where T : struct, IPackedWithWorldRef
     {
         private readonly EcsPoolInject<T> subjectRefPool = default;
+        private readonly EcsPoolInject<RelationEffectsComp> effectsPool = default;
 
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag, T>,
@@ -26,8 +27,11 @@ namespace Assets.Scripts.ECS.Systems
                 if (!subjectRef.Packed.Unpack(out _, out var subjectEntity))
                     throw new Exception("No Subject entity (attacker or target)");
 
+                ref var effectsComp = ref effectsPool.Value.Get(subjectEntity);
+
                 ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectResetVisualsInfo>(turnEntity);
                 resetRelEffectVisualsInfo.SubjectEntity = subjectRef.Packed;
+                resetRelEffectVisualsInfo.CurrentEffects = effectsComp.CurrentEffectsInfo;
             }
         }
     }

@@ -15,7 +15,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DraftTag<EffectInstanceInfo>> draftTagPool = default;        
         
         private readonly EcsFilterInject<Inc<RelEffectProbeComp>> filter = default;
-        
+        private readonly EcsFilterInject<
+            Inc<PlayerTeamTag>,
+            Exc<DeadTag>> teammateFilter = default;
         private readonly EcsCustomInject<HeroLibraryService> heroLibraryService = default;
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
@@ -113,7 +115,6 @@ namespace Assets.Scripts.ECS.Systems
             
             ref var effect = ref effectsPool.Value.Add(effectProbeEntity);
             effect.StartRound = currentRound.Round;
-            effect.EndRound = currentRound.Round + rule.TurnsCount;
             effect.UsageLeft = rule.TurnsCount;
             effect.Rule = rule;
             effect.EffectSource = effectSource;

@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleClearVisualsForUsedFocusSystem : BaseEcsSystem
+    public class BattleClearUsedFocusSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;

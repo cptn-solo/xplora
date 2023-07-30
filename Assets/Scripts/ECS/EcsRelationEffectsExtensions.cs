@@ -120,18 +120,27 @@ namespace Assets.Scripts.ECS
             factor = 1f;
 
             ref var relationEffects = ref ecsWorld.GetPool<RelationEffectsComp>().Get(entity);
+            var pool = ecsWorld.GetPool<EffectInstanceInfo>();
 
             foreach (var relEffect in relationEffects.CurrentEffects)
             {
+                if (!relEffect.Value.Unpack(out _, out var effectEntity))
+                    throw new Exception("Stale rel effect instance");
+
+                if (!pool.Has(effectEntity))
+                    throw new Exception("No rel effect instance for entity");
+
+                ref var effect = ref pool.Get(effectEntity);
+
                 switch (key.RelationsEffectType)
                 {
                     case RelationsEffectType.SpecKey:
                         if (key.SpecOption != SpecOption.NA && relEffect.Key.SpecOption == key.SpecOption)
-                            return GetSpecKeyAdjustment(relEffect.Value, out factor, out value, rangeValue);
+                            return GetSpecKeyAdjustment(effect, out factor, out value, rangeValue);
                         break;
                     case RelationsEffectType.DmgEffectKey:
                         if (key.DamageEffect != DamageEffect.NA && relEffect.Key.DamageEffect == key.DamageEffect)
-                            return GetDmgEffectKeyAdjustment(relEffect.Value, out factor, out value);
+                            return GetDmgEffectKeyAdjustment(effect, out factor, out value);
                         break;
                     case RelationsEffectType.DmgEffectBonusKey:
                         if (relEffect.Key.RelationsEffectType switch
@@ -139,11 +148,11 @@ namespace Assets.Scripts.ECS
                             RelationsEffectType.DmgEffectBonusAbs => true,
                             RelationsEffectType.DmgEffectBonusPercent => true,
                             _ => false
-                        }) return GetDmgEffectBonusKeyAdjustment(relEffect.Value, out factor, out value);
+                        }) return GetDmgEffectBonusKeyAdjustment(effect, out factor, out value);
                         break;
                     case RelationsEffectType.AlgoDamageTypeBlock:
                         if (key.DamageType != DamageType.NA && relEffect.Key.DamageType == key.DamageType)
-                            return GetAlgoDamageTypeBlockAdjustment(relEffect.Value, out value);
+                            return GetAlgoDamageTypeBlockAdjustment(effect, out value);
                         break;
                     case RelationsEffectType.AlgoRevenge:
                         //TODO:

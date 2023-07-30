@@ -55,36 +55,41 @@ namespace Assets.Scripts.ECS.Systems
                 switch (effect.Rule.Key.RelationsEffectType)
                 {                    
                     case RelationsEffectType.AlgoRevenge:
-                        PrepareVisualForEffect(targetParty, sourceParty, ref effect);
+                        PrepareVisualForEffect(targetParty, sourceParty, ref effect, entity);
                         break;
                     case RelationsEffectType.AlgoTarget:
                         {
                             // here we should add visual to all team mates as they are affected by the effect caster
                             foreach (var teammateEntity in playerTeamFilter.Value)
-                                PrepareVisualForEffect(sourceParty, teammateEntity, ref effect);
+                                PrepareVisualForEffect(sourceParty, teammateEntity, ref effect, entity);
                         }
                         break;
                     default:
-                        PrepareVisualForEffect(sourceParty, targetParty, ref effect);
+                        PrepareVisualForEffect(sourceParty, targetParty, ref effect, entity);
+                        effect.UsageLeft--;
+                        // focus effects (target/revenge) will handle usage separately
                         break;
                 }
-                effect.UsageLeft--;
+                //moving usage to the actual usage stage: when target or spec were actually adjusted
+                //effect.UsageLeft--;
             }
         }
 
         private void PrepareVisualForEffect(
             int sourceParty,
             int affectedParty, 
-            ref EffectInstanceInfo effect)
+            ref EffectInstanceInfo effect,
+            int entity)
         {
+            var world = pendingPool.Value.GetWorld();
+
             ref var heroIcon = ref iconNamePool.Value.Get(sourceParty);
             var info = effect.Rule.DraftEffectInfo(effect.Rule.GetHashCode(), heroIcon.Name);
             effect.EffectInfo = info;
 
             ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
-            relEffects.SetEffect(effect.Rule.Key, effect);
+            relEffects.SetEffect(effect.Rule.Key, world.PackEntityWithWorld(entity));
 
-            var world = pendingPool.Value.GetWorld();
             var pendingVisualEntity = world.NewEntity();
             ref var pendingVisual = ref pendingPool.Value.Add(pendingVisualEntity);
 

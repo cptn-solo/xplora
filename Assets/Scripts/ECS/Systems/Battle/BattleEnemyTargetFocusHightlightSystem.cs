@@ -34,7 +34,6 @@ namespace Assets.Scripts.ECS.Systems
                 var nameSubject = world.ReadValue<NameValueComp<NameTag>, string>(focusedEntity);
                 Debug.Log($"Pending focus from {nameSource} to {nameSubject}");
 
-                pendingVisual.TurnEntity = focusComp.TurnEntity;
                 pendingVisual.EffectSource = world.PackEntityWithWorld(actorEntity);
                 pendingVisual.EffectTarget = world.PackEntityWithWorld(focusedEntity);
                 pendingVisual.EffectType = focusComp.EffectKey.RelationsEffectType;

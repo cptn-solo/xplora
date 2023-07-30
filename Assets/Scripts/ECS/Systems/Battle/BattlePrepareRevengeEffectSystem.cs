@@ -55,8 +55,7 @@ namespace Assets.Scripts.ECS.Systems
                     revengeComp.RevengeBy = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
                     revengeComp.RevengeFor = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
 
-
-                    if (!revengeComp.RevengeBy.Unpack(out _, out var revenger))
+                    if (!revengeComp.RevengeBy.Unpack(out var world, out var revenger))
                         throw new Exception("Stale actor for focus");
 
                     // remember who is focused: (focus may exest from prev. turn, so will be overriden)
@@ -67,8 +66,9 @@ namespace Assets.Scripts.ECS.Systems
                     focus.EffectKey = effect.Rule.Key;
                     focus.Focused = attackerRef.Packed;
                     focus.Actor = revengeComp.RevengeBy;
-                    focus.TurnEntity = probe.TurnEntity;
-                    focus.EndRound = effect.EndRound;
+                    focus.EffectEntity = world.PackEntityWithWorld(entity);
+
+                    focus.TurnsActive = effect.UsageLeft;
 
                     draftTagPool.Value.Add(revenger);
                 }

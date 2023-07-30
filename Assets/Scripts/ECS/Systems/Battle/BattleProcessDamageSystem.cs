@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -22,8 +23,8 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var entity in filter.Value)
             {
                 var damage = world.ReadIntValue<DamageTag>(entity);
-                var currentHP = world.IncrementIntValue<HpTag>(-damage, entity);
-
+                var health = world.ReadIntValue<HealthTag>(entity);
+                var currentHP = Mathf.Max((health - damage), 0);
                 if (currentHP <= 0)
                 {
                     if (!lethalPool.Value.Has(entity))
@@ -31,6 +32,7 @@ namespace Assets.Scripts.ECS.Systems
 
                     world.SetIntValue<HpTag>(0, entity);
                 }
+                world.SetIntValue<HpTag>(currentHP, entity);
             }
         }
     }

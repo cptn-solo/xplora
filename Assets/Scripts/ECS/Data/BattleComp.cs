@@ -121,12 +121,12 @@ namespace Assets.Scripts.ECS.Data
         // who will be attacked
         public EcsPackedEntityWithWorld Focused { get; internal set; }
         // when to expire the focus
-        public int EndRound { get; internal set; }
+        public int TurnsActive { get; internal set; }
         // hero for whom the focused entity will be the target
         public EcsPackedEntityWithWorld Actor { get; internal set; }
         
-        // turn the effect had happend on
-        public EcsPackedEntity TurnEntity;
+        // reference to the underlying effect instance
+        public EcsPackedEntityWithWorld EffectEntity { get; set; }
     }
 
     public struct PackedEntityRef<T> : IPackedWithWorldRef where T : struct
@@ -135,18 +135,20 @@ namespace Assets.Scripts.ECS.Data
         public readonly EcsPackedEntityWithWorld Packed => PackedEntity;
     }
 
-    public struct DamageTag { }
-    public struct CriticalTag { }
-    public struct LethalTag { }
-    public struct DodgedTag { }
-    public struct MissedTag { }
 
+    public struct DodgedTag { }
+    public struct MissedTag { }   
 
     public struct StunnedTag { }
     public struct BleedingTag { }
     public struct PiercedTag { }
     public struct BurningTag { }
     public struct FrozingTag { }
+
+    public struct SpecialDamageEffectTag { } // put in addition to following:
+    public struct DamageTag { }
+    public struct CriticalTag { }
+    public struct LethalTag { }
 
 }
 

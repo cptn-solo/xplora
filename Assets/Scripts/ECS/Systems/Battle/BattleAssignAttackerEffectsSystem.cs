@@ -7,6 +7,10 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+    /// <summary>
+    /// Only marks the turn as eligeable for the queued attacker effects processing
+    /// or as a skipped by the attacker if appropriate effect attached to the attacker
+    /// </summary>
     public class BattleAssignAttackerEffectsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<SkippedTag> skippedTagPool = default;

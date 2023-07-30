@@ -6,9 +6,10 @@ using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
-{
+{    
     /// <summary>
-    /// 
+    /// Forwards effects attached to the subject (attacker/target) to the visualization pipeline 
+    /// (via SubjectEffectsInfoComp) and decrements used effects
     /// </summary>
     /// <typeparam name="T">AttackerRef or TargetRef</typeparam>
     /// <typeparam name="E">AttackerEffectsTag or TargetEffectsTag</typeparam>
@@ -19,13 +20,16 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<T> subjectRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
+        private readonly EcsPoolInject<EffectInstanceInfo> effectInstancePool = default;
 
         private readonly EcsPoolInject<E> subjectEffectsTagPool = default;
         private readonly EcsPoolInject<SubjectEffectsInfoComp> appliedEffectsCompPool = default;
         private readonly EcsPoolInject<ActiveEffectComp> activeEffectPool = default;
 
         private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, E>> filter = default;
-        private readonly EcsFilterInject<Inc<ActiveEffectComp>> effectsFilter = default;
+        private readonly EcsFilterInject<
+            Inc<ActiveEffectComp>, 
+            Exc<SpecialDamageEffectTag>> effectsFilter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
 
@@ -62,13 +66,16 @@ namespace Assets.Scripts.ECS.Systems
                 buffer.Add(effectComp.Effect);
 
                 // former "use effect":
-                activeEffectPool.Value.Del(effEntity); // TODO: cleanup hero effect after turn ends
+                world.UseEffect(effEntity);
             }
 
             if (buffer.Count > 0)
             {
-                ref var appliedEffects = ref appliedEffectsCompPool.Value.Add(subjectEntity);
-                appliedEffects.SubjectEntity = turnInfo.Attacker.Value;
+                if (!appliedEffectsCompPool.Value.Has(subjectEntity))
+                    appliedEffectsCompPool.Value.Add(subjectEntity);
+                
+                ref var appliedEffects = ref appliedEffectsCompPool.Value.Get(subjectEntity);
+                appliedEffects.SubjectEntity = subjectRef.Packed;
                 appliedEffects.Effects = buffer.ToArray();
                 appliedEffects.EffectsDamage = effectDamage;
             }
@@ -81,20 +88,28 @@ namespace Assets.Scripts.ECS.Systems
         {
             var retval = 1f; 
             ref var relationEffects = ref relEffectsPool.Value.Get(entity);
-            foreach (var relEffect in relationEffects.CurrentEffects)
+            foreach (var effectEntityPacked in relationEffects.CurrentEffects.Values)
             {
-                switch (relEffect.Value.Rule.EffectType)
+                if (!effectEntityPacked.Unpack(out var world, out var effectEntity))
+                    throw new Exception("Stale rel effect instance");
+
+                if (!effectInstancePool.Value.Has(effectEntity))
+                    throw new Exception("No rel effect instance for entity");
+
+                ref var relEffect = ref effectInstancePool.Value.Get(effectEntity);
+
+                switch (relEffect.Rule.EffectType)
                 {
                     case RelationsEffectType.SpecAbs:
                         {
-                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
+                            var rule = (EffectRuleSpecAbs)relEffect.Rule;
                             if (rule.SpecOption == eff.ResistanceSpec())
                                 retval -= rule.Value / 100f;
                         }
                         break;
                     case RelationsEffectType.SpecPercent:
                         {
-                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
+                            var rule = (EffectRuleSpecAbs)relEffect.Rule;
                             if (rule.SpecOption == eff.ResistanceSpec())
                                 retval *= rule.Value / 100f;
                         }

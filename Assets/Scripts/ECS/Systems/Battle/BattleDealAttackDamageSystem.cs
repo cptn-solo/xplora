@@ -94,6 +94,8 @@ namespace Assets.Scripts.ECS.Systems
                                            // roundings. changing 0 to 1
 
             ecsWorld.Value.IncrementIntValue<DamageTag>(damage, targetEntity);
+            ref var damageEff = ref ecsWorld.Value.CastEffect(DamageEffect.Raw, targetEntity, turnInfo.Turn);
+            damageEff.EffectDamage = damage;
             
             if (criticalDamage)
                 ecsWorld.Value.CastEffect(DamageEffect.Critical, targetEntity, turnInfo.Turn);            

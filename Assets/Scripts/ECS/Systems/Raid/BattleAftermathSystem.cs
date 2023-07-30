@@ -42,7 +42,14 @@ namespace Assets.Scripts.ECS.Systems
                     foreach (var relEffEntity in relEffectsFilter.Value)
                     {
                         ref var relEffect = ref relEffectsPool.Value.Get(relEffEntity);
-                        relEffect.Clear();
+                        relEffect.Clear(out var decrement);
+                        
+                        if (decrement != null)
+                        {
+                            foreach (var item in decrement)
+                                if (item.Unpack(out var origWorld, out var origEntity))
+                                    origWorld.IncrementIntValue<RelationEffectsCountTag>(-1, origEntity);
+                        }
                     }
 
                     foreach (var deadEntity in deadFilter.Value)

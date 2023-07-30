@@ -24,6 +24,7 @@ namespace Assets.Scripts.ECS.Systems
 
             ref var viewRef = ref effectsViewRefPool.Value.Get(subjectEntity);
             viewRef.Container.Reset();
+            viewRef.Container.SetInfo(visualInfo.CurrentEffects);
 
             base.AssignVisualizer(entity, visualInfo, world, viewEntity);
         }

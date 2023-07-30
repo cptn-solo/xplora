@@ -5,6 +5,7 @@ using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System.Linq;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
