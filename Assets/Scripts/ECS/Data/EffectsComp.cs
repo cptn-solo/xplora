@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Leopotam.EcsLite;
-using System.Collections.Generic;
 
 namespace Assets.Scripts.ECS.Data
 {

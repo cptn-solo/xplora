@@ -4,6 +4,7 @@ using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -70,64 +71,55 @@ namespace Assets.Scripts.ECS.Systems
                 throw new Exception("No battle!");
 
             ref var mappings = ref mappingsPool.Value.Get(battleEntity);
-           
-            var matrixFilter = origWorld.Filter<RelationsMatrixComp>().End();
-            var matrixPool = origWorld.GetPool<RelationsMatrixComp>();
+            ref var matrixComp = ref origWorld.GetRelationsMatrix();
 
-            foreach (var matrixEntity in matrixFilter)
+            foreach (var item in matrixComp.Matrix)
             {
-                ref var matrixComp = ref matrixPool.Get(matrixEntity);
-                foreach (var item in matrixComp.Matrix)
+                if (item.Value.EqualsTo(effect.EffectP2PEntity))
                 {
-                    // matching only one side of the key to avoid duplicates
-                    if (!item.Key.Item1.EqualsTo(probe.SourceOrigPacked))
-                        continue;
-
-                    if (item.Value.EqualsTo(effect.EffectP2PEntity))
-                    {
-                        var initialTargetPacked = mappings.OriginToBattleMapping[item.Key.Item2];
-                        if (!initialTargetPacked.Unpack(out _, out var initialTarget))
-                            throw new Exception("Stale battle target");
-
-                        if (deadTagPool.Value.Has(initialTarget))
-                            continue;
-
-                        AddFocus(
-                            battleWorld.PackEntityWithWorld(effectEntity),
-                            effect,
-                            focused,
-                            initialTargetPacked);
-
-                        continue; // existing one, that was initially spawned
-                    }
-
-                    if (!item.Key.Item2.Unpack(out _, out var effectTargetOrig))
-                        throw new Exception("Stale effect target");
-
-                    var extraTargetPacked = mappings.OriginToBattleMapping[item.Key.Item2];
-                    if (!extraTargetPacked.Unpack(out _, out var extraTarget))
+                    var partyPacked = mappings.OriginToBattleMapping[item.Key.Item2];
+                    if (!partyPacked.Unpack(out _, out var partyEntity))
                         throw new Exception("Stale battle target");
 
-                    if (deadTagPool.Value.Has(extraTarget))
+                    if (deadTagPool.Value.Has(partyEntity))
                         continue;
 
-                    var extraEffectEntity = battleWorld.NewEntity();
-
-                    effectDraftPool.Value.Add(extraEffectEntity);
-                    ref var extraEffect = ref pool.Value.Add(extraEffectEntity);
-
-                    extraEffect.EffectInfo = effect.EffectInfo;
-                    extraEffect.EffectSource = effect.EffectSource;
-                    extraEffect.Rule = effect.Rule;
-                    extraEffect.EffectP2PEntity = item.Value;
-
                     AddFocus(
-                        battleWorld.PackEntityWithWorld(extraEffectEntity), 
-                        extraEffect, 
-                        focused, 
-                        extraTargetPacked);
+                        battleWorld.PackEntityWithWorld(effectEntity),
+                        effect,
+                        focused,
+                        partyPacked);
+
+                    continue; // existing one, that was initially spawned
                 }
+
+                if (!item.Key.Item2.Unpack(out _, out var effectTargetOrig))
+                    throw new Exception("Stale effect target");
+
+                var extraTargetPacked = mappings.OriginToBattleMapping[item.Key.Item2];
+                if (!extraTargetPacked.Unpack(out _, out var extraTarget))
+                    throw new Exception("Stale battle target");
+
+                if (deadTagPool.Value.Has(extraTarget))
+                    continue;
+
+                var extraEffectEntity = battleWorld.NewEntity();
+
+                effectDraftPool.Value.Add(extraEffectEntity);
+                ref var extraEffect = ref pool.Value.Add(extraEffectEntity);
+
+                extraEffect.EffectInfo = effect.EffectInfo;
+                extraEffect.EffectSource = effect.EffectSource;
+                extraEffect.Rule = effect.Rule;
+                extraEffect.EffectP2PEntity = item.Value;
+
+                AddFocus(
+                    battleWorld.PackEntityWithWorld(extraEffectEntity),
+                    extraEffect,
+                    focused,
+                    extraTargetPacked);
             }
+
         }
 
         private void AddFocus(

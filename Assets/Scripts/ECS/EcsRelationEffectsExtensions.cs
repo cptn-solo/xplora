@@ -2,11 +2,69 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
+using UnityEditor.Build.Content;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS
 {
     public static class EcsRelationEffectsExtensions
     {
+        public static ref RelationsMatrixComp GetRelationsMatrix(this EcsWorld origWorld)
+        {
+            var matrixFilter = origWorld.Filter<RelationsMatrixComp>().End();
+            var matrixPool = origWorld.GetPool<RelationsMatrixComp>();
+
+            foreach (var matrixEntity in matrixFilter)
+            {
+                ref var matrixComp = ref matrixPool.Get(matrixEntity);
+                return ref matrixComp;
+            }
+
+            throw new Exception("No relations matrix defined for the world");
+        }
+        
+        public static bool TrySpawnAdditionalEffect(this EcsWorld origWorld, int p2pEntity, HeroRelationEffectsLibrary effectRules)
+        {
+            var currentEffectsCount = origWorld.ReadIntValue<RelationEffectsCountTag>(p2pEntity);
+            // respect spawn rate from AdditionalEffectSpawnRate:
+            return effectRules.TrySpawnAdditionalEffect(currentEffectsCount);
+        }
+
+        public static bool GetEffectConfigForProbe(this EcsWorld origWorld, int p2pEntity, 
+            HeroRelationEffectsLibrary effectRules, HeroRelationsConfig relationsConfig,
+            RelEffectProbeComp probe, 
+            out HeroRelationEffectConfig scope
+            )
+        {
+            var score = origWorld.ReadIntValue<RelationScoreTag>(p2pEntity);
+            var relationsState = relationsConfig.GetRelationState(score);
+
+            if (!probe.TargetConfigRefPacked.Unpack(out var libWorld, out var tgtHeroConfigEntity))
+                throw new Exception("No Hero Config for current (recepient) guy");
+
+            if (!probe.SourceConfigRefPacked.Unpack(out _, out var srcHeroConfigEntity))
+                throw new Exception("No Hero Config for other (spawner) guy");
+
+            var libHeroPool = libWorld.GetPool<Hero>();
+            ref var tgtHeroConfig = ref libHeroPool.Get(tgtHeroConfigEntity);
+            ref var srcHeroConfig = ref libHeroPool.Get(srcHeroConfigEntity);
+
+            var rulesCaseKey = new RelationEffectLibraryKey(
+                srcHeroConfig.Id, probe.SubjectState, relationsState);
+
+            if (!effectRules.SubjectStateEffectsIndex.TryGetValue(rulesCaseKey, out scope))
+                return false; // no effect for relation state, it's ok
+
+            Debug.Log($"Relations Effect of type {scope.EffectRule.EffectType} was just spawned " +
+                $"for {tgtHeroConfig.Name} in {scope.SelfState} due to {scope.RelationState} " +
+                $"with {srcHeroConfig.Name}");
+
+            return true;
+        }
+
+
+
+        // ### REFACTORING PENDING:
         public static bool GetAdjustedBoolValue<T>(this EcsWorld ecsWorld, int entity, SpecOption specOption)
             where T : struct
         {

@@ -58,11 +58,7 @@ namespace Assets.Scripts.ECS.Systems
                         PrepareVisualForEffect(targetParty, sourceParty, ref effect, entity);
                         break;
                     case RelationsEffectType.AlgoTarget:
-                        {
-                            // here we should add visual to all team mates as they are affected by the effect caster
-                            foreach (var teammateEntity in playerTeamFilter.Value)
-                                PrepareVisualForEffect(sourceParty, teammateEntity, ref effect, entity);
-                        }
+                        PrepareVisualForEffect(sourceParty, targetParty, ref effect, entity);
                         break;
                     default:
                         PrepareVisualForEffect(sourceParty, targetParty, ref effect, entity);
