@@ -13,7 +13,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
         private readonly EcsPoolInject<EffectInstanceInfo> pool = default;
-        private readonly EcsPoolInject<RelEffectProbeComp> probePool = default;
         private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
        
         // trying to catch effects here so both source and target are obvious
@@ -22,14 +21,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<
                 DraftTag<EffectInstanceInfo>,
-                RelEffectProbeComp,
                 EffectInstanceInfo
                 >> filter = default;
-
-        private readonly EcsFilterInject<
-            Inc<PlayerTeamTag>,
-            Exc<DeadTag>
-            > playerTeamFilter = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
 
@@ -40,15 +33,14 @@ namespace Assets.Scripts.ECS.Systems
             
             foreach (var entity in filter.Value)
             {
-                ref var probe = ref probePool.Value.Get(entity);
                 ref var effect = ref pool.Value.Get(entity);
                 ref var mappings = ref mappingsPool.Value.Get(battleEntity);
 
-                var sourcePacked = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
+                var sourcePacked = mappings.OriginToBattleMapping[effect.EffectSource];
                 if (!sourcePacked.Unpack(out var battleWorld, out var sourceParty))
                     throw new Exception("Stale effect source entity");
 
-                var targetPacked = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
+                var targetPacked = mappings.OriginToBattleMapping[effect.EffectTarget];
                 if (!targetPacked.Unpack(out _, out var targetParty))
                     throw new Exception("Stale effect target entity");                
 

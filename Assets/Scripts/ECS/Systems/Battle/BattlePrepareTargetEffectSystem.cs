@@ -14,10 +14,10 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DraftTag<EffectInstanceInfo>> effectDraftPool = default;
         private readonly EcsPoolInject<RelEffectProbeComp> probePool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<HeroInstanceOriginRef> heroInstanceOriginRefPool = default;
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEffectsFocusPendingComp>> draftTagPool = default;
-        private readonly EcsPoolInject<DeadTag> deadTagPool = default;
 
         private readonly EcsFilterInject<
             Inc<
@@ -27,7 +27,7 @@ namespace Assets.Scripts.ECS.Systems
                 >> filter = default;
 
         private readonly EcsFilterInject<
-            Inc<PlayerTeamTag>,
+            Inc<PlayerTeamTag, HeroInstanceOriginRef>,            
             Exc<DeadTag>> teammateFilter = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
@@ -73,36 +73,45 @@ namespace Assets.Scripts.ECS.Systems
             ref var mappings = ref mappingsPool.Value.Get(battleEntity);
             ref var matrixComp = ref origWorld.GetRelationsMatrix();
 
-            foreach (var item in matrixComp.Matrix)
+            foreach (var teammateEntity in teammateFilter.Value)
             {
-                if (item.Value.EqualsTo(effect.EffectP2PEntity))
+                ref var teammate = ref heroInstanceOriginRefPool.Value.Get(teammateEntity);
+                
+                if (teammate.Packed.EqualsTo(effect.EffectTarget))
                 {
-                    var partyPacked = mappings.OriginToBattleMapping[item.Key.Item2];
-                    if (!partyPacked.Unpack(out _, out var partyEntity))
-                        throw new Exception("Stale battle target");
-
-                    if (deadTagPool.Value.Has(partyEntity))
-                        continue;
-
+                    // original effect gets focus:
+                    var targetPacked = mappings.OriginToBattleMapping[effect.EffectTarget];
                     AddFocus(
                         battleWorld.PackEntityWithWorld(effectEntity),
                         effect,
                         focused,
-                        partyPacked);
-
-                    continue; // existing one, that was initially spawned
+                        targetPacked);
+                    continue; // no extra effect needed
                 }
+                
+                // we need one extra effect for the target effect source himself, so pick the right p2p entity:
+                var p2pEntity =
+                    teammate.Packed.EqualsTo(effect.EffectSource) ?
+                        // mirrored effect, same p2p used:
+                        effect.EffectP2PEntity : 
+                        // extra effect with new p2p, so find the applicable one:
+                        matrixComp.Matrix[new RelationsMatrixKey(
+                            effect.EffectSource,
+                            teammate.Packed)];
 
-                if (!item.Key.Item2.Unpack(out _, out var effectTargetOrig))
-                    throw new Exception("Stale effect target");
+                ExtraEffect(battleWorld, p2pEntity, mappings, teammate.Packed, effect, focused);
+                
+            }
+        }
 
-                var extraTargetPacked = mappings.OriginToBattleMapping[item.Key.Item2];
-                if (!extraTargetPacked.Unpack(out _, out var extraTarget))
-                    throw new Exception("Stale battle target");
-
-                if (deadTagPool.Value.Has(extraTarget))
-                    continue;
-
+        private void ExtraEffect(EcsWorld battleWorld, 
+            EcsPackedEntityWithWorld p2pEntity,
+            HeroInstanceMapping mappings,
+            EcsPackedEntityWithWorld extraTargetOrig,
+            EffectInstanceInfo effect,
+            EcsPackedEntityWithWorld focused)
+        {
+            {
                 var extraEffectEntity = battleWorld.NewEntity();
 
                 effectDraftPool.Value.Add(extraEffectEntity);
@@ -110,16 +119,20 @@ namespace Assets.Scripts.ECS.Systems
 
                 extraEffect.EffectInfo = effect.EffectInfo;
                 extraEffect.EffectSource = effect.EffectSource;
+                extraEffect.UsageLeft = effect.UsageLeft;
+                extraEffect.EffectTarget = extraTargetOrig;
                 extraEffect.Rule = effect.Rule;
-                extraEffect.EffectP2PEntity = item.Value;
+                // one effect will be assigned to the effect source himself, but others will get it's p2p entity from the matrix:
+                extraEffect.EffectP2PEntity = p2pEntity;
+
+                var actor = mappings.OriginToBattleMapping[extraTargetOrig];
 
                 AddFocus(
                     battleWorld.PackEntityWithWorld(extraEffectEntity),
                     extraEffect,
                     focused,
-                    extraTargetPacked);
+                    actor);
             }
-
         }
 
         private void AddFocus(

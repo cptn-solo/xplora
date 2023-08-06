@@ -72,7 +72,8 @@ namespace Assets.Scripts.ECS.Systems
             effect.StartRound = currentRound.Round;
             effect.UsageLeft = rule.TurnsCount;
             effect.Rule = rule;
-            effect.EffectSource = probe.SourceConfigRefPacked;
+            effect.EffectSource = probe.SourceOrigPacked;
+            effect.EffectTarget = probe.TargetOrigPacked;
             effect.EffectP2PEntity = probe.P2PEntityPacked;
 
             origWorld.IncrementIntValue<RelationEffectsCountTag>(1, p2pEntity);

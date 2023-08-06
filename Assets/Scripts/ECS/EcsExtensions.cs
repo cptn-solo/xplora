@@ -18,6 +18,12 @@ namespace Assets.Scripts.ECS
 
             return en;
         }
+
+        public static void Pause(this IEcsSystems systems, bool toggle)
+        {
+            systems.GetShared<SharedEcsContext>().Pause(toggle);
+        }
+
         public static IEcsSystems CleanupHere<T>(this IEcsSystems systems, string worldName = null) where T : struct
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
