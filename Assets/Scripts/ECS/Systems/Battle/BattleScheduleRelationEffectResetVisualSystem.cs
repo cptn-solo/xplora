@@ -6,15 +6,18 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleScheduleRelationEffectResetVisualSystem<T> : BaseEcsSystem
-        where T : struct, IPackedWithWorldRef
+    public class BattleScheduleRelationEffectResetVisualSystem : BaseEcsSystem
     {
-        private readonly EcsPoolInject<T> subjectRefPool = default;
         private readonly EcsPoolInject<RelationEffectsComp> effectsPool = default;
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag, T>,
+            Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag>,
             Exc<AwaitingVisualsTag>> filter = default;
+
+        private readonly EcsFilterInject<
+            Inc<RelationEffectsComp>,
+            Exc<DeadTag>> subjectsFilter = default;
+
 
         public override void RunIfActive(IEcsSystems systems)
         {
@@ -22,16 +25,15 @@ namespace Assets.Scripts.ECS.Systems
 
             foreach (var turnEntity in filter.Value)
             {
-                ref var subjectRef = ref subjectRefPool.Value.Get(turnEntity);
+                // not related to the current turn but broadcast to all effect holders:
+                foreach (var subjectEntity in subjectsFilter.Value)
+                {
+                    ref var effectsComp = ref effectsPool.Value.Get(subjectEntity);
 
-                if (!subjectRef.Packed.Unpack(out _, out var subjectEntity))
-                    throw new Exception("No Subject entity (attacker or target)");
-
-                ref var effectsComp = ref effectsPool.Value.Get(subjectEntity);
-
-                ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectResetVisualsInfo>(turnEntity);
-                resetRelEffectVisualsInfo.SubjectEntity = subjectRef.Packed;
-                resetRelEffectVisualsInfo.CurrentEffects = effectsComp.CurrentEffectsInfo;
+                    ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectResetVisualsInfo>(turnEntity);
+                    resetRelEffectVisualsInfo.SubjectEntity = world.PackEntityWithWorld(subjectEntity);
+                    resetRelEffectVisualsInfo.CurrentEffects = effectsComp.CurrentEffectsInfo;
+                }
             }
         }
     }

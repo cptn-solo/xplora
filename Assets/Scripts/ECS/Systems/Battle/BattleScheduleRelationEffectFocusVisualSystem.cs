@@ -17,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<RelationEffectsFocusPendingComp>> scheduleFilter = default;
 
         private readonly EcsFilterInject<
-            Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag, AttackerRef>,
+            Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag>,
             Exc<AwaitingVisualsTag>> turnFilter = default;
 
         public override void RunIfActive(IEcsSystems systems)
@@ -26,31 +26,24 @@ namespace Assets.Scripts.ECS.Systems
             {
                 ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
 
-                if (!attackerRef.Packed.Unpack(out var world, out var attackerEntity))
-                    throw new Exception("No attacker entity for focus");
-
                 //Debug.Break();
                 foreach (var scheduleEntity in scheduleFilter.Value)
                 {
                     ref var pendingRelEffectsComp = ref pendingPool.Value.Get(scheduleEntity);
 
-                    if (!pendingRelEffectsComp.EffectSource.Unpack(out _, out var effectSourceEntity))
+                    if (!pendingRelEffectsComp.EffectSource.Unpack(out var world, out var effectSourceEntity))
                         throw new Exception("Stale effect source entity");
 
                     if (!pendingRelEffectsComp.EffectTarget.Unpack(out _, out var effectTargetEntity))
                         throw new Exception("Stale effect target entity");
 
+                    if (!pendingRelEffectsComp.FocusEntity.Unpack(out _, out var focusedEntity))
+                        throw new Exception("Stale effect target entity");
+
                     var nameSource = world.ReadValue<NameValueComp<NameTag>, string>(effectSourceEntity);
                     var nameSubject = world.ReadValue<NameValueComp<NameTag>, string>(effectTargetEntity);
-                    var nameAttacker = world.ReadValue<NameValueComp<NameTag>, string>(attackerEntity);
-                    Debug.Log($"Visual cast focus from {nameSource} to {nameSubject} attacker {nameAttacker}");
-
-                    // checking if the turn's target is focused by the effect:
-                    if (!pendingRelEffectsComp.EffectSource.EqualsTo(attackerRef.Packed))
-                    {
-                        Debug.Log($"Visual cast focus failed");
-                        continue;
-                    }
+                    var nameFocused = world.ReadValue<NameValueComp<NameTag>, string>(focusedEntity);
+                    Debug.Log($"Visual cast focus from: {nameSource} to: {nameSubject}, focused: {nameFocused}");
 
                     ref var castRelEffectFocusVisualsInfo = ref world.ScheduleSceneVisuals<RelationEffectsFocusCastInfo>(turnEntity);
 

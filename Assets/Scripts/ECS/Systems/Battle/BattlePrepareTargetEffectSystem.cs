@@ -143,6 +143,7 @@ namespace Assets.Scripts.ECS.Systems
         {
             if (!actor.Unpack(out _, out var actorEntity))
                 throw new Exception("Stale actor entity");
+
             if (!focusPool.Value.Has(actorEntity))
                 focusPool.Value.Add(actorEntity);
 

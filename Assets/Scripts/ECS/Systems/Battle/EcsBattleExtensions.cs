@@ -15,13 +15,12 @@ namespace Assets.Scripts.ECS.Systems
         {
             systems
                 .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
-                .Add(new BattleScheduleRelationEffectVisualSystem<AttackerRef>())
-                .Add(new BattleScheduleRelationEffectFocusVisualSystem())
                 .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
-                .Add(new BattleScheduleRelationEffectVisualSystem<TargetRef>())
+                .Add(new BattleScheduleRelationEffectVisualSystem())
+                .Add(new BattleScheduleRelationEffectFocusVisualSystem())
                 .Add(new BattleScheduleRelationEffectFocusResetVisualSystem()) // schedules remove of used focus icons
-                .Add(new BattleScheduleRelationEffectResetVisualSystem<AttackerRef>())
-                .Add(new BattleScheduleRelationEffectResetVisualSystem<TargetRef>());
+                .Add(new BattleScheduleRelationEffectResetVisualSystem()) // set rel. effects container to the current state 
+                ;
             return systems;
         }
 
