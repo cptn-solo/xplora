@@ -8,14 +8,12 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleScheduleRelationEffectResetVisualSystem : BaseEcsSystem
     {
-        private readonly EcsPoolInject<RelationEffectsComp> effectsPool = default;
-
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag>,
             Exc<AwaitingVisualsTag>> filter = default;
 
         private readonly EcsFilterInject<
-            Inc<RelationEffectsComp>,
+            Inc<PositionComp>,
             Exc<DeadTag>> subjectsFilter = default;
 
 
@@ -28,11 +26,19 @@ namespace Assets.Scripts.ECS.Systems
                 // not related to the current turn but broadcast to all effect holders:
                 foreach (var subjectEntity in subjectsFilter.Value)
                 {
-                    ref var effectsComp = ref effectsPool.Value.Get(subjectEntity);
-
+                    var en = world.SubjectEffects(subjectEntity);
+                    var buffer = ListPool<RelationEffectInfo>.Get();
+                    
+                    while (en.MoveNext())
+                    {
+                        var relEffect = en.Current;
+                        buffer.Add(relEffect.EffectInfo);
+                    }
                     ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectResetVisualsInfo>(turnEntity);
                     resetRelEffectVisualsInfo.SubjectEntity = world.PackEntityWithWorld(subjectEntity);
-                    resetRelEffectVisualsInfo.CurrentEffects = effectsComp.CurrentEffectsInfo;
+                    resetRelEffectVisualsInfo.CurrentEffects = buffer.ToArray();
+                    
+                    ListPool<RelationEffectInfo>.Add(buffer);
                 }
             }
         }

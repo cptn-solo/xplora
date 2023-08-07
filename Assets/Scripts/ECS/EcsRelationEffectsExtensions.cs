@@ -1,14 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
-using UnityEditor.Build.Content;
 using UnityEngine;
 
 namespace Assets.Scripts.ECS
 {
     public static class EcsRelationEffectsExtensions
     {
+        #region Helpers and filters
+
+        public static ref HeroInstanceMapping GetHeroInstanceMappings(this EcsWorld world)
+        {
+            var filter = world.Filter<HeroInstanceMapping>().End();
+            var pool = world.GetPool<HeroInstanceMapping>();
+            foreach (var entity in filter)
+                return ref pool.Get(entity);
+
+            throw new Exception("Mappings not defined");
+        }
+
         public static ref RelationsMatrixComp GetRelationsMatrix(this EcsWorld origWorld)
         {
             var matrixFilter = origWorld.Filter<RelationsMatrixComp>().End();
@@ -22,7 +34,61 @@ namespace Assets.Scripts.ECS
 
             throw new Exception("No relations matrix defined for the world");
         }
-        
+        public static IEnumerator<EffectInstanceInfo> SubjectEffects(this EcsWorld world, int subjectEntity)
+        {
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+            var en = SubjectEffectsEntities(world, subjectEntity);
+            while (en.MoveNext())
+                yield return effectInstancePool.Get(en.Current);
+        }
+
+        public static IEnumerator<int> SubjectEffectsOfTypeEntities(this EcsWorld world, int subjectEntity, RelationsEffectType relationsEffectType)
+        {
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+            var en = SubjectEffectsEntities(world, subjectEntity);
+            while (en.MoveNext())
+            {
+                var effect = effectInstancePool.Get(en.Current);
+                if (effect.Rule.Key.RelationsEffectType == relationsEffectType)
+                    yield return en.Current;
+            }
+        }
+
+        public static IEnumerator<int> SubjectEffectsOfFullKeyEntities(this EcsWorld world, int subjectEntity, RelationEffectKey key)
+        {
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+            var en = SubjectEffectsEntities(world, subjectEntity);
+            while (en.MoveNext())
+            {
+                var effect = effectInstancePool.Get(en.Current);
+                if (effect.Rule.Key.Equals(key))
+                    yield return en.Current;
+            }
+        }
+
+        public static IEnumerator<int> SubjectEffectsEntities(this EcsWorld world, int subjectEntity)
+        {
+            var effectsFilter = world.Filter<EffectInstanceInfo>().End();
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+
+            var mappings = world.GetHeroInstanceMappings();
+            var subjectOrigPacked = mappings.BattleToOriginMapping[world.PackEntityWithWorld(subjectEntity)];
+
+            foreach (var effectEntity in effectsFilter)
+            {
+                var relEffect = effectInstancePool.Get(effectEntity);
+
+                if (!relEffect.EffectTarget.EqualsTo(subjectOrigPacked))
+                    continue;
+
+                yield return effectEntity;
+            }
+        }
+
+        #endregion
+
+        #region Utilities
+
         public static bool TrySpawnAdditionalEffect(this EcsWorld origWorld, int p2pEntity, HeroRelationEffectsLibrary effectRules)
         {
             var currentEffectsCount = origWorld.ReadIntValue<RelationEffectsCountTag>(p2pEntity);
@@ -63,6 +129,96 @@ namespace Assets.Scripts.ECS
         }
 
 
+        public static float GetResistanceFactor(this EcsWorld world, int subjectEntity, DamageEffect eff)
+        {
+            var retval = 1f;
+            
+            var en = SubjectEffects(world, subjectEntity);
+            
+            while (en.MoveNext())
+            {
+                var relEffect = en.Current;
+
+                switch (relEffect.Rule.EffectType)
+                {
+                    case RelationsEffectType.SpecAbs:
+                        {
+                            var rule = (EffectRuleSpecAbs)relEffect.Rule;
+                            if (rule.SpecOption == eff.ResistanceSpec())
+                                retval -= rule.Value / 100f;
+                        }
+                        break;
+                    case RelationsEffectType.SpecPercent:
+                        {
+                            var rule = (EffectRuleSpecAbs)relEffect.Rule;
+                            if (rule.SpecOption == eff.ResistanceSpec())
+                                retval *= rule.Value / 100f;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return retval;
+        }
+
+        public static void UseRelationEffect(this EcsWorld world, int effectEntity)
+        {
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+            var relEffect = effectInstancePool.Get(effectEntity);
+            relEffect.UsageLeft--;
+        }
+
+        public static void RemoveRelEffectByType(this EcsWorld world, int subjectEntity, RelationsEffectType relationsEffectType,
+            out EcsPackedEntityWithWorld[] ptpToDecrement)
+        {
+            var removed = ListPool<EcsPackedEntityWithWorld>.Get();
+            
+            var en = SubjectEffectsOfTypeEntities(world, subjectEntity, relationsEffectType);
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+
+            while (en.MoveNext())
+            {
+                var relEffect = effectInstancePool.Get(en.Current);
+
+                removed.Add(relEffect.EffectP2PEntity);
+
+                world.DelEntity(en.Current);
+            }
+
+            ptpToDecrement = removed.ToArray();
+
+            ListPool<EcsPackedEntityWithWorld>.Add(removed);
+        }
+
+        public static void RemoveExpiredRelEffects(this EcsWorld world, int subjectEntity,
+            out EcsPackedEntityWithWorld[] ptpToDecrement)
+        {
+
+            var removed = ListPool<EcsPackedEntityWithWorld>.Get();
+
+            var en = SubjectEffectsEntities(world, subjectEntity);
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+
+            while (en.MoveNext())
+            {
+                var relEffect = effectInstancePool.Get(en.Current);
+
+                if (relEffect.UsageLeft > 0)
+                    continue;
+
+                removed.Add(relEffect.EffectP2PEntity);
+
+                world.DelEntity(en.Current);
+            }
+
+            ptpToDecrement = removed.ToArray();
+
+            ListPool<EcsPackedEntityWithWorld>.Add(removed);
+        }
+
+        #endregion
 
         // ### REFACTORING PENDING:
         public static bool GetAdjustedBoolValue<T>(this EcsWorld ecsWorld, int entity, SpecOption specOption)
@@ -171,46 +327,39 @@ namespace Assets.Scripts.ECS
             return ecsWorld.GetRelationAdjustment(entity, key, out factor, out value, rangeValue);
         }
 
-        public static AdjustmentType GetRelationAdjustment(this EcsWorld ecsWorld, int entity,
+        public static AdjustmentType GetRelationAdjustment(this EcsWorld world, int subjectEntity,
             RelationEffectKey key, out float factor, out int value, IntRange rangeValue = null)
         {
             value = 0;
             factor = 1f;
 
-            ref var relationEffects = ref ecsWorld.GetPool<RelationEffectsComp>().Get(entity);
-            var pool = ecsWorld.GetPool<EffectInstanceInfo>();
+            var en = SubjectEffects(world, subjectEntity);
 
-            foreach (var relEffect in relationEffects.CurrentEffects)
+            while (en.MoveNext())
             {
-                if (!relEffect.Value.Unpack(out _, out var effectEntity))
-                    throw new Exception("Stale rel effect instance");
-
-                if (!pool.Has(effectEntity))
-                    throw new Exception("No rel effect instance for entity");
-
-                ref var effect = ref pool.Get(effectEntity);
+                var relEffect = en.Current;
 
                 switch (key.RelationsEffectType)
                 {
                     case RelationsEffectType.SpecKey:
-                        if (key.SpecOption != SpecOption.NA && relEffect.Key.SpecOption == key.SpecOption)
-                            return GetSpecKeyAdjustment(effect, out factor, out value, rangeValue);
+                        if (key.SpecOption != SpecOption.NA && relEffect.Rule.Key.SpecOption == key.SpecOption)
+                            return GetSpecKeyAdjustment(relEffect, out factor, out value, rangeValue);
                         break;
                     case RelationsEffectType.DmgEffectKey:
-                        if (key.DamageEffect != DamageEffect.NA && relEffect.Key.DamageEffect == key.DamageEffect)
-                            return GetDmgEffectKeyAdjustment(effect, out factor, out value);
+                        if (key.DamageEffect != DamageEffect.NA && relEffect.Rule.Key.DamageEffect == key.DamageEffect)
+                            return GetDmgEffectKeyAdjustment(relEffect, out factor, out value);
                         break;
                     case RelationsEffectType.DmgEffectBonusKey:
-                        if (relEffect.Key.RelationsEffectType switch
+                        if (relEffect.Rule.Key.RelationsEffectType switch
                         {
                             RelationsEffectType.DmgEffectBonusAbs => true,
                             RelationsEffectType.DmgEffectBonusPercent => true,
                             _ => false
-                        }) return GetDmgEffectBonusKeyAdjustment(effect, out factor, out value);
+                        }) return GetDmgEffectBonusKeyAdjustment(relEffect, out factor, out value);
                         break;
                     case RelationsEffectType.AlgoDamageTypeBlock:
-                        if (key.DamageType != DamageType.NA && relEffect.Key.DamageType == key.DamageType)
-                            return GetAlgoDamageTypeBlockAdjustment(effect, out value);
+                        if (key.DamageType != DamageType.NA && relEffect.Rule.Key.DamageType == key.DamageType)
+                            return GetAlgoDamageTypeBlockAdjustment(relEffect, out value);
                         break;
                     case RelationsEffectType.AlgoRevenge:
                         //TODO:

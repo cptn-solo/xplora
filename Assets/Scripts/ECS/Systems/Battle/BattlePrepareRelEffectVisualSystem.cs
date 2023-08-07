@@ -13,7 +13,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<NameValueComp<IconTag>> iconNamePool = default;
         private readonly EcsPoolInject<EffectInstanceInfo> pool = default;
-        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
        
         // trying to catch effects here so both source and target are obvious
         private readonly EcsPoolInject<RelationEffectsPendingComp> pendingPool = default;
@@ -74,9 +73,6 @@ namespace Assets.Scripts.ECS.Systems
             ref var heroIcon = ref iconNamePool.Value.Get(sourceParty);
             var info = effect.Rule.DraftEffectInfo(effect.Rule.GetHashCode(), heroIcon.Name);
             effect.EffectInfo = info;
-
-            ref var relEffects = ref relEffectsPool.Value.Get(affectedParty);
-            relEffects.SetEffect(effect.Rule.Key, world.PackEntityWithWorld(entity));
 
             var pendingVisualEntity = world.NewEntity();
             ref var pendingVisual = ref pendingPool.Value.Add(pendingVisualEntity);

@@ -6,18 +6,15 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleClearUsedRelationsEffectSystem : BaseEcsSystem
     {
-        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
-
         private readonly EcsFilterInject<
-            Inc<RelationEffectsComp, ProcessedHeroTag>
+            Inc<ProcessedHeroTag>
             > filter = default;
 
         public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
-                ref var relEffects = ref relEffectsPool.Value.Get(entity);
-                relEffects.RemoveExpired(out var decrement);
+                systems.GetWorld().RemoveExpiredRelEffects(entity, out var decrement);
 
                 if (decrement != null)
                 {

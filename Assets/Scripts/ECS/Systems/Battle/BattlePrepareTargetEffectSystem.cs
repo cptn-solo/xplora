@@ -1,10 +1,8 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -15,7 +13,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RelEffectProbeComp> probePool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<HeroInstanceOriginRef> heroInstanceOriginRefPool = default;
-        private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEffectsFocusPendingComp>> draftTagPool = default;
 
@@ -30,13 +27,8 @@ namespace Assets.Scripts.ECS.Systems
             Inc<PlayerTeamTag, HeroInstanceOriginRef>,            
             Exc<DeadTag>> teammateFilter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
-
         public override void RunIfActive(IEcsSystems systems)
         {
-            if (!battleManagementService.Value.BattleEntity.Unpack(out var world, out var battleEntity))
-                throw new Exception("No battle!");
-
             foreach (var entity in filter.Value)
             {
                 ref var effect = ref pool.Value.Get(entity);
@@ -67,10 +59,9 @@ namespace Assets.Scripts.ECS.Systems
             if (!probe.SourceOrigPacked.Unpack(out var origWorld, out var sourceOrig))
                 throw new Exception("Stale source origin");
 
-            if (!battleManagementService.Value.BattleEntity.Unpack(out var battleWorld, out var battleEntity))
-                throw new Exception("No battle!");
+            var world = pool.Value.GetWorld();
 
-            ref var mappings = ref mappingsPool.Value.Get(battleEntity);
+            ref var mappings = ref world.GetHeroInstanceMappings();
             ref var matrixComp = ref origWorld.GetRelationsMatrix();
 
             foreach (var teammateEntity in teammateFilter.Value)
@@ -82,7 +73,7 @@ namespace Assets.Scripts.ECS.Systems
                     // original effect gets focus:
                     var targetPacked = mappings.OriginToBattleMapping[effect.EffectTarget];
                     AddFocus(
-                        battleWorld.PackEntityWithWorld(effectEntity),
+                        world.PackEntityWithWorld(effectEntity),
                         effect,
                         focused,
                         targetPacked);
@@ -99,7 +90,7 @@ namespace Assets.Scripts.ECS.Systems
                             effect.EffectSource,
                             teammate.Packed)];
 
-                ExtraEffect(battleWorld, p2pEntity, mappings, teammate.Packed, effect, focused);
+                ExtraEffect(world, p2pEntity, mappings, teammate.Packed, effect, focused);
                 
             }
         }

@@ -7,11 +7,9 @@ namespace Assets.Scripts.ECS.Systems
 {
     public class BattleClearUsedFocusSystem : BaseEcsSystem
     {
-        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
         private readonly EcsPoolInject<UsedFocusEntityTag> usedFocusPool = default;
         
-
         private readonly EcsFilterInject<Inc<UsedFocusEntityTag, EffectFocusComp>> usedFocusFilter = default;
 
         public override void RunIfActive(IEcsSystems systems)
@@ -22,16 +20,7 @@ namespace Assets.Scripts.ECS.Systems
                 if (!focusComp.Actor.Unpack(out var world, out var entity))
                     throw new Exception("Stale Focus Actor");
 
-                // the view itself should be scheduled fo desruction by BattleScheduleRelationEffectFocusResetVisualSystem
-                // and then desrtoyed by BattleSceneRelationEffectFocusResetVisualSystem
-                //if (aimIconPool.Value.Has(ufEntity))
-                //{
-                //    ref var iconView = ref aimIconPool.Value.Get(ufEntity);
-                //    GameObject.Destroy(iconView.Transform.gameObject);
-                //}
-
-                ref var relEffects = ref relEffectsPool.Value.Get(entity);                
-                relEffects.RemoveByType(focusComp.EffectKey.RelationsEffectType, out var decrement);
+                world.RemoveRelEffectByType(entity, focusComp.EffectKey.RelationsEffectType, out var decrement);
                 
                 if (decrement != null)
                 {

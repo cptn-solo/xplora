@@ -14,7 +14,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<P2PRelationTag> pool = default;
         private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
         private readonly EcsPoolInject<IntValueComp<RelationEffectsCountTag>> countPool = default;    
-        private readonly EcsPoolInject<RelationEffectsComp> effectsPool = default;
         private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
 
         private readonly EcsFilterInject<Inc<RelationsMatrixComp>> matrixFilter = default;
@@ -72,9 +71,6 @@ namespace Assets.Scripts.ECS.Systems
                 // fill containers for future use in the battle context
                 foreach (var p2pRelEntity in filter.Value)
                 {
-                    ref var effectsComp = ref effectsPool.Value.Add(p2pRelEntity);
-                    effectsComp.CurrentEffects = new();
-
                     ref var scoreComp = ref scorePool.Value.Add(p2pRelEntity);
                     scoreComp.Value = 0;
                     

@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
-using Assets.Scripts.Services;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
@@ -16,7 +15,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<RelEffectProbeComp> probePool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<PrepareRevengeComp> revengePool = default;
-        private readonly EcsPoolInject<HeroInstanceMapping> mappingsPool = default;
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEffectsFocusPendingComp>> draftTagPool = default;
 
@@ -27,17 +25,12 @@ namespace Assets.Scripts.ECS.Systems
                 EffectInstanceInfo
                 >> filter = default;
 
-        private readonly EcsCustomInject<BattleManagementService> battleManagementService = default;
-
         public override void RunIfActive(IEcsSystems systems)
         {
-            if (!battleManagementService.Value.BattleEntity.Unpack(out _, out var battleEntity))
-                throw new Exception("No battle!");
-
             foreach (var entity in filter.Value)
             {
                 ref var effect = ref pool.Value.Get(entity);
-                ref var mappings = ref mappingsPool.Value.Get(battleEntity);
+                ref var mappings = ref ecsWorld.Value.GetHeroInstanceMappings();
 
                 if (effect.Rule.Key.RelationsEffectType == RelationsEffectType.AlgoRevenge)
                 {

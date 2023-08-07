@@ -36,7 +36,6 @@ namespace Assets.Scripts.Services
                 .Add(new PlayerTeamMemberRelationsInitSystem())
                 .Add(new PlayerTeamRelationPartiesInitSystem())
                 .Add(new PlayerTeamRelationScoresInitSystem())
-                .Add(new PlayerTeamRelationEffectsInitSystem())
                 .Inject(this)
                 .Inject(worldService)
                 .Inject(libManagementService)

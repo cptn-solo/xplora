@@ -19,8 +19,6 @@ namespace Assets.Scripts.ECS.Systems
     {
         private readonly EcsPoolInject<T> subjectRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
-        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
-        private readonly EcsPoolInject<EffectInstanceInfo> effectInstancePool = default;
 
         private readonly EcsPoolInject<E> subjectEffectsTagPool = default;
         private readonly EcsPoolInject<SubjectEffectsInfoComp> appliedEffectsCompPool = default;
@@ -58,7 +56,7 @@ namespace Assets.Scripts.ECS.Systems
                 if (!effectComp.Subject.EqualsTo(subjectRef.Packed))
                     continue;
 
-                var resistanceFactor = GetResistanceFactor(subjectEntity, effectComp.Effect);
+                var resistanceFactor = world.GetResistanceFactor(subjectEntity, effectComp.Effect);
                 effectDamage += (int)(resistanceFactor * libraryService.Value.DamageTypesLibrary
                     .ConfigForDamageEffect(effectComp.Effect).ExtraDamage);
 
@@ -81,45 +79,6 @@ namespace Assets.Scripts.ECS.Systems
             }
 
             ListPool<DamageEffect>.Add(buffer);
-        }
-
-
-        private float GetResistanceFactor(int entity, DamageEffect eff)
-        {
-            var retval = 1f; 
-            ref var relationEffects = ref relEffectsPool.Value.Get(entity);
-            foreach (var effectEntityPacked in relationEffects.CurrentEffects.Values)
-            {
-                if (!effectEntityPacked.Unpack(out var world, out var effectEntity))
-                    throw new Exception("Stale rel effect instance");
-
-                if (!effectInstancePool.Value.Has(effectEntity))
-                    throw new Exception("No rel effect instance for entity");
-
-                ref var relEffect = ref effectInstancePool.Value.Get(effectEntity);
-
-                switch (relEffect.Rule.EffectType)
-                {
-                    case RelationsEffectType.SpecAbs:
-                        {
-                            var rule = (EffectRuleSpecAbs)relEffect.Rule;
-                            if (rule.SpecOption == eff.ResistanceSpec())
-                                retval -= rule.Value / 100f;
-                        }
-                        break;
-                    case RelationsEffectType.SpecPercent:
-                        {
-                            var rule = (EffectRuleSpecAbs)relEffect.Rule;
-                            if (rule.SpecOption == eff.ResistanceSpec())
-                                retval *= rule.Value / 100f;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return retval;
-        }
+        }        
     }
 }

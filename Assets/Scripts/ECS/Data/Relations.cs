@@ -31,17 +31,7 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld RevengeFor { get; set; }
         // effect source
         public EcsPackedEntityWithWorld RevengeBy { get; set; }
-    }   
-
-    /// <summary>
-    /// Contains references to each score entity by hero instance entity,
-    /// so when event is spawned or we just need to check a score with some other guy
-    /// just pick a score entity for this guys entity
-    /// </summary>
-    public struct RelationPartiesRef_
-    {
-        public Dictionary<EcsPackedEntityWithWorld, EcsPackedEntityWithWorld> Parties { get; set; }
-    }
+    }      
 
     public struct RelationsMatrixComp
     {
