@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS
 {
     public static class EcsRelationEffectsExtensions
     {
-        #region Helpers and filters
+        #region Helpers
 
         public static ref HeroInstanceMapping GetHeroInstanceMappings(this EcsWorld world)
         {
@@ -34,6 +34,11 @@ namespace Assets.Scripts.ECS
 
             throw new Exception("No relations matrix defined for the world");
         }
+
+        #endregion
+
+        #region Filters (queries)
+
         public static IEnumerator<EffectInstanceInfo> SubjectEffects(this EcsWorld world, int subjectEntity)
         {
             var effectInstancePool = world.GetPool<EffectInstanceInfo>();
@@ -68,7 +73,7 @@ namespace Assets.Scripts.ECS
 
         public static IEnumerator<int> SubjectEffectsEntities(this EcsWorld world, int subjectEntity)
         {
-            var effectsFilter = world.Filter<EffectInstanceInfo>().End();
+            var effectsFilter = world.Filter<EffectInstanceInfo>().Exc<GarbageTag>().End();
             var effectInstancePool = world.GetPool<EffectInstanceInfo>();
 
             var mappings = world.GetHeroInstanceMappings();
@@ -174,7 +179,8 @@ namespace Assets.Scripts.ECS
             out EcsPackedEntityWithWorld[] ptpToDecrement)
         {
             var removed = ListPool<EcsPackedEntityWithWorld>.Get();
-            
+            var delPool = world.GetPool<GarbageTag>();
+
             var en = SubjectEffectsOfTypeEntities(world, subjectEntity, relationsEffectType);
             var effectInstancePool = world.GetPool<EffectInstanceInfo>();
 
@@ -184,7 +190,8 @@ namespace Assets.Scripts.ECS
 
                 removed.Add(relEffect.EffectP2PEntity);
 
-                world.DelEntity(en.Current);
+                if (!delPool.Has(en.Current))
+                    delPool.Add(en.Current);
             }
 
             ptpToDecrement = removed.ToArray();
@@ -197,6 +204,7 @@ namespace Assets.Scripts.ECS
         {
 
             var removed = ListPool<EcsPackedEntityWithWorld>.Get();
+            var delPool = world.GetPool<GarbageTag>();
 
             var en = SubjectEffectsEntities(world, subjectEntity);
             var effectInstancePool = world.GetPool<EffectInstanceInfo>();
@@ -209,13 +217,32 @@ namespace Assets.Scripts.ECS
                     continue;
 
                 removed.Add(relEffect.EffectP2PEntity);
-
-                world.DelEntity(en.Current);
+                
+                if (!delPool.Has(en.Current))
+                    delPool.Add(en.Current);
             }
 
             ptpToDecrement = removed.ToArray();
 
             ListPool<EcsPackedEntityWithWorld>.Add(removed);
+        }
+
+        public static RelationEffectInfo[] GetActiveRelEffects(this EcsWorld world, int subjectEntity)
+        {
+            var en = world.SubjectEffects(subjectEntity);
+            var buffer = ListPool<RelationEffectInfo>.Get();
+
+            while (en.MoveNext())
+            {
+                var relEffect = en.Current;
+                buffer.Add(relEffect.EffectInfo);
+            }
+            
+            var retval = buffer.ToArray();
+            
+            ListPool<RelationEffectInfo>.Add(buffer);
+            
+            return retval;
         }
 
         #endregion

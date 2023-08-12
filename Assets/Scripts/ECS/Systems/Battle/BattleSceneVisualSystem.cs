@@ -2,6 +2,7 @@
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 using System;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -40,7 +41,16 @@ namespace Assets.Scripts.ECS.Systems
                     world.Equals(systems.GetWorld()))
                 {
                     // will delete entity if no visualizer implemented
-                    AssignVisualizer(entity, visualInfo, world, viewEntity);
+                    try
+                    {
+                        AssignVisualizer(entity, visualInfo, world, viewEntity);
+                    }
+                    catch (Exception)
+                    {
+                        Debug.Break();
+                        systems.Pause(true);
+                        throw;
+                    }
                 }
             }
         }

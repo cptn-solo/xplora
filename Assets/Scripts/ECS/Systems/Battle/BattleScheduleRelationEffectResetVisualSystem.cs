@@ -26,19 +26,9 @@ namespace Assets.Scripts.ECS.Systems
                 // not related to the current turn but broadcast to all effect holders:
                 foreach (var subjectEntity in subjectsFilter.Value)
                 {
-                    var en = world.SubjectEffects(subjectEntity);
-                    var buffer = ListPool<RelationEffectInfo>.Get();
-                    
-                    while (en.MoveNext())
-                    {
-                        var relEffect = en.Current;
-                        buffer.Add(relEffect.EffectInfo);
-                    }
                     ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelEffectResetVisualsInfo>(turnEntity);
                     resetRelEffectVisualsInfo.SubjectEntity = world.PackEntityWithWorld(subjectEntity);
-                    resetRelEffectVisualsInfo.CurrentEffects = buffer.ToArray();
-                    
-                    ListPool<RelationEffectInfo>.Add(buffer);
+                    resetRelEffectVisualsInfo.CurrentEffects = world.GetActiveRelEffects(subjectEntity);
                 }
             }
         }
