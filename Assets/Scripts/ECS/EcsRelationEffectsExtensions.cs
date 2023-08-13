@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
@@ -7,6 +8,104 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS
 {
+
+    public class RelEffectsEnumerator : IEnumerator<EffectInstanceInfo>
+    {
+        private enum FilterMode
+        {
+            NA,
+            Subject,
+            SubjType,
+            SubjKey,
+        }
+
+        private readonly EcsFilter filter = default;
+        private readonly HeroInstanceMapping mappings = default;
+        private readonly EcsWorld world;
+        private readonly EcsPool<EffectInstanceInfo> pool = default;
+        private readonly List<int> entities = null;
+        private readonly List<EffectInstanceInfo> effects = null;
+        private readonly EcsPackedEntityWithWorld subjectOrigPacked;
+        private readonly RelationsEffectType relationsEffectType;
+        private readonly RelationEffectKey key;
+        private readonly FilterMode filterMode = FilterMode.NA;
+        private int idx = -1;
+
+        public RelEffectsEnumerator(EcsWorld world)
+        {
+            this.world = world;
+            pool = world.GetPool<EffectInstanceInfo>();
+            filter = world.Filter<EffectInstanceInfo>().Exc<GarbageTag>().End();
+            mappings = world.GetHeroInstanceMappings();
+            
+            entities = ListPool<int>.Get();
+            effects = ListPool<EffectInstanceInfo>.Get();
+            
+            foreach (var entity in filter)
+            {
+                entities.Add(entity);
+                effects.Add(pool.Get(entity));
+            }
+        }
+
+        public RelEffectsEnumerator(EcsWorld world, int subjectEntity) : this(world)
+        {
+            subjectOrigPacked = mappings.BattleToOriginMapping[world.PackEntityWithWorld(subjectEntity)];
+            filterMode = FilterMode.Subject;
+        }
+
+        public RelEffectsEnumerator(EcsWorld world, int subjectEntity, RelationsEffectType relationsEffectType) : this(world, subjectEntity)
+        {
+            this.relationsEffectType = relationsEffectType;
+            filterMode = FilterMode.SubjType;
+        }
+
+        public RelEffectsEnumerator(EcsWorld world, int subjectEntity, RelationEffectKey key) : this(world, subjectEntity)
+        {
+            this.key = key;
+            filterMode = FilterMode.SubjKey;
+        }
+
+        public int CurrentEntity => entities[idx];
+        public EffectInstanceInfo CurrentEffect => Current;
+        
+        public EffectInstanceInfo Current => effects[idx];
+        
+        object IEnumerator.Current => effects[idx];
+        
+        public void Reset() => idx = -1;
+
+        public void Dispose()
+        {
+            ListPool<int>.Add(entities);
+            ListPool<EffectInstanceInfo>.Add(effects);
+        }
+
+        public bool MoveNext() => ++idx < entities.Count && (FitsFilterMode || MoveNext());
+                
+        private bool FitsFilterMode
+        {
+            get
+            {
+                return filterMode switch { 
+                    FilterMode.Subject => CheckEffect(),
+                    FilterMode.SubjType => CheckEffect(relationsEffectType),
+                    FilterMode.SubjKey => CheckEffect(key),
+                    _ => true,
+                };
+            }
+        }
+
+        private bool CheckEffect() =>            
+            Current.EffectTarget.EqualsTo(subjectOrigPacked);
+
+        private bool CheckEffect(RelationsEffectType relationsEffectType) =>
+            Current.Rule.Key.RelationsEffectType == relationsEffectType && CheckEffect();
+
+        private bool CheckEffect(RelationEffectKey key) =>
+            Current.Rule.Key.Equals(key) && CheckEffect();
+    } 
+
     public static class EcsRelationEffectsExtensions
     {
         #region Helpers
@@ -41,53 +140,44 @@ namespace Assets.Scripts.ECS
 
         public static IEnumerator<EffectInstanceInfo> SubjectEffects(this EcsWorld world, int subjectEntity)
         {
-            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
-            var en = SubjectEffectsEntities(world, subjectEntity);
-            while (en.MoveNext())
-                yield return effectInstancePool.Get(en.Current);
+            var enumerator = new RelEffectsEnumerator(world, subjectEntity);
+
+            while (enumerator.MoveNext())
+                yield return enumerator.CurrentEffect;
+
+            enumerator.Dispose();
+
         }
 
         public static IEnumerator<int> SubjectEffectsOfTypeEntities(this EcsWorld world, int subjectEntity, RelationsEffectType relationsEffectType)
         {
-            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
-            var en = SubjectEffectsEntities(world, subjectEntity);
-            while (en.MoveNext())
-            {
-                var effect = effectInstancePool.Get(en.Current);
-                if (effect.Rule.Key.RelationsEffectType == relationsEffectType)
-                    yield return en.Current;
-            }
+            var enumerator = new RelEffectsEnumerator(world, subjectEntity, relationsEffectType);
+
+            while (enumerator.MoveNext())
+                yield return enumerator.CurrentEntity;
+
+            enumerator.Dispose();
         }
 
         public static IEnumerator<int> SubjectEffectsOfFullKeyEntities(this EcsWorld world, int subjectEntity, RelationEffectKey key)
         {
-            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
-            var en = SubjectEffectsEntities(world, subjectEntity);
-            while (en.MoveNext())
-            {
-                var effect = effectInstancePool.Get(en.Current);
-                if (effect.Rule.Key.Equals(key))
-                    yield return en.Current;
-            }
+            var enumerator = new RelEffectsEnumerator(world, subjectEntity, key);
+
+            while (enumerator.MoveNext())
+                yield return enumerator.CurrentEntity;
+
+            enumerator.Dispose();
         }
 
         public static IEnumerator<int> SubjectEffectsEntities(this EcsWorld world, int subjectEntity)
         {
-            var effectsFilter = world.Filter<EffectInstanceInfo>().Exc<GarbageTag>().End();
-            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
 
-            var mappings = world.GetHeroInstanceMappings();
-            var subjectOrigPacked = mappings.BattleToOriginMapping[world.PackEntityWithWorld(subjectEntity)];
+            var enumerator = new RelEffectsEnumerator(world, subjectEntity);
 
-            foreach (var effectEntity in effectsFilter)
-            {
-                var relEffect = effectInstancePool.Get(effectEntity);
+            while (enumerator.MoveNext())
+                yield return enumerator.CurrentEntity;
 
-                if (!relEffect.EffectTarget.EqualsTo(subjectOrigPacked))
-                    continue;
-
-                yield return effectEntity;
-            }
+            enumerator.Dispose();
         }
 
         #endregion
@@ -221,7 +311,7 @@ namespace Assets.Scripts.ECS
                 if (!delPool.Has(en.Current))
                     delPool.Add(en.Current);
             }
-
+            
             ptpToDecrement = removed.ToArray();
 
             ListPool<EcsPackedEntityWithWorld>.Add(removed);
@@ -235,9 +325,10 @@ namespace Assets.Scripts.ECS
             while (en.MoveNext())
             {
                 var relEffect = en.Current;
-                buffer.Add(relEffect.EffectInfo);
+                if (relEffect.UsageLeft > 0)
+                    buffer.Add(relEffect.EffectInfo);
             }
-            
+
             var retval = buffer.ToArray();
             
             ListPool<RelationEffectInfo>.Add(buffer);

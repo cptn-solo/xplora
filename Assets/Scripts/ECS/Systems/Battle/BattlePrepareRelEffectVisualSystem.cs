@@ -43,22 +43,7 @@ namespace Assets.Scripts.ECS.Systems
                 if (!targetPacked.Unpack(out _, out var targetParty))
                     throw new Exception("Stale effect target entity");                
 
-                switch (effect.Rule.Key.RelationsEffectType)
-                {                    
-                    case RelationsEffectType.AlgoRevenge:
-                        PrepareVisualForEffect(targetParty, sourceParty, ref effect, entity);
-                        break;
-                    case RelationsEffectType.AlgoTarget:
-                        PrepareVisualForEffect(sourceParty, targetParty, ref effect, entity);
-                        break;
-                    default:
-                        PrepareVisualForEffect(sourceParty, targetParty, ref effect, entity);
-                        effect.UsageLeft--;
-                        // focus effects (target/revenge) will handle usage separately
-                        break;
-                }
-                //moving usage to the actual usage stage: when target or spec were actually adjusted
-                //effect.UsageLeft--;
+                PrepareVisualForEffect(sourceParty, targetParty, ref effect, entity);                
             }
         }
 

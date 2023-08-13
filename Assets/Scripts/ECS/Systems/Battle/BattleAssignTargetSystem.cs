@@ -18,7 +18,8 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
         private readonly EcsPoolInject<UsedFocusEntityTag> usedFocusPool = default;
-
+        private readonly EcsPoolInject<DecrementPendingTag> decrementPool = default;
+        
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter = default;
 
         public override void RunIfActive(IEcsSystems systems)
@@ -109,6 +110,9 @@ namespace Assets.Scripts.ECS.Systems
         {
             if (!usedFocusPool.Value.Has(focusEntity))
                 usedFocusPool.Value.Add(focusEntity);
+            
+            if (!decrementPool.Value.Has(focusEntity))
+                decrementPool.Value.Add(focusEntity);
         }
 
         private EcsFilter TeamTagFilter<T, L>(EcsWorld world) where T : struct where L : struct

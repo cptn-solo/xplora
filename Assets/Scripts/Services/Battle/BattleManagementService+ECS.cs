@@ -112,9 +112,12 @@ namespace Assets.Scripts.Services
                 // ### SUMMARY ###
 
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
-                
+                .Add(new BattleDecrementAttackerRelEffectsSystem())
+                .Add(new BattleDecrementTargetRelEffectsSystem())
+                //.Add(new BattleDecrementUsedFocusEffectsSystem())
+
                 // ### SCHEDULE VISUALS ###
-                
+
                 // with CompletedTurnTag+ScheduleVisualsTag (if not Fast Forward mode)
                 .AddSchedulers()
                 .Add(new BattleScheduleSceneVisualsCompleteSystem()) // toggles AwaitVisualsTag to prevent reuse of the Schedule systems above

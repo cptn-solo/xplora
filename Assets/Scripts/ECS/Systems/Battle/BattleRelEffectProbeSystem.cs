@@ -67,13 +67,48 @@ namespace Assets.Scripts.ECS.Systems
 
             var rule = (IBattleEffectRule)scope.EffectRule;
             ref var currentRound = ref battleService.Value.CurrentRound;
+            ref var currentTurn = ref battleService.Value.CurrentTurn;
 
-            ref var effect = ref effectsPool.Value.Add(effectProbeEntity);
+
+            // remove existing effect of type:
+            var world = pool.Value.GetWorld();
+            var effectTargetOrig = rule.Key.RelationsEffectType == RelationsEffectType.AlgoRevenge ?
+                probe.SourceOrigPacked : probe.TargetOrigPacked;
+            var effectTargetBattle = world.GetHeroInstanceMappings().OriginToBattleMapping[effectTargetOrig];
+            if (!effectTargetBattle.Unpack(out _, out var effectTarget))
+                throw new Exception("Stale effect target");
+
+            var effectEntity = effectProbeEntity;
+            var existingEffectEntity = -1;
+            var en = world.SubjectEffectsOfFullKeyEntities(effectTarget, rule.Key);
+            while (en.MoveNext())
+            {
+                existingEffectEntity = en.Current;
+                break;
+            }
+
+            if (existingEffectEntity >= 0)
+                effectEntity = existingEffectEntity;
+            else
+                effectsPool.Value.Add(effectEntity);
+
+            ref var effect = ref effectsPool.Value.Get(effectEntity);
             effect.StartRound = currentRound.Round;
+            effect.StartTurn = currentTurn.Turn;
             effect.UsageLeft = rule.TurnsCount;
             effect.Rule = rule;
-            effect.EffectSource = probe.SourceOrigPacked;
-            effect.EffectTarget = probe.TargetOrigPacked;
+            if (rule.Key.RelationsEffectType == RelationsEffectType.AlgoRevenge)
+            {
+                // inversion for revenge effect as it is spawned in return (from the attacked hero to the revenger)
+                // so it is easyer to keep this direction from the very beginning
+                effect.EffectSource = probe.TargetOrigPacked;
+                effect.EffectTarget = probe.SourceOrigPacked;
+            }
+            else
+            {
+                effect.EffectSource = probe.SourceOrigPacked;
+                effect.EffectTarget = probe.TargetOrigPacked;
+            }
             effect.EffectP2PEntity = probe.P2PEntityPacked;
 
             origWorld.IncrementIntValue<RelationEffectsCountTag>(1, p2pEntity);

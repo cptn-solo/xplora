@@ -7,6 +7,7 @@ namespace Assets.Scripts.ECS.Data
     {
         public IEffectRule Rule { get; set; }
         public int StartRound { get; set; }
+        public int StartTurn { get; internal set; }
         public int UsageLeft { get; set; } // initially = End - Start
 
         public readonly string Description => ToString();

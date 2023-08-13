@@ -88,7 +88,8 @@ namespace Assets.Scripts.ECS.Data
     public struct DealEffectsTag { } // turn
     public struct AimTargetTag { } // icon to highlight aim target (added to bundle icon host)
     public struct UsedFocusEntityTag { }
-    
+    public struct DecrementPendingTag { }
+
     /// <summary>
     /// To be attached to a battle hero instance to track back damage and such for the raid
     /// </summary>

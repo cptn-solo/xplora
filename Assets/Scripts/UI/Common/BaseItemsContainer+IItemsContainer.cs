@@ -28,6 +28,8 @@ namespace Assets.Scripts.UI.Common
 
         public void Reset()
         {
+            StopAllCoroutines();
+
             foreach (var bar in itemsIndex)
                 GameObject.Destroy(bar.Value.gameObject);
 
@@ -45,6 +47,8 @@ namespace Assets.Scripts.UI.Common
 
             if (items.Length != value.Length)
              {
+                
+                StopAllCoroutines();
                 foreach (var item in itemsIndex)
                     GameObject.Destroy(item.Value.gameObject);
 
@@ -77,6 +81,8 @@ namespace Assets.Scripts.UI.Common
         {
             if (itemsIndex.TryGetValue(info.Id, out var item))
             {
+                StopAllCoroutines();
+
                 GameObject.Destroy(item.gameObject);
                 var buff = ListPool<I>.Get();
                 buff.AddRange(items);
