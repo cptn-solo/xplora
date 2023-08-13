@@ -1,11 +1,11 @@
 ﻿using System;
-using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class BattleClearUsedEffectsSystem<T> : BaseEcsSystem where T : struct
     {
         private readonly EcsPoolInject<ProcessedHeroTag> processedPool = default;
