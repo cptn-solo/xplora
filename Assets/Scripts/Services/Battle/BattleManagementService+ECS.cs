@@ -112,9 +112,8 @@ namespace Assets.Scripts.Services
                 // ### SUMMARY ###
 
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
-                .Add(new BattleDecrementAttackerRelEffectsSystem())
-                .Add(new BattleDecrementTargetRelEffectsSystem())
-                //.Add(new BattleDecrementUsedFocusEffectsSystem())
+                .Add(new BattleDecrementUsedFocusEffectsSystem())
+                .Add(new BattleDecrementUsedRelEffectsSystem())
 
                 // ### SCHEDULE VISUALS ###
 

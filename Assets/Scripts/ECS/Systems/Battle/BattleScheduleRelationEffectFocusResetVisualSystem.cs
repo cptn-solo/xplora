@@ -25,7 +25,7 @@ namespace Assets.Scripts.ECS.Systems
                 {
                     ref var focusComp = ref focusPool.Value.Get(focusEntity);
                     if (!focusComp.Focused.Unpack(out var world, out var focusedEntity))
-                        throw new Exception("Staled focused entity");
+                        throw new Exception("Stale focused entity");
 
                     ref var resetRelEffectVisualsInfo = ref world.ScheduleSceneVisuals<RelationEffectsFocusResetInfo>(turnEntity);
                     resetRelEffectVisualsInfo.SubjectEntity = focusComp.Actor;

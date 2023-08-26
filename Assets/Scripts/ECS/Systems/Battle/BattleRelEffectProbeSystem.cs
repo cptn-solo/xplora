@@ -56,7 +56,7 @@ namespace Assets.Scripts.ECS.Systems
             if (ruleType.EffectClass() != RelationsEffectClass.Battle)
                 return false; // this system process only battle effects
             
-            // all checks passed, effect spawn confirmed, queueing for instansiating:
+            // all checks passed, effect spawn confirmed, queueing for instantiating:
 
             draftTagPool.Value.Add(effectProbeEntity);
 
@@ -80,6 +80,21 @@ namespace Assets.Scripts.ECS.Systems
 
             var effectEntity = effectProbeEntity;
             var existingEffectEntity = -1;
+
+            if (rule.EffectType == RelationsEffectType.AlgoTarget)
+            {
+                // we need to remove any existing target effect prior to cast new ones or there will be an error of adding several effects of the same type
+                // (target effect is copied to all teammates in the BattlePrepareTargetEffectSystem)
+                var targetEffectFilter = world.Filter<EffectInstanceInfo>().End();
+                var targetEffectPool = world.GetPool<EffectInstanceInfo>();
+                foreach (var targetEffectEntity in targetEffectFilter)
+                {
+                    ref var targetEffectInstance = ref targetEffectPool.Get(targetEffectEntity);
+                    if (targetEffectInstance.Rule.EffectType == RelationsEffectType.AlgoTarget)
+                        world.DelEntity(targetEffectEntity);
+                }
+            }
+
             var en = world.SubjectEffectsOfFullKeyEntities(effectTarget, rule.Key);
             while (en.MoveNext())
             {

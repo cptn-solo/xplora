@@ -5,7 +5,6 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-
     public partial class BattleDecrementUsedFocusEffectsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EffectFocusComp> pool = default;
@@ -24,6 +23,5 @@ namespace Assets.Scripts.ECS.Systems
                 decrementPool.Value.Del(entity);
             }
         }
-
     }
 }
