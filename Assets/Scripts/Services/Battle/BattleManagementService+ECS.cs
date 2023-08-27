@@ -148,6 +148,7 @@ namespace Assets.Scripts.Services
                 .Add(new BattleClearUsedEffectsSystem<DamageTag>()) // raw damage and other damage effects
                 .Add(new BattleClearUsedEffectsSystem<CriticalTag>()) // raw damage and other damage effects
                 .Add(new BattleClearUsedEffectsSystem<LethalTag>()) // raw damage and other damage effects
+                .Add(new BattleClearProcessedHeroEffectsSystem<IntValueComp<TurnDamageTag>>())
                 .Add(new BattleClearProcessedHeroEffectsSystem<DodgedTag>())
                 .Add(new BattleClearProcessedHeroEffectsSystem<MissedTag>())
                 .Add(new BattleReportUpdatedHeros()) // reports update back to the battle requester (raid)

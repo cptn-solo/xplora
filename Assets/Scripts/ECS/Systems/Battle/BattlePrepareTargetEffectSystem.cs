@@ -67,6 +67,12 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var teammateEntity in teammateFilter.Value)
             {
                 ref var teammate = ref heroInstanceOriginRefPool.Value.Get(teammateEntity);
+                if (focusPool.Value.Has(teammateEntity))
+                {   // skip target effect for revengers
+                    ref var oldFocus = ref focusPool.Value.Get(teammateEntity);
+                    if (oldFocus.EffectKey.RelationsEffectType == RelationsEffectType.AlgoRevenge)
+                        continue;
+                }
                 
                 if (teammate.Packed.EqualsTo(effect.EffectTarget))
                 {

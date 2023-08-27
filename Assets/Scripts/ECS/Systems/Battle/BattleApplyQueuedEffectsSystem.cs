@@ -61,6 +61,7 @@ namespace Assets.Scripts.ECS.Systems
                     .ConfigForDamageEffect(effectComp.Effect).ExtraDamage);
 
                 world.IncrementIntValue<DamageTag>(effectDamage, subjectEntity);
+                world.IncrementIntValue<TurnDamageTag>(effectDamage, subjectEntity);
                 buffer.Add(effectComp.Effect);
 
                 // former "use effect":

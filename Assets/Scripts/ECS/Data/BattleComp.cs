@@ -152,6 +152,7 @@ namespace Assets.Scripts.ECS.Data
 
     public struct SpecialDamageEffectTag { } // put in addition to following:
     public struct DamageTag { }
+    public struct TurnDamageTag { }
     public struct CriticalTag { }
     public struct LethalTag { }
 

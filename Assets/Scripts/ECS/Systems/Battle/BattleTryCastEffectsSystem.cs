@@ -72,6 +72,7 @@ namespace Assets.Scripts.ECS.Systems
                     effect.TurnsActive = damageEffect.Config.TurnsActive;
 
                     ecsWorld.Value.IncrementIntValue<DamageTag>(effectDamage, targetEntity);
+                    ecsWorld.Value.IncrementIntValue<TurnDamageTag>(effectDamage, targetEntity);
                 }
 
                 if (!targetEffectsTagPool.Value.Has(turnEntity))

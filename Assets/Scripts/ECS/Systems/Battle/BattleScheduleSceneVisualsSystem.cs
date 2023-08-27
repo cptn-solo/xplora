@@ -13,6 +13,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
         private readonly EcsPoolInject<TargetRef> targetRefPool = default;
+        private readonly EcsPoolInject<DamageTag> damageTagPool = default;
         private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
         private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
@@ -85,7 +86,7 @@ namespace Assets.Scripts.ECS.Systems
                     {
                         ref var piercedEffectVisualsInfo = ref world.ScheduleSceneVisuals<ArmorPiercedVisualsInfo>(turnEntity);
                         piercedEffectVisualsInfo.SubjectEntity = targetRef.Packed;
-                        piercedEffectVisualsInfo.Damage = world.ReadIntValue<DamageTag>(targetEntity);
+                        piercedEffectVisualsInfo.Damage = world.ReadIntValue<TurnDamageTag>(targetEntity);
                     }
                     else if (appliedEffectsCompPool.Value.Has(targetEntity))
                     {
@@ -103,14 +104,8 @@ namespace Assets.Scripts.ECS.Systems
                     }
 
                     // if damage dealt
-                    var currentDamage = world.ReadIntValue<DamageTag>(targetEntity);
-                    if (currentDamage > 0)
+                    if (damageTagPool.Value.Has(targetEntity))
                     {
-                        ref var damageVisualsInfo = ref world.ScheduleSceneVisuals<TakingDamageVisualsInfo>(turnEntity);
-                        damageVisualsInfo.SubjectEntity = targetRef.Packed;
-                        damageVisualsInfo.Damage = currentDamage;
-                        damageVisualsInfo.Critical = world.CheckForActiveEffect<CriticalTag>(targetEntity);
-                        damageVisualsInfo.Lethal = world.CheckForActiveEffect<LethalTag>(targetEntity);
 
                         ref var hpComp = ref hpCompPool.Value.Get(targetEntity);
                         ref var healthComp = ref healthCompPool.Value.Get(targetEntity);
@@ -119,13 +114,26 @@ namespace Assets.Scripts.ECS.Systems
                         ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(targetEntity);
                         barsAndEffectsComp.Health = healthComp.Value;
                         barsAndEffectsComp.HealthCurrent = hpComp.Value;
+                        
+                        var turnDamage = world.ReadIntValue<TurnDamageTag>(targetEntity);
 
-                        ref var hpBarEffects = ref world.ScheduleSceneVisuals<HealthBarVisualsInfo>(turnEntity);
-                        hpBarEffects.SubjectEntity = targetRef.Packed;
-                        hpBarEffects.Health = healthComp.Value;
-                        hpBarEffects.HealthCurrent = hpComp.Value;
-                        hpBarEffects.Damage = currentDamage;
-                        hpBarEffects.BarsInfoBattle = barsAndEffectsComp.BarsInfoBattle;
+                        if (turnDamage > 0)
+                        {
+                            ref var damageVisualsInfo = ref world.ScheduleSceneVisuals<TakingDamageVisualsInfo>(turnEntity);
+                            damageVisualsInfo.SubjectEntity = targetRef.Packed;
+                            damageVisualsInfo.Damage = turnDamage;
+                            damageVisualsInfo.Critical = world.CheckForActiveEffect<CriticalTag>(targetEntity);
+                            damageVisualsInfo.Lethal = world.CheckForActiveEffect<LethalTag>(targetEntity);
+
+
+                            ref var hpBarEffects = ref world.ScheduleSceneVisuals<HealthBarVisualsInfo>(turnEntity);
+                            hpBarEffects.SubjectEntity = targetRef.Packed;
+                            hpBarEffects.Health = healthComp.Value;
+                            hpBarEffects.HealthCurrent = hpComp.Value;
+                            hpBarEffects.Damage = turnDamage;
+                            hpBarEffects.BarsInfoBattle = barsAndEffectsComp.BarsInfoBattle;
+                        }
+
                     }
                 }
 

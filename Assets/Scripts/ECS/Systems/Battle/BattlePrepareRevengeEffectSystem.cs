@@ -43,13 +43,32 @@ namespace Assets.Scripts.ECS.Systems
                     ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
 
                     var revengeEntity = ecsWorld.Value.NewEntity();
+                    var revengerPacked = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
+
+                    if (!revengerPacked.Unpack(out var world, out var revenger))
+                        throw new Exception("Stale actor for focus");
+
+                    if (focusPool.Value.Has(revenger))
+                    {   // instantly removing the existing focus effect as revenge is a high priority
+                        ref var oldFocus = ref focusPool.Value.Get(revenger);
+                        if (!oldFocus.EffectEntity.Unpack(out _, out var oldEffectEntity))
+                            throw new Exception("Stale old focus effect entity");
+
+                        world.RemoveRelEffectByType(revenger, oldFocus.EffectKey.RelationsEffectType, out var decrement);
+
+                        if (decrement != null)
+                        {
+                            foreach (var item in decrement)
+                                if (item.Unpack(out var origWorld, out var origEntity))
+                                    origWorld.IncrementIntValue<RelationEffectsCountTag>(-1, origEntity);
+                        }
+                    }
+
                     ref var revengeComp = ref revengePool.Value.Add(revengeEntity);
                     revengeComp.Focus = attackerRef.Packed;
-                    revengeComp.RevengeBy = mappings.OriginToBattleMapping[probe.SourceOrigPacked];
+                    revengeComp.RevengeBy = revengerPacked;
                     revengeComp.RevengeFor = mappings.OriginToBattleMapping[probe.TargetOrigPacked];
 
-                    if (!revengeComp.RevengeBy.Unpack(out var world, out var revenger))
-                        throw new Exception("Stale actor for focus");
 
                     // remember who is focused: (focus may exest from prev. turn, so will be overriden)
                     if (!focusPool.Value.Has(revenger))

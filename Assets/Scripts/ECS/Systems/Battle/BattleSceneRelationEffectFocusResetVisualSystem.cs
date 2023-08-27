@@ -17,7 +17,13 @@ namespace Assets.Scripts.ECS.Systems
         protected override void AssignVisualizer(int entity, RelationEffectsFocusResetInfo visualInfo, EcsWorld world, int viewEntity)
         {
             if (!aimIconPool.Value.Has(viewEntity))
-                throw new Exception("No view for focus animation");
+            {
+                // removing exception from here bc it is actually a valid case if 
+                // target is dead so for unification focus reset was scheduled but here is just nothing to do
+                //throw new Exception("No view for focus animation");
+                base.AssignVisualizer(entity, visualInfo, world, viewEntity);
+                return;
+            }
 
             ref var viewRef = ref aimIconPool.Value.Get(viewEntity);
             GameObject.Destroy(viewRef.Transform.gameObject);
