@@ -89,6 +89,8 @@ namespace Assets.Scripts.ECS.Data
     public struct AimTargetTag { } // icon to highlight aim target (added to bundle icon host)
     public struct UsedFocusEntityTag { }
     public struct DecrementPendingTag { }
+    public struct FocusResetPendingTag { }
+    public struct RelEffectResetPendingTag { }
 
     /// <summary>
     /// To be attached to a battle hero instance to track back damage and such for the raid

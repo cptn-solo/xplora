@@ -114,6 +114,9 @@ namespace Assets.Scripts.Services
                 .Add(new BattleCompleteTurnSystem()) // summs up turn info for UI
                 .Add(new BattleDecrementUsedFocusEffectsSystem())
                 .Add(new BattleDecrementUsedRelEffectsSystem())
+                .Add(new BattleClearDeadHeroesRelEffects())
+                .Add(new BattleClearResetRelationsEffectSystem()) // removes effects pending to be reset
+                .Add(new BattleClearUsedRelationsEffectSystem()) // removes redundant battle effects visuals
 
                 // ### SCHEDULE VISUALS ###
 
@@ -140,8 +143,8 @@ namespace Assets.Scripts.Services
                 // ### CLEANUP ###
 
                 // with FinalizedTurnTag
-                .Add(new BattleClearUsedFocusSystem()) // removes focus effect (revenge/target)
-                .Add(new BattleClearUsedRelationsEffectSystem()) // removes redundant battle effects visuals
+                .Add(new BattleClearFocusSystem<UsedFocusEntityTag>()) // removes used focus effect (revenge/target)
+                .Add(new BattleClearFocusSystem<FocusResetPendingTag>()) // removes dead focus effect (revenge/target)
                 .Add(new BattleClearUsedEffectsSystem<DamageTag>()) // raw damage and other damage effects
                 .Add(new BattleClearUsedEffectsSystem<CriticalTag>()) // raw damage and other damage effects
                 .Add(new BattleClearUsedEffectsSystem<LethalTag>()) // raw damage and other damage effects

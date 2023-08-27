@@ -3,7 +3,6 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.ECS.Systems
 {

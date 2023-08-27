@@ -18,7 +18,8 @@ namespace Assets.Scripts.ECS.Systems
                 .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
                 .Add(new BattleScheduleRelationEffectVisualSystem())
                 .Add(new BattleScheduleRelationEffectFocusVisualSystem())
-                .Add(new BattleScheduleRelationEffectFocusResetVisualSystem()) // schedules remove of used focus icons
+                .Add(new BattleScheduleRelationEffectFocusResetVisualSystem<UsedFocusEntityTag>()) // schedules remove of used focus icons
+                .Add(new BattleScheduleRelationEffectFocusResetVisualSystem<FocusResetPendingTag>()) // schedules remove of reset focus icons
                 .Add(new BattleScheduleRelationEffectResetVisualSystem()) // set rel. effects container to the current state 
                 ;
             return systems;

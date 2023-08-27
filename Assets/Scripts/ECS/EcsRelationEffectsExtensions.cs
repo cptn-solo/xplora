@@ -267,6 +267,24 @@ namespace Assets.Scripts.ECS
             relEffect.UsageLeft--;
         }
 
+        public static void ResetRelationEffect(this EcsWorld world, int effectEntity, out EcsPackedEntityWithWorld[] ptpToDecrement)
+        {
+            var removed = ListPool<EcsPackedEntityWithWorld>.Get();
+            var delPool = world.GetPool<GarbageTag>();
+
+            var effectInstancePool = world.GetPool<EffectInstanceInfo>();
+            ref var relEffect = ref effectInstancePool.Get(effectEntity);
+            relEffect.UsageLeft = 0;
+            removed.Add(relEffect.EffectP2PEntity);
+
+            if (!delPool.Has(effectEntity))
+                delPool.Add(effectEntity);
+
+            ptpToDecrement = removed.ToArray();
+
+            ListPool<EcsPackedEntityWithWorld>.Add(removed);
+        }
+
         public static void RemoveRelEffectByType(this EcsWorld world, int subjectEntity, RelationsEffectType relationsEffectType,
             out EcsPackedEntityWithWorld[] ptpToDecrement)
         {
@@ -323,6 +341,7 @@ namespace Assets.Scripts.ECS
         {
             var en = world.SubjectEffects(subjectEntity);
             var buffer = ListPool<RelationEffectInfo>.Get();
+            var pool = world.GetPool<RelEffectResetPendingTag>();
 
             while (en.MoveNext())
             {

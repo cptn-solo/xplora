@@ -5,16 +5,16 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleClearUsedFocusSystem : BaseEcsSystem
+    public class BattleClearFocusSystem<T> : BaseEcsSystem where T : struct
     {
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
-        private readonly EcsPoolInject<UsedFocusEntityTag> usedFocusPool = default;
+        private readonly EcsPoolInject<T> resetFocusPool = default;
         
-        private readonly EcsFilterInject<Inc<UsedFocusEntityTag, EffectFocusComp>> usedFocusFilter = default;
+        private readonly EcsFilterInject<Inc<T, EffectFocusComp>> resetFocusFilter = default;
 
         public override void RunIfActive(IEcsSystems systems)
         {
-            foreach (var ufEntity in usedFocusFilter.Value)
+            foreach (var ufEntity in resetFocusFilter.Value)
             {
                 ref var focusComp = ref focusPool.Value.Get(ufEntity);
                 if (!focusComp.Actor.Unpack(out var world, out var entity))
@@ -30,7 +30,7 @@ namespace Assets.Scripts.ECS.Systems
                 }
 
                 focusPool.Value.Del(ufEntity);
-                usedFocusPool.Value.Del(ufEntity);
+                resetFocusPool.Value.Del(ufEntity);
             }
         }
     }

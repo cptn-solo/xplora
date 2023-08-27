@@ -6,11 +6,11 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleScheduleRelationEffectFocusResetVisualSystem : BaseEcsSystem
+    public class BattleScheduleRelationEffectFocusResetVisualSystem<T> : BaseEcsSystem where T : struct
     {
         private readonly EcsPoolInject<EffectFocusComp> focusPool = default;
 
-        private readonly EcsFilterInject<Inc<UsedFocusEntityTag, EffectFocusComp>> usedFocusFilter = default;
+        private readonly EcsFilterInject<Inc<T, EffectFocusComp>> usedFocusFilter = default;
         
         private readonly EcsFilterInject<
             Inc<BattleTurnInfo, CompletedTurnTag, ScheduleVisualsTag>,
