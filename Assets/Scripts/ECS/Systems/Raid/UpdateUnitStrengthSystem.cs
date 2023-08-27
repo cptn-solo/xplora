@@ -8,7 +8,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class UpdateUnitStrengthSystem : IEcsRunSystem
+    public class UpdateUnitStrengthSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -23,7 +23,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<RaidService> raidService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (filter.Value.GetEntitiesCount() == 0)
                 return;

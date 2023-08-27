@@ -3,10 +3,11 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
+using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleAutoMakeTurnSystem : IEcsRunSystem
+    public class BattleAutoMakeTurnSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<MakeTurnTag> makeTurnTagPool = default;
         private readonly EcsPoolInject<ReadyTurnTag> readyTurnTagPool = default;
@@ -17,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (battleFilter.Value.GetEntitiesCount() == 0)
                 return;
@@ -34,6 +35,7 @@ namespace Assets.Scripts.ECS.Systems
 
             foreach (var entity in turnInfoFilter.Value)
             {
+                //Debug.Break();
                 makeTurnTagPool.Value.Add(entity);
                 attackTagPool.Value.Add(entity);
                 readyTurnTagPool.Value.Del(entity);

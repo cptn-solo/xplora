@@ -5,10 +5,11 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDestroyDiedCardsSystem : IEcsRunSystem
+    public class BattleDestroyDiedCardsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EntityViewRef<Hero>> cardViewRefPool = default;
         private readonly EcsPoolInject<EntityViewRef<BarsAndEffectsInfo>> overlayViewRefPool = default;
+        private readonly EcsPoolInject<TransformRef<VisualsTransformTag>> visualsTransformRefPool = default;
 
         private readonly EcsFilterInject<
             Inc<EntityViewRef<Hero>,
@@ -16,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
                 ProcessedHeroTag,
                 RetiredTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
@@ -27,6 +28,9 @@ namespace Assets.Scripts.ECS.Systems
                 ref var cardEntityViewRef = ref cardViewRefPool.Value.Get(entity);
                 cardEntityViewRef.EntityView.Destroy();
                 cardViewRefPool.Value.Del(entity);
+
+                ref var visualsTransformRef = ref visualsTransformRefPool.Value.Get(entity);
+                visualsTransformRefPool.Value.Del(entity);
             }
         }
 

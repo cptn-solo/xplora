@@ -1,6 +1,8 @@
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
+using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
+using Leopotam.EcsLite.ExtendedSystems;
 
 namespace Assets.Scripts.ECS
 {
@@ -16,6 +18,20 @@ namespace Assets.Scripts.ECS
 
             return en;
         }
+
+        public static void Pause(this IEcsSystems systems, bool toggle)
+        {
+            systems.GetShared<SharedEcsContext>().Pause(toggle);
+        }
+
+        public static IEcsSystems CleanupHere<T>(this IEcsSystems systems, string worldName = null) where T : struct
+        {
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+            if (systems.GetWorld(worldName) == null) { throw new System.Exception($"Requested world \"{(string.IsNullOrEmpty(worldName) ? "[default]" : worldName)}\" not found."); }
+#endif
+            return systems.Add(new CleanupSystem<T>(systems.GetWorld(worldName)));
+        }
+
 
         public static int SetIntValue<T>(this EcsWorld world, int factor, int entity)
             where T : struct =>

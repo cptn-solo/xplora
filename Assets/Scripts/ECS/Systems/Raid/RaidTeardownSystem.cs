@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RaidTeardownSystem : IEcsRunSystem
+    public class RaidTeardownSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<OpponentComp>> opponentFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (raidService.Value.RaidEntity.Unpack(ecsWorld.Value, out _))
                 return;

@@ -22,7 +22,7 @@ namespace Assets.Scripts.Services
         {
             ecsWorld = new EcsWorld();
 
-            ecsInitSystems = new EcsSystems(ecsWorld);
+            ecsInitSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
             ecsInitSystems
                 .Add(new WorldInitSystem())
                 .Add(new TerrainInitSystem())
@@ -34,7 +34,7 @@ namespace Assets.Scripts.Services
                 .Inject(this)
                 .Init();
 
-            ecsRunSystems = new EcsSystems(ecsWorld);
+            ecsRunSystems = new EcsSystems(ecsWorld, new SharedEcsContext());
             ecsRunSystems
                 .Add(new PresenceMonitorSystem())
                 .Add(new TerrainGenerationSystem())
@@ -44,26 +44,26 @@ namespace Assets.Scripts.Services
                 .Add(new WorldProcessVisitorSystem<WatchTowerComp>())
                 .Add(new WorldProcessVisitorSystem<TerrainAttributeComp>())
                 .Add(new WorldVisitorSightUpdateSystem())
-                .DelHere<VisitorComp>()
+                .CleanupHere<VisitorComp>()
                 .Add(new WorldVeilFieldCellsSystem())
-                .DelHere<VeilCellsTag>()
+                .CleanupHere<VeilCellsTag>()
                 .Add(new WorldUnveilFieldCellsSystem())
-                .DelHere<UnveilCellsTag>()
+                .CleanupHere<UnveilCellsTag>()
                 .Add(new WorldVisibilityUpdateSystem())
                 .Add(new WorldOutOfSightSystem())
                 .Add(new WorldInSightSystem())
-                .DelHere<VisibilityUpdateTag>()
+                .CleanupHere<VisibilityUpdateTag>()
                 .Add(new DeployPoiSystem<PowerSourceComp>())
                 .Add(new DeployPoiSystem<HPSourceComp>())
                 .Add(new DeployPoiSystem<WatchTowerComp>())
-                .DelHere<ProduceTag>()
+                .CleanupHere<ProduceTag>()
                 .Add(new UpdateWorldPoiSystem<PowerSourceComp>())
                 .Add(new UpdateWorldPoiSystem<HPSourceComp>())
                 .Add(new UpdateWorldPoiSystem<WatchTowerComp>())
-                .DelHere<UpdateTag>()
+                .CleanupHere<UpdateTag>()
                 .Add(new TerrainDestructionSystem())
                 .Add(new DestroyPoiSystem())
-                .DelHere<DestroyTag>()
+                .CleanupHere<DestroyTag>()
                 .Add(new GarbageCollectorSystem())
 
 #if UNITY_EDITOR

@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 namespace Assets.Scripts.ECS.Systems
 {
 
-    public class BattleAssignTargetSystem : IEcsRunSystem
+    public class BattleAssignTargetSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleTurnInfo> turnPool = default;
         private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
@@ -18,10 +18,11 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<PlayerTeamTag> playerTeamTagPool = default;
         private readonly EcsPoolInject<HeroConfigRef> heroConfigRefPool = default;
         private readonly EcsPoolInject<UsedFocusEntityTag> usedFocusPool = default;
-
+        private readonly EcsPoolInject<DecrementPendingTag> decrementPool = default;
+        
         private readonly EcsFilterInject<Inc<DraftTag, BattleTurnInfo>, Exc<SkippedTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
                 AssignTarget(entity);
@@ -109,6 +110,9 @@ namespace Assets.Scripts.ECS.Systems
         {
             if (!usedFocusPool.Value.Has(focusEntity))
                 usedFocusPool.Value.Add(focusEntity);
+            
+            if (!decrementPool.Value.Has(focusEntity))
+                decrementPool.Value.Add(focusEntity);
         }
 
         private EcsFilter TeamTagFilter<T, L>(EcsWorld world) where T : struct where L : struct

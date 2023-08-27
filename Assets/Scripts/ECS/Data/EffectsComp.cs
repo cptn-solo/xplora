@@ -1,63 +1,25 @@
 ﻿using Assets.Scripts.Data;
-using System.Collections.Generic;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS.Data
 {
-    public struct EffectsComp
+    public struct ActiveEffectComp
     {
-        public Dictionary<DamageEffect, int> ActiveEffects { get; internal set; }
-        public bool SkipTurnActive =>
-            ActiveEffects.ContainsKey(DamageEffect.Frozing) ||
-            ActiveEffects.ContainsKey(DamageEffect.Stunned);
-
-        internal EffectsComp EnqueEffect(DamageEffectInfo damageEffect)
+        public DamageEffect Effect;
+        public int EffectDamage;
+        public EcsPackedEntityWithWorld Subject;
+        public int TurnAttached; // just for information, may be logged later
+        public int TurnsActive; // decrement each use, then delete
+        public readonly bool SkipTurn
         {
-            var existing = ActiveEffects;
-
-            var count = damageEffect.RoundOff - damageEffect.RoundOn;
-            var config = damageEffect.Config;
-            if (existing.TryGetValue(config.Effect, out _))
-                existing[config.Effect] = count;
-            else
-                existing.Add(config.Effect, count);
-
-            ActiveEffects = existing;
-
-            return this;
-        }
-
-        internal EffectsComp UseEffect(DamageEffect effect, out bool used)
-        {
-            var existing = ActiveEffects;
-
-            used = false;
-
-            if (existing.TryGetValue(effect, out var count))
+            get => Effect switch
             {
-                if (count > 1)
-                    existing[effect] = count - 1;
-                else existing.Remove(effect);
-
-                used = true;
-            }
-
-            ActiveEffects = existing;
-
-            return this;
+                DamageEffect.Frozing => true,
+                DamageEffect.Stunned => true,
+                _ => false
+            };
         }
-
-        internal EffectsComp ResetEffects()
-        {
-            var existing = ActiveEffects;
-            existing.Clear();
-
-            ActiveEffects = existing;
-
-            return this;
-        }
-
     }
-
 }
 
 

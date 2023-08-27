@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class MoveToCellSystem : IEcsRunSystem
+    public class MoveToCellSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool = default;
         private readonly EcsPoolInject<VisitCellComp> visitPool = default;
@@ -17,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<WorldService> worldService = default;
         private readonly EcsCustomInject<RaidService> raidService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in visitFilter.Value)
             {

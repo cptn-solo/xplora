@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleCompleteSystem : IEcsRunSystem
+    public class BattleCompleteSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleCompletedTag> battleCompletedTagPool = default;
         private readonly EcsPoolInject<DestroyTag> destroyTagPool = default;
@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<BattleInfo, WinnerTag>,
             Exc<BattleCompletedTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
                 CompleteBattle(entity);

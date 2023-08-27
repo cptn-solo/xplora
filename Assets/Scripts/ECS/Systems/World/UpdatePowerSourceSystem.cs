@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class UpdateWorldPoiSystem<T> : IEcsRunSystem
+    public class UpdateWorldPoiSystem<T> : BaseEcsSystem
         where T: struct
     {
         private readonly EcsPoolInject<EntityViewRef<bool>> poiRefPool = default;
@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<T, UpdateTag, EntityViewRef<bool>>> updateFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in updateFilter.Value)
             {

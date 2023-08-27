@@ -5,14 +5,14 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleNotifyResultsSystem : IEcsRunSystem
+    public class BattleNotifyResultsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<DelayTimerComp<WinnerTag>> delayPool = default;
         private readonly EcsFilterInject<Inc<DelayTimerComp<WinnerTag>>> filter = default;
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

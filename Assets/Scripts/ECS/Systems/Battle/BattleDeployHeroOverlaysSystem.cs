@@ -7,7 +7,7 @@ using Assets.Scripts.UI.Battle;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDeployHeroOverlaysSystem : IEcsRunSystem
+    public class BattleDeployHeroOverlaysSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<EntityViewFactoryRef<BarsAndEffectsInfo>> factoryPool = default;
         private readonly EcsPoolInject<EntityViewRef<Hero>> entityViewRefPool = default;
@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var factoryEntity in factoryFilter.Value)
             {

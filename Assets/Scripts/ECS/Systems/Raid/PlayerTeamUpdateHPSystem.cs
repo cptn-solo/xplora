@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamUpdateHPSystem : IEcsRunSystem
+    public class PlayerTeamUpdateHPSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> containerRefPool = default;
         private readonly EcsPoolInject<UpdateTag<HpTag>> updateTagPool = default;
@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, ItemsContainerRef<BarInfo>, UpdateTag<HpTag>>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

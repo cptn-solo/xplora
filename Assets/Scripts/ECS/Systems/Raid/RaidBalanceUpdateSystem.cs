@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RaidBalanceUpdateSystem : IEcsRunSystem
+    public class RaidBalanceUpdateSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool = default;
         private readonly EcsPoolInject<RaidComp> raidPool = default;
@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsFilterInject<
             Inc<RaidComp, ItemsContainerRef<BagedIconInfo>, UpdateAssetBalanceTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

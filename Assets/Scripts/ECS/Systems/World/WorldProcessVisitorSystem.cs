@@ -5,7 +5,7 @@ using System;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class WorldProcessVisitorSystem<T> : IEcsRunSystem
+    public class WorldProcessVisitorSystem<T> : BaseEcsSystem
         where T: struct
     {
         protected readonly EcsPoolInject<VisitorComp> visitorPool;
@@ -17,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<T, FieldCellComp, VisitorComp>,
             Exc<UsedTag>> filter;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

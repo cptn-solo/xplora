@@ -9,7 +9,7 @@ namespace Assets.Scripts.ECS.Systems
     /// <summary>
     /// Refills power from source
     /// </summary>
-    public class RefillSystem : IEcsRunSystem
+    public class RefillSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<PowerComp> powerPool = default;
         private readonly EcsPoolInject<RefillComp> refillPool = default;
@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<AudioPlaybackService> audioService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach(var entity in refillFilter.Value)
             {

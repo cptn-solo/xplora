@@ -6,12 +6,12 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PresenceMonitorSystem : IEcsRunSystem
+    public class PresenceMonitorSystem : BaseEcsSystem
     {
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<bool>>> factoryFilter = default;
         private readonly EcsCustomInject<WorldService> worldService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (!worldService.Value.WorldEntity.Unpack(out var world, out var worldEntity))
                 return;

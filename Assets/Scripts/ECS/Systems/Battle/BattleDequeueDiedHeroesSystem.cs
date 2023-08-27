@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDequeueDiedHeroesSystem : IEcsRunSystem
+    public class BattleDequeueDiedHeroesSystem : BaseEcsSystem
     {
         private readonly EcsWorldInject ecsWorld = default;
 
@@ -17,7 +17,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<HeroInstanceRef, DeadTag>,
             Exc<RetiredTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach(var entity in filter.Value)
             {

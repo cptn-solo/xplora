@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class DeployPoiSystem<T> : IEcsRunSystem
+    public class DeployPoiSystem<T> : BaseEcsSystem
         where T: struct
     {
         private readonly EcsWorldInject ecsWorld = default;
@@ -25,7 +25,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<WorldService> worldService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var factoryEntity in factoryRefFilter.Value)
             {

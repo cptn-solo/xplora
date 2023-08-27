@@ -6,7 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class VisitHPSourceSystem : IEcsRunSystem
+    public class VisitHPSourceSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<UpdateTag<HpTag>> updatePool = default;
         private readonly EcsPoolInject<IntValueComp<HpTag>> hpPool = default;
@@ -20,7 +20,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<AudioPlaybackService> audioService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in visitFilter.Value)
             {

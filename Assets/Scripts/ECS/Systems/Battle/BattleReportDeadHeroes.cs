@@ -3,11 +3,10 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleReportDeadHeroes : IEcsRunSystem
+    public class BattleReportDeadHeroes : BaseEcsSystem
     {
         private readonly EcsPoolInject<HeroInstanceOriginRef> pool = default;
                 
@@ -15,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<HeroInstanceOriginRef, ProcessedHeroTag, DeadTag>
             > filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

@@ -4,7 +4,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class VisitPowerSourceSystem : IEcsRunSystem
+    public class VisitPowerSourceSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<FieldCellComp> cellPool = default;
         private readonly EcsPoolInject<RefillComp> refillPool = default;
@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<StaminaComp, VisitedComp<PowerSourceComp>>> visitFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach(var entity in visitFilter.Value)
             {

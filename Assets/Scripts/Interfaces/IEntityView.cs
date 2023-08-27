@@ -28,6 +28,14 @@ namespace Assets.Scripts
         public void UpdateData();
         public void Destroy();
 
+        /// <summary>
+        /// View is responsible to visualize provided data somehow and remove the visuals
+        /// entity when complete
+        /// </summary>
+        /// <typeparam name="V">type of the visuals info</typeparam>
+        /// <param name="visualInfo">visuals to perform</param>
+        /// <param name="visualEntity">Should be removed upon complete</param>
+        public void Visualize<V>(V visualInfo, EcsPackedEntityWithWorld visualEntity) where V : struct, ISceneVisualsInfo;
     }
 
 }

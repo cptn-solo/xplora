@@ -10,7 +10,14 @@ namespace Assets.Scripts.UI.Common
         
         protected Material defaultIconMaterial;
         protected virtual Image IconImage { get { return null; } }
-                
+
+
+        /// <summary>
+        /// wrapped by the item container so container is positioned in the collection, while the card can be moved and then
+        /// just parked back
+        /// </summary>
+        public virtual Transform MovableCard { get { return null; } }
+
         protected void InitIconUtils()
         {
             defaultIconMaterial = IconImage != null ? IconImage.material : null;

@@ -5,7 +5,7 @@ using Assets.Scripts.UI;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class ProcessDialogActionSystem<T> : IEcsRunSystem
+    public class ProcessDialogActionSystem<T> : BaseEcsSystem
         where T : struct
     {
         protected readonly EcsPoolInject<ModalDialogAction<T>> actionPool = default;
@@ -19,7 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         protected readonly EcsFilterInject<
             Inc<ModalDialogTag, ModalDialogAction<T>>> actionFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in actionFilter.Value)
             {

@@ -6,7 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class VisitWatchTowerSystem : IEcsRunSystem
+    public class VisitWatchTowerSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<FieldCellComp> fieldCellPool = default;
         private readonly EcsPoolInject<
@@ -18,7 +18,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsCustomInject<WorldService> worldService = default;
         private readonly EcsCustomInject<AudioPlaybackService> audioService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in visitFilter.Value)
             {

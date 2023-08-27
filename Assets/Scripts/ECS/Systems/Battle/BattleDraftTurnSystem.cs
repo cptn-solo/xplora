@@ -7,7 +7,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDraftTurnSystem : IEcsRunSystem
+    public class BattleDraftTurnSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleTurnInfo> battleTurnPool = default;
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
@@ -27,10 +27,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 ref var turnInfo = ref battleTurnPool.Value.Get(entity);
                 turnInfo.Turn = ++battleInfo.LastTurnNumber;
-                turnInfo.AttackerEffects = new DamageEffect[0]; 
-                turnInfo.TargetEffects = new DamageEffect[0];
-                turnInfo.Damage = turnInfo.ExtraDamage = 0;
-                turnInfo.Lethal = turnInfo.Pierced = turnInfo.Critical = turnInfo.Dodged = false;
                 
                 turnInfo.State = TurnState.PrepareTurn;
 

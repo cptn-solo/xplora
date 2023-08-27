@@ -4,7 +4,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class WorldUnveilFieldCellsSystem : IEcsRunSystem
+    public class WorldUnveilFieldCellsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<VisibilityUpdateTag> visibilityUpdateTagPool = default;
         private readonly EcsPoolInject<VisibilityRef> visibilityRefPool = default;
@@ -13,7 +13,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsFilterInject<Inc<FieldCellComp, VisibilityRef, UnveilCellsTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {                

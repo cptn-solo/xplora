@@ -4,7 +4,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class WorldOutOfSightSystem : IEcsRunSystem
+    public class WorldOutOfSightSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<DestroyTag> destroyTagPool = default;
 
@@ -12,7 +12,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<VisibilityUpdateTag, FieldCellComp, EntityViewRef<bool>, WorldPoiTag>,
             Exc<VisibleTag, DestroyTag>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
                 destroyTagPool.Value.Add(entity);

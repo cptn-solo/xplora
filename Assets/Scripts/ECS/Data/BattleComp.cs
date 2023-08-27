@@ -63,6 +63,10 @@ namespace Assets.Scripts.ECS.Data
     public struct ReadyTurnTag { } // Ready to make turn
     public struct MakeTurnTag { } // To activate prepared turn execution
     public struct CompletedTurnTag { } // Activate finalize
+    public struct ScheduleVisualsTag { } // Visuals prepared for the complete turn
+    public struct AwaitingVisualsTag { } // Awaiting for animation to complete
+    public struct RunningVisualsTag { } // Running visual, active or not. 
+    public struct ActiveVisualsTag { } // Running and Active visual. Final state before being removed after UI will report completion
     public struct ProcessedTurnTag { } // Destroy
     public struct FinalizedTurnTag { } // Stop changing round's queue
     public struct ProcessedHeroTag { } // To tell if a hero card can be safely dropped for dead
@@ -73,12 +77,23 @@ namespace Assets.Scripts.ECS.Data
     public struct RangedTag { } // hero
     public struct SkippedTag { } // turn
     public struct AttackerEffectsTag { } // turn
+    public struct TargetEffectsTag { } // turn
+    public struct SubjectEffectsInfoComp {
+        public EcsPackedEntityWithWorld SubjectEntity { get; set; }
+        public DamageEffect[] Effects;
+        public int EffectsDamage;
+    } // turn
     public struct AttackTag { } // turn
     public struct DealDamageTag { } // turn
     public struct DealEffectsTag { } // turn
     public struct AimTargetTag { } // icon to highlight aim target (added to bundle icon host)
     public struct UsedFocusEntityTag { }
-    
+    public struct DecrementPendingTag { }
+    public struct FocusResetPendingTag { }
+    public struct RelEffectResetPendingTag { }
+    public struct ScheduleVisualBeforeAttackTag { }
+    public struct ScheduleVisualAfterAttackTag { }
+
     /// <summary>
     /// To be attached to a battle hero instance to track back damage and such for the raid
     /// </summary>
@@ -111,9 +126,12 @@ namespace Assets.Scripts.ECS.Data
         // who will be attacked
         public EcsPackedEntityWithWorld Focused { get; internal set; }
         // when to expire the focus
-        public int EndRound { get; internal set; }
+        public int TurnsActive { get; internal set; }
         // hero for whom the focused entity will be the target
         public EcsPackedEntityWithWorld Actor { get; internal set; }
+        
+        // reference to the underlying effect instance
+        public EcsPackedEntityWithWorld EffectEntity { get; set; }
     }
 
     public struct PackedEntityRef<T> : IPackedWithWorldRef where T : struct
@@ -121,6 +139,23 @@ namespace Assets.Scripts.ECS.Data
         public EcsPackedEntityWithWorld PackedEntity { get; internal set; }
         public readonly EcsPackedEntityWithWorld Packed => PackedEntity;
     }
+
+
+    public struct DodgedTag { }
+    public struct MissedTag { }   
+
+    public struct StunnedTag { }
+    public struct BleedingTag { }
+    public struct PiercedTag { }
+    public struct BurningTag { }
+    public struct FrozingTag { }
+
+    public struct SpecialDamageEffectTag { } // put in addition to following:
+    public struct DamageTag { }
+    public struct TurnDamageTag { }
+    public struct CriticalTag { }
+    public struct LethalTag { }
+
 }
 
 

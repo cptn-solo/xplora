@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattlePrepareRevengeTurnsSystem : IEcsRunSystem
+    public class BattlePrepareRevengeTurnsSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleInfo> battleInfoPool = default;
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (revengeFilter.Value.GetEntitiesCount() <= 0) 
                 return;
@@ -54,8 +54,8 @@ namespace Assets.Scripts.ECS.Systems
                     throw new Exception($"Stale revenger entity");
 
                 Debug.Log(
-                    $"Revenger: {world.ReadValue<NameValueComp<NameTag>, string>(revengerEntity)}" +
-                    $"For: {world.ReadValue<NameValueComp<NameTag>, string>(revengedEntity)}");
+                    $"Revenger (effect target): {world.ReadValue<NameValueComp<NameTag>, string>(revengerEntity)}" +
+                    $"For (effect source): {world.ReadValue<NameValueComp<NameTag>, string>(revengedEntity)}");
 
                 if (retiredTagPool.Value.Has(revengerEntity))
                     continue; // died hero can't revenge

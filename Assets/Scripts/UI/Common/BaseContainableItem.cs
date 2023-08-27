@@ -7,6 +7,10 @@ namespace Assets.Scripts.UI.Common
         where T : struct
     {
         protected RectTransform rectTransform;
+        /// <summary>
+        /// For move-in animation, used by SetInfoAnimated
+        /// </summary>
+        protected Transform sourceTransform;
 
         protected T? itemInfo = null;
         protected bool initialized;
@@ -47,6 +51,12 @@ namespace Assets.Scripts.UI.Common
                 return;
 
             ApplyInfoValues(info);
+        }
+
+        public void SetInfoAnimated(T info, Transform sourceTransform)
+        {
+            this.sourceTransform = sourceTransform;
+            SetInfo(info);
         }
     }
 }

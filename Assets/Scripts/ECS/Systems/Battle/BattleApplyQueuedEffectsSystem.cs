@@ -1,115 +1,85 @@
 ﻿using System;
-using System.Linq;
 using Assets.Scripts.Services;
 using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
-{
-    public class BattleApplyQueuedEffectsSystem : IEcsRunSystem
+{    
+    /// <summary>
+    /// Forwards effects attached to the subject (attacker/target) to the visualization pipeline 
+    /// (via SubjectEffectsInfoComp) and decrements used effects
+    /// </summary>
+    /// <typeparam name="T">AttackerRef or TargetRef</typeparam>
+    /// <typeparam name="E">AttackerEffectsTag or TargetEffectsTag</typeparam>
+    public class BattleApplyQueuedEffectsSystem<T, E> : BaseEcsSystem
+        where T : struct, IPackedWithWorldRef
+        where E : struct
     {
-        private readonly EcsPoolInject<IntValueComp<HpTag>> hpCompPool = default;
-        private readonly EcsPoolInject<IntValueComp<HealthTag>> healthCompPool = default;
-        private readonly EcsPoolInject<EffectsComp> effectsPool = default;
-        private readonly EcsPoolInject<AttackerRef> attackerRefPool = default;
+        private readonly EcsPoolInject<T> subjectRefPool = default;
         private readonly EcsPoolInject<BattleTurnInfo> turnInfoPool = default;
-        private readonly EcsPoolInject<RelationEffectsComp> relEffectsPool = default;
 
+        private readonly EcsPoolInject<E> subjectEffectsTagPool = default;
+        private readonly EcsPoolInject<SubjectEffectsInfoComp> appliedEffectsCompPool = default;
+        private readonly EcsPoolInject<ActiveEffectComp> activeEffectPool = default;
 
-        private readonly EcsPoolInject<BarsAndEffectsInfo> barsAndEffectsPool = default;
-        private readonly EcsPoolInject<AttackerEffectsTag> attackerEffectsTagPool = default;
-        private readonly EcsPoolInject<AttackTag> attackTagPool = default;
-
-        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, AttackerEffectsTag>> filter = default;
+        private readonly EcsFilterInject<Inc<BattleTurnInfo, MakeTurnTag, E>> filter = default;
+        private readonly EcsFilterInject<
+            Inc<ActiveEffectComp>, 
+            Exc<SpecialDamageEffectTag>> effectsFilter = default;
 
         private readonly EcsCustomInject<HeroLibraryService> libraryService = default;
-        private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {
                 ApplyQueuedEffects(entity);
-                attackerEffectsTagPool.Value.Del(entity);
+                subjectEffectsTagPool.Value.Del(entity);
             }
         }
         //private void ApplyQueuedEffects(BattleTurnInfo turnInfo, out Hero attacker, out BattleTurnInfo? effectsInfo)
         private void ApplyQueuedEffects(int turnEntity)
         {
             ref var turnInfo = ref turnInfoPool.Value.Get(turnEntity);
-            ref var attackerRef = ref attackerRefPool.Value.Get(turnEntity);
+            ref var subjectRef = ref subjectRefPool.Value.Get(turnEntity);
 
-            if (!attackerRef.HeroInstancePackedEntity.Unpack(out var world, out var attackerEntity))
-                throw new Exception("No Attacker");
+            if (!subjectRef.Packed.Unpack(out var world, out var subjectEntity))
+                throw new Exception("No Subject");
 
-            ref var effectsComp = ref effectsPool.Value.Get(attackerEntity);
-            var effs = effectsComp.ActiveEffects.Keys.ToArray(); // will be used to flash used effects ===>
-            
+            var buffer = ListPool<DamageEffect>.Get();
             var effectDamage = 0;
-            foreach (var eff in effs)
+            foreach (var effEntity in effectsFilter.Value)
             {
-                var resistanceFactor = GetResistanceFactor(attackerEntity, eff);
+                ref var effectComp = ref activeEffectPool.Value.Get(effEntity);
+                if (!effectComp.Subject.EqualsTo(subjectRef.Packed))
+                    continue;
+
+                var resistanceFactor = world.GetResistanceFactor(subjectEntity, effectComp.Effect);
                 effectDamage += (int)(resistanceFactor * libraryService.Value.DamageTypesLibrary
-                    .ConfigForDamageEffect(eff).ExtraDamage);
-                effectsComp.UseEffect(eff, out var used);
+                    .ConfigForDamageEffect(effectComp.Effect).ExtraDamage);
+
+                world.IncrementIntValue<DamageTag>(effectDamage, subjectEntity);
+                world.IncrementIntValue<TurnDamageTag>(effectDamage, subjectEntity);
+                buffer.Add(effectComp.Effect);
+
+                // former "use effect":
+                world.UseEffect(effEntity);
             }
 
-            ref var hpComp = ref hpCompPool.Value.Get(attackerEntity);
-            ref var healthComp = ref healthCompPool.Value.Get(attackerEntity);
-
-            hpComp.Value = Mathf.Max(0, hpComp.Value - effectDamage);
-
-            ref var barsAndEffectsComp = ref barsAndEffectsPool.Value.Get(attackerEntity);
-            barsAndEffectsComp.ActiveEffects = effectsComp.ActiveEffects;
-            barsAndEffectsComp.HealthCurrent = hpComp.Value;
-
-            // intermediate turn info, no round turn override to preserve pre-calculated target:
-            var effectsInfo = new BattleTurnInfo() {
-                Turn = turnInfo.Turn,
-                Attacker = turnInfo.Attacker,
-                Damage = effectDamage,
-                AttackerEffects = effs,
-                Lethal = hpComp.Value <= 0,
-                State = TurnState.TurnEffects,
-            };
-
-            battleService.Value.NotifyTurnEventListeners(effectsInfo);
-
-            if (hpComp.Value <= 0)
-                attackTagPool.Value.Del(turnEntity);
-        }
-
-        private float GetResistanceFactor(int entity, DamageEffect eff)
-        {
-            var retval = 1f; 
-            ref var relationEffects = ref relEffectsPool.Value.Get(entity);
-            foreach (var relEffect in relationEffects.CurrentEffects)
+            if (buffer.Count > 0)
             {
-                switch (relEffect.Value.Rule.EffectType)
-                {
-                    case RelationsEffectType.SpecAbs:
-                        {
-                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
-                            if (rule.SpecOption == eff.ResistanceSpec())
-                                retval -= rule.Value / 100f;
-                        }
-                        break;
-                    case RelationsEffectType.SpecPercent:
-                        {
-                            var rule = (EffectRuleSpecAbs)relEffect.Value.Rule;
-                            if (rule.SpecOption == eff.ResistanceSpec())
-                                retval *= rule.Value / 100f;
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                if (!appliedEffectsCompPool.Value.Has(subjectEntity))
+                    appliedEffectsCompPool.Value.Add(subjectEntity);
+                
+                ref var appliedEffects = ref appliedEffectsCompPool.Value.Get(subjectEntity);
+                appliedEffects.SubjectEntity = subjectRef.Packed;
+                appliedEffects.Effects = buffer.ToArray();
+                appliedEffects.EffectsDamage = effectDamage;
             }
 
-            return retval;
-        }
+            ListPool<DamageEffect>.Add(buffer);
+        }        
     }
 }

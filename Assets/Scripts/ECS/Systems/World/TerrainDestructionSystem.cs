@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class TerrainDestructionSystem : IEcsRunSystem
+    public class TerrainDestructionSystem : BaseEcsSystem
     {
         private EcsPoolInject<VisibilityRef> visibilityRefPool = default;
 
@@ -14,7 +14,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private EcsCustomInject<WorldService> worldService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var worldEntity in worldFilter.Value)
             {

@@ -6,7 +6,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class BattleDetectCompletedRoundSystem : IEcsRunSystem
+    public class BattleDetectCompletedRoundSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<BattleRoundInfo> roundInfoPool = default;
         private readonly EcsPoolInject<GarbageTag> garbageTagPool = default;
@@ -15,7 +15,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<BattleManagementService> battleService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

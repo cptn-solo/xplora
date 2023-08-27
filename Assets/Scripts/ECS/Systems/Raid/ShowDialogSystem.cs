@@ -5,7 +5,7 @@ using Assets.Scripts.UI;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class ShowDialogSystem<T> : IEcsRunSystem
+    public class ShowDialogSystem<T> : BaseEcsSystem
         where T : struct
     {
         private readonly EcsPoolInject<ModalDialogTag> modalPool = default;
@@ -23,7 +23,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<T>,
             Exc<ModalDialogTag>> eventInfoFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             if (modalFilter.Value.GetEntitiesCount() > 0)
                 return; // only 1 modal allowed at a time

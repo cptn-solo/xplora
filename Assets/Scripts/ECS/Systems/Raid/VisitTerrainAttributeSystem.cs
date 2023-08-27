@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class VisitTerrainAttributeSystem : IEcsRunSystem
+    public class VisitTerrainAttributeSystem : BaseEcsSystem
     {
         //private readonly EcsWorldInject ecsWorld;
 
@@ -24,7 +24,7 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsCustomInject<WorldService> worldService = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in visitFilter.Value)
             {

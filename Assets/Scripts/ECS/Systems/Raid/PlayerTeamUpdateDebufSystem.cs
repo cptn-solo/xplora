@@ -5,7 +5,7 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamUpdateDebufSystem<T> : IEcsRunSystem
+    public class PlayerTeamUpdateDebufSystem<T> : BaseEcsSystem
         where T : struct
     {
         private readonly EcsPoolInject<ItemsContainerRef<BagedIconInfo>> containerRefPool = default;
@@ -16,7 +16,7 @@ namespace Assets.Scripts.ECS.Systems
             Inc<PlayerTeamTag, ItemsContainerRef<BagedIconInfo>,
                 BuffComp<T>, DebuffTag<T>>> filter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in filter.Value)
             {

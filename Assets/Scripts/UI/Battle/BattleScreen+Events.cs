@@ -44,54 +44,12 @@ namespace Assets.Scripts.UI.Battle
 
         private void BattleManager_OnRoundEvent(BattleRoundInfo roundInfo, BattleInfo battleInfo)
         {
-            switch (roundInfo.State)
-            {
-                case RoundState.RoundPrepared:
-                case RoundState.RoundCompleted:
-                    break;
-                default:
-                    break;
-            }
-            
             UpdateActionButtons();
         }
 
         private void BattleManager_OnTurnEvent(BattleTurnInfo turnInfo, BattleRoundInfo roundInfo, BattleInfo battleInfo)
-        {
-
-            switch (turnInfo.State)
-            {
-                case TurnState.PrepareTurn:
-                    {
-                        ResetTurnProcessingQueue();
-                        //EnqueueOrAuto(turnInfo);
-                    }
-                    break;
-                case TurnState.TurnPrepared:
-                case TurnState.TurnInProgress:
-                case TurnState.TurnSkipped:
-                case TurnState.TurnEffects:
-                case TurnState.TurnCompleted:
-                case TurnState.NoTargets:
-                    {
-                        EnqueueOrAuto(turnInfo);
-                    }
-                    break;
-                case TurnState.TurnProcessed:
-                    break;
-                default:
-                    break;
-            }
-
+        {            
             UpdateActionButtons();
-
-        }
-
-        private void EnqueueOrAuto(BattleTurnInfo turnInfo)
-        {
-            if (battleManager.PlayMode == BattleMode.Autoplay ||
-                battleManager.PlayMode == BattleMode.StepMode)
-                EnqueueTurnProcessingStage(turnInfo);
         }
     }
 }

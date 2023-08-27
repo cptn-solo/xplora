@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Data;
+using System;
+using UnityEngine;
 
 namespace Assets.Scripts.UI.Common
 {
@@ -16,8 +18,18 @@ namespace Assets.Scripts.UI.Common
                 AddItem(info);
         }
 
+        public void SetItemInfoAnimatedMove(T info, Transform sourceTransform)
+        {
+            if (itemsIndex.TryGetValue(info.Id, out var item))
+                UpdateItemAnimated(info, item, sourceTransform);
+            else
+                AddItemAnimated(info, sourceTransform);
+        }
+
         public void Reset()
         {
+            StopAllCoroutines();
+
             foreach (var bar in itemsIndex)
                 GameObject.Destroy(bar.Value.gameObject);
 
@@ -27,8 +39,16 @@ namespace Assets.Scripts.UI.Common
 
         public void SetInfo(T[] value)
         {
-             if (items.Length != value.Length)
+            if (value == null)
             {
+                Reset();
+                return;
+            }
+
+            if (items.Length != value.Length)
+             {
+                
+                StopAllCoroutines();
                 foreach (var item in itemsIndex)
                     GameObject.Destroy(item.Value.gameObject);
 
@@ -61,6 +81,8 @@ namespace Assets.Scripts.UI.Common
         {
             if (itemsIndex.TryGetValue(info.Id, out var item))
             {
+                StopAllCoroutines();
+
                 GameObject.Destroy(item.gameObject);
                 var buff = ListPool<I>.Get();
                 buff.AddRange(items);
@@ -79,5 +101,6 @@ namespace Assets.Scripts.UI.Common
         {
             DetachFromEntityView();
         }
+
     }
 }

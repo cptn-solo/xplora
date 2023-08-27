@@ -4,13 +4,13 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class RetireEnemySystem : IEcsRunSystem
+    public class RetireEnemySystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<GarbageTag> garbagePool = default;
 
         private readonly EcsFilterInject<Inc<OpponentComp, RetireTag>> opponentToRetireFilter = default;
 
-        public void Run(IEcsSystems systems)
+        public override void RunIfActive(IEcsSystems systems)
         {
             foreach (var entity in opponentToRetireFilter.Value)
             {
