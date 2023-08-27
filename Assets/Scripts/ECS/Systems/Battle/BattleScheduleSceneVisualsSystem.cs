@@ -47,7 +47,7 @@ namespace Assets.Scripts.ECS.Systems
 
                 // attack:
                 var ranged = rangedTagPool.Value.Has(attackerEntity);
-                ref var targetTransformRef = ref transformRefPool.Value.Get(targetEntity);
+                ref var targetTransformRef = ref transformRefPool.Value.Get(targetEntity);  
                 var targetTransform = targetTransformRef.Transform;
 
                 // if attacker not ranged:

@@ -146,7 +146,8 @@ namespace Assets.Scripts.ECS.Systems
 
             focus.TurnsActive = effect.UsageLeft;
 
-            draftTagPool.Value.Add(actorEntity);
+            if (!draftTagPool.Value.Has(actorEntity))
+                draftTagPool.Value.Add(actorEntity);
         }
 
     }

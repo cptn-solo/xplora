@@ -16,6 +16,8 @@ namespace Assets.Scripts.ECS.Systems
        
         // trying to catch effects here so both source and target are obvious
         private readonly EcsPoolInject<RelationEffectsPendingComp> pendingPool = default;
+        private readonly EcsPoolInject<ScheduleVisualBeforeAttackTag> beforeAttackPool = default;
+        private readonly EcsPoolInject<ScheduleVisualAfterAttackTag> afterAttackPool = default;
 
         private readonly EcsFilterInject<
             Inc<
@@ -61,6 +63,17 @@ namespace Assets.Scripts.ECS.Systems
 
             var pendingVisualEntity = world.NewEntity();
             ref var pendingVisual = ref pendingPool.Value.Add(pendingVisualEntity);
+
+            switch (effect.Rule.EffectType)
+            {
+                case RelationsEffectType.AlgoRevenge:
+                case RelationsEffectType.AlgoTarget:
+                    afterAttackPool.Value.Add(pendingVisualEntity);
+                    break;
+                default:
+                    beforeAttackPool.Value.Add(pendingVisualEntity);
+                    break;
+            }
 
             var nameSource = world.ReadValue<NameValueComp<NameTag>, string>(sourceParty);
             var nameSubject = world.ReadValue<NameValueComp<NameTag>, string>(affectedParty);

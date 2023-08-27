@@ -91,6 +91,8 @@ namespace Assets.Scripts.ECS.Data
     public struct DecrementPendingTag { }
     public struct FocusResetPendingTag { }
     public struct RelEffectResetPendingTag { }
+    public struct ScheduleVisualBeforeAttackTag { }
+    public struct ScheduleVisualAfterAttackTag { }
 
     /// <summary>
     /// To be attached to a battle hero instance to track back damage and such for the raid

@@ -15,8 +15,9 @@ namespace Assets.Scripts.ECS.Systems
         {
             systems
                 .Add(new BattleScheduleSceneVisualsQueuedEffectsSystem()) // for queued effects only
+                .Add(new BattleScheduleRelationEffectVisualSystem<ScheduleVisualBeforeAttackTag>())
                 .Add(new BattleScheduleSceneVisualsSystem()) // prepare visualization queue for attack
-                .Add(new BattleScheduleRelationEffectVisualSystem())
+                .Add(new BattleScheduleRelationEffectVisualSystem<ScheduleVisualAfterAttackTag>())
                 .Add(new BattleScheduleRelationEffectFocusVisualSystem())
                 .Add(new BattleScheduleRelationEffectFocusResetVisualSystem<UsedFocusEntityTag>()) // schedules remove of used focus icons
                 .Add(new BattleScheduleRelationEffectFocusResetVisualSystem<FocusResetPendingTag>()) // schedules remove of reset focus icons

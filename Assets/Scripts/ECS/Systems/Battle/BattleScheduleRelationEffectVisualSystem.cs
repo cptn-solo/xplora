@@ -11,9 +11,10 @@ namespace Assets.Scripts.ECS.Systems
     /// Schedules turn visualization calls for relation effects, 
     /// all pending effects visualized
     /// </summary>
-    public class BattleScheduleRelationEffectVisualSystem : BaseEcsSystem
-    {
+    public class BattleScheduleRelationEffectVisualSystem<T> : BaseEcsSystem where T : struct
+        {
         private readonly EcsPoolInject<RelationEffectsPendingComp> pendingPool = default;
+        private readonly EcsPoolInject<T> pool = default;
         private readonly EcsPoolInject<TransformRef<VisualsTransformTag>> transformRefPool = default;
 
         private readonly EcsFilterInject<
@@ -21,7 +22,7 @@ namespace Assets.Scripts.ECS.Systems
             Exc<AwaitingVisualsTag>> filter = default;
 
         private readonly EcsFilterInject<
-            Inc<RelationEffectsPendingComp>> scheduleFilter = default;
+            Inc<RelationEffectsPendingComp, T>> scheduleFilter = default;
 
         public override void RunIfActive(IEcsSystems systems)
         {
@@ -59,7 +60,7 @@ namespace Assets.Scripts.ECS.Systems
                     castRelEffectVisualsInfo.SourceTransform = viewRef.Transform;
 
                     pendingPool.Value.Del(scheduleEntity);
-
+                    pool.Value.Del(scheduleEntity);
                 }
             }
         }
