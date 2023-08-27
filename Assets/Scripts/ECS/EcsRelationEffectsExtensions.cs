@@ -488,7 +488,7 @@ namespace Assets.Scripts.ECS
                         return GetDmgEffectKeyAdjustment(ref relEffect, out factor, out value);
                     break;
                 case RelationsEffectType.DmgEffectBonusKey:
-                    if (relEffect.Rule.Key.RelationsEffectType switch
+                    if (relEffect.Rule.EffectType switch
                     {
                         RelationsEffectType.DmgEffectBonusAbs => true,
                         RelationsEffectType.DmgEffectBonusPercent => true,
@@ -523,6 +523,7 @@ namespace Assets.Scripts.ECS
                     continue;
 
                 var retval = TryGetAdjustment(key, ref relEffect, out factor, out value, rangeValue);
+
                 if (retval == AdjustmentType.NA)
                     continue;
 

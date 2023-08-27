@@ -7,7 +7,7 @@ namespace Assets.Scripts.ECS.Systems
     public class BattleClearUsedRelationsEffectSystem : BaseEcsSystem
     {
         private readonly EcsFilterInject<
-            Inc<ProcessedHeroTag>
+            Inc<PositionComp>
             > filter = default;
 
         public override void RunIfActive(IEcsSystems systems)
