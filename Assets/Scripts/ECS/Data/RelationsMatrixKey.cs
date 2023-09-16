@@ -1,6 +1,5 @@
 ﻿using Leopotam.EcsLite;
 using System;
-using System.Collections.Generic;
 
 namespace Assets.Scripts.ECS.Data
 {
@@ -14,8 +13,8 @@ namespace Assets.Scripts.ECS.Data
         {
             // mirrors equal condition as this is a relative keys so only values matter, not their positions
             return obj is RelationsMatrixKey key &&
-                   EqualityComparer<EcsPackedEntityWithWorld>.Default.Equals(Item1, key.Item1) &&
-                   EqualityComparer<EcsPackedEntityWithWorld>.Default.Equals(Item2, key.Item2);
+                (Item1.EqualsTo(key.Item1) && Item2.EqualsTo(key.Item2) ||
+                Item1.EqualsTo(key.Item2) && Item2.EqualsTo(key.Item1));
         }
 
         public override int GetHashCode()

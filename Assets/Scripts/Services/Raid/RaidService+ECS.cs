@@ -51,6 +51,7 @@ namespace Assets.Scripts.Services
                 .Add(new PlayerTeamUpdateBarsInfoSystem())
                 .Add(new PlayerTeamUpdateBufSystem<IntRangeValueComp<DamageRangeTag>>()) //Buf icons update on team cards
                 .Add(new PlayerTeamUpdateHoverSystem())
+                .Add(new PlayerTeamUpdateScoreSystem())
                 .Add(new OutOfPowerSystem())
                 // with BattleAftermathComp:
                 .Add(new ProcessTeamMemberDeath())

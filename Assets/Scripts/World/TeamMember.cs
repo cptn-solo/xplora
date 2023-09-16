@@ -12,6 +12,7 @@ namespace Assets.Scripts.World
         [SerializeField] private Image heroIdleImage;
 
         [SerializeField] private TextMeshProUGUI heroNameText;
+        [SerializeField] private TextMeshProUGUI scoreText;
 
         private Color normalColor;
         private Image backgroundImage;

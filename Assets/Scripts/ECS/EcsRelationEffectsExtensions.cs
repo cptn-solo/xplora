@@ -186,6 +186,23 @@ namespace Assets.Scripts.ECS
 
         #region Utilities
 
+        public static int GetRelationScore(this EcsWorld origWorld, int entity1, int entity2)
+        {
+            ref var matrixComp = ref origWorld.GetRelationsMatrix();
+            var matrix = matrixComp.Matrix;
+            if (!matrix.TryGetValue(new RelationsMatrixKey(
+                origWorld.PackEntityWithWorld(entity1),
+                origWorld.PackEntityWithWorld(entity2)), out var p2pEntityPacked))
+                throw new Exception("No p2p entity for entities");
+            
+            if (!p2pEntityPacked.Unpack(out _, out var p2pEntity))
+                throw new Exception("Stale p2p entity");
+
+            var score = origWorld.ReadIntValue<RelationScoreTag>(p2pEntity);
+
+            return score;
+        }
+
         public static bool TrySpawnAdditionalEffect(this EcsWorld origWorld, int p2pEntity, HeroRelationEffectsLibrary effectRules)
         {
             var currentEffectsCount = origWorld.ReadIntValue<RelationEffectsCountTag>(p2pEntity);
