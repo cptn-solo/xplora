@@ -85,6 +85,8 @@ namespace Assets.Scripts.Services
                 .CleanupHere<VisitedComp<TerrainAttributeComp>>()
                 .Add(new ShowDialogSystem<WorldEventInfo>())
                 .Add(new ShowDialogSystem<RelationsEventInfo>())
+                .Add(new ShowToastSystem<RelationsEventToastInfo>())
+                .Add(new AutoDismissToastSystem<RelationsEventToastInfo>())
                 .Add(new ProcessWorldEventAction())
                 .Add(new ProcessRelationsEventAction())
                 .Add(new RefillSystem())

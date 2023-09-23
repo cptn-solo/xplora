@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Data;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.World
 {

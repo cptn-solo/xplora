@@ -10,6 +10,7 @@ using Zenject;
 
 namespace Assets.Scripts.UI
 {
+
     public class RelationsEventDialog : BaseEntityView<RelationsEventInfo>, IEventDialog<RelationsEventInfo>
     {
         private RaidService raidService;

@@ -15,6 +15,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsWorldInject ecsWorld = default;
 
         private readonly EcsPoolInject<RelationsEventInfo> eventInfoPool = default;
+        private readonly EcsPoolInject<RelationsEventToastInfo> eventToastInfoPool = default;
         private readonly EcsPoolInject<DraftTag<RelationEventItemInfo>> draftTagPool = default;
         private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
         private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
@@ -98,6 +99,26 @@ namespace Assets.Scripts.ECS.Systems
 
             // 5. producing view data
             ProduceViewData(config, ref info);
+
+            // 6. decide what to show: toast or dialog
+            DecideToastOrDialog(playerEntity, info);
+        }
+
+        private void DecideToastOrDialog(int entity, RelationsEventInfo info)
+        {
+            // for now testing toasts so no decision, just replace the marker info
+            if (!eventToastInfoPool.Value.Has(entity))
+                eventToastInfoPool.Value.Add(entity);
+
+            ref var toastInfo = ref eventToastInfoPool.Value.Get(entity);
+            toastInfo.SourceEntity = info.SourceEntity;
+            toastInfo.TargetEntity = info.TargetEntity;
+            toastInfo.SrcIconName = info.SrcIconName;
+            toastInfo.TgtIconName = info.TgtIconName;
+            toastInfo.ScoreInfo = info.ScoreInfo;
+            toastInfo.DismissTimer = Time.time + 5.0f;
+
+            eventInfoPool.Value.Del(entity);
         }
 
         private void UpateRelationScore(

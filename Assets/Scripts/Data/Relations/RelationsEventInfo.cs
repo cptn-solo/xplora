@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Data
 {
+
     public struct RelationsEventInfo
     {
         public EcsPackedEntityWithWorld SourceEntity { get; set; }

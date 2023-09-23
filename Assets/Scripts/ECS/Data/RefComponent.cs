@@ -27,7 +27,8 @@ namespace Assets.Scripts.ECS.Data
     public struct HoverTag { }
     public struct HoverTag<T> { }
     public struct CameraTag { }
-    public struct ModalDialogTag { }        
+    public struct ModalDialogTag { }
+    public struct ToastTag<T> { } // for now, only relation event toasts exists, but in future...
 
     public struct WorldPoiTag { } // to separate world (static) poi from raid poi
     public struct UsedTag { }
