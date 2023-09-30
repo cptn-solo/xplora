@@ -4,6 +4,7 @@ using Zenject;
 
 namespace Assets.Scripts
 {
+
     public class BattleSceneInstaller : MonoInstaller, IInitializable
     {
         [SerializeField] private GameObject bundleIconHostPrefab;

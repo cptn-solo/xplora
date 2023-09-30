@@ -4,7 +4,7 @@ using Assets.Scripts.Data;
 using UnityEngine.Events;
 using Assets.Scripts.World;
 using Assets.Scripts.World.HexMap;
-using System;
+using Assets.Scripts.UI.Common;
 
 namespace Assets.Scripts.Services
 {
@@ -15,6 +15,8 @@ namespace Assets.Scripts.Services
         private AudioPlaybackService audioService;
         private MenuNavigationService menuNavigationService;
         private WorldService worldService;
+
+        public HeroKindBar.Factory HeroKindBarFactory { get; internal set; }
 
         public RaidState State { get; internal set; }
 

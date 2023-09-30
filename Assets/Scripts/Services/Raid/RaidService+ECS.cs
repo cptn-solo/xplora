@@ -5,9 +5,9 @@ using Leopotam.EcsLite.ExtendedSystems;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
-using System;
 using UnityEngine;
 using Assets.Scripts.ECS;
+using Assets.Scripts.UI.Common;
 
 namespace Assets.Scripts.Services
 {

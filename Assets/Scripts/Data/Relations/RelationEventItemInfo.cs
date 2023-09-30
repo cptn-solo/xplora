@@ -1,5 +1,6 @@
 ﻿namespace Assets.Scripts.Data
 {
+
     public struct RelationEventItemInfo
     {
         public HeroKind Kind {  get; set; }

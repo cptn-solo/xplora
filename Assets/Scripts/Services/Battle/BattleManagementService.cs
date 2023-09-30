@@ -12,6 +12,8 @@ namespace Assets.Scripts.Services
         private PlayerPreferencesService prefs;
         private RaidService raidService;
 
+        public BundleIconHost.Factory BundleIconFactory { get; internal set; }
+
         public event UnityAction<BattleInfo> OnBattleEvent;
         public event UnityAction<BattleRoundInfo, BattleInfo> OnRoundEvent;
         public event UnityAction<BattleTurnInfo, BattleRoundInfo, BattleInfo> OnTurnEvent;

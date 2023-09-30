@@ -8,15 +8,12 @@ using Assets.Scripts.ECS.Data;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using Leopotam.EcsLite.ExtendedSystems;
 
 
 namespace Assets.Scripts.Services
 {
     public partial class BattleManagementService // ECS
     {
-        public BundleIconHost.Factory BundleIconFactory { get; internal set; }
-
         public EcsPackedEntityWithWorld BattleEntity { get; internal set; } //current battle
         public EcsPackedEntityWithWorld RoundEntity { get; internal set; } // current round
         public EcsPackedEntityWithWorld TurnEntity { get; internal set; } // current turn

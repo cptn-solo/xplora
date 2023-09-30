@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Common
 {
+
     public class HeroKindPanel : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI titleText;
