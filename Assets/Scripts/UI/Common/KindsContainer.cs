@@ -2,7 +2,7 @@
 
 namespace Assets.Scripts.UI.Common
 {
-    public class KindsContainer : BaseItemsContainer<HeroKindBarInfo, HeroKindBar>
+    public class KindsContainer : BaseItemsContainer<HeroKindBarInfo, HeroKindBar, HeroKindBar.Factory>
     {
     }
 }

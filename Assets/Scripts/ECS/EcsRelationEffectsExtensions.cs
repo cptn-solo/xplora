@@ -5,8 +5,6 @@ using Assets.Scripts.Data;
 using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static Zenject.SignalSubscription;
 
 namespace Assets.Scripts.ECS
 {

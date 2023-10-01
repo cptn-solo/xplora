@@ -78,6 +78,7 @@ namespace Assets.Scripts.Services
                 .Add(new VisitWatchTowerSystem())
                 .Add(new VisitTerrainAttributeSystem())
                 .Add(new RelationsEventSystem())
+                .Add(new PlayerTeamUpdateKindsSystem())
                 .CleanupHere<VisitedComp<OpponentComp>>()
                 .CleanupHere<VisitedComp<HPSourceComp>>()
                 .CleanupHere<VisitedComp<PowerSourceComp>>()

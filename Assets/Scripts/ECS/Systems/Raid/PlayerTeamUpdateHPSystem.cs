@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.ECS.Systems
 {
+
     public class PlayerTeamUpdateHPSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<ItemsContainerRef<BarInfo>> containerRefPool = default;

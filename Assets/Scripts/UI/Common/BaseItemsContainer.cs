@@ -15,6 +15,7 @@ namespace Assets.Scripts.UI.Common
 
         protected RectTransform rectTransform;
 
+
         protected void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
@@ -81,18 +82,30 @@ namespace Assets.Scripts.UI.Common
 
             ListPool<I>.Add(buff);
         }
-
-        protected I SpawnItem(bool anchorOnSpawn = true)
+        
+        protected virtual I Spawn()
         {
             var item = Instantiate(prefab).GetComponent<I>();
+            return item;
+        }
+        
+        protected I SpawnItem(bool anchorOnSpawn = true)
+        {
+            var item = Spawn();
+            
+            InitializeItem(item);
+
+            return item;
+        }
+
+        protected virtual void InitializeItem(I item)
+        {
             var rectTransform = item.GetComponent<RectTransform>();
-            var canvas = GetComponentInParent<Canvas>();            
+            var canvas = GetComponentInParent<Canvas>();
             rectTransform.localScale = canvas.transform.localScale * transform.parent.localScale.x;
-            rectTransform.SetParent(this.rectTransform);            
+            rectTransform.SetParent(this.rectTransform);
             rectTransform.localRotation = Quaternion.identity;
             rectTransform.anchoredPosition3D = Vector3.zero;
-            
-            return item;
         }
 
         protected void OnDestroy() =>

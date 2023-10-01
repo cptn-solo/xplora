@@ -19,6 +19,7 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<DraftTag<RelationEventItemInfo>> draftTagPool = default;
         private readonly EcsPoolInject<IntValueComp<RelationScoreTag>> scorePool = default;
         private readonly EcsPoolInject<RelationsMatrixComp> matrixPool = default;
+        private readonly EcsPoolInject<UpdateTag<HeroKindBarInfo>> kindUpdatePool = default;
 
         private readonly EcsFilterInject<
             Inc<RelationsMatrixComp>> matrixFilter = default;
@@ -102,6 +103,18 @@ namespace Assets.Scripts.ECS.Systems
 
             // 6. decide what to show: toast or dialog
             DecideToastOrDialog(playerEntity, info);
+
+            // 7. flag hero for team member card update (kinds panel)
+            FlagHeroTeamMemberKindUpdate(srcHeroEntity);
+            FlagHeroTeamMemberKindUpdate(tgtHeroEntity);
+
+        }
+
+        private void FlagHeroTeamMemberKindUpdate(int entity)
+        {
+            if (!kindUpdatePool.Value.Has(entity)) {
+                kindUpdatePool.Value.Add(entity);
+            }
         }
 
         private void DecideToastOrDialog(int entity, RelationsEventInfo info)
