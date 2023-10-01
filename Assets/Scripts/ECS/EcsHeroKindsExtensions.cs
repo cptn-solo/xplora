@@ -10,19 +10,20 @@ namespace Assets.Scripts.ECS
         public static HeroKindBarInfo GetHeroKindBarInfo(this EcsWorld world, int entity, HeroKind kind, int diffValue = 0)
         {
             var kindValue = GetHeroKindValue(world, entity, kind);
+            var maxValue = 30;
             HeroKindBarInfo kindInfo = new()
             {
                 BarInfo = new BarInfo
                 {
                     Title = $"{kindValue}",
-                    Value = kindValue,
+                    Value = (float)kindValue / maxValue,
                     Delta = diffValue,
                     Color = Color.red,
                     DeltaColor = diffValue > 0 ? Color.cyan : Color.yellow,
                 },
                 CurrentValue = kindValue,
                 Kind = kind,
-                ItemTitle = kind.Name(),                
+                ItemTitle = kind.ShortName(),                
             };
             return kindInfo;
         }
