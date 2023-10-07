@@ -6,6 +6,7 @@ using Assets.Scripts.ECS;
 
 namespace Assets.Scripts.World
 {
+
     public partial class TeamMember : BaseEntityView<TeamMemberInfo>
     {
         [SerializeField] private Image heroIconImage;

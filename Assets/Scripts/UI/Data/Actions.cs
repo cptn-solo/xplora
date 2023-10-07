@@ -15,6 +15,8 @@
         SaveTeamForBattle = 500,
         InstantBattle = 550,
         ToggleLogPanel = 600,
+        ExpandKinds = 700,
+        CollapseKinds = 800,
     }
 
 }

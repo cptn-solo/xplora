@@ -8,6 +8,9 @@ namespace Assets.Scripts.Services
         public void RegisterTransformRef<T>(ITransform<T> transformRefOrigin);
         public void UnregisterTransformRef<T>(ITransform transformRefOrigin);
 
+        public void RegisterEntityButtonRef<T>(IEntityButton<T> refOrigin);
+        public void UnregisterEntityButtonRef<T>(IEntityButton<T> refOrigin);
+
         public void RegisterEntityViewFactory<T>(EntityViewFactory<T> factory)
             where T: struct;
 

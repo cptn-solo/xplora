@@ -20,6 +20,13 @@ namespace Assets.Scripts
                                    // (important for disabled views)
     }
 
+    public interface IEntityButton<T> : ITransform<T>
+    {
+        public EcsPackedEntityWithWorld? PackedEntity { get; set; }
+        public IEcsService EcsService { get; set; }
+        public void Toggle(bool toggle);
+    }
+
     public interface IEntityView<T> : IEntityView
     {
         public EcsPackedEntityWithWorld? PackedEntity { get; set; }

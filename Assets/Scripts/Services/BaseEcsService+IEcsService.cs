@@ -70,6 +70,42 @@ namespace Assets.Scripts.Services
 
             return true;
         }
+        public void RegisterEntityButtonRef<T>(IEntityButton<T> refOrigin)
+        {
+            if (ecsWorld == null)
+                return;
+
+            var entity = ecsWorld.NewEntity();
+
+            ref var buttonRef = ref EcsWorld.GetPool<EntityButtonRef<T>>().Add(entity);
+            buttonRef.EntityButton = refOrigin;
+            buttonRef.Transform = refOrigin.Transform;
+            refOrigin.PackedEntity = EcsWorld.PackEntityWithWorld(entity);
+        }
+
+        public void UnregisterEntityButtonRef<T>(IEntityButton<T> refOrigin)
+        {
+            if (ecsWorld == null)
+                return;
+
+            var filter = ecsWorld.Filter<EntityButtonRef<T>>().End();
+            var pool = ecsWorld.GetPool<EntityButtonRef<T>>();
+
+            var garbage = ecsWorld.GetPool<GarbageTag>();
+
+            foreach (var entity in filter)
+            {
+                ref var buttonRef = ref pool.Get(entity);
+                buttonRef.EntityButton = null;
+                buttonRef.Transform = null;
+                garbage.Add(entity); // so some other system can
+                                     // remove other dependencies
+                                     // (if any)
+
+            }
+        }
+
+
 
         public void RegisterTransformRef<T>(ITransform<T> transformRefOrigin)
         {

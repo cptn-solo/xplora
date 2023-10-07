@@ -49,10 +49,14 @@ namespace Assets.Scripts.ECS.Data
 
     public struct StrengthTag { }
 
+    public struct EntityButtonClickedTag { }
+    public struct ExpandKindsTag { }
+    public struct CollapseKindsTag { }
+
     #endregion
 
     #region Actions
-    
+
     public struct ModalDialogAction<T> { 
         public int ActionIdx { get; set; }
         public object Payload { get; set; }
@@ -80,6 +84,16 @@ namespace Assets.Scripts.ECS.Data
     public struct EntityViewRef<T>
     {
         public IEntityView<T> EntityView;
+    }
+
+    public struct EntityButtonRef<T>
+    {
+        public IEntityButton<T> EntityButton;
+        /// <summary>
+        /// Only for debug. can be obtained directly from the EntityButton itself
+        /// </summary>
+        public Transform Transform { get; set; }
+
     }
 
     public struct ItemsContainerRef<T>
