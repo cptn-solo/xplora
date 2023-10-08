@@ -1,4 +1,5 @@
-﻿using Leopotam.EcsLite;
+﻿using Assets.Scripts.ECS.Data;
+using Leopotam.EcsLite;
 
 namespace Assets.Scripts.ECS
 {
@@ -22,5 +23,20 @@ namespace Assets.Scripts.ECS
             turnVisuals.QueuedVisuals.Add(world.PackEntity(uiEvent));
             return ref eventInfo;
         }
+
+        public static void ToggleEntityButtonByType<B>(
+            this EcsWorld world, 
+            bool toggle) 
+            where B : struct
+        {
+            var filter = world.Filter<EntityButtonRef<B>>().End();
+            var pool = world.GetPool<EntityButtonRef<B>>();
+            foreach (var entity in filter)
+            {
+                ref var buttonRef = ref pool.Get(entity);
+                buttonRef.EntityButton.Toggle(toggle);
+            }
+        }
+
     }
 }

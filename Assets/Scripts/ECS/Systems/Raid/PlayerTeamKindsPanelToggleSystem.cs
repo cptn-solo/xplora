@@ -32,16 +32,12 @@ namespace Assets.Scripts.ECS.Systems
         {
             var world = systems.GetWorld();
 
-            var expanded = panelExpandedToggleFilter.Value.GetEntitiesCount() > 0;
-            ToggleByType<CollapseKindsTag>(world, expanded);
-            ToggleByType<ExpandKindsTag>(world, !expanded);
-
             foreach (var entity in collapseClickedfilter.Value)
             {
                 clickedPool.Value.Del(entity);
 
-                ToggleByType<CollapseKindsTag>(world, false);
-                ToggleByType<ExpandKindsTag>(world, true);
+                world.ToggleEntityButtonByType<CollapseKindsTag>(false);
+                world.ToggleEntityButtonByType<ExpandKindsTag>(true);
 
                 if (panelResetFilter.Value.GetEntitiesCount() == 0)
                     panelResetPool.Value.Add(world.NewEntity());
@@ -53,8 +49,9 @@ namespace Assets.Scripts.ECS.Systems
             foreach (var entity in expandClickedfilter.Value)
             {
                 clickedPool.Value.Del(entity);
-                ToggleByType<CollapseKindsTag>(world, true);
-                ToggleByType<ExpandKindsTag>(world, false);
+
+                world.ToggleEntityButtonByType<CollapseKindsTag>(true);
+                world.ToggleEntityButtonByType<ExpandKindsTag>(false);
 
 
                 if (panelUpdateFilter.Value.GetEntitiesCount() == 0)
@@ -65,15 +62,5 @@ namespace Assets.Scripts.ECS.Systems
             }
         }
 
-        private void ToggleByType<B> (EcsWorld world, bool toggle) where B : struct
-        {
-            var filter = world.Filter<EntityButtonRef<B>>().End();
-            var pool = world.GetPool<EntityButtonRef<B>>();
-            foreach (var entity in filter)
-            {
-                ref var buttonRef = ref pool.Get(entity);
-                buttonRef.EntityButton.Toggle(toggle);
-            }
-        }
     }
 }

@@ -12,10 +12,15 @@ namespace Assets.Scripts.ECS.Systems
 
         private readonly EcsPoolInject<EntityViewRef<TeamMemberInfo>> pool = default;
         private readonly EcsPoolInject<TransformRef<Team>> containerPool = default;
-        private readonly EcsPoolInject<UpdateTag<HpTag>> updateHPTagPool = default;
+        private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
 
         private readonly EcsPoolInject<EntityViewFactoryRef<TeamMemberInfo>> factoryPool = default;
         private readonly EcsFilterInject<Inc<EntityViewFactoryRef<TeamMemberInfo>>> factoryFilter = default;
+
+
+        private readonly EcsPoolInject<ToggleTag<ExpandKindsTag>> panelTogglePool = default;
+        private readonly EcsFilterInject<
+            Inc<ToggleTag<ExpandKindsTag>>> panelExpandedToggleFilter = default;
 
         private readonly EcsFilterInject<
             Inc<PlayerTeamTag, HeroConfigRef>,
@@ -51,7 +56,10 @@ namespace Assets.Scripts.ECS.Systems
 
                         entityViewRef.EntityView = card;
 
-                        updateHPTagPool.Value.Add(entity);
+                        foreach (var toggle in panelExpandedToggleFilter.Value)
+                            panelTogglePool.Value.Del(toggle);
+                        
+                        updateTagPool.Value.Add(entity);
                     }
                 }
             }

@@ -10,7 +10,10 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<UpdateTag<HpTag>> updateHPTagPool = default;
         private readonly EcsPoolInject<UpdateTag<BarsInfoComp>> updateBarsInfoPool = default;
 
-        private readonly EcsFilterInject<Inc<PlayerTeamTag, UpdateTag>> filter = default; 
+        private readonly EcsFilterInject<
+            Inc<PlayerTeamTag, UpdateTag>> filter = default;
+        private readonly EcsFilterInject<
+            Inc<ToggleTag<ExpandKindsTag>>> panelExpandedToggleFilter = default;
 
         public override void RunIfActive(IEcsSystems systems)
         {
@@ -20,7 +23,12 @@ namespace Assets.Scripts.ECS.Systems
 
                 updateHPTagPool.Value.Add(entity);
                 updateBarsInfoPool.Value.Add(entity);
+
+                var world = systems.GetWorld();
+                var expanded = panelExpandedToggleFilter.Value.GetEntitiesCount() > 0;
+                world.ToggleEntityButtonByType<CollapseKindsTag>(expanded);
+                world.ToggleEntityButtonByType<ExpandKindsTag>(!expanded);
             }
-        }
+}
     }
 }
