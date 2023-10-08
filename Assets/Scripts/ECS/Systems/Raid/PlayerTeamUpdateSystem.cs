@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Assets.Scripts.Data;
-using Assets.Scripts.ECS.Data;
+﻿using Assets.Scripts.ECS.Data;
 using Leopotam.EcsLite;
 using Leopotam.EcsLite.Di;
-using TMPro;
 
 namespace Assets.Scripts.ECS.Systems
 {
@@ -13,8 +9,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<UpdateTag> updateTagPool = default;
         private readonly EcsPoolInject<UpdateTag<HpTag>> updateHPTagPool = default;
         private readonly EcsPoolInject<UpdateTag<BarsInfoComp>> updateBarsInfoPool = default;
-        private readonly EcsPoolInject<ResetTag<CollapseKindsTag>> resetKindsPanelPool = default;
-
 
         private readonly EcsFilterInject<Inc<PlayerTeamTag, UpdateTag>> filter = default; 
 
@@ -26,9 +20,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 updateHPTagPool.Value.Add(entity);
                 updateBarsInfoPool.Value.Add(entity);
-
-                // kinds panel is initially collapsed
-                resetKindsPanelPool.Value.Add(systems.GetWorld().NewEntity());
             }
         }
     }

@@ -1,13 +1,11 @@
 ﻿using Leopotam.EcsLite;
 using Assets.Scripts.ECS.Systems;
 using Leopotam.EcsLite.Di;
-using Leopotam.EcsLite.ExtendedSystems;
 using Assets.Scripts.ECS.Data;
 using Assets.Scripts.UI.Data;
 using Assets.Scripts.Data;
 using UnityEngine;
 using Assets.Scripts.ECS;
-using Assets.Scripts.UI.Common;
 
 namespace Assets.Scripts.Services
 {
@@ -29,6 +27,7 @@ namespace Assets.Scripts.Services
 
             ecsInitSystems
                 .Add(new RaidInitSystem())
+                .Add(new RaidUIInitSystem())                
                 .Add(new OpponentInitSystem())
                 .Add(new PlayerInitSystem())
                 .Add(new PlayerTeamMemberInitSystem())
@@ -44,7 +43,7 @@ namespace Assets.Scripts.Services
             ecsRunSystems
                 .Add(new PlayerTeamCardsSpawnSystem())
                 .Add(new PlayerTeamMemberRetireSystem())
-                .Add(new PlayerTeamUpdateSystem()) // bufs
+                .Add(new PlayerTeamUpdateSystem()) // bufs #1 (not sure why we need it here, assume for init only)
                 .Add(new OpponentPositionSystem())
                 .Add(new PlayerPositionSystem())
                 .Add(new PlayerTeamUpdateHPSystem()) //HP update on team cards
@@ -92,6 +91,7 @@ namespace Assets.Scripts.Services
                 .Add(new ShowToastSystem<RelationsEventToastInfo>())
                 .Add(new AutoDismissToastSystem<RelationsEventToastInfo>())
                 .Add(new ProcessWorldEventAction())
+                .Add(new PlayerTeamUpdateSystem()) // bufs #2
                 .Add(new ProcessRelationsEventAction())
                 .Add(new RefillSystem())
                 .CleanupHere<RefillComp>()
