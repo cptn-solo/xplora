@@ -16,6 +16,8 @@ namespace Assets.Scripts.ECS.Data
     public struct ProduceTag { }
     public struct UpdateTag { }
     public struct UpdateTag<T> { }
+    public struct ResetTag<T> { }
+    public struct ToggleTag<T> { }
     public struct RetireTag { }
     public struct DestroyTag { }
     public struct GarbageTag { }

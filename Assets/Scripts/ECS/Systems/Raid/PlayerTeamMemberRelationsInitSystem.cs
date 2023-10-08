@@ -17,7 +17,6 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<KindGroupSpiritTag> spiritGroupPool = default;
         private readonly EcsPoolInject<KindGroupBodyTag> bodyGroupPool = default;
         private readonly EcsPoolInject<KindGroupNeutralTag> neutralGroupPool = default;
-        private readonly EcsPoolInject<UpdateTag<HeroKindBarInfo>> kindUpdatePool = default;
 
         private readonly EcsPoolInject<IntValueComp<HeroKindRSDTag>> rsdPool = default;
         
@@ -41,9 +40,6 @@ namespace Assets.Scripts.ECS.Systems
 
                 InitHeroKindGroup(entity, heroConfig, relationsConfig);
                 DeriveMainKindGroup(entity, relationsConfig);
-
-                if (!kindUpdatePool.Value.Has(entity))
-                    kindUpdatePool.Value.Add(entity);
             }
         }        
 

@@ -22,6 +22,9 @@ namespace Assets.Scripts.ECS.Systems
         private readonly EcsPoolInject<UpdateTag<HeroKindBarInfo>> kindUpdatePool = default;
 
         private readonly EcsFilterInject<
+            Inc<ToggleTag<ExpandKindsTag>>> kindsPanelExpandedFilter = default;
+
+        private readonly EcsFilterInject<
             Inc<RelationsMatrixComp>> matrixFilter = default;
 
         private readonly EcsFilterInject<
@@ -112,9 +115,12 @@ namespace Assets.Scripts.ECS.Systems
 
         private void FlagHeroTeamMemberKindUpdate(int entity)
         {
-            if (!kindUpdatePool.Value.Has(entity)) {
+            // if kindsPanelExpandedFilter has a trigger entity in it then instantly update kind panels to show current values
+            if (kindsPanelExpandedFilter.Value.GetEntitiesCount() == 0)
+                return;
+
+            if (!kindUpdatePool.Value.Has(entity))
                 kindUpdatePool.Value.Add(entity);
-            }
         }
 
         private void DecideToastOrDialog(int entity, RelationsEventInfo info)

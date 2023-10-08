@@ -5,7 +5,8 @@ using Leopotam.EcsLite.Di;
 
 namespace Assets.Scripts.ECS.Systems
 {
-    public class PlayerTeamUpdateKindsSystem : BaseEcsSystem
+
+    public class PlayerTeamUpdateKindsPanelSystem : BaseEcsSystem
     {
         private readonly EcsPoolInject<ItemsContainerRef<HeroKindBarInfo>> containerRefPool = default;
         private readonly EcsPoolInject<UpdateTag<HeroKindBarInfo>> updateTagPool = default;
